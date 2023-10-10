@@ -1,8 +1,16 @@
 main();
 
 function main() {
-    const parsedInputJson = parseContractInput()
-    return sendOutput(parsedInputJson)
+    const { applicationInput } = parseContractInput();
+    const { contractFn, amount, recipients } = applicationInput;
+
+    const methods = {
+        'splitEvenly': {
+            transactions: recipients.map(recipient => ({ recipient, amount: Math.floor(amount / recipients.length) }))
+        }
+    }
+
+    return sendOutput(methods[contractFn])
 }
 
 
