@@ -5,7 +5,7 @@
   "main": "example-contract.js",
   "scripts": {
     "build": "./lib/scripts/sys_check.sh && npx webpack --config ./lib/webpack.config.cjs && javy compile ./dist/bundle.js -o ./dist/build.wasm",
-    "test": "~/code/versatus/versatus/target/debug/versa-wasm execute --wasm ./dist/build.wasm --json ./sample-contract-input.json | jq"
+    "test": "./lib/versa-wasm execute --wasm ./dist/build.wasm --json ./sample-contract-input.json | jq"
   },
   "bin": {
     "vsjs": "./cli.cjs"
