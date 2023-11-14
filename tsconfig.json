@@ -1,3 +1,14 @@
 {
-  "include": ["**/*"]
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./",
+    "module": "commonjs",
+    "target": "es5",
+  },
+  "include": [
+    "example-contract.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

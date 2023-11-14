@@ -5,6 +5,7 @@
   "main": "example-contract.js",
   "scripts": {
     "build": "npx webpack --config webpack.config.cjs && javy compile dist/bundle.js -o dist/build.wasm",
+    "build-ts": "tsc > npx webpack --config webpack.config.cjs && javy compile dist/bundle.js -o dist/build.wasm",
     "test": "~/code/versatus/versatus/target/debug/versa-wasm execute --wasm ./dist/build.wasm --json ~/code/versatus/versatus/crates/wasm_runtime/test_data/sample-contract-input.json | jq"
   },
   "author": "",
@@ -22,6 +23,7 @@
     "acorn": "^8.11.2",
     "escodegen": "^2.1.0",
     "estraverse": "^5.3.0",
-    "javy": "^0.1.2"
+    "javy": "^0.1.2",
+    "prettier": "^3.1.0"
   }
 }
