@@ -4,8 +4,8 @@
   "type": "module",
   "main": "example-contract.js",
   "scripts": {
-    "build": "npx webpack --config webpack.config.cjs",
-    "test": "~/code/versatus/versatus/target/debug/versa-wasm execute --wasm ./index.wasm --json ~/code/versatus/versatus/crates/wasm_runtime/test_data/sample-contract-input.json | jq"
+    "build": "npx webpack --config webpack.config.cjs && javy compile dist/bundle.js -o dist/build.wasm",
+    "test": "~/code/versatus/versatus/target/debug/versa-wasm execute --wasm ./dist/build.wasm --json ~/code/versatus/versatus/crates/wasm_runtime/test_data/sample-contract-input.json | jq"
   },
   "author": "",
   "license": "ISC",
