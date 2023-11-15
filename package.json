@@ -1,11 +1,11 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.0.2",
+  "version": "0.0.6",
   "type": "module",
   "main": "example-contract.js",
   "scripts": {
-    "build": "./lib/scripts/sys_check.sh && npx webpack --config ./lib/webpack.config.cjs && javy compile ./dist/bundle.js -o ./dist/build.wasm",
-    "test": "./lib/versa-wasm execute --wasm ./dist/build.wasm --json ./sample-contract-input.json | jq"
+    "build": "./node_modules/@versatus/versatus-javascript/lib/scripts/sys_check.sh && npx webpack --config ./node_modules/@versatus/versatus-javascript/lib/webpack.config.cjs && javy compile ./dist/bundle.js -o ./dist/build.wasm",
+    "test": "./node_modules/@versatus/versatus-javascript/lib/versa-wasm execute --wasm ./dist/build.wasm --json ./sample-contract-input.json | jq"
   },
   "bin": {
     "vsjs": "./cli.cjs"

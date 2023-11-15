@@ -51,16 +51,24 @@ function injectFileInWrapper(filePath) {
   return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8')
 }
 
-function runBuildProcess() {
-  exec('npm run build', (error, stdout, stderr) => {
+function runBuildProcess(filePath) {
+  // The actual build command you want to run, for example:
+  const webpackCommand = `npx webpack --config ${path.resolve(__dirname, 'node_modules', '@versatus', 'versatus-javascript', 'lib', 'webpack.config.cjs')}`;
+  const javyCommand = `npx javy --src ${path.resolve(__dirname, 'dist', 'bundle.js')} --output ${path.resolve(__dirname, 'dist', 'build.wasm')}`;
+
+  // You might need to adjust the paths and commands according to your project's structure
+  const fullBuildCommand = `${webpackCommand} && ${javyCommand}`;
+
+  // Execute the build command
+  exec(fullBuildCommand, (error, stdout, stderr) => {
     if (error) {
-      console.error(`exec error: ${error}`)
-      return
+      console.error(`exec error: ${error}`);
+      return;
     }
     if (stderr) {
-      console.error(`stderr: ${stderr}`)
-      return
+      console.error(`stderr: ${stderr}`);
+      return;
     }
-    console.log(`stdout: ${stdout}`)
-  })
+    console.log(`stdout: ${stdout}`);
+  });
 }
