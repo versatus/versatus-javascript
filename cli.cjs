@@ -46,7 +46,7 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             if (argv.inputJson) {
-                console.log("starting test...");
+                console.log("\033[0;33mstarting test...\033[0m");
                 const filePath = path.resolve(process.cwd(), argv.inputJson)
                 runTestProcess(filePath);
             } else {
