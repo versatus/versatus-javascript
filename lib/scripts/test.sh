@@ -6,6 +6,7 @@ set -e
 echo "testing wasm build..."
 
 # Define the path to your WebAssembly module
+BUILD_WASM_PATH="./dist/build.wasm"
 WASM_PATH="./dist/versa.wasm"
 WASM_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/versa-wasm"
 
@@ -15,8 +16,6 @@ if [ -z "$1" ]; then
     exit 1
 fi
 INPUT_JSON_PATH="$1"
-
-echo "input json path: $INPUT_JSON_PATH"
 
 echo "checking if wasm file exists..."
 if [ ! -f "$WASM_PATH" ]; then
@@ -30,7 +29,7 @@ fi
 chmod +x "$WASM_PATH"
 
 # Run the test using versa-wasm and pipe the output through jq
-./dist/versa.wasm execute --wasm "$WASM_PATH" --json "$INPUT_JSON_PATH" | jq
+./dist/versa.wasm execute --wasm "$BUILD_WASM_PATH" --json "$INPUT_JSON_PATH" | jq
 
 # Echo a success message
 echo "Tests completed successfully."

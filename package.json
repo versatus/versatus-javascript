@@ -1,6 +1,6 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.0.39",
+  "version": "0.0.54",
   "type": "module",
   "main": "example-contract.js",
   "scripts": {

@@ -47,7 +47,8 @@ const argv = yargs(process.argv.slice(2))
         (argv) => {
             if (argv.inputJson) {
                 console.log("starting test command");
-                runTestProcess(argv.inputJson);
+                const filePath = path.resolve(process.cwd(), argv.inputJson)
+                runTestProcess(filePath);
             } else {
                 console.error('You must specify an inputJson file to test with.')
                 process.exit(1)
@@ -101,6 +102,9 @@ function runBuildProcess(filePath) {
 function runTestProcess(inputJsonPath) {
     // Define the path to the test.sh script
     const testScriptPath = path.resolve(__dirname, "lib", 'scripts', 'test.sh');
+
+    console.log('Running test script:', testScriptPath)
+    console.log('Using input JSON file:', inputJsonPath)
 
     // Execute the test.sh script with the input JSON file path as an argument
     exec(`${testScriptPath} "${inputJsonPath}"`, (error, stdout, stderr) => {
