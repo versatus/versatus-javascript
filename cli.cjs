@@ -18,7 +18,7 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             if (argv.file) {
-                console.log("starting build command")
+                console.log("starting build...")
                 const filePath = path.resolve(process.cwd(), argv.file)
                 injectFileInWrapper(filePath)
                     .then(() => {
@@ -46,7 +46,7 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             if (argv.inputJson) {
-                console.log("starting test command");
+                console.log("starting test...");
                 const filePath = path.resolve(process.cwd(), argv.inputJson)
                 runTestProcess(filePath);
             } else {
@@ -65,11 +65,10 @@ function injectFileInWrapper(filePath) {
     )
     let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8')
 
-    // Here we assume you have an import line to replace, adjust the regex as needed
     wrapperContent = wrapperContent.replace(
-        /import start from '.*';/g,
+        "import start from './example-contract.js'",
         `import start from '${filePath}';`
-    )
+    );
 
     return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8')
 }
@@ -81,8 +80,6 @@ function runBuildProcess(filePath) {
 
     // You might need to adjust the paths and commands according to your project's structure
     const fullBuildCommand = `${webpackCommand} && ${javyCommand}`;
-
-    console.log('Running build command:', fullBuildCommand)
 
     // Execute the build command
     exec(fullBuildCommand, (error, stdout, stderr) => {
@@ -102,9 +99,6 @@ function runBuildProcess(filePath) {
 function runTestProcess(inputJsonPath) {
     // Define the path to the test.sh script
     const testScriptPath = path.resolve(__dirname, "lib", 'scripts', 'test.sh');
-
-    console.log('Running test script:', testScriptPath)
-    console.log('Using input JSON file:', inputJsonPath)
 
     // Execute the test.sh script with the input JSON file path as an argument
     exec(`${testScriptPath} "${inputJsonPath}"`, (error, stdout, stderr) => {
