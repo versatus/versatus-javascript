@@ -3,6 +3,7 @@ const start = (input) => {
   const { contractFn, amount, recipients } = applicationInput
   const methods = {
     splitEvenly: {
+      success: true,
       transactions: recipients.map((recipient) => ({
         recipient,
         amount: Math.floor(amount / recipients.length),

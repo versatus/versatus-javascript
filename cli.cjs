@@ -6,6 +6,50 @@ const path = require('path')
 const {exec} = require('child_process')
 
 const argv = yargs(process.argv.slice(2))
+    .command(
+        'init [example]',
+        'Initialize a project with an example contract',
+        (yargs) => {
+            return yargs.positional('example', {
+                describe: 'The example contract to initialize',
+                type: 'string',
+                choices: ['basic', 'erc-20'], // Add more example types if you have them
+                demandOption: true,
+                demand: 'You must specify an example contract to initialize'
+            })
+        },
+        (argv) => {
+            console.log("\033[0;33mInitializing example contract...\033[0m");
+            const exampleDir = path.resolve(__dirname, 'examples', argv.example || 'basic');
+            const targetDir = process.cwd();
+
+            // Copy the contract file
+            fs.copyFileSync(
+                path.join(exampleDir, 'example-contract.js'),
+                path.join(targetDir, 'example-contract.js')
+            );
+
+            // Copy the entire inputs directory
+            const inputsDir = path.join(exampleDir, 'inputs');
+            const targetInputsDir = path.join(targetDir, 'inputs');
+
+            // Check if inputs directory exists
+            if (fs.existsSync(inputsDir)) {
+                // Ensure the target inputs directory exists or create it
+                if (!fs.existsSync(targetInputsDir)) {
+                    fs.mkdirSync(targetInputsDir);
+                }
+                // Copy all files from source inputs directory to target inputs directory
+                fs.readdirSync(inputsDir).forEach(file => {
+                    const srcFile = path.join(inputsDir, file);
+                    const destFile = path.join(targetInputsDir, file);
+                    fs.copyFileSync(srcFile, destFile);
+                });
+            }
+
+            console.log("\033[0;32mExample contract and inputs initialized successfully.\033[0m");
+        }
+    )
     .usage('Usage: $0 build [options]')
     .command(
         'build [file]',

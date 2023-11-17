@@ -1,8 +1,8 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.0.81",
+  "version": "0.0.84",
   "type": "module",
-  "main": "lib/example-contract.js",
+  "main": "./cli.cjs",
   "scripts": {
     "build": "./node_modules/@versatus/versatus-javascript/lib/scripts/build.sh",
     "test": "./node_modules/@versatus/versatus-javascript/lib/scripts/test.sh"
