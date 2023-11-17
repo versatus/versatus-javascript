@@ -141,6 +141,8 @@ function runBuildProcess() {
     const javyCommand = `javy compile ${path.join(distPath, 'bundle.js')} -o ${path.join(distPath, 'build.wasm')}`;
 
 
+    console.log({distPath})
+
     // Ensure the dist directory exists before running the build commands
     if (!fs.existsSync(distPath)) {
         console.log("Creating the 'dist' directory...");
