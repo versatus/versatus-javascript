@@ -157,20 +157,37 @@ function runBuildProcess() {
 
 
 function runTestProcess(inputJsonPath) {
-    // Define the path to the test.sh script
-    const testScriptPath = path.resolve(__dirname, "lib", 'scripts', 'test.sh');
+    // Define the path to the check-wasm.sh script
+    const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check-wasm.sh');
 
-    // Execute the test.sh script with the input JSON file path as an argument
-    exec(`${testScriptPath} "${inputJsonPath}"`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
+    // Execute the check-wasm.sh script
+    exec(`bash "${checkWasmScriptPath}"`, (checkWasmError, checkWasmStdout, checkWasmStderr) => {
+        if (checkWasmError) {
+            console.error(`exec error: ${checkWasmError}`);
             return;
         }
-        if (stdout) {
-            console.log(`stdout: ${stdout}`);
+        if (checkWasmStderr) {
+            console.error(`stderr: ${checkWasmStderr}`);
+            return;
         }
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
-        }
+        console.log(`stdout: ${checkWasmStdout}`);
+
+        // Continue with the rest of the test process after checking WASM
+        // Define the path to the test.sh script
+        const testScriptPath = path.resolve(__dirname, "lib", 'scripts', 'test.sh');
+
+        // Execute the test.sh script with the input JSON file path as an argument
+        exec(`bash "${testScriptPath}" "${inputJsonPath}"`, (testError, testStdout, testStderr) => {
+            if (testError) {
+                console.error(`exec error: ${testError}`);
+                return;
+            }
+            if (testStdout) {
+                console.log(`stdout: ${testStdout}`);
+            }
+            if (testStderr) {
+                console.error(`stderr: ${testStderr}`);
+            }
+        });
     });
 }
