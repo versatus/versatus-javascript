@@ -90,9 +90,26 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             if (argv.inputJson) {
-                console.log("\033[0;33mstarting test...\033[0m");
-                const filePath = path.resolve(process.cwd(), argv.inputJson)
-                runTestProcess(filePath);
+                console.log("\033[0;33mChecking and preparing WASM file...\033[0m");
+                const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check-wasm.sh');
+
+                const execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
+
+                exec(`bash "${checkWasmScriptPath}"`, execOptions, (checkWasmError, checkWasmStdout, checkWasmStderr) => {
+                    if (checkWasmError) {
+                        console.error(`Error during WASM check: ${checkWasmError}`);
+                        return;
+                    }
+                    if (checkWasmStderr) {
+                        console.error(`WASM check stderr: ${checkWasmStderr}`);
+                        return;
+                    }
+                    console.log(`WASM check stdout: ${checkWasmStdout}`);
+
+                    console.log("\033[0;33mStarting test...\033[0m");
+                    const filePath = path.resolve(process.cwd(), argv.inputJson);
+                    runTestProcess(filePath);
+                });
             } else {
                 console.error('You must specify an inputJson file to test with.')
                 process.exit(1)
@@ -118,14 +135,16 @@ function injectFileInWrapper(filePath) {
 }
 
 function runBuildProcess() {
-    const webpackConfigPath = path.resolve(__dirname, 'lib', 'webpack.config.cjs');
     const distPath = path.resolve(__dirname, 'dist');
+    const webpackConfigPath = path.resolve(__dirname, 'lib', 'webpack.config.cjs');
     const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
     const javyCommand = `javy compile ${path.join(distPath, 'bundle.js')} -o ${path.join(distPath, 'build.wasm')}`;
 
-    // Ensure dist directory exists
+
+    // Ensure the dist directory exists before running the build commands
     if (!fs.existsSync(distPath)) {
-        fs.mkdirSync(distPath);
+        console.log("Creating the 'dist' directory...");
+        fs.mkdirSync(distPath, { recursive: true });
     }
 
     // Execute Webpack and then Javy only if Webpack succeeds
@@ -163,14 +182,14 @@ function runTestProcess(inputJsonPath) {
     // Execute the check-wasm.sh script
     exec(`bash "${checkWasmScriptPath}"`, (checkWasmError, checkWasmStdout, checkWasmStderr) => {
         if (checkWasmError) {
-            console.error(`exec error: ${checkWasmError}`);
+            console.error(`check-wasm.sh exec error: ${checkWasmError}`);
             return;
         }
-        if (checkWasmStderr) {
-            console.error(`stderr: ${checkWasmStderr}`);
-            return;
-        }
-        console.log(`stdout: ${checkWasmStdout}`);
+        console.log(`check-wasm.sh stdout: ${checkWasmStdout}`);
+        console.log(`check-wasm.sh stderr: ${checkWasmStderr}`);
+
+        console.log("check-wasm.sh script executed successfully. Proceeding with test...");
+
 
         // Continue with the rest of the test process after checking WASM
         // Define the path to the test.sh script

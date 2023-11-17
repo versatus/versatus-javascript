@@ -23,19 +23,6 @@ if [ ! -f "$INPUT_JSON_PATH" ]; then
     exit 0
 fi
 
-echo -e "\033[0;33mchecking if wasm file exists...\033[0m"
-if [ ! -f "$WASM_PATH" ]; then
-    echo -e "\033[0;31mWASM file not found. Downloading from $WASM_URL...\033[0m"
-    curl -L -o "$WASM_PATH" "$WASM_URL"
-else
-    echo -e "\033[0;34mWASM file already exists. Skipping download.\033[0m"
-fi
-
-chmod +x "$WASM_PATH"
-
-echo "$INPUT_JSON_PATH"
-echo "$BUILD_WASM_PATH"
-
 echo -e "\033[0;36mRunning the test using versa-wasm...\033[0m"
 
 # Store the response from versa-wasm execute in a variable
