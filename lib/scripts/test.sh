@@ -5,10 +5,15 @@ set -e
 
 echo -e "\n\033[0;32mtesting built wasm with versa wasm runtime...\033[0m"
 
-# Define the path to your WebAssembly module
-BUILD_WASM_PATH="./dist/build.wasm"
-WASM_PATH="./dist/versa.wasm"
-WASM_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/versa-wasm"
+# Determine the root directory of the Node.js project
+ROOT_DIR=$(dirname "${BASH_SOURCE[0]}")
+while [[ $ROOT_DIR != '/' && ! -f "$ROOT_DIR/package.json" ]]; do
+    ROOT_DIR=$(dirname "$ROOT_DIR")
+done
+
+echo "root directory: $ROOT_DIR"
+
+BUILD_WASM_PATH="$ROOT_DIR/dist/build.wasm"
 
 # Check if the JSON input file path is provided as an argument
 if [ -z "$1" ]; then
