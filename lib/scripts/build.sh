@@ -4,7 +4,7 @@
 set -e
 
 # Run system checks first
-./lib/scripts/sys_check.sh
+./lib/scripts/sys-check.sh
 
 echo "building js w/ webpack"
 npx webpack --config ./lib/webpack.config.cjs

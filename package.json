@@ -1,12 +1,8 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.0.84",
+  "version": "0.0.95",
   "type": "module",
   "main": "./cli.cjs",
-  "scripts": {
-    "build": "./node_modules/@versatus/versatus-javascript/lib/scripts/build.sh",
-    "test": "./node_modules/@versatus/versatus-javascript/lib/scripts/test.sh"
-  },
   "bin": {
     "vsjs": "./cli.cjs"
   },

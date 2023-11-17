@@ -90,9 +90,26 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             if (argv.inputJson) {
-                console.log("\033[0;33mstarting test...\033[0m");
-                const filePath = path.resolve(process.cwd(), argv.inputJson)
-                runTestProcess(filePath);
+                console.log("\033[0;33mChecking and preparing WASM file...\033[0m");
+                const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check-wasm.sh');
+
+                const execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
+
+                exec(`bash "${checkWasmScriptPath}"`, execOptions, (checkWasmError, checkWasmStdout, checkWasmStderr) => {
+                    if (checkWasmError) {
+                        console.error(`Error during WASM check: ${checkWasmError}`);
+                        return;
+                    }
+                    if (checkWasmStderr) {
+                        console.error(`WASM check stderr: ${checkWasmStderr}`);
+                        return;
+                    }
+                    console.log(`WASM check stdout: ${checkWasmStdout}`);
+
+                    console.log("\033[0;33mStarting test...\033[0m");
+                    const filePath = path.resolve(process.cwd(), argv.inputJson);
+                    runTestProcess(filePath);
+                });
             } else {
                 console.error('You must specify an inputJson file to test with.')
                 process.exit(1)
@@ -102,59 +119,102 @@ const argv = yargs(process.argv.slice(2))
     .help().argv
 
 function injectFileInWrapper(filePath) {
-    const wrapperFilePath = path.resolve(__dirname, 'lib', 'wrapper.js');
-    let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
+    let wrapperFilePath;
 
-    // Regular expression to match the import line
-    // This matches 'import start' at the beginning of a line, followed by anything until the end of the line
-    const importRegex = /^import start from '.*';?$/m;
+    try {
+        // Check if the package is installed in node_modules (installed environment)
+        wrapperFilePath = require.resolve('@versatus/versatus-javascript/lib/wrapper');
+    } catch (error) {
+        // If not, use a direct path (development environment)
+        wrapperFilePath = path.join(__dirname, 'lib', 'wrapper.js');
+    }
 
-    wrapperContent = wrapperContent.replace(
-        importRegex,
-        `import start from '${filePath}';`
-    );
+    try {
+        let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
+        wrapperContent = wrapperContent.replace(
+            /^import start from '.*';?$/m,
+            `import start from '${filePath}';`
+        );
 
-    return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8');
+        return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8');
+    } catch (error) {
+        console.error('Error updating wrapper.js:', error);
+        throw error;
+    }
 }
 
-function runBuildProcess(filePath) {
-    // The actual build command you want to run, for example:
-    const webpackCommand = `npx webpack --config ${path.resolve(__dirname, 'lib', 'webpack.config.cjs')}`;
-    const javyCommand = `javy compile dist/bundle.js -o dist/build.wasm`;
+function runBuildProcess() {
+    const projectRoot = process.cwd();
+    const distPath = path.join(projectRoot, 'dist');
+    console.log({ distPath });
 
-    // You might need to adjust the paths and commands according to your project's structure
-    const fullBuildCommand = `${webpackCommand} && ${javyCommand}`;
+    if (!fs.existsSync(distPath)) {
+        console.log("Creating the 'dist' directory...");
+        fs.mkdirSync(distPath, { recursive: true });
+    }
 
-    // Execute the build command
-    exec(fullBuildCommand, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
+    const webpackConfigPath = path.resolve(__dirname, 'lib', 'webpack.config.cjs');
+    const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
+    exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
+        if (webpackError) {
+            console.error(`Webpack exec error: ${webpackError}`);
             return;
         }
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
-            return;
+        console.log(`Webpack stdout: ${webpackStdout}`);
+        if (webpackStderr) {
+            console.error(`Webpack stderr: ${webpackStderr}`);
         }
-        console.log(`stdout: ${stdout}`);
+
+
+        // Now run Javy
+        const javyCommand = `javy compile ${path.join(distPath, 'bundle.js')} -o ${path.join(distPath, 'build.wasm')}`;
+        exec(javyCommand, (javyError, javyStdout, javyStderr) => {
+            if (javyError) {
+                console.error(`Javy exec error: ${javyError}`);
+                return;
+            }
+            if (javyStderr) {
+                console.error(`Javy stderr: ${javyStderr}`);
+                return;
+            }
+            console.log(`Javy stdout: ${javyStdout}`);
+        });
     });
 }
 
 
 function runTestProcess(inputJsonPath) {
-    // Define the path to the test.sh script
-    const testScriptPath = path.resolve(__dirname, "lib", 'scripts', 'test.sh');
+    // Define the path to the check-wasm.sh script
+    const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check-wasm.sh');
 
-    // Execute the test.sh script with the input JSON file path as an argument
-    exec(`${testScriptPath} "${inputJsonPath}"`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
+    // Execute the check-wasm.sh script
+    exec(`bash "${checkWasmScriptPath}"`, (checkWasmError, checkWasmStdout, checkWasmStderr) => {
+        if (checkWasmError) {
+            console.error(`check-wasm.sh exec error: ${checkWasmError}`);
             return;
         }
-        if (stdout) {
-            console.log(`stdout: ${stdout}`);
-        }
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
-        }
+        console.log(`check-wasm.sh stdout: ${checkWasmStdout}`);
+        console.log(`check-wasm.sh stderr: ${checkWasmStderr}`);
+
+        console.log("check-wasm.sh script executed successfully. Proceeding with test...");
+
+
+        // Continue with the rest of the test process after checking WASM
+        // Define the path to the test.sh script
+        const testScriptPath = path.resolve(__dirname, "lib", 'scripts', 'test.sh');
+
+        // Execute the test.sh script with the input JSON file path as an argument
+        exec(`bash "${testScriptPath}" "${inputJsonPath}"`, (testError, testStdout, testStderr) => {
+            if (testError) {
+                console.error(`exec error: ${testError}`);
+                return;
+            }
+            if (testStdout) {
+                console.log(`stdout: ${testStdout}`);
+            }
+            if (testStderr) {
+                console.error(`stderr: ${testStderr}`);
+            }
+        });
     });
 }
