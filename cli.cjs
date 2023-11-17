@@ -135,12 +135,10 @@ function injectFileInWrapper(filePath) {
 }
 
 function runBuildProcess() {
-    const projectRoot = process.cwd(); // Get the current working directory
+    const projectRoot = process.cwd();
     const distPath = path.join(projectRoot, 'dist');
-
     console.log({ distPath });
 
-    // Ensure the dist directory exists
     if (!fs.existsSync(distPath)) {
         console.log("Creating the 'dist' directory...");
         fs.mkdirSync(distPath, { recursive: true });
@@ -148,30 +146,19 @@ function runBuildProcess() {
 
     const webpackConfigPath = path.resolve(__dirname, 'lib', 'webpack.config.cjs');
     const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
-    const javyCommand = `javy compile ${path.join(distPath, 'bundle.js')} -o ${path.join(distPath, 'build.wasm')}`;
-
-
-    console.log({distPath})
-
-    // Ensure the dist directory exists before running the build commands
-    if (!fs.existsSync(distPath)) {
-        console.log("Creating the 'dist' directory...");
-        fs.mkdirSync(distPath, { recursive: true });
-    }
-
-    // Execute Webpack and then Javy only if Webpack succeeds
     exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
         if (webpackError) {
             console.error(`Webpack exec error: ${webpackError}`);
             return;
         }
+        console.log(`Webpack stdout: ${webpackStdout}`);
         if (webpackStderr) {
             console.error(`Webpack stderr: ${webpackStderr}`);
-            return;
         }
-        console.log(`Webpack stdout: ${webpackStdout}`);
+
 
         // Now run Javy
+        const javyCommand = `javy compile ${path.join(distPath, 'bundle.js')} -o ${path.join(distPath, 'build.wasm')}`;
         exec(javyCommand, (javyError, javyStdout, javyStderr) => {
             if (javyError) {
                 console.error(`Javy exec error: ${javyError}`);
