@@ -135,7 +135,17 @@ function injectFileInWrapper(filePath) {
 }
 
 function runBuildProcess() {
-    const distPath = path.resolve(__dirname, 'dist');
+    const projectRoot = process.cwd(); // Get the current working directory
+    const distPath = path.join(projectRoot, 'dist');
+
+    console.log({ distPath });
+
+    // Ensure the dist directory exists
+    if (!fs.existsSync(distPath)) {
+        console.log("Creating the 'dist' directory...");
+        fs.mkdirSync(distPath, { recursive: true });
+    }
+
     const webpackConfigPath = path.resolve(__dirname, 'lib', 'webpack.config.cjs');
     const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
     const javyCommand = `javy compile ${path.join(distPath, 'bundle.js')} -o ${path.join(distPath, 'build.wasm')}`;
