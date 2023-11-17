@@ -119,19 +119,28 @@ const argv = yargs(process.argv.slice(2))
     .help().argv
 
 function injectFileInWrapper(filePath) {
-    const wrapperFilePath = path.resolve(__dirname, 'lib', 'wrapper.js');
-    let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
+    let wrapperFilePath;
 
-    // Regular expression to match the import line
-    // This matches 'import start' at the beginning of a line, followed by anything until the end of the line
-    const importRegex = /^import start from '.*';?$/m;
+    try {
+        // Check if the package is installed in node_modules (installed environment)
+        wrapperFilePath = require.resolve('@versatus/versatus-javascript/lib/wrapper');
+    } catch (error) {
+        // If not, use a direct path (development environment)
+        wrapperFilePath = path.join(__dirname, 'lib', 'wrapper.js');
+    }
 
-    wrapperContent = wrapperContent.replace(
-        importRegex,
-        `import start from '${filePath}';`
-    );
+    try {
+        let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
+        wrapperContent = wrapperContent.replace(
+            /^import start from '.*';?$/m,
+            `import start from '${filePath}';`
+        );
 
-    return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8');
+        return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8');
+    } catch (error) {
+        console.error('Error updating wrapper.js:', error);
+        throw error;
+    }
 }
 
 function runBuildProcess() {

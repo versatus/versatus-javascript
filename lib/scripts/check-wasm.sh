@@ -3,20 +3,12 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Determine the root directory of the Node.js project
-# This assumes that the script is located in node_modules/@versatus/versatus-javascript/lib/scripts
-# and the dist directory is at the root of the Node.js project
-# Dynamically find the root directory of the project
-ROOT_DIR=$(dirname "${BASH_SOURCE[0]}")
-while [[ $ROOT_DIR != '/' && ! -f "$ROOT_DIR/package.json" ]]; do
-    ROOT_DIR=$(dirname "$ROOT_DIR")
-done
-
-echo "root directory: $ROOT_DIR"
-
-# Define the path to your WASM file
+# Use the current working directory as the root directory
+ROOT_DIR=$(pwd)
 WASM_PATH="$ROOT_DIR/dist/versa.wasm"
 WASM_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/versa-wasm"
+
+echo "root directory: $ROOT_DIR"
 
 # Create the dist directory if it doesn't exist
 if [ ! -d "$ROOT_DIR/dist" ]; then
