@@ -117,25 +117,41 @@ function injectFileInWrapper(filePath) {
     return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8');
 }
 
-function runBuildProcess(filePath) {
-    // The actual build command you want to run, for example:
-    const webpackCommand = `npx webpack --config ${path.resolve(__dirname, 'lib', 'webpack.config.cjs')}`;
-    const javyCommand = `javy compile dist/bundle.js -o dist/build.wasm`;
+function runBuildProcess() {
+    const webpackConfigPath = path.resolve(__dirname, 'lib', 'webpack.config.cjs');
+    const distPath = path.resolve(__dirname, 'dist');
+    const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
+    const javyCommand = `javy compile ${path.join(distPath, 'bundle.js')} -o ${path.join(distPath, 'build.wasm')}`;
 
-    // You might need to adjust the paths and commands according to your project's structure
-    const fullBuildCommand = `${webpackCommand} && ${javyCommand}`;
+    // Ensure dist directory exists
+    if (!fs.existsSync(distPath)) {
+        fs.mkdirSync(distPath);
+    }
 
-    // Execute the build command
-    exec(fullBuildCommand, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
+    // Execute Webpack and then Javy only if Webpack succeeds
+    exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
+        if (webpackError) {
+            console.error(`Webpack exec error: ${webpackError}`);
             return;
         }
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
+        if (webpackStderr) {
+            console.error(`Webpack stderr: ${webpackStderr}`);
             return;
         }
-        console.log(`stdout: ${stdout}`);
+        console.log(`Webpack stdout: ${webpackStdout}`);
+
+        // Now run Javy
+        exec(javyCommand, (javyError, javyStdout, javyStderr) => {
+            if (javyError) {
+                console.error(`Javy exec error: ${javyError}`);
+                return;
+            }
+            if (javyStderr) {
+                console.error(`Javy stderr: ${javyStderr}`);
+                return;
+            }
+            console.log(`Javy stdout: ${javyStdout}`);
+        });
     });
 }
 
