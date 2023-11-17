@@ -18,7 +18,7 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             if (argv.file) {
-                console.log("starting build...")
+                console.log("\033[0;33mstarting build...\033[0m")
                 const filePath = path.resolve(process.cwd(), argv.file)
                 injectFileInWrapper(filePath)
                     .then(() => {
@@ -58,19 +58,19 @@ const argv = yargs(process.argv.slice(2))
     .help().argv
 
 function injectFileInWrapper(filePath) {
-    const wrapperFilePath = path.resolve(
-        __dirname,
-        'lib',
-        'wrapper.js'
-    )
-    let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8')
+    const wrapperFilePath = path.resolve(__dirname, 'lib', 'wrapper.js');
+    let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
+
+    // Regular expression to match the import line
+    // This matches 'import start' at the beginning of a line, followed by anything until the end of the line
+    const importRegex = /^import start from '.*';?$/m;
 
     wrapperContent = wrapperContent.replace(
-        "import start from './example-contract.js'",
+        importRegex,
         `import start from '${filePath}';`
     );
 
-    return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8')
+    return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8');
 }
 
 function runBuildProcess(filePath) {

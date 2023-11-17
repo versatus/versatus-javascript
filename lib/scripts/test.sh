@@ -33,15 +33,23 @@ fi
 
 chmod +x "$WASM_PATH"
 
+echo "$INPUT_JSON_PATH"
+echo "$BUILD_WASM_PATH"
+
 echo -e "\033[0;36mRunning the test using versa-wasm...\033[0m"
-TEST_RESULT=$(./dist/versa.wasm execute --wasm "$BUILD_WASM_PATH" --json "$INPUT_JSON_PATH" | jq -r '.success')
+
+# Store the response from versa-wasm execute in a variable
+EXECUTE_RESPONSE=$(./dist/versa.wasm execute --wasm "$BUILD_WASM_PATH" --json "$INPUT_JSON_PATH" | jq)
+
+# Extract the success value from the JSON output
+TEST_RESULT=$(echo "$EXECUTE_RESPONSE" | jq -r '.success')
 
 echo -e "\n\033[0;33mTest results:\033[0m"
 
 if [ "$TEST_RESULT" == "true" ]; then
     echo -e "\033[0;32mContract method was successful.\033[0m"
     echo -e "\033[0;32mOutput: \033[0m"
-    ./dist/versa.wasm execute --wasm "$BUILD_WASM_PATH" --json "$INPUT_JSON_PATH" | jq
+    echo "$EXECUTE_RESPONSE"
 else
     echo -e "\033[0;31mContract method was unsuccessful.\033[0m"
 fi
