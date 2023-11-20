@@ -104,8 +104,6 @@ const argv = yargs(process.argv.slice(2))
                         console.error(`WASM check stderr: ${checkWasmStderr}`);
                         return;
                     }
-                    console.log(`WASM check stdout: ${checkWasmStdout}`);
-
                     console.log("\033[0;33mStarting test...\033[0m");
                     const filePath = path.resolve(process.cwd(), argv.inputJson);
                     runTestProcess(filePath);
@@ -121,12 +119,18 @@ const argv = yargs(process.argv.slice(2))
 function injectFileInWrapper(filePath) {
     let wrapperFilePath;
 
-    try {
-        // Check if the package is installed in node_modules (installed environment)
-        wrapperFilePath = require.resolve('@versatus/versatus-javascript/lib/wrapper');
-    } catch (error) {
-        // If not, use a direct path (development environment)
-        wrapperFilePath = path.join(__dirname, 'lib', 'wrapper.js');
+    // Check if the script is running from within node_modules
+    if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
+        // In an installed package environment
+        try {
+            wrapperFilePath = require.resolve('@versatus/versatus-javascript/lib/wrapper');
+        } catch (error) {
+            console.error('Error locating wrapper.js in node_modules:', error);
+            throw error;
+        }
+    } else {
+        // In the development environment
+        wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
     }
 
     try {
@@ -142,6 +146,8 @@ function injectFileInWrapper(filePath) {
         throw error;
     }
 }
+
+
 
 function runBuildProcess() {
     const projectRoot = process.cwd();
@@ -175,9 +181,7 @@ function runBuildProcess() {
             }
             if (javyStderr) {
                 console.error(`Javy stderr: ${javyStderr}`);
-                return;
             }
-            console.log(`Javy stdout: ${javyStdout}`);
         });
     });
 }
