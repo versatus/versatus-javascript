@@ -4,29 +4,23 @@ echo "checking system for dependencies..."
 if command -v javy >/dev/null 2>&1; then
     echo "system is ready."
 else
-    echo "ALERT: javy is not installed! Attempting to install Rust, which is required for javy."
+    echo "ALERT: javy is not installed! Attempting to download and install javy."
 
     # Prompt the user before installing
-    read -p "Do you want to proceed with the Rust and javy installation? (y/N) " -n 1 -r
+    read -p "Do you want to proceed with the javy installation? (y/N) " -n 1 -r
     echo # move to a new line
 
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
-        # Install Rust via Rustup
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+        # Download and install Javy
+        curl -L https://github.com/bytecodealliance/javy/releases/download/v1.2.0/javy-arm-linux-v1.2.0.gz -o javy.gz
+        gzip -d javy.gz
+        chmod +x javy
+        sudo mv javy /usr/local/bin
 
-        # Source the cargo environment (this assumes the default installation path)
-        source "$HOME/.cargo/env"
-
-        # Install wasm-pack, which is needed to build and work with Rust-generated WebAssembly
-        cargo install wasm-pack
-
-        # Install javy
-        cargo install javy
-
-        echo "Rust and javy installation completed."
+        echo "javy installation completed."
     else
-        echo "Installation aborted. Please install Rust and javy to continue."
+        echo "Installation aborted. Please install javy to continue."
         exit 1
     fi
 fi

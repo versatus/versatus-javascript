@@ -48,22 +48,22 @@ function executeMethod(methodName, params) {
 
 const approve = (address, spender, amount) => {
   if (FAKE_ERC20_STATE['balances'][address] < amount)
-    return { success: false, FAKE_HATH_ERC20_STATE: FAKE_ERC20_STATE }
+    return { success: false, FAKE_ERC20_STATE }
   FAKE_ERC20_STATE['allowances'][address][spender] = amount
-  return { success: true, FAKE_HATH_ERC20_STATE: FAKE_ERC20_STATE }
+  return { success: true, FAKE_ERC20_STATE }
 }
 
 const transfer = (address, toAddress, amount) => {
   if (FAKE_ERC20_STATE['balances'][address] < amount)
-    return { success: false, FAKE_HATH_ERC20_STATE: FAKE_ERC20_STATE }
+    return { success: false, FAKE_ERC20_STATE }
   FAKE_ERC20_STATE['balances'][address] -= amount
   FAKE_ERC20_STATE['balances'][toAddress] += amount
-  return { success: true, FAKE_HATH_ERC20_STATE: FAKE_ERC20_STATE }
+  return { success: true, FAKE_ERC20_STATE }
 }
 
 const FAKE_ERC20_STATE = {
-  name: 'HATH',
-  symbol: 'HATH',
+  name: 'VRSTSERC',
+  symbol: 'VRSTSERC',
   decimals: 18,
   totalSupply: 100000000,
   balances: {
