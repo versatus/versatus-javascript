@@ -8,8 +8,6 @@ ROOT_DIR=$(pwd)
 BUILD_WASM_PATH="$ROOT_DIR/dist/build.wasm"
 WASM_PATH="$ROOT_DIR/dist/versa.wasm"
 
-echo "root directory: $ROOT_DIR"
-
 # Check if the JSON input file path is provided as an argument
 if [ -z "$1" ]; then
     echo -e "\033[0;31mError: No JSON input file path provided.\033[0m"
