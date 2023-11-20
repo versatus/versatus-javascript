@@ -130,3 +130,5 @@ dist
 .pnp.*
 
 .idea
+example-contract.js
+inputs
