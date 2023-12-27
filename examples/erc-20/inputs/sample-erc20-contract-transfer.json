@@ -1,18 +1,23 @@
 {
   "version": 1,
   "accountInfo": {
-    "accountAddress": "contract_wallet_id",
-    "accountBalance": 65535
+    "accountAddress": "0x0202020202020202020202020202020202020202",
+    "accountBalance": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
   },
   "protocolInput": {
     "version": 1,
-    "blockHeight": 31415972,
-    "blockTime": 1694152781
+    "blockHeight": 1,
+    "blockTime": 1
   },
-  "applicationInput": {
+  "contractInput": {
     "contractFn": "transfer",
-    "address": "0x1",
-    "toAddress": "0x4",
-    "amount": 42069
+    "functionInputs": {
+      "erc20": {
+        "transfer": {
+          "value": "0xffff",
+          "address": "0x0303030303030303030303030303030303030303"
+        }
+      }
+    }
   }
 }

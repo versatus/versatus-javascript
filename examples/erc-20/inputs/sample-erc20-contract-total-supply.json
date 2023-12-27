@@ -1,15 +1,20 @@
 {
   "version": 1,
   "accountInfo": {
-    "accountAddress": "contract_wallet_id",
-    "accountBalance": 65535
+    "accountAddress": "0x0202020202020202020202020202020202020202",
+    "accountBalance": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
   },
   "protocolInput": {
     "version": 1,
-    "blockHeight": 31415972,
-    "blockTime": 1694152781
+    "blockHeight": 1,
+    "blockTime": 1
   },
-  "applicationInput": {
-    "contractFn": "totalSupply"
+  "contractInput": {
+    "contractFn": "totalSupply",
+    "functionInputs": {
+      "erc20": {
+        "totalSupply": {}
+      }
+    }
   }
 }
