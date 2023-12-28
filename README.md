@@ -1,6 +1,6 @@
 # versatus-javascript
 ## Overview
-This repository provides essential tools and interfaces for developing Versatus smart contracts in the JavaScript programming language. We maintain a high-level and language-agnostic overview of smart contract development on Versatus (https://github.com/versatus/versatus/blob/main/docs/DevelopingSmartContracts.md), which you should read alongside the JavaScript-specific documentation in this repository.
+This repository provides essential tools and interfaces for developing Versatus smart contracts in the JavaScript programming language. We maintain a high-level and language-agnostic overview of smart contract development on Versatus (https://github.com/versatus/versatus/blob/main/docs/DevelopingSmartContracts.md), which we recommend reading alongside the JavaScript-specific documentation provided.
 
 ## Javascript Installation
 JavaScript development often relies on Node.js, a JavaScript runtime, and npm (Node Package Manager) for managing packages and dependencies. To install Node.js and npm, visit the official Node.js website (https://nodejs.org/en). Alternative to npm (yarn) is also provided under dependencies.
