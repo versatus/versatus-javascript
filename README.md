@@ -9,13 +9,13 @@ JavaScript development often relies on Node.js, a JavaScript runtime, and npm (N
 In the JavaScript ecosystem, you can leverage WebAssembly to compile your JavaScript code to a format that is compatible with the Versatus smart contract runtime. This allows you to write smart contracts using JavaScript and execute them seamlessly within the Versatus environment. The JavaScript tooling and resources that support JavaScript-based WebAssembly compilation include the following:
 
 ### Required Dependencies 
-* Node -
+Node -
 Node.js is a JavaScript runtime and fundamental dependency for most JavaScript-based projects, including smart contract development. It that allows you to execute  JavaScript code on your local machine and interact with various libraries and tools.
 
-* Yarn - 
+Yarn - 
 Yarn is another package manager for JavaScript. It provides an efficient and reliable way to manage project dependencies, install packages, and handle versioning.. It is an alternative to npm (Node Package Manager) and offers advantages such as faster package installation. You can install Yarn by following the instructions provided on the official Yarn website: Yarn Official Website (https://yarnpkg.com/).
 
-* Javy - 
+Javy - 
 Javy is a JavaScript to WebAssembly toolchain that can create small Wasm modules in the 1 to 16 KB range with the use of dynamic linking. The toolchain aims to be a verstaile tool for anyone who wants to work with JavaScript in Wasm, and it can compile QuickJS, a small JavaScript engine, to Wasm along with the script to be executed. To install Javy, refer to the Versatus specific documentation XX
 
 ## Building a Smart Contract
