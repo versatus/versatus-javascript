@@ -6,7 +6,7 @@ This repository provides essential tools and interfaces for developing Versatus 
 JavaScript development often relies on Node.js, a JavaScript runtime, and npm (Node Package Manager) for managing packages and dependencies. To install Node.js and npm, visit the official Node.js website (https://nodejs.org/en). Alternative to npm (yarn) is also provided under dependencies.
 
 ## Javscript Dependencies
-In the JavaScript ecosystem, you can leverage WebAssembly to compile your JavaScript code to a format that is compatible with the Versatus smart contract runtime. This allows you to write smart contracts using JavaScript and execute them seamlessly within the Versatus environment. The JavaScript tooling and resources that support JavaScript-based WebAssembly compilation include the following:
+In the JavaScript ecosystem, you can compile your JavaScript code to Web Assembly format that is compatible with the Versatus smart contract runtime. This allows you to write smart contracts using JavaScript and execute them seamlessly within the Versatus environment. The JavaScript tooling and resources that support JavaScript-based WebAssembly compilation include the following:
 
 ### Required Dependencies 
 Node -
@@ -16,7 +16,7 @@ Yarn -
 Yarn is another package manager for JavaScript. It provides an efficient and reliable way to manage project dependencies, install packages, and handle versioning.. It is an alternative to npm (Node Package Manager) and offers advantages such as faster package installation. You can install Yarn by following the instructions provided on the official Yarn website: Yarn Official Website (https://yarnpkg.com/).
 
 Javy - 
-Javy is a JavaScript to WebAssembly toolchain that can create small Wasm modules in the 1 to 16 KB range with the use of dynamic linking. The toolchain aims to be a verstaile tool for anyone who wants to work with JavaScript in Wasm, and it can compile QuickJS, a small JavaScript engine, to Wasm along with the script to be executed. To install Javy, refer to the Versatus specific documentation XX
+Javy is a JavaScript to WebAssembly toolchain that can create small WASM modules in the 1 to 16 KB range with the use of dynamic linking. The toolchain aims to be a versatile tool for anyone who wants to work with JavaScript in WASM, and it can compile QuickJS, a small JavaScript engine, to WASM along with the script to be executed. To install Javy, refer to the Versatus specific documentation XX
 
 ## Building a Smart Contract
 
