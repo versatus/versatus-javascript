@@ -23,23 +23,36 @@ const argv = yargs(process.argv.slice(2))
             const exampleDir = path.resolve(__dirname, 'examples', argv.example || 'basic');
             const targetDir = process.cwd();
 
-            // Copy the contract file
             fs.copyFileSync(
                 path.join(exampleDir, 'example-contract.js'),
                 path.join(targetDir, 'example-contract.js')
             );
 
-            // Copy the entire inputs directory
+            const exampleFilePath = path.join(exampleDir, 'example-contract.js');
+            const targetFilePath = path.join(targetDir, 'example-contract.js');
+
+
+            // Read the content of the example file
+            let exampleContractContent = fs.readFileSync(exampleFilePath, 'utf8');
+
+            // Update the import path dynamically
+            exampleContractContent = exampleContractContent.replace(
+                /^import \{(.*)\} from '.*';?$/m,
+                (match, importContent) => {
+                    const fileName = match.split('/').pop().split('\'')[0];
+                    return `import {${importContent.trim()}} from './lib/contracts/${fileName}';`;
+                }
+            );
+
+            fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
+
             const inputsDir = path.join(exampleDir, 'inputs');
             const targetInputsDir = path.join(targetDir, 'inputs');
 
-            // Check if inputs directory exists
             if (fs.existsSync(inputsDir)) {
-                // Ensure the target inputs directory exists or create it
                 if (!fs.existsSync(targetInputsDir)) {
                     fs.mkdirSync(targetInputsDir);
                 }
-                // Copy all files from source inputs directory to target inputs directory
                 fs.readdirSync(inputsDir).forEach(file => {
                     const srcFile = path.join(inputsDir, file);
                     const destFile = path.join(targetInputsDir, file);
