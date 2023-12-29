@@ -165,8 +165,6 @@ function injectFileInWrapper(filePath) {
         versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js');
     }
 
-    console.log({versatusHelpersFilepath})
-
     // Copy the wrapper file to the dist directory
     const distWrapperFilePath = path.join(distPath, 'wrapper.js');
     fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
@@ -195,7 +193,6 @@ function injectFileInWrapper(filePath) {
 function runBuildProcess() {
     const projectRoot = process.cwd();
     const distPath = path.join(projectRoot, 'dist');
-    console.log({ distPath });
 
     if (!fs.existsSync(distPath)) {
         console.log("Creating the 'dist' directory...");
