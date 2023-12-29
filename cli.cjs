@@ -130,32 +130,49 @@ const argv = yargs(process.argv.slice(2))
     .help().argv
 
 function injectFileInWrapper(filePath) {
-    let wrapperFilePath;
+    const projectRoot = process.cwd();
+    const distPath = path.join(projectRoot, 'dist');
 
-    // Check if the script is running from within node_modules
+    if (!fs.existsSync(distPath)) {
+        fs.mkdirSync(distPath, { recursive: true });
+    }
+
+    let wrapperFilePath
+    let versatusHelpersFilepath  = path.resolve(process.cwd(), "./lib/versatus.js")
+
     if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
-        // In an installed package environment
         try {
             wrapperFilePath = require.resolve('@versatus/versatus-javascript/lib/wrapper');
+            versatusHelpersFilepath = require.resolve('@versatus/versatus-javascript/lib/versatus');
         } catch (error) {
             console.error('Error locating wrapper.js in node_modules:', error);
             throw error;
         }
     } else {
-        // In the development environment
         wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
+        versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js');
     }
 
+    console.log({versatusHelpersFilepath})
+
+    const distWrapperFilePath = path.join(distPath, 'wrapper.js');
+    fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
+
     try {
-        let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
+        let wrapperContent = fs.readFileSync(distWrapperFilePath, 'utf8');
         wrapperContent = wrapperContent.replace(
             /^import start from '.*';?$/m,
             `import start from '${filePath}';`
         );
 
-        return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8');
+        wrapperContent = wrapperContent.replace(
+            /from '.*versatus.js';?$/m,
+            `from '${versatusHelpersFilepath}'`
+        );
+
+        return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
     } catch (error) {
-        console.error('Error updating wrapper.js:', error);
+        console.error('Error updating wrapper.js in dist:', error);
         throw error;
     }
 }
