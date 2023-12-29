@@ -20,26 +20,47 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             console.log("\033[0;33mInitializing example contract...\033[0m");
-            const exampleDir = path.resolve(__dirname, 'examples', argv.example || 'basic');
-            const targetDir = process.cwd();
 
-            // Copy the contract file
+            // Check if the package is installed in the current project's node_modules
+            const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+
+            // Path to the examples directory
+            const exampleDir = isInstalledPackage
+                ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'examples', argv.example || 'basic')
+                : path.resolve(__dirname, 'examples', argv.example || 'basic');
+
+            const targetDir = process.cwd();
+            const targetFilePath = path.join(targetDir, 'example-contract.js');
+
+            // Copy the example file to the target directory
             fs.copyFileSync(
                 path.join(exampleDir, 'example-contract.js'),
-                path.join(targetDir, 'example-contract.js')
+                targetFilePath
             );
 
-            // Copy the entire inputs directory
+            // Read the content of the example file
+            let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
+
+            // Update the import path for any contract class based on the environment
+            const regex = /^import \{ (.*) \} from '.*'$/gm;
+            exampleContractContent = exampleContractContent.replace(regex, (match, className) => {
+                const importPath = isInstalledPackage
+                    ? `@versatus/versatus-javascript/lib/contracts/${className}.js`
+                    : `./lib/contracts/${className}.js`;
+                return `import { ${className} } from '${importPath}';`;
+            });
+
+            // Write the updated content back to the example file
+            fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
+
+
             const inputsDir = path.join(exampleDir, 'inputs');
             const targetInputsDir = path.join(targetDir, 'inputs');
 
-            // Check if inputs directory exists
             if (fs.existsSync(inputsDir)) {
-                // Ensure the target inputs directory exists or create it
                 if (!fs.existsSync(targetInputsDir)) {
                     fs.mkdirSync(targetInputsDir);
                 }
-                // Copy all files from source inputs directory to target inputs directory
                 fs.readdirSync(inputsDir).forEach(file => {
                     const srcFile = path.join(inputsDir, file);
                     const destFile = path.join(targetInputsDir, file);
@@ -117,13 +138,23 @@ const argv = yargs(process.argv.slice(2))
     .help().argv
 
 function injectFileInWrapper(filePath) {
-    let wrapperFilePath;
+    const projectRoot = process.cwd();
+    const distPath = path.join(projectRoot, 'dist');
+
+    // Ensure the dist directory exists
+    if (!fs.existsSync(distPath)) {
+        fs.mkdirSync(distPath, { recursive: true });
+    }
+
+    let wrapperFilePath
+    let versatusHelpersFilepath  = path.resolve(process.cwd(), "./lib/versatus.js")
 
     // Check if the script is running from within node_modules
     if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
         // In an installed package environment
         try {
             wrapperFilePath = require.resolve('@versatus/versatus-javascript/lib/wrapper');
+            versatusHelpersFilepath = require.resolve('@versatus/versatus-javascript/lib/versatus');
         } catch (error) {
             console.error('Error locating wrapper.js in node_modules:', error);
             throw error;
@@ -131,18 +162,28 @@ function injectFileInWrapper(filePath) {
     } else {
         // In the development environment
         wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
+        versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js');
     }
 
+    // Copy the wrapper file to the dist directory
+    const distWrapperFilePath = path.join(distPath, 'wrapper.js');
+    fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
+
     try {
-        let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
+        let wrapperContent = fs.readFileSync(distWrapperFilePath, 'utf8');
         wrapperContent = wrapperContent.replace(
             /^import start from '.*';?$/m,
             `import start from '${filePath}';`
         );
 
-        return fs.promises.writeFile(wrapperFilePath, wrapperContent, 'utf8');
+        wrapperContent = wrapperContent.replace(
+            /from '.*versatus.js';?$/m,
+            `from '${versatusHelpersFilepath}'`
+        );
+
+        return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
     } catch (error) {
-        console.error('Error updating wrapper.js:', error);
+        console.error('Error updating wrapper.js in dist:', error);
         throw error;
     }
 }
@@ -152,7 +193,6 @@ function injectFileInWrapper(filePath) {
 function runBuildProcess() {
     const projectRoot = process.cwd();
     const distPath = path.join(projectRoot, 'dist');
-    console.log({ distPath });
 
     if (!fs.existsSync(distPath)) {
         console.log("Creating the 'dist' directory...");
