@@ -20,7 +20,7 @@ Javy is a JavaScript to WebAssembly toolchain that can create small WASM modules
 1. Download the latest version of the Javy package for your platform from the Bytecode Alliance Github page (https://github.com/bytecodealliance/javy/releases/)
 2. Decompress the downloaded file using gunzip or another tool capable of decompressing gzip-format files (eg, ```gunzip javy-x86_64-macos-v1.2.0.gz```)
 3. Make the Javy binary executable (ie, ```chmod a+x javy-x86_64-macos-v1.2.0```)
-4. Optionally place the Javy binary somewhere in your PATH (eg,``` /usr/local/bin or ~/bin```) and rename it to simply javy (ie, ```mv javy-x86_64-macos-v1.2.0 /usr/local/bin/javy``` to do both in one command.
+4. Optionally place the Javy binary somewhere in your PATH (eg,``` /usr/local/bin or ~/bin```) and rename it to simply javy (ie, ```mv javy-x86_64-macos-v1.2.0 /usr/local/bin/javy```) to do both in one command.
 5. Test that it can be executed by running it, including the path to the executable if needed (ie ```./javy or /usr/local/bin/javy``` or simply ```javy```). Executing it without any arguments should show the usage output. Or javy --version should show the version number, also indicating it works.
 
 ## Building a Smart Contract
