@@ -1,7 +1,6 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.0.104",
-  "main": "./dist/index.js",
+  "version": "0.0.111",
   "scripts": {
     "prepublish": "tsc",
     "prebuild": "tsc",

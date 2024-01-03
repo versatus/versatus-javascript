@@ -93,18 +93,38 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             if (argv.file) {
-                console.log("\x1b[0;33mstarting build...\x1b[0m")
-                const filePath = path.resolve(process.cwd(), argv.file)
-                injectFileInWrapper(filePath)
-                    .then(() => {
-                        runBuildProcess()
-                    })
-                    .catch((error) => {
-                        console.error('Error during the build process:', error)
-                    })
+                const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+                const tsconfigPath = isInstalledPackage
+                ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'tsconfig.json')
+                : path.resolve(__dirname, 'tsconfig.json');
+                const tscCommand = isInstalledPackage
+                ? `npx -p @versatus/versatus-javascript node_modules/typescript/bin/tsc --project ${tsconfigPath}`
+                : `npx tsc --project ${tsconfigPath}`;
+                console.log("\x1b[0;33mTranspiling ts...\x1b[0m");
+                exec(tscCommand, (error, stdout, stderr) => {
+                    if (error) {
+                        console.error(`Error during npx tsc: ${error}`);
+                        return;
+                    }
+                    if (stderr) {
+                        console.error(`npx tsc stderr: ${stderr}`);
+                        return;
+                    }
+                    console.log(`npx tsc stdout: ${stdout}`);
+    
+                    console.log("\x1b[0;33mStarting build...\x1b[0m");
+                    const filePath = path.resolve(process.cwd(), argv.file);
+                    injectFileInWrapper(filePath)
+                        .then(() => {
+                            runBuildProcess();
+                        })
+                        .catch((error) => {
+                            console.error('Error during the build process:', error);
+                        });
+                });
             } else {
-                console.error('You must specify a contract file to build.')
-                process.exit(1)
+                console.error('You must specify a contract file to build.');
+                process.exit(1);
             }
         }
     )
@@ -209,7 +229,11 @@ function runBuildProcess() {
         fs.mkdirSync(distPath, { recursive: true });
     }
 
-    const webpackConfigPath = path.resolve(__dirname, 'lib', 'webpack.config.cjs');
+    const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+
+    const webpackConfigPath = isInstalledPackage
+    ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'lib', 'webpack.config.cjs')
+    : path.resolve(__dirname, 'lib', 'webpack.config.cjs');
     const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
     exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
         if (webpackError) {
