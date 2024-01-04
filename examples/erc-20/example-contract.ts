@@ -1,5 +1,5 @@
 import { ERC20Contract } from '../../lib/contracts/ERC20Contract'
-import { Input } from '../../lib/types/Input'
+import { Input } from '../../types/Input'
 
 const ERC_20_CONTRACT_NAME = 'Versatus ERC20'
 const ERC_20_CONTRACT_SYMBOL = 'VRSTSERC'

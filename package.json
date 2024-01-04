@@ -6,6 +6,8 @@
     "prebuild": "tsc",
     "build": "webpack"
   },
+  "main": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
   "bin": {
     "vsjs": "./cli.cjs"
   },

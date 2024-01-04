@@ -1,9 +1,12 @@
-import { Contract } from './lib/contracts/Contract';
-import { Input } from './lib/types/Input';
+import { Contract } from './lib/contracts/Contract'
+import { Input } from './types/Input'
 
 const start = (input: Input) => {
   const contract = new Contract()
-  const splitEvenly = (accountInfo: any, { functionInputs }: {functionInputs: any}) => {
+  const splitEvenly = (
+    accountInfo: any,
+    { functionInputs }: { functionInputs: any }
+  ) => {
     const { amount, recipients } = functionInputs
     return {
       success: true,
