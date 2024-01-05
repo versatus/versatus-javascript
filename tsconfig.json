@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "noEmitOnError": false,
+      "target": "es5",
+      "module": "commonjs",
+      "declaration": true,
+      "strict": true,
+      "esModuleInterop": true,
+      "allowJs": false,
+      "outDir": "dist",
+      "types": [
+        "node"
+      ]
+    },
+    "include": ["lib/**/*.ts", "examples/**/*.ts",  "types/**/*.ts", "index.ts"],
+    "exclude": ["node_modules"]
+  }

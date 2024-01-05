@@ -1,15 +1,21 @@
-import { Contract } from './Contract.js'
+import { Contract } from './Contract'
 
 export class ERC20Contract extends Contract {
-  constructor(name, symbol, decimals, totalSupply) {
+  CONTRACT_NAME: string;
+  CONTRACT_SYMBOL: string;
+  CONTRACT_DECIMALS: number;
+  CONTRACT_TOTAL_SUPPLY: number;
+
+  constructor(name: string, symbol: string, decimals: number, totalSupply: number) {
     super()
     this.CONTRACT_NAME = name
     this.CONTRACT_SYMBOL = symbol
     this.CONTRACT_DECIMALS = decimals
     this.CONTRACT_TOTAL_SUPPLY = totalSupply
 
+    // @ts-ignore
     this.balances = {
-      '0x1': 4200000,
+      '0x1': totalSupply,
       '0x2': 0,
       '0x3': 0,
       '0x4': 0,
@@ -20,6 +26,7 @@ export class ERC20Contract extends Contract {
       '0x9': 0,
       '0xa': 0,
     }
+    // @ts-ignore
     this.allowances = {
       '0x1': {
         '0x2': 2000,
@@ -52,7 +59,7 @@ export class ERC20Contract extends Contract {
     return { name: this.CONTRACT_NAME, success: true }
   }
 
-  symbol(test, test2) {
+  symbol(_test: any, _test2: any) {
     return { symbol: this.CONTRACT_SYMBOL, success: true }
   }
 
@@ -64,25 +71,29 @@ export class ERC20Contract extends Contract {
     return { totalSupply: this.CONTRACT_TOTAL_SUPPLY, success: true }
   }
 
-  balanceOf(accountInfo, contractInput) {
+  balanceOf(accountInfo: any, contractInput: any) {
     const { value } = contractInput.functionInputs.erc20.balanceOf
     return { balance: value ?? 0, success: true }
   }
 
-  allowance(accountInfo, contractInput) {
+  allowance(accountInfo: any, contractInput: any) {
     const { owner, spender } = contractInput.functionInputs.erc20
-    return { allowance: this.allowances[owner]?.[spender] ?? 0, success: true }
+    // @ts-ignore
+    return { allowance: this.allowances[owner][spender] ?? 0, success: true }
   }
 
-  approve(accountInfo, contractInput) {
+  approve(accountInfo: any, contractInput: any) {
     const { owner, spender, amount } = contractInput.functionInputs.erc20
+    // @ts-ignore
     if (this.balances[owner] < amount) return { success: false }
+    // @ts-ignore
     this.allowances[owner] = this.allowances[owner] || {}
+    // @ts-ignore
     this.allowances[owner][spender] = amount
     return { success: true }
   }
 
-  transfer(accountInfo, contractInput) {
+  transfer(accountInfo: any, contractInput: any) {
     const { accountAddress, accountBalance } = accountInfo
     const { value, address } = contractInput.functionInputs.erc20.transfer
 
@@ -91,8 +102,11 @@ export class ERC20Contract extends Contract {
     if (accountBalanceBigInt < valueBigInt) return { success: false }
 
     accountBalanceBigInt -= valueBigInt
+    // @ts-ignore
     this.balances[accountAddress] = accountBalanceBigInt.toString()
+    // @ts-ignore
     this.balances[address] = (
+      // @ts-ignore
       BigInt(this.balances[address] ?? '0') + valueBigInt
     ).toString()
 

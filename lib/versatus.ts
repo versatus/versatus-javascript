@@ -4,6 +4,7 @@ export function parseContractInput() {
   let totalBytes = 0
   const stdInBuffer = new Uint8Array(chunkSize)
   const fdIn = 0
+    // @ts-ignore
   const bytesRead = Javy.IO.readSync(fdIn, stdInBuffer)
   totalBytes += bytesRead
   inputChunks.push(stdInBuffer.subarray(0, bytesRead))
@@ -18,9 +19,10 @@ export function parseContractInput() {
   return JSON.parse(new TextDecoder().decode(finalBuffer))
 }
 
-export function sendOutput(output) {
+export function sendOutput(output: any) {
   const encodedOutput = new TextEncoder().encode(JSON.stringify(output))
   const stdOutBuffer = new Uint8Array(encodedOutput)
   const fd = 1
+  // @ts-ignore
   Javy.IO.writeSync(fd, stdOutBuffer)
 }
