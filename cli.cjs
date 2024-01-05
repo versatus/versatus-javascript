@@ -46,8 +46,8 @@ const argv = yargs(process.argv.slice(2))
             exampleContractContent = exampleContractContent.replace(regex, (match, className) => {
                 console.log(className)
                 const importPath = isInstalledPackage
-                    ? `@versatus/versatus-javascript/lib/contracts/${className}`
-                    : `./lib/contracts/${className}`;
+                    ? `@versatus/versatus-javascript/lib/contracts`
+                    : `./lib/contracts`;
                 return `import { ${className} } from '${importPath}';`;
             });
 
@@ -55,8 +55,8 @@ const argv = yargs(process.argv.slice(2))
             exampleContractContent = exampleContractContent.replace(regexType, (match, type) => {
                 console.log(type)
                 const importPath = isInstalledPackage
-                    ? `@versatus/versatus-javascript/lib/types/${type}`
-                    : `./lib/types/${type}`;
+                    ? `@versatus/versatus-javascript/types/${type}`
+                    : `./types/${type}`;
                 return `import { ${type} } from '${importPath}';`;
             });
 
@@ -94,34 +94,15 @@ const argv = yargs(process.argv.slice(2))
         (argv) => {
             if (argv.file) {
                 const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-                const tsconfigPath = isInstalledPackage
-                ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'tsconfig.json')
-                : path.resolve(__dirname, 'tsconfig.json');
-                const tscCommand = isInstalledPackage
-                ? `npx -p @versatus/versatus-javascript node_modules/typescript/bin/tsc --project ${tsconfigPath}`
-                : `npx tsc --project ${tsconfigPath}`;
-                console.log("\x1b[0;33mTranspiling ts...\x1b[0m");
-                exec(tscCommand, (error, stdout, stderr) => {
-                    if (error) {
-                        console.error(`Error during npx tsc: ${error}`);
-                        return;
-                    }
-                    if (stderr) {
-                        console.error(`npx tsc stderr: ${stderr}`);
-                        return;
-                    }
-                    console.log(`npx tsc stdout: ${stdout}`);
-    
-                    console.log("\x1b[0;33mStarting build...\x1b[0m");
-                    const filePath = path.resolve(process.cwd(), argv.file);
-                    injectFileInWrapper(filePath)
-                        .then(() => {
-                            runBuildProcess();
-                        })
-                        .catch((error) => {
-                            console.error('Error during the build process:', error);
-                        });
-                });
+                console.log("\x1b[0;33mStarting build...\x1b[0m");
+                const filePath = path.resolve(process.cwd(), argv.file);
+                injectFileInWrapper(filePath)
+                    .then(() => {
+                        runBuildProcess();
+                    })
+                    .catch((error) => {
+                        console.error('Error during the build process:', error);
+                    });
             } else {
                 console.error('You must specify a contract file to build.');
                 process.exit(1);
@@ -143,9 +124,7 @@ const argv = yargs(process.argv.slice(2))
             if (argv.inputJson) {
                 console.log("\x1b[0;33mChecking and preparing WASM file...\x1b[0m");
                 const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check-wasm.sh');
-
-                const execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
-
+                const execOptions = {maxBuffer: 1024 * 1024}; // Increase buffer size to 1MB
                 exec(`bash "${checkWasmScriptPath}"`, execOptions, (checkWasmError, checkWasmStdout, checkWasmStderr) => {
                     if (checkWasmError) {
                         console.error(`Error during WASM check: ${checkWasmError}`);
@@ -169,15 +148,21 @@ const argv = yargs(process.argv.slice(2))
 
 function injectFileInWrapper(filePath) {
     const projectRoot = process.cwd();
-    const distPath = path.join(projectRoot, 'dist');
+    const buildPath = path.join(projectRoot, 'build');
+    const buildLibPath = path.join(projectRoot, 'build', "lib");
 
-    // Ensure the dist directory exists
-    if (!fs.existsSync(distPath)) {
-        fs.mkdirSync(distPath, { recursive: true });
+    // Ensure the build directory exists
+    if (!fs.existsSync(buildPath)) {
+        fs.mkdirSync(buildPath, {recursive: true});
+    }
+
+    // Ensure the build/lib directory exists
+    if (!fs.existsSync(buildLibPath)) {
+        fs.mkdirSync(buildLibPath, {recursive: true});
     }
 
     let wrapperFilePath
-    let versatusHelpersFilepath  = path.resolve(process.cwd(), "./lib/versatus.ts")
+    let versatusHelpersFilepath = path.resolve(process.cwd(), "./lib/versatus.ts")
 
     // Check if the script is running from within node_modules
     if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
@@ -191,19 +176,19 @@ function injectFileInWrapper(filePath) {
         }
     } else {
         // In the development environment
-        wrapperFilePath = path.resolve(__dirname, './lib/wrapper.ts');
-        versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.ts');
+        wrapperFilePath = path.resolve(__dirname, './dist/lib/wrapper.js');
+        versatusHelpersFilepath = path.resolve(__dirname, './dist/lib/versatus.js');
     }
 
-    // Copy the wrapper file to the dist directory
-    const distWrapperFilePath = path.join(distPath, 'wrapper.ts');
-    fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
+    // Copy the wrapper file to the build directory
+    const buildWrapperFilePath = path.join(buildPath, "lib", 'wrapper.js');
+    fs.copyFileSync(wrapperFilePath, buildWrapperFilePath);
 
     try {
-        let wrapperContent = fs.readFileSync(distWrapperFilePath, 'utf8');
+        let wrapperContent = fs.readFileSync(buildWrapperFilePath, 'utf8');
         wrapperContent = wrapperContent.replace(
-            /^import start from '.*';?$/m,
-            `import start from '${filePath}';`
+            /^require\('.*'\)\);?$/m,
+            `require\('${filePath}'\)\);`
         );
 
         wrapperContent = wrapperContent.replace(
@@ -211,29 +196,28 @@ function injectFileInWrapper(filePath) {
             `from '${versatusHelpersFilepath}'`
         );
 
-        return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
+        return fs.promises.writeFile(buildWrapperFilePath, wrapperContent, 'utf8');
     } catch (error) {
-        console.error('Error updating wrapper.ts in dist:', error);
+        console.error('Error updating wrapper.ts in build:', error);
         throw error;
     }
 }
 
 
-
 function runBuildProcess() {
     const projectRoot = process.cwd();
-    const distPath = path.join(projectRoot, 'dist');
+    const buildPath = path.join(projectRoot, 'build');
 
-    if (!fs.existsSync(distPath)) {
-        console.log("Creating the 'dist' directory...");
-        fs.mkdirSync(distPath, { recursive: true });
+    if (!fs.existsSync(buildPath)) {
+        console.log("Creating the 'build' directory...");
+        fs.mkdirSync(buildPath, {recursive: true});
     }
 
     const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
 
     const webpackConfigPath = isInstalledPackage
-    ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'lib', 'webpack.config.cjs')
-    : path.resolve(__dirname, 'lib', 'webpack.config.cjs');
+        ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'lib', 'webpack.config.cjs')
+        : path.resolve(__dirname, 'lib', 'webpack.config.cjs');
     const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
     exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
         if (webpackError) {
@@ -247,7 +231,7 @@ function runBuildProcess() {
 
 
         // Now run Javy
-        const javyCommand = `javy compile ${path.join(distPath, 'bundle.js')} -o ${path.join(distPath, 'build.wasm')}`;
+        const javyCommand = `javy compile ${path.join(buildPath, 'bundle.js')} -o ${path.join(buildPath, 'build.wasm')}`;
         exec(javyCommand, (javyError, javyStdout, javyStderr) => {
             if (javyError) {
                 console.error(`Javy exec error: ${javyError}`);
@@ -264,7 +248,6 @@ function runBuildProcess() {
 function runTestProcess(inputJsonPath) {
     // Define the path to the check-wasm.sh script
     const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check-wasm.sh');
-
     // Execute the check-wasm.sh script
     exec(`bash "${checkWasmScriptPath}"`, (checkWasmError, checkWasmStdout, checkWasmStderr) => {
         if (checkWasmError) {

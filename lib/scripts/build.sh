@@ -10,6 +10,6 @@ echo "building js w/ webpack"
 npx webpack --config ./lib/webpack.config.cjs
 
 echo "building wasm with javy"
-javy compile dist/bundle.js -o dist/build.wasm
+javy compile build/bundle.js -o build/build.wasm
 
 echo "build completed successfully."

@@ -1,5 +1,5 @@
-import { Contract } from './lib/contracts/Contract'
-import { Input } from './types/Input'
+import { Contract } from './lib/contracts';
+import { Input } from './types/Input';
 
 const start = (input: Input) => {
   const contract = new Contract()
