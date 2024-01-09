@@ -130,3 +130,5 @@ build
 .idea
 example-contract.js
 inputs
+
+dist/build.wasm
