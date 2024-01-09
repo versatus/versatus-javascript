@@ -79,23 +79,41 @@ const argv = yargs(process.argv.slice(2))
             return yargs.positional('file', {
                 describe: 'Contract file to include in the build',
                 type: 'string',
-            })
+            });
         },
         (argv) => {
-            if (argv.file) {
-                console.log("\033[0;33mstarting build...\033[0m")
-                const filePath = path.resolve(process.cwd(), argv.file)
-                injectFileInWrapper(filePath)
-                    .then(() => {
-                        runBuildProcess()
-                    })
-                    .catch((error) => {
-                        console.error('Error during the build process:', error)
-                    })
-            } else {
-                console.error('You must specify a contract file to build.')
-                process.exit(1)
-            }
+            console.log("Build command executed."); // Debug log
+
+            const sysCheckScriptPath = path.resolve(__dirname, 'lib', 'scripts', 'sys_check.sh');
+            console.log(`Running system check script: ${sysCheckScriptPath}`); // Debug log
+
+            exec(`bash "${sysCheckScriptPath}"`, (sysCheckError, sysCheckStdout, sysCheckStderr) => {
+                if (sysCheckError) {
+                    console.error(`Error during system check: ${sysCheckError}`);
+                    return;
+                }
+
+                console.log(sysCheckStdout); // Output from sys_check.sh
+                if (sysCheckError) {
+                    console.error(`Error during system check: ${sysCheckError}`);
+                    return;
+                }
+                console.log("System check passed. Proceeding with build...");
+
+                // Proceed with build process if system check is successful
+                if (argv.file) {
+                    console.log("\033[0;33mStarting build...\033[0m");
+                    const filePath = path.resolve(process.cwd(), argv.file);
+                    injectFileInWrapper(filePath).then(() => {
+                        runBuildProcess();
+                    }).catch((error) => {
+                        console.error('Error during the build process:', error);
+                    });
+                } else {
+                    console.error('You must specify a contract file to build.');
+                    process.exit(1);
+                }
+            });
         }
     )
     .command(

@@ -34,7 +34,7 @@ yarn install @versatus/versatus-javascript
 ### Initialize Basic Example
 Initialize a basic example to start building a smart contract.
 ```bash
-vsjs init
+npx vsjs init
 ```
 
 ### Initialize Erc-20 Example
