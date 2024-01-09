@@ -130,7 +130,7 @@ const argv = yargs(process.argv.slice(2))
         (argv) => {
             if (argv.inputJson) {
                 console.log("\033[0;33mChecking and preparing WASM file...\033[0m");
-                const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check-wasm.sh');
+                const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check_wasm.sh');
 
                 const execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
 
@@ -247,12 +247,12 @@ function runBuildProcess() {
 
 function runTestProcess(inputJsonPath) {
     // Define the path to the check-wasm.sh script
-    const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check-wasm.sh');
+    const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check_wasm.sh');
 
     // Execute the check-wasm.sh script
     exec(`bash "${checkWasmScriptPath}"`, (checkWasmError, checkWasmStdout, checkWasmStderr) => {
         if (checkWasmError) {
-            console.error(`check-wasm.sh exec error: ${checkWasmError}`);
+            console.error(`check_wasm.sh exec error: ${checkWasmError}`);
             return;
         }
         console.log(`check-wasm.sh stdout: ${checkWasmStdout}`);

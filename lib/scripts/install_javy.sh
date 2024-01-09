@@ -10,18 +10,22 @@ ARCH=$(uname -m)
 # Set download URL based on the operating system and architecture
 URL=""
 if [ "$OS" = "Darwin" ]; then
-    if [ "$ARCH" = "x86_64" ]; then
-        URL="https://github.com/bytecodealliance/javy/releases/download/${JAVY_VERSION}/javy-x86_64-macos-${JAVY_VERSION}.gz"
-    elif [ "$ARCH" = "arm64" ]; then
+    if [ "$ARCH" = "arm64" ]; then
+        # ARM architecture (M1/M2 Mac)
         URL="https://github.com/bytecodealliance/javy/releases/download/${JAVY_VERSION}/javy-arm-macos-${JAVY_VERSION}.gz"
+    elif [ "$ARCH" = "x86_64" ]; then
+        # x86_64 architecture (Intel Mac)
+        URL="https://github.com/bytecodealliance/javy/releases/download/${JAVY_VERSION}/javy-x86_64-macos-${JAVY_VERSION}.gz"
     else
         echo "Unsupported macOS architecture: $ARCH"
         exit 1
     fi
 elif [ "$OS" = "Linux" ]; then
     if [ "$ARCH" = "x86_64" ]; then
+        # x86_64 architecture
         URL="https://github.com/bytecodealliance/javy/releases/download/${JAVY_VERSION}/javy-x86_64-linux-${JAVY_VERSION}.gz"
     elif [ "$ARCH" = "aarch64" ]; then
+        # ARM architecture
         URL="https://github.com/bytecodealliance/javy/releases/download/${JAVY_VERSION}/javy-arm-linux-${JAVY_VERSION}.gz"
     else
         echo "Unsupported Linux architecture: $ARCH"
@@ -48,11 +52,17 @@ gunzip javy.gz
 chmod +x javy
 
 # Move the binary to a directory in your PATH
-# Use sudo if it is available and the user is not root
-if command -v sudo &> /dev/null && [ "$(id -u)" -ne 0 ]; then
-    sudo mv javy /usr/local/bin/
+MOVE_CMD="mv javy /usr/local/bin/"
+if [ "$OS" = "Linux" ] || ([ "$OS" = "Darwin" ] && [ "$(id -u)" -ne 0 ]); then
+    # Use sudo if not root
+    if command -v sudo &> /dev/null; then
+        sudo $MOVE_CMD
+    else
+        $MOVE_CMD
+    fi
 else
-    mv javy /usr/local/bin/
+    # No need for sudo if already root
+    $MOVE_CMD
 fi
 
 # Verify the installation
