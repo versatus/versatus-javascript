@@ -1,6 +1,6 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.0.127",
+  "version": "0.0.125",
   "type": "module",
   "main": "./cli.cjs",
   "bin": {
