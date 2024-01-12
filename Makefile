@@ -11,6 +11,12 @@ endif
 all: $(DEFAULT)
 help:
 	$(Q)echo "make clean             - Deletes build artifacts."
+
+publish:
+	$(Q)echo "--- publish"
+	$(Q)npm publish --access public
+	$(Q)echo "--- publish done"
+
 reset:
 	$(Q)rm -rf dist
 	$(Q)yarn build
