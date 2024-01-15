@@ -1,4 +1,4 @@
-import { ERC20Contract } from '../../lib/contracts/ERC20Contract.js'
+import { ERC20Contract } from '../../lib/contracts'
 
 const ERC_20_CONTRACT_NAME = 'Versatus ERC20'
 const ERC_20_CONTRACT_SYMBOL = 'VRSTSERC'
