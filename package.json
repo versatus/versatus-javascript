@@ -3,6 +3,7 @@
   "version": "0.0.130",
   "type": "module",
   "main": "./cli.cjs",
+  "module": "./lib/index.js",
   "bin": {
     "vsjs": "./cli.cjs"
   },
