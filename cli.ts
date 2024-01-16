@@ -59,7 +59,6 @@ const argv = yargs(process.argv.slice(2))
             const inputsDir = path.join(process.cwd(), 'examples', argv.example || 'basic', 'inputs');
             const targetInputsDir = path.join(targetDir, 'inputs');
 
-            console.log({inputsDir})
 
             if (fs.existsSync(inputsDir)) {
                 if (!fs.existsSync(targetInputsDir)) {
@@ -159,7 +158,6 @@ const argv = yargs(process.argv.slice(2))
                     scriptDir = process.cwd();
                 }
 
-                console.log({scriptDir})
 
                 const checkWasmScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'check_wasm.sh');
 
@@ -220,7 +218,6 @@ async function injectFileInWrapper(filePath: string) {
             throw error;
         }
     } else {
-        console.log({__dirname})
         // In the development environment
         wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
         versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus');

@@ -75,7 +75,6 @@ var argv = yargs(process.argv.slice(2))
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
     var inputsDir = path.join(process.cwd(), 'examples', argv.example || 'basic', 'inputs');
     var targetInputsDir = path.join(targetDir, 'inputs');
-    console.log({ inputsDir: inputsDir });
     if (fs.existsSync(inputsDir)) {
         if (!fs.existsSync(targetInputsDir)) {
             fs.mkdirSync(targetInputsDir);
@@ -161,7 +160,6 @@ var argv = yargs(process.argv.slice(2))
             // In the development environment
             scriptDir = process.cwd();
         }
-        console.log({ scriptDir: scriptDir });
         var checkWasmScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'check_wasm.sh');
         console.log({ checkWasmScriptPath: checkWasmScriptPath });
         var execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
@@ -220,7 +218,6 @@ function injectFileInWrapper(filePath) {
                     throw error_1;
                 case 5: return [3 /*break*/, 7];
                 case 6:
-                    console.log({ __dirname: __dirname });
                     // In the development environment
                     wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
                     versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus');

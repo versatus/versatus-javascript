@@ -23,6 +23,7 @@
     "dist/"
   ],
   "dependencies": {
+    "fs": "^0.0.1-security",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
     "yargs": "^17.7.2"
