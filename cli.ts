@@ -91,7 +91,6 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-            console.log({isInstalledPackage})
             let scriptDir, sysCheckScriptPath;
             if (isInstalledPackage) {
                 // In an installed package environment
@@ -203,8 +202,10 @@ async function injectFileInWrapper(filePath: string) {
     let wrapperFilePath
     let versatusHelpersFilepath  = path.resolve(process.cwd(), "./lib/versatus")
 
+    const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+
     // Check if the script is running from within node_modules
-    if (fs.existsSync(path.resolve(__dirname, '../../../../node_modules'))) {
+    if (isInstalledPackage) {
         // In an installed package environment
         try {
             // @ts-ignore

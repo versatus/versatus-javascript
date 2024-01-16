@@ -102,7 +102,6 @@ var argv = yargs(process.argv.slice(2))
     });
 }, function (argv) {
     var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-    console.log({ isInstalledPackage: isInstalledPackage });
     var scriptDir, sysCheckScriptPath;
     if (isInstalledPackage) {
         // In an installed package environment
@@ -189,7 +188,7 @@ var argv = yargs(process.argv.slice(2))
     .help().argv;
 function injectFileInWrapper(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, wrapperModule, versatusHelpersModule, error_1, distWrapperFilePath, wrapperContent;
+        var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, isInstalledPackage, wrapperModule, versatusHelpersModule, error_1, distWrapperFilePath, wrapperContent;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -202,11 +201,12 @@ function injectFileInWrapper(filePath) {
                         fs.mkdirSync(buildLibPath, { recursive: true });
                     }
                     versatusHelpersFilepath = path.resolve(process.cwd(), "./lib/versatus");
-                    if (!fs.existsSync(path.resolve(__dirname, '../../../../node_modules'))) return [3 /*break*/, 6];
+                    isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+                    if (!isInstalledPackage) return [3 /*break*/, 6];
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 4, , 5]);
-                    return [4 /*yield*/, import('@versatus/versatus-javascript/dist/lib/wrapper')];
+                    return [4 /*yield*/, import('@versatus/versatus-javascript/dist/lib/wrapper.js')];
                 case 2:
                     wrapperModule = _a.sent();
                     return [4 /*yield*/, import('@versatus/versatus-javascript/lib/versatus')];
