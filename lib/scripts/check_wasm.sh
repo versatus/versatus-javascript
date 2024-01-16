@@ -3,12 +3,13 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-VERSA_WASM_VERSION="v1.0.0"
+#VERSA_WASM_VERSION="v1.0.0"
 
 # Use the current working directory as the root directory
 ROOT_DIR=$(pwd)
 WASM_PATH="$ROOT_DIR/dist/versa.wasm"
-WASM_URL="https://github.com/versatus/test-versatus-release-actions/releases/download/${VERSA_WASM_VERSION}/versa-wasm"
+#WASM_URL="https://github.com/versatus/test-versatus-release-actions/releases/download/${VERSA_WASM_VERSION}/versa-wasm"
+WASM_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/versa-wasm" # OSX M2
 
 # Create the dist directory if it doesn't exist
 if [ ! -d "$ROOT_DIR/dist" ]; then

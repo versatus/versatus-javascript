@@ -24,7 +24,7 @@ fi
 echo -e "\033[0;36mRunning the test using versa-wasm...\033[0m"
 
 # Store the response from versa-wasm execute in a variable
-EXECUTE_RESPONSE=$("$WASM_PATH" execute --wasm "$BUILD_WASM_PATH" --json "$INPUT_JSON_PATH" --meter-limit 1000 | jq)
+EXECUTE_RESPONSE=$("$WASM_PATH" execute --wasm "$BUILD_WASM_PATH" --json "$INPUT_JSON_PATH" | jq)
 
 # Extract the success value from the JSON output
 TEST_RESULT=$(echo "$EXECUTE_RESPONSE" | jq -r '.success')
