@@ -91,7 +91,7 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-
+            console.log({isInstalledPackage})
             let scriptDir, sysCheckScriptPath;
             if (isInstalledPackage) {
                 // In an installed package environment
