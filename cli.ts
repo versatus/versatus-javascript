@@ -210,8 +210,8 @@ async function injectFileInWrapper(filePath: string) {
             const wrapperModule = await import('@versatus/versatus-javascript/dist/lib/wrapper.js');
             // @ts-ignore
             const versatusHelpersModule = await import('@versatus/versatus-javascript/dist/lib/versatus.js');
-            wrapperFilePath = wrapperModule.default;
-            versatusHelpersFilepath = versatusHelpersModule.default;
+            wrapperFilePath = wrapperModule;
+            versatusHelpersFilepath = versatusHelpersModule;
 
         } catch (error) {
             console.error('Error locating wrapper.js in node_modules:', error);
