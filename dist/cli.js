@@ -208,7 +208,7 @@ function injectFileInWrapper(filePath) {
                     return [4 /*yield*/, import('@versatus/versatus-javascript/dist/lib/wrapper.js')];
                 case 2:
                     wrapperModule = _a.sent();
-                    return [4 /*yield*/, import('@versatus/versatus-javascript/lib/versatus')];
+                    return [4 /*yield*/, import('@versatus/versatus-javascript/lib/versatus.js')];
                 case 3:
                     versatusHelpersModule = _a.sent();
                     wrapperFilePath = wrapperModule.default;
