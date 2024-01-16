@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
-const yargs = require('yargs')
-const fs = require('fs')
-const path = require('path')
-const {exec} = require('child_process')
+import yargs from 'yargs'
+import fs from 'fs'
+import path from 'path'
+import { exec } from 'child_process'
+import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const argv = yargs(process.argv.slice(2))
     .command(
@@ -19,7 +21,7 @@ const argv = yargs(process.argv.slice(2))
             })
         },
         (argv) => {
-            console.log("\033[0;33mInitializing example contract...\033[0m");
+            console.log("\x1b[0;33mInitializing example contract...\x1b[0m");
 
             // Check if the package is installed in the current project's node_modules
             const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
@@ -54,8 +56,10 @@ const argv = yargs(process.argv.slice(2))
             fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
 
 
-            const inputsDir = path.join(exampleDir, 'inputs');
+            const inputsDir = path.join(process.cwd(), 'examples', argv.example || 'basic', 'inputs');
             const targetInputsDir = path.join(targetDir, 'inputs');
+
+            console.log({inputsDir})
 
             if (fs.existsSync(inputsDir)) {
                 if (!fs.existsSync(targetInputsDir)) {
@@ -64,11 +68,15 @@ const argv = yargs(process.argv.slice(2))
                 fs.readdirSync(inputsDir).forEach(file => {
                     const srcFile = path.join(inputsDir, file);
                     const destFile = path.join(targetInputsDir, file);
-                    fs.copyFileSync(srcFile, destFile);
+                    try {
+                        fs.copyFileSync(srcFile, destFile);
+                    } catch (error) {
+                        console.error(`Error copying file ${srcFile} to ${destFile}:`, error);
+                    }
                 });
             }
 
-            console.log("\033[0;32mExample contract and inputs initialized successfully.\033[0m");
+            console.log("\x1b[0;32mExample contract and inputs initialized successfully.\x1b[0m");
         }
     )
     .usage('Usage: $0 build [options]')
@@ -82,9 +90,18 @@ const argv = yargs(process.argv.slice(2))
             });
         },
         (argv) => {
+            let scriptDir;
+            if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
+                // In an installed package environment
+                scriptDir = path.resolve(__dirname, '../');
+            } else {
+                // In the development environment
+                scriptDir = process.cwd();
+            }
+            const sysCheckScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'sys_check.sh');
             console.log("Build command executed."); // Debug log
 
-            const sysCheckScriptPath = path.resolve(__dirname, 'lib', 'scripts', 'sys_check.sh');
+            // const sysCheckScriptPath = path.resolve(__dirname, 'lib', 'scripts', 'sys_check.sh');
             console.log(`Running system check script: ${sysCheckScriptPath}`); // Debug log
 
             exec(`bash "${sysCheckScriptPath}"`, (sysCheckError, sysCheckStdout, sysCheckStderr) => {
@@ -102,7 +119,7 @@ const argv = yargs(process.argv.slice(2))
 
                 // Proceed with build process if system check is successful
                 if (argv.file) {
-                    console.log("\033[0;33mStarting build...\033[0m");
+                    console.log("\x1b[0;33mStarting build...\x1b[0m");
                     const filePath = path.resolve(process.cwd(), argv.file);
                     injectFileInWrapper(filePath).then(() => {
                         runBuildProcess();
@@ -129,8 +146,21 @@ const argv = yargs(process.argv.slice(2))
         },
         (argv) => {
             if (argv.inputJson) {
-                console.log("\033[0;33mChecking and preparing WASM file...\033[0m");
-                const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check_wasm.sh');
+                console.log("\x1b[0;33mChecking and preparing WASM file...\x1b[0m");
+                let scriptDir;
+                if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
+                    // In an installed package environment
+                    scriptDir = path.resolve(__dirname, '../');
+                } else {
+                    // In the development environment
+                    scriptDir = process.cwd();
+                }
+
+                console.log({scriptDir})
+
+                const checkWasmScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'check_wasm.sh');
+
+                console.log({checkWasmScriptPath})
 
                 const execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
 
@@ -143,7 +173,7 @@ const argv = yargs(process.argv.slice(2))
                         console.error(`WASM check stderr: ${checkWasmStderr}`);
                         return;
                     }
-                    console.log("\033[0;33mStarting test...\033[0m");
+                    console.log("\x1b[0;33mStarting test...\x1b[0m");
                     const filePath = path.resolve(process.cwd(), argv.inputJson);
                     runTestProcess(filePath);
                 });
@@ -155,36 +185,44 @@ const argv = yargs(process.argv.slice(2))
     )
     .help().argv
 
-function injectFileInWrapper(filePath) {
+async function injectFileInWrapper(filePath: string) {
     const projectRoot = process.cwd();
-    const distPath = path.join(projectRoot, 'dist');
+    const buildPath = path.join(projectRoot, 'build');
+    const buildLibPath = path.join(projectRoot, "build", "lib")
 
     // Ensure the dist directory exists
-    if (!fs.existsSync(distPath)) {
-        fs.mkdirSync(distPath, { recursive: true });
+    if (!fs.existsSync(buildPath) || !fs.existsSync(buildLibPath)) {
+        fs.mkdirSync(buildPath, { recursive: true });
+        fs.mkdirSync(buildLibPath, { recursive: true });
     }
 
     let wrapperFilePath
-    let versatusHelpersFilepath  = path.resolve(process.cwd(), "./lib/versatus.js")
+    let versatusHelpersFilepath  = path.resolve(process.cwd(), "./lib/versatus")
 
     // Check if the script is running from within node_modules
-    if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
+    if (fs.existsSync(path.resolve(__dirname, '../../../../node_modules'))) {
         // In an installed package environment
         try {
-            wrapperFilePath = require.resolve('@versatus/versatus-javascript/lib/wrapper');
-            versatusHelpersFilepath = require.resolve('@versatus/versatus-javascript/lib/versatus');
+            // @ts-ignore
+            const wrapperModule = await import('@versatus/versatus-javascript/dist/lib/wrapper');
+            // @ts-ignore
+            const versatusHelpersModule = await import('@versatus/versatus-javascript/lib/versatus');
+            wrapperFilePath = wrapperModule.default;
+            versatusHelpersFilepath = versatusHelpersModule.default;
+
         } catch (error) {
             console.error('Error locating wrapper.js in node_modules:', error);
             throw error;
         }
     } else {
+        console.log({__dirname})
         // In the development environment
         wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
-        versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js');
+        versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus');
     }
 
-    // Copy the wrapper file to the dist directory
-    const distWrapperFilePath = path.join(distPath, 'wrapper.js');
+    // Copy the wrapper file to the build directory
+    const distWrapperFilePath = path.join(buildPath, 'lib', 'wrapper.js');
     fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
 
     try {
@@ -195,8 +233,8 @@ function injectFileInWrapper(filePath) {
         );
 
         wrapperContent = wrapperContent.replace(
-            /from '.*versatus.js';?$/m,
-            `from '${versatusHelpersFilepath}'`
+            /from '.*versatus';?$/m,
+            `from '${versatusHelpersFilepath}.js'`
         );
 
         return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
@@ -211,13 +249,26 @@ function injectFileInWrapper(filePath) {
 function runBuildProcess() {
     const projectRoot = process.cwd();
     const distPath = path.join(projectRoot, 'dist');
+    const buildPath = path.join(projectRoot, 'build');
 
     if (!fs.existsSync(distPath)) {
         console.log("Creating the 'dist' directory...");
         fs.mkdirSync(distPath, { recursive: true });
     }
 
-    const webpackConfigPath = path.resolve(__dirname, 'lib', 'webpack.config.cjs');
+    if (!fs.existsSync(buildPath)) {
+        console.log("Creating the 'dist' directory...");
+        fs.mkdirSync(buildPath, { recursive: true });
+    }
+
+    let webpackConfigPath;
+    if (fs.existsSync(path.resolve(__dirname, '../../../../node_modules'))) {
+        // In an installed package environment
+        webpackConfigPath = path.resolve(projectRoot, 'node_modules', '@versatus', 'versatus-javascript', 'lib', 'webpack.config.cjs');
+    } else {
+        // In the development environment
+        webpackConfigPath = path.resolve(__dirname, '../', 'lib', 'webpack.config.cjs');
+    }
     const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
     exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
         if (webpackError) {
@@ -231,7 +282,7 @@ function runBuildProcess() {
 
 
         // Now run Javy
-        const javyCommand = `javy compile ${path.join(distPath, 'bundle.js')} -o ${path.join(distPath, 'build.wasm')}`;
+        const javyCommand = `javy compile ${path.join(buildPath, 'bundle.js')} -o ${path.join(buildPath, 'build.wasm')}`;
         exec(javyCommand, (javyError, javyStdout, javyStderr) => {
             if (javyError) {
                 console.error(`Javy exec error: ${javyError}`);
@@ -245,9 +296,16 @@ function runBuildProcess() {
 }
 
 
-function runTestProcess(inputJsonPath) {
-    // Define the path to the check-wasm.sh script
-    const checkWasmScriptPath = path.resolve(__dirname, "lib", 'scripts', 'check_wasm.sh');
+function runTestProcess(inputJsonPath: string) {
+    let scriptDir: string;
+    if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
+        // In an installed package environment
+        scriptDir = path.resolve(__dirname, '../');
+    } else {
+        // In the development environment
+        scriptDir = process.cwd();
+    }
+    const checkWasmScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'check_wasm.sh');
 
     // Execute the check-wasm.sh script
     exec(`bash "${checkWasmScriptPath}"`, (checkWasmError, checkWasmStdout, checkWasmStderr) => {
@@ -263,7 +321,7 @@ function runTestProcess(inputJsonPath) {
 
         // Continue with the rest of the test process after checking WASM
         // Define the path to the test.sh script
-        const testScriptPath = path.resolve(__dirname, "lib", 'scripts', 'test.sh');
+        const testScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'test.sh');
 
         // Execute the test.sh script with the input JSON file path as an argument
         exec(`bash "${testScriptPath}" "${inputJsonPath}"`, (testError, testStdout, testStderr) => {
