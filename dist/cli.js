@@ -185,58 +185,48 @@ var argv = yargs(process.argv.slice(2))
     .help().argv;
 function injectFileInWrapper(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, isInstalledPackage, wrapperModule, versatusHelpersModule, error_1, distWrapperFilePath, wrapperContent;
+        var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, isInstalledPackage, distWrapperFilePath, wrapperContent;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    projectRoot = process.cwd();
-                    buildPath = path.join(projectRoot, 'build');
-                    buildLibPath = path.join(projectRoot, "build", "lib");
-                    // Ensure the dist directory exists
-                    if (!fs.existsSync(buildPath) || !fs.existsSync(buildLibPath)) {
-                        fs.mkdirSync(buildPath, { recursive: true });
-                        fs.mkdirSync(buildLibPath, { recursive: true });
-                    }
-                    versatusHelpersFilepath = path.resolve(process.cwd(), "./lib/versatus");
-                    isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-                    if (!isInstalledPackage) return [3 /*break*/, 6];
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 4, , 5]);
-                    return [4 /*yield*/, import('@versatus/versatus-javascript/dist/lib/wrapper.js')];
-                case 2:
-                    wrapperModule = _a.sent();
-                    return [4 /*yield*/, import('@versatus/versatus-javascript/dist/lib/versatus.js')];
-                case 3:
-                    versatusHelpersModule = _a.sent();
-                    wrapperFilePath = wrapperModule.default;
-                    versatusHelpersFilepath = versatusHelpersModule.default;
-                    return [3 /*break*/, 5];
-                case 4:
-                    error_1 = _a.sent();
-                    console.error('Error locating wrapper.js in node_modules:', error_1);
-                    throw error_1;
-                case 5: return [3 /*break*/, 7];
-                case 6:
-                    // In the development environment
-                    wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
-                    versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus');
-                    _a.label = 7;
-                case 7:
-                    distWrapperFilePath = path.join(buildPath, 'lib', 'wrapper.js');
-                    fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
-                    try {
-                        wrapperContent = fs.readFileSync(distWrapperFilePath, 'utf8');
-                        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, "import start from '".concat(filePath, "';"));
-                        wrapperContent = wrapperContent.replace(/from '.*versatus';?$/m, "from '".concat(versatusHelpersFilepath, ".js'"));
-                        return [2 /*return*/, fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8')];
-                    }
-                    catch (error) {
-                        console.error('Error updating wrapper.js in dist:', error);
-                        throw error;
-                    }
-                    return [2 /*return*/];
+            projectRoot = process.cwd();
+            buildPath = path.join(projectRoot, 'build');
+            buildLibPath = path.join(projectRoot, "build", "lib");
+            // Ensure the dist directory exists
+            if (!fs.existsSync(buildPath) || !fs.existsSync(buildLibPath)) {
+                fs.mkdirSync(buildPath, { recursive: true });
+                fs.mkdirSync(buildLibPath, { recursive: true });
             }
+            versatusHelpersFilepath = path.resolve(process.cwd(), "./lib/versatus");
+            isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+            // Check if the script is running from within node_modules
+            if (isInstalledPackage) {
+                // In an installed package environment
+                try {
+                    wrapperFilePath = 'node_modules/@versatus/versatus-javascript/dist/lib/wrapper.js'; // Adjust this path to your default wrapper file
+                    versatusHelpersFilepath = 'node_modules/@versatus/versatus-javascript/dist/lib/versatus.js'; // Adjust this path to your default helpers file
+                }
+                catch (error) {
+                    console.error('Error locating wrapper.js in node_modules:', error);
+                    throw error;
+                }
+            }
+            else {
+                // In the development environment
+                wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
+                versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus');
+            }
+            distWrapperFilePath = path.join(buildPath, 'lib', 'wrapper.js');
+            fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
+            try {
+                wrapperContent = fs.readFileSync(distWrapperFilePath, 'utf8');
+                wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, "import start from '".concat(filePath, "';"));
+                wrapperContent = wrapperContent.replace(/from '.*versatus';?$/m, "from '".concat(versatusHelpersFilepath, ".js'"));
+                return [2 /*return*/, fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8')];
+            }
+            catch (error) {
+                console.error('Error updating wrapper.js in dist:', error);
+                throw error;
+            }
+            return [2 /*return*/];
         });
     });
 }
