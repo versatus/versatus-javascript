@@ -46,7 +46,7 @@ const argv = yargs(process.argv.slice(2))
             exampleContractContent = exampleContractContent.replace(regex, (match, className) => {
                 const importPath = isInstalledPackage
                     ? `@versatus/versatus-javascript/lib/contracts`
-                    : `./lib/contracts`;
+                    : `./lib/contracts/index.js`;
                 return `import { ${className} } from '${importPath}';`;
             });
 
