@@ -54,7 +54,6 @@ var argv = yargs(process.argv.slice(2))
     console.log("\x1b[0;33mInitializing example contract...\x1b[0m");
     // Check if the package is installed in the current project's node_modules
     var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-    console.log({ isInstalledPackage: isInstalledPackage });
     // Path to the examples directory
     var exampleDir = isInstalledPackage
         ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'dist', 'examples', argv.example || 'basic')
@@ -102,16 +101,19 @@ var argv = yargs(process.argv.slice(2))
         type: 'string',
     });
 }, function (argv) {
-    var scriptDir;
-    if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
+    var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+    console.log({ isInstalledPackage: isInstalledPackage });
+    var scriptDir, sysCheckScriptPath;
+    if (isInstalledPackage) {
         // In an installed package environment
-        scriptDir = path.resolve(__dirname, '../');
+        scriptDir = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
+        sysCheckScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'sys_check.sh');
     }
     else {
         // In the development environment
-        scriptDir = process.cwd();
+        scriptDir = path.resolve(__dirname, '../');
+        sysCheckScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'sys_check.sh');
     }
-    var sysCheckScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'sys_check.sh');
     console.log("Build command executed."); // Debug log
     // const sysCheckScriptPath = path.resolve(__dirname, 'lib', 'scripts', 'sys_check.sh');
     console.log("Running system check script: ".concat(sysCheckScriptPath)); // Debug log
