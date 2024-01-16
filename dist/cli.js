@@ -54,6 +54,7 @@ var argv = yargs(process.argv.slice(2))
     console.log("\x1b[0;33mInitializing example contract...\x1b[0m");
     // Check if the package is installed in the current project's node_modules
     var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+    console.log({ isInstalledPackage: isInstalledPackage });
     // Path to the examples directory
     var exampleDir = isInstalledPackage
         ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'dist', 'examples', argv.example || 'basic')
