@@ -56,7 +56,7 @@ var argv = yargs(process.argv.slice(2))
     var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
     // Path to the examples directory
     var exampleDir = isInstalledPackage
-        ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'examples', argv.example || 'basic')
+        ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'dist', 'examples', argv.example || 'basic')
         : path.resolve(__dirname, 'examples', argv.example || 'basic');
     var targetDir = process.cwd();
     var targetFilePath = path.join(targetDir, 'example-contract.js');

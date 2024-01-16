@@ -19,7 +19,8 @@
   },
   "files": [
     "lib/",
-    "examples/"
+    "examples/",
+    "dist/"
   ],
   "dependencies": {
     "webpack": "^5.89.0",
