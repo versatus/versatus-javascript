@@ -28,7 +28,7 @@ const argv = yargs(process.argv.slice(2))
 
             // Path to the examples directory
             const exampleDir = isInstalledPackage
-                ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'examples', argv.example || 'basic')
+                ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'dist', 'examples', argv.example || 'basic')
                 : path.resolve(__dirname, 'examples', argv.example || 'basic');
 
             const targetDir = process.cwd();
