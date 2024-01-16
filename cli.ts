@@ -40,18 +40,18 @@ const argv = yargs(process.argv.slice(2))
                 targetFilePath
             );
 
-            // Read the content of the example file
             let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
 
             // Update the import path for any contract class based on the environment
-            const regex = /^import \{ (.*) \} from '.*'$/gm;
+            const regex = /^import \{ (.*) \} from '.*';$/gm;
+            
             exampleContractContent = exampleContractContent.replace(regex, (match, className) => {
                 const importPath = isInstalledPackage
-                    ? `@versatus/versatus-javascript`
-                    : `./lib/contracts/index.js`;
-                return `import { ${className} } from '${importPath}';`;
+                    ? `'@versatus/versatus-javascript'`
+                    : `'./lib/contracts/index.js'`;
+                return `import { ${className} } from ${importPath};`;
             });
-
+            
             // Write the updated content back to the example file
             fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
 
@@ -232,6 +232,8 @@ async function injectFileInWrapper(filePath: string) {
 
     try {
         let wrapperContent = fs.readFileSync(distWrapperFilePath, 'utf8');
+
+        
         wrapperContent = wrapperContent.replace(
             /^import start from '.*';?$/m,
             `import start from '${filePath}';`

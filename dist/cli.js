@@ -62,15 +62,14 @@ var argv = yargs(process.argv.slice(2))
     var targetFilePath = path.join(targetDir, 'example-contract.js');
     // Copy the example file to the target directory
     fs.copyFileSync(path.join(exampleDir, 'example-contract.js'), targetFilePath);
-    // Read the content of the example file
     var exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
     // Update the import path for any contract class based on the environment
-    var regex = /^import \{ (.*) \} from '.*'$/gm;
+    var regex = /^import \{ (.*) \} from '.*';$/gm;
     exampleContractContent = exampleContractContent.replace(regex, function (match, className) {
         var importPath = isInstalledPackage
-            ? "@versatus/versatus-javascript"
-            : "./lib/contracts/index.js";
-        return "import { ".concat(className, " } from '").concat(importPath, "';");
+            ? "'@versatus/versatus-javascript'"
+            : "'./lib/contracts/index.js'";
+        return "import { ".concat(className, " } from ").concat(importPath, ";");
     });
     // Write the updated content back to the example file
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
