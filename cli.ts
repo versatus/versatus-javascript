@@ -209,7 +209,7 @@ async function injectFileInWrapper(filePath: string) {
             // @ts-ignore
             const wrapperModule = await import('@versatus/versatus-javascript/dist/lib/wrapper.js');
             // @ts-ignore
-            const versatusHelpersModule = await import('@versatus/versatus-javascript/lib/versatus.js');
+            const versatusHelpersModule = await import('@versatus/versatus-javascript/dist/lib/versatus.js');
             wrapperFilePath = wrapperModule.default;
             versatusHelpersFilepath = versatusHelpersModule.default;
 
