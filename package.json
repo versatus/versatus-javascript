@@ -1,6 +1,6 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.0.142",
+  "version": "0.0.143",
   "type": "module",
   "main": "./dist/cli.js",
   "module": "./dist/lib/index.js",
