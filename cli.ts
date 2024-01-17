@@ -216,6 +216,7 @@ async function injectFileInWrapper(filePath: string) {
             throw error;
         }
     } else {
+        console.log("IN DEVELOPMENT ENVIRONMENT")
         // In the development environment
         wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
         versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus');
