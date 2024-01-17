@@ -311,7 +311,7 @@ function runTestProcess(inputJsonPath: string) {
     let scriptDir: string;
     if (isInstalledPackage) {
         // In an installed package environment
-        scriptDir = path.resolve(__dirname, '../');
+        scriptDir = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
         console.log({scriptDir})
     } else {
         // In the development environment
