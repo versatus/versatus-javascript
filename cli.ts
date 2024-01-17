@@ -202,6 +202,8 @@ async function injectFileInWrapper(filePath: string) {
 
     const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
 
+    console.log({isInstalledPackage})
+
     // Check if the script is running from within node_modules
     if (isInstalledPackage) {
         // In an installed package environment
@@ -297,6 +299,9 @@ function runBuildProcess() {
 
 
 function runTestProcess(inputJsonPath: string) {
+    function runTestProcess(inputJsonPath: string) {
+        function runTestProcess(inputJsonPath: string) {
+            function runTestProcess(inputJsonPath: string) {
     let scriptDir: string;
     if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
         // In an installed package environment
