@@ -187,6 +187,7 @@ const argv = yargs(process.argv.slice(2))
     .help().argv
 
 async function injectFileInWrapper(filePath: string) {
+    console.log("INJECTING FILE IN WRAPPER")
     const projectRoot = process.cwd();
     const buildPath = path.join(projectRoot, 'build');
     const buildLibPath = path.join(projectRoot, "build", "lib")
