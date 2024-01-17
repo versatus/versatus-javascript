@@ -154,13 +154,9 @@ const argv = yargs(process.argv.slice(2))
 
 
                 const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-                console.log({isInstalledPackage})
-            
-
                 let scriptDir;
                 if (isInstalledPackage) {
                     scriptDir = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
-                    console.log({scriptDir})
                 } else {
                     // In the development environment
                     scriptDir = process.cwd();
@@ -168,8 +164,6 @@ const argv = yargs(process.argv.slice(2))
 
 
                 const checkWasmScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'check_wasm.sh');
-
-                console.log({checkWasmScriptPath})
 
                 const execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
 
@@ -195,7 +189,6 @@ const argv = yargs(process.argv.slice(2))
     .help().argv
 
 async function injectFileInWrapper(filePath: string) {
-    console.log("INJECTING FILE IN WRAPPER")
     const projectRoot = process.cwd();
     const buildPath = path.join(projectRoot, 'build');
     const buildLibPath = path.join(projectRoot, "build", "lib")
@@ -210,8 +203,6 @@ async function injectFileInWrapper(filePath: string) {
     let versatusHelpersFilepath  = path.resolve(process.cwd(), "./lib/versatus")
 
     const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-
-    console.log({isInstalledPackage})
 
     // Check if the script is running from within node_modules
     if (isInstalledPackage) {
@@ -260,7 +251,6 @@ async function injectFileInWrapper(filePath: string) {
 
 function runBuildProcess() {
     const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-    console.log({isInstalledPackage})
     const projectRoot = process.cwd();
     const distPath = path.join(projectRoot, 'dist');
     const buildPath = path.join(projectRoot, 'build');
