@@ -234,19 +234,21 @@ function injectFileInWrapper(filePath) {
     });
 }
 function runBuildProcess() {
+    var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+    console.log({ isInstalledPackage: isInstalledPackage });
     var projectRoot = process.cwd();
     var distPath = path.join(projectRoot, 'dist');
     var buildPath = path.join(projectRoot, 'build');
-    if (!fs.existsSync(distPath)) {
+    if (!fs.existsSync(distPath) && !isInstalledPackage) {
         console.log("Creating the 'dist' directory...");
         fs.mkdirSync(distPath, { recursive: true });
     }
     if (!fs.existsSync(buildPath)) {
-        console.log("Creating the 'dist' directory...");
+        console.log("Creating the 'build' directory...");
         fs.mkdirSync(buildPath, { recursive: true });
     }
     var webpackConfigPath;
-    if (fs.existsSync(path.resolve(__dirname, '../../../../node_modules'))) {
+    if (isInstalledPackage) {
         // In an installed package environment
         webpackConfigPath = path.resolve(projectRoot, 'node_modules', '@versatus', 'versatus-javascript', 'lib', 'webpack.config.cjs');
     }

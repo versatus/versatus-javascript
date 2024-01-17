@@ -251,22 +251,24 @@ async function injectFileInWrapper(filePath: string) {
 
 
 function runBuildProcess() {
+    const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+    console.log({isInstalledPackage})
     const projectRoot = process.cwd();
     const distPath = path.join(projectRoot, 'dist');
     const buildPath = path.join(projectRoot, 'build');
 
-    if (!fs.existsSync(distPath)) {
+    if (!fs.existsSync(distPath) && !isInstalledPackage) {
         console.log("Creating the 'dist' directory...");
         fs.mkdirSync(distPath, { recursive: true });
     }
 
     if (!fs.existsSync(buildPath)) {
-        console.log("Creating the 'dist' directory...");
+        console.log("Creating the 'build' directory...");
         fs.mkdirSync(buildPath, { recursive: true });
     }
 
     let webpackConfigPath;
-    if (fs.existsSync(path.resolve(__dirname, '../../../../node_modules'))) {
+    if (isInstalledPackage) {
         // In an installed package environment
         webpackConfigPath = path.resolve(projectRoot, 'node_modules', '@versatus', 'versatus-javascript', 'lib', 'webpack.config.cjs');
     } else {
