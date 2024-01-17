@@ -187,6 +187,7 @@ function injectFileInWrapper(filePath) {
     return __awaiter(this, void 0, void 0, function () {
         var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, isInstalledPackage, distWrapperFilePath, wrapperContent;
         return __generator(this, function (_a) {
+            console.log("INJECTING FILE IN WRAPPER");
             projectRoot = process.cwd();
             buildPath = path.join(projectRoot, 'build');
             buildLibPath = path.join(projectRoot, "build", "lib");
@@ -197,6 +198,7 @@ function injectFileInWrapper(filePath) {
             }
             versatusHelpersFilepath = path.resolve(process.cwd(), "./lib/versatus");
             isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+            console.log({ isInstalledPackage: isInstalledPackage });
             // Check if the script is running from within node_modules
             if (isInstalledPackage) {
                 // In an installed package environment
@@ -210,6 +212,7 @@ function injectFileInWrapper(filePath) {
                 }
             }
             else {
+                console.log("IN DEVELOPMENT ENVIRONMENT");
                 // In the development environment
                 wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
                 versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus');

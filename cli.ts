@@ -301,9 +301,6 @@ function runBuildProcess() {
 
 
 function runTestProcess(inputJsonPath: string) {
-    function runTestProcess(inputJsonPath: string) {
-        function runTestProcess(inputJsonPath: string) {
-            function runTestProcess(inputJsonPath: string) {
     let scriptDir: string;
     if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
         // In an installed package environment
