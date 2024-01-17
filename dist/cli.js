@@ -215,7 +215,7 @@ function injectFileInWrapper(filePath) {
                 console.log("IN DEVELOPMENT ENVIRONMENT");
                 // In the development environment
                 wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
-                versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus');
+                versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js');
             }
             distWrapperFilePath = path.join(buildPath, 'lib', 'wrapper.js');
             fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
