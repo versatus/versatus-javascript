@@ -54,6 +54,7 @@ var argv = yargs(process.argv.slice(2))
     console.log("\x1b[0;33mInitializing example contract...\x1b[0m");
     // Check if the package is installed in the current project's node_modules
     var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+    var installedPackagePath = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
     // Path to the examples directory
     var exampleDir = isInstalledPackage
         ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'dist', 'examples', argv.example || 'basic')
@@ -73,7 +74,7 @@ var argv = yargs(process.argv.slice(2))
     });
     // Write the updated content back to the example file
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
-    var inputsDir = path.join(process.cwd(), 'examples', argv.example || 'basic', 'inputs');
+    var inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'basic', 'inputs');
     var targetInputsDir = path.join(targetDir, 'inputs');
     if (fs.existsSync(inputsDir)) {
         if (!fs.existsSync(targetInputsDir)) {
