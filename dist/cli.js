@@ -152,10 +152,12 @@ var argv = yargs(process.argv.slice(2))
 }, function (argv) {
     if (argv.inputJson) {
         console.log("\x1b[0;33mChecking and preparing WASM file...\x1b[0m");
+        var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+        console.log({ isInstalledPackage: isInstalledPackage });
         var scriptDir = void 0;
-        if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
-            // In an installed package environment
-            scriptDir = path.resolve(__dirname, '../');
+        if (isInstalledPackage) {
+            scriptDir = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
+            console.log({ scriptDir: scriptDir });
         }
         else {
             // In the development environment
