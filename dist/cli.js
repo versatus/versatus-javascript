@@ -153,18 +153,15 @@ var argv = yargs(process.argv.slice(2))
     if (argv.inputJson) {
         console.log("\x1b[0;33mChecking and preparing WASM file...\x1b[0m");
         var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-        console.log({ isInstalledPackage: isInstalledPackage });
         var scriptDir = void 0;
         if (isInstalledPackage) {
             scriptDir = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
-            console.log({ scriptDir: scriptDir });
         }
         else {
             // In the development environment
             scriptDir = process.cwd();
         }
         var checkWasmScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'check_wasm.sh');
-        console.log({ checkWasmScriptPath: checkWasmScriptPath });
         var execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
         exec("bash \"".concat(checkWasmScriptPath, "\""), execOptions, function (checkWasmError, checkWasmStdout, checkWasmStderr) {
             if (checkWasmError) {
@@ -190,7 +187,6 @@ function injectFileInWrapper(filePath) {
     return __awaiter(this, void 0, void 0, function () {
         var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, isInstalledPackage, distWrapperFilePath, wrapperContent;
         return __generator(this, function (_a) {
-            console.log("INJECTING FILE IN WRAPPER");
             projectRoot = process.cwd();
             buildPath = path.join(projectRoot, 'build');
             buildLibPath = path.join(projectRoot, "build", "lib");
@@ -201,7 +197,6 @@ function injectFileInWrapper(filePath) {
             }
             versatusHelpersFilepath = path.resolve(process.cwd(), "./lib/versatus");
             isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-            console.log({ isInstalledPackage: isInstalledPackage });
             // Check if the script is running from within node_modules
             if (isInstalledPackage) {
                 // In an installed package environment
@@ -238,7 +233,6 @@ function injectFileInWrapper(filePath) {
 }
 function runBuildProcess() {
     var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-    console.log({ isInstalledPackage: isInstalledPackage });
     var projectRoot = process.cwd();
     var distPath = path.join(projectRoot, 'dist');
     var buildPath = path.join(projectRoot, 'build');
