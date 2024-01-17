@@ -5,8 +5,8 @@ set -e
 
 # Use the current working directory as the root directory
 ROOT_DIR=$(pwd)
-BUILD_WASM_PATH="$ROOT_DIR/dist/build.wasm"
-WASM_PATH="$ROOT_DIR/dist/versa.wasm"
+BUILD_WASM_PATH="$ROOT_DIR/build/build.wasm"
+WASM_PATH="$ROOT_DIR/build/versa.wasm"
 
 # Check if the JSON input file path is provided as an argument
 if [ -z "$1" ]; then

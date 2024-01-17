@@ -1,12 +1,12 @@
-import { Contract } from '../../lib/contracts/Contract.js'
+import { Contract } from '../../lib/contracts/Contract'
 
-const start = (input) => {
+const start = (input: any) => {
   const contract = new Contract()
-  const splitEvenly = (accountInfo, { functionInputs }) => {
+  const splitEvenly = (accountInfo: any, { functionInputs }: { functionInputs: { amount: number, recipients: any[] } }) => {
     const { amount, recipients } = functionInputs
     return {
       success: true,
-      transactions: recipients.map((recipient) => ({
+      transactions: recipients.map((recipient: any) => ({
         recipient,
         amount: Math.floor(amount / recipients.length),
       })),
