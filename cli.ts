@@ -301,10 +301,14 @@ function runBuildProcess() {
 
 
 function runTestProcess(inputJsonPath: string) {
+    const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+    console.log({isInstalledPackage})
+
     let scriptDir: string;
-    if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
+    if (isInstalledPackage) {
         // In an installed package environment
         scriptDir = path.resolve(__dirname, '../');
+        console.log({scriptDir})
     } else {
         // In the development environment
         scriptDir = process.cwd();

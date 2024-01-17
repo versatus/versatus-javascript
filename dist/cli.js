@@ -278,10 +278,13 @@ function runBuildProcess() {
     });
 }
 function runTestProcess(inputJsonPath) {
+    var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+    console.log({ isInstalledPackage: isInstalledPackage });
     var scriptDir;
-    if (fs.existsSync(path.resolve(__dirname, '../../../node_modules'))) {
+    if (isInstalledPackage) {
         // In an installed package environment
         scriptDir = path.resolve(__dirname, '../');
+        console.log({ scriptDir: scriptDir });
     }
     else {
         // In the development environment
