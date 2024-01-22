@@ -86,7 +86,7 @@ var argv = yargs(process.argv.slice(2))
     }
     // Write the updated content back to the example file
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
-    var inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'basic', 'inputs');
+    var inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'fungible-token', 'inputs');
     var targetInputsDir = path.join(targetDir, 'inputs');
     if (fs.existsSync(inputsDir)) {
         if (!fs.existsSync(targetInputsDir)) {
