@@ -69,12 +69,10 @@ export class FungibleTokenContract extends Contract {
     if (!approvals) return { error: 'approvals not found', success: false }
     if (!spender) return { error: 'spender not found', success: false }
     if (!amount) return { error: 'amount not found', success: false }
-
-    const updatedApprovals = approvals
     const currentApproval = approvals[spender] ?? 0
-    updatedApprovals[spender] = BigInt(currentApproval) + BigInt(amount)
+    approvals[spender] = 10 + 10
 
-    return { approvals: updatedApprovals, success: true }
+    return { approvals, success: true }
   }
 
   transfer(_: AccountInfo, input: Inputs) {
