@@ -41,37 +41,49 @@ import path from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
+var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+var installedPackagePath = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
+var isTypeScriptProject = function () {
+    var tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
+    return fs.existsSync(tsConfigPath);
+};
 var argv = yargs(process.argv.slice(2))
     .command('init [example]', 'Initialize a project with an example contract', function (yargs) {
     return yargs.positional('example', {
         describe: 'The example contract to initialize',
         type: 'string',
-        choices: ['basic', 'erc-20'], // Add more example types if you have them
+        choices: ['fungible-token'],
         demandOption: true,
-        demand: 'You must specify an example contract to initialize'
+        demand: 'You must specify an example contract to initialize',
     });
 }, function (argv) {
-    console.log("\x1b[0;33mInitializing example contract...\x1b[0m");
-    // Check if the package is installed in the current project's node_modules
-    var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-    var installedPackagePath = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
-    // Path to the examples directory
+    console.log('\x1b[0;33mInitializing example contract...\x1b[0m');
+    var isTsProject = isTypeScriptProject();
     var exampleDir = isInstalledPackage
-        ? path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'dist', 'examples', argv.example || 'basic')
-        : path.resolve(__dirname, 'examples', argv.example || 'basic');
+        ? path.resolve(installedPackagePath, isTsProject ? '' : 'dist', 'examples', argv.example || 'fungible-token')
+        : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'fungible-token');
     var targetDir = process.cwd();
-    var targetFilePath = path.join(targetDir, 'example-contract.js');
+    var targetFilePath = path.join(targetDir, isTsProject ? 'example-contract.ts' : 'example-contract.js');
     // Copy the example file to the target directory
-    fs.copyFileSync(path.join(exampleDir, 'example-contract.js'), targetFilePath);
+    fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-contract.ts' : 'example-contract.js'), targetFilePath);
     var exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
     // Update the import path for any contract class based on the environment
-    var regex = /^import \{ (.*) \} from '.*';$/gm;
-    exampleContractContent = exampleContractContent.replace(regex, function (match, className) {
+    var contractClassRegEx = /^import \{ (.*) \} from '.*\/lib\/contracts\/.*'$/gm;
+    var typesRegex = /^import \{ (.*) \} from '.*\/types'$/gm;
+    exampleContractContent = exampleContractContent.replace(contractClassRegEx, function (match, className) {
         var importPath = isInstalledPackage
             ? "'@versatus/versatus-javascript'"
-            : "'./lib/contracts/index.js'";
+            : "'./lib'";
         return "import { ".concat(className, " } from ").concat(importPath, ";");
     });
+    if (isTsProject) {
+        exampleContractContent = exampleContractContent.replace(typesRegex, function (match, className) {
+            var importPath = isInstalledPackage
+                ? "'@versatus/versatus-javascript'"
+                : "'./types'";
+            return "import { ".concat(className, " } from ").concat(importPath, ";");
+        });
+    }
     // Write the updated content back to the example file
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
     var inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'basic', 'inputs');
@@ -91,7 +103,7 @@ var argv = yargs(process.argv.slice(2))
             }
         });
     }
-    console.log("\x1b[0;32mExample contract and inputs initialized successfully.\x1b[0m");
+    console.log('\x1b[0;32mExample contract and inputs initialized successfully.\x1b[0m');
 })
     .usage('Usage: $0 build [options]')
     .command('build [file]', 'Build the project with the specified contract', function (yargs) {
@@ -100,11 +112,9 @@ var argv = yargs(process.argv.slice(2))
         type: 'string',
     });
 }, function (argv) {
-    var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
     var scriptDir, sysCheckScriptPath;
     if (isInstalledPackage) {
-        // In an installed package environment
-        scriptDir = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
+        scriptDir = installedPackagePath;
         sysCheckScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'sys_check.sh');
     }
     else {
@@ -112,7 +122,7 @@ var argv = yargs(process.argv.slice(2))
         scriptDir = path.resolve(__dirname, '../');
         sysCheckScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'sys_check.sh');
     }
-    console.log("Build command executed."); // Debug log
+    console.log('Build command executed.'); // Debug log
     // const sysCheckScriptPath = path.resolve(__dirname, 'lib', 'scripts', 'sys_check.sh');
     console.log("Running system check script: ".concat(sysCheckScriptPath)); // Debug log
     exec("bash \"".concat(sysCheckScriptPath, "\""), function (sysCheckError, sysCheckStdout, sysCheckStderr) {
@@ -125,14 +135,47 @@ var argv = yargs(process.argv.slice(2))
             console.error("Error during system check: ".concat(sysCheckError));
             return;
         }
-        console.log("System check passed. Proceeding with build...");
+        console.log('System check passed. Proceeding with build...');
         // Proceed with build process if system check is successful
         if (argv.file) {
-            console.log("\x1b[0;33mStarting build...\x1b[0m");
-            var filePath = path.resolve(process.cwd(), argv.file);
-            injectFileInWrapper(filePath).then(function () {
+            console.log('\x1b[0;33mStarting build...\x1b[0m');
+            var filePath_1 = path.resolve(process.cwd(), argv.file);
+            if (filePath_1.endsWith('.ts')) {
+                console.log('TypeScript file detected. Transpiling...');
+                // Specify the output directory for the transpiled files
+                var outDir = path.resolve(process.cwd(), 'build');
+                // Run tsc to transpile the TypeScript file
+                exec("tsc --outDir ".concat(outDir, " ").concat(filePath_1), function (tscError, tscStdout, tscStderr) {
+                    if (tscError) {
+                        console.error("Error during TypeScript transpilation: ".concat(tscError));
+                        return;
+                    }
+                    console.log('Transpilation complete. Proceeding with build...');
+                    injectFileInWrapper(filePath_1)
+                        .then(function () {
+                        runBuildProcess();
+                    })
+                        .catch(function (error) {
+                        console.error('Error during the build process:', error);
+                    });
+                });
+            }
+            else {
+                // Handle non-TypeScript files or other build steps
+                // ...
+                injectFileInWrapper(filePath_1)
+                    .then(function () {
+                    runBuildProcess();
+                })
+                    .catch(function (error) {
+                    console.error('Error during the build process:', error);
+                });
+            }
+            injectFileInWrapper(filePath_1)
+                .then(function () {
                 runBuildProcess();
-            }).catch(function (error) {
+            })
+                .catch(function (error) {
                 console.error('Error during the build process:', error);
             });
         }
@@ -147,21 +190,20 @@ var argv = yargs(process.argv.slice(2))
         describe: 'Path to the JSON input file for testing',
         type: 'string',
         demandOption: true, // Make this argument required
-        demand: 'You must specify a JSON input file for testing'
+        demand: 'You must specify a JSON input file for testing',
     });
 }, function (argv) {
     if (argv.inputJson) {
-        console.log("\x1b[0;33mChecking and preparing WASM file...\x1b[0m");
-        var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+        console.log('\x1b[0;33mChecking and preparing WASM file...\x1b[0m');
         var scriptDir = void 0;
         if (isInstalledPackage) {
-            scriptDir = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
+            scriptDir = installedPackagePath;
         }
         else {
             // In the development environment
             scriptDir = process.cwd();
         }
-        var checkWasmScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'check_wasm.sh');
+        var checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_wasm.sh');
         var execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
         exec("bash \"".concat(checkWasmScriptPath, "\""), execOptions, function (checkWasmError, checkWasmStdout, checkWasmStderr) {
             if (checkWasmError) {
@@ -172,7 +214,7 @@ var argv = yargs(process.argv.slice(2))
                 console.error("WASM check stderr: ".concat(checkWasmStderr));
                 return;
             }
-            console.log("\x1b[0;33mStarting test...\x1b[0m");
+            console.log('\x1b[0;33mStarting test...\x1b[0m');
             var filePath = path.resolve(process.cwd(), argv.inputJson);
             runTestProcess(filePath);
         });
@@ -185,24 +227,25 @@ var argv = yargs(process.argv.slice(2))
     .help().argv;
 function injectFileInWrapper(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, isInstalledPackage, distWrapperFilePath, wrapperContent;
+        var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, distWrapperFilePath, wrapperContent;
         return __generator(this, function (_a) {
             projectRoot = process.cwd();
             buildPath = path.join(projectRoot, 'build');
-            buildLibPath = path.join(projectRoot, "build", "lib");
+            buildLibPath = path.join(projectRoot, 'build', 'lib');
             // Ensure the dist directory exists
             if (!fs.existsSync(buildPath) || !fs.existsSync(buildLibPath)) {
                 fs.mkdirSync(buildPath, { recursive: true });
                 fs.mkdirSync(buildLibPath, { recursive: true });
             }
-            versatusHelpersFilepath = path.resolve(process.cwd(), "./lib/versatus");
-            isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
+            versatusHelpersFilepath = path.resolve(process.cwd(), './lib/versatus');
             // Check if the script is running from within node_modules
             if (isInstalledPackage) {
                 // In an installed package environment
                 try {
-                    wrapperFilePath = 'node_modules/@versatus/versatus-javascript/dist/lib/wrapper.js'; // Adjust this path to your default wrapper file
-                    versatusHelpersFilepath = 'node_modules/@versatus/versatus-javascript/dist/lib/versatus.js'; // Adjust this path to your default helpers file
+                    wrapperFilePath =
+                        'node_modules/@versatus/versatus-javascript/dist/lib/wrapper.js'; // Adjust this path to your default wrapper file
+                    versatusHelpersFilepath =
+                        'node_modules/@versatus/versatus-javascript/dist/lib/versatus.js'; // Adjust this path to your default helpers file
                 }
                 catch (error) {
                     console.error('Error locating wrapper.js in node_modules:', error);
@@ -210,7 +253,7 @@ function injectFileInWrapper(filePath) {
                 }
             }
             else {
-                console.log("IN DEVELOPMENT ENVIRONMENT");
+                console.log('IN DEVELOPMENT ENVIRONMENT');
                 // In the development environment
                 wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
                 versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js');
@@ -232,7 +275,6 @@ function injectFileInWrapper(filePath) {
     });
 }
 function runBuildProcess() {
-    var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
     var projectRoot = process.cwd();
     var distPath = path.join(projectRoot, 'dist');
     var buildPath = path.join(projectRoot, 'build');
@@ -247,7 +289,7 @@ function runBuildProcess() {
     var webpackConfigPath;
     if (isInstalledPackage) {
         // In an installed package environment
-        webpackConfigPath = path.resolve(projectRoot, 'node_modules', '@versatus', 'versatus-javascript', 'lib', 'webpack.config.cjs');
+        webpackConfigPath = path.resolve(installedPackagePath, 'lib', 'webpack.config.cjs');
     }
     else {
         // In the development environment
@@ -277,19 +319,16 @@ function runBuildProcess() {
     });
 }
 function runTestProcess(inputJsonPath) {
-    var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
-    console.log({ isInstalledPackage: isInstalledPackage });
     var scriptDir;
     if (isInstalledPackage) {
         // In an installed package environment
-        scriptDir = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
-        console.log({ scriptDir: scriptDir });
+        scriptDir = installedPackagePath;
     }
     else {
         // In the development environment
         scriptDir = process.cwd();
     }
-    var checkWasmScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'check_wasm.sh');
+    var checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_wasm.sh');
     // Execute the check-wasm.sh script
     exec("bash \"".concat(checkWasmScriptPath, "\""), function (checkWasmError, checkWasmStdout, checkWasmStderr) {
         if (checkWasmError) {
@@ -298,10 +337,10 @@ function runTestProcess(inputJsonPath) {
         }
         console.log("check-wasm.sh stdout: ".concat(checkWasmStdout));
         console.log("check-wasm.sh stderr: ".concat(checkWasmStderr));
-        console.log("check-wasm.sh script executed successfully. Proceeding with test...");
+        console.log('check-wasm.sh script executed successfully. Proceeding with test...');
         // Continue with the rest of the test process after checking WASM
         // Define the path to the test.sh script
-        var testScriptPath = path.resolve(scriptDir, "lib", 'scripts', 'test.sh');
+        var testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'test.sh');
         // Execute the test.sh script with the input JSON file path as an argument
         exec("bash \"".concat(testScriptPath, "\" \"").concat(inputJsonPath, "\""), function (testError, testStdout, testStderr) {
             if (testError) {

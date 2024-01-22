@@ -1,32 +1,37 @@
-import { Input } from "../types";
-
+import { ContractInput } from '../../types'
 
 export class Contract {
-  methodStrategies: { [key: string]: Function };
+  methodStrategies: { [key: string]: Function }
   constructor() {
     this.methodStrategies = {}
   }
 
-  start(input: Input) {
-    const { accountInfo, contractInput } = input
-    return this.executeMethod(accountInfo, contractInput)
+  start(input: ContractInput) {
+    return this.executeMethod(input)
   }
 
-  executeMethod(accountInfo: any, contractInput: { contractFn: string }) {
-    const { contractFn } = contractInput
-    const strategy = this.methodStrategies[contractFn]
+  executeMethod(input: ContractInput) {
+    const { accountInfo, function: fn, inputs } = input
+    const strategy = this.methodStrategies[fn]
 
     if (strategy) {
-      return strategy(accountInfo, contractInput)
+      return strategy(accountInfo, inputs)
     }
 
-    throw new Error(`Unknown method: ${contractFn}`)
+    throw new Error(`Unknown method: ${fn}`)
   }
 
-  addOrExtendMethodStrategy(methodName: string, newStrategyFn: Function, extend: boolean = false) {
+  addOrExtendMethodStrategy(
+    methodName: string,
+    newStrategyFn: Function,
+    extend: boolean = false
+  ) {
     if (extend && this.methodStrategies[methodName]) {
       const originalStrategy = this.methodStrategies[methodName]
-      this.methodStrategies[methodName] = (accountInfo: Input['accountInfo'], contractInput: Input['contractInput']) => {
+      this.methodStrategies[methodName] = (
+        accountInfo: ContractInput['accountInfo'],
+        contractInput: ContractInput['inputs']
+      ) => {
         const originalResult = originalStrategy(accountInfo, contractInput)
         return newStrategyFn(accountInfo, contractInput, originalResult)
       }

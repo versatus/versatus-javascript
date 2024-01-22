@@ -3,16 +3,15 @@ var Contract = /** @class */ (function () {
         this.methodStrategies = {};
     }
     Contract.prototype.start = function (input) {
-        var accountInfo = input.accountInfo, contractInput = input.contractInput;
-        return this.executeMethod(accountInfo, contractInput);
+        return this.executeMethod(input);
     };
-    Contract.prototype.executeMethod = function (accountInfo, contractInput) {
-        var contractFn = contractInput.contractFn;
-        var strategy = this.methodStrategies[contractFn];
+    Contract.prototype.executeMethod = function (input) {
+        var accountInfo = input.accountInfo, fn = input.function, inputs = input.inputs;
+        var strategy = this.methodStrategies[fn];
         if (strategy) {
-            return strategy(accountInfo, contractInput);
+            return strategy(accountInfo, inputs);
         }
-        throw new Error("Unknown method: ".concat(contractFn));
+        throw new Error("Unknown method: ".concat(fn));
     };
     Contract.prototype.addOrExtendMethodStrategy = function (methodName, newStrategyFn, extend) {
         if (extend === void 0) { extend = false; }

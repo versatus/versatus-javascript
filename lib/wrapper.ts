@@ -1,4 +1,4 @@
-import start from '../examples/basic/example-contract'
+import start from '../examples/fungible-token/example-contract'
 import { parseContractInput, sendOutput } from './versatus'
 
 function main() {
