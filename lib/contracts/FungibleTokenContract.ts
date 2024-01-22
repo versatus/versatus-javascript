@@ -47,26 +47,37 @@ export class FungibleTokenContract extends Contract {
     return { totalSupply: this.CONTRACT_TOTAL_SUPPLY, success: true }
   }
 
-  balanceOf(input: Inputs) {
+  balanceOf(_: AccountInfo, input: Inputs) {
     const { balance, ownerId } = input
     return { address: ownerId, balance: balance ?? 0, success: true }
   }
 
-  allowance(input: Inputs) {
+  allowance(_: AccountInfo, input: Inputs) {
     const { allowances, spender } = input
+    if (!allowances) return { error: 'allowances not found', success: false }
+    if (!spender) return { error: 'spender not found', success: false }
+
     return {
+      address: spender,
       allowance: allowances[spender] ?? 0,
       success: true,
     }
   }
 
-  approve(input: Inputs) {
-    const { spender, amount } = input
-    input.allowances[spender] = amount
-    return { allowances: input.allowances, success: true }
+  approve(_: AccountInfo, input: Inputs) {
+    const { spender, amount, approvals } = input
+    if (!approvals) return { error: 'approvals not found', success: false }
+    if (!spender) return { error: 'spender not found', success: false }
+    if (!amount) return { error: 'amount not found', success: false }
+
+    const updatedApprovals = approvals
+    const currentApproval = approvals[spender] ?? 0
+    updatedApprovals[spender] = BigInt(currentApproval) + BigInt(amount)
+
+    return { approvals: updatedApprovals, success: true }
   }
 
-  transfer(input: Inputs) {
+  transfer(_: AccountInfo, input: Inputs) {
     const {
       amount,
       ownerAddress,
@@ -74,6 +85,15 @@ export class FungibleTokenContract extends Contract {
       recipientAddress,
       recipientBalance,
     } = input
+
+    if (!balance) return { error: 'balance not found', success: false }
+    if (!recipientBalance)
+      return { error: 'recipient balance not found', success: false }
+    if (!amount) return { error: 'amount not found', success: false }
+    if (!ownerAddress)
+      return { error: 'owner address not found', success: false }
+    if (!recipientAddress)
+      return { error: 'recipient address not found', success: false }
 
     let accountBalanceBigInt = BigInt(balance)
     let valueBigInt = BigInt(amount)

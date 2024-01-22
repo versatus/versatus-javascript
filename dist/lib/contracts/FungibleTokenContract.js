@@ -46,27 +46,51 @@ var FungibleTokenContract = /** @class */ (function (_super) {
     FungibleTokenContract.prototype.totalSupply = function () {
         return { totalSupply: this.CONTRACT_TOTAL_SUPPLY, success: true };
     };
-    FungibleTokenContract.prototype.balanceOf = function (input) {
+    FungibleTokenContract.prototype.balanceOf = function (_, input) {
         var balance = input.balance, ownerId = input.ownerId;
         return { address: ownerId, balance: balance !== null && balance !== void 0 ? balance : 0, success: true };
     };
-    FungibleTokenContract.prototype.allowance = function (input) {
+    FungibleTokenContract.prototype.allowance = function (_, input) {
         var _a;
         var allowances = input.allowances, spender = input.spender;
+        if (!allowances)
+            return { error: 'allowances not found', success: false };
+        if (!spender)
+            return { error: 'spender not found', success: false };
         return {
+            address: spender,
             allowance: (_a = allowances[spender]) !== null && _a !== void 0 ? _a : 0,
             success: true,
         };
     };
-    FungibleTokenContract.prototype.approve = function (input) {
-        var spender = input.spender, amount = input.amount;
-        input.allowances[spender] = amount;
-        return { allowances: input.allowances, success: true };
+    FungibleTokenContract.prototype.approve = function (_, input) {
+        var _a;
+        var spender = input.spender, amount = input.amount, approvals = input.approvals;
+        if (!approvals)
+            return { error: 'approvals not found', success: false };
+        if (!spender)
+            return { error: 'spender not found', success: false };
+        if (!amount)
+            return { error: 'amount not found', success: false };
+        var updatedApprovals = approvals;
+        var currentApproval = (_a = approvals[spender]) !== null && _a !== void 0 ? _a : 0;
+        updatedApprovals[spender] = BigInt(currentApproval) + BigInt(amount);
+        return { approvals: updatedApprovals, success: true };
     };
-    FungibleTokenContract.prototype.transfer = function (input) {
+    FungibleTokenContract.prototype.transfer = function (_, input) {
         var _a;
         var _b;
         var amount = input.amount, ownerAddress = input.ownerAddress, balance = input.balance, recipientAddress = input.recipientAddress, recipientBalance = input.recipientBalance;
+        if (!balance)
+            return { error: 'balance not found', success: false };
+        if (!recipientBalance)
+            return { error: 'recipient balance not found', success: false };
+        if (!amount)
+            return { error: 'amount not found', success: false };
+        if (!ownerAddress)
+            return { error: 'owner address not found', success: false };
+        if (!recipientAddress)
+            return { error: 'recipient address not found', success: false };
         var accountBalanceBigInt = BigInt(balance);
         var valueBigInt = BigInt(amount);
         if (accountBalanceBigInt < valueBigInt)
