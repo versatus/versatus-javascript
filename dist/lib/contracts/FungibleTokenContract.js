@@ -14,8 +14,19 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 import { Contract } from './Contract.js';
+/**
+ * Class representing a fungible token contract, extending the base `Contract` class.
+ * It encapsulates the core functionality and properties of a fungible token.
+ */
 var FungibleTokenContract = /** @class */ (function (_super) {
     __extends(FungibleTokenContract, _super);
+    /**
+     * Constructs a new instance of the FungibleTokenContract class.
+     * @param {string} name - The name of the token.
+     * @param {string} symbol - The symbol of the token.
+     * @param {number} decimals - The number of decimals for the token.
+     * @param {number} totalSupply - The total supply of the token.
+     */
     function FungibleTokenContract(name, symbol, decimals, totalSupply) {
         var _this = _super.call(this) || this;
         _this.CONTRACT_NAME = name;
@@ -34,22 +45,50 @@ var FungibleTokenContract = /** @class */ (function (_super) {
         };
         return _this;
     }
+    /**
+     * Retrieves the contract name.
+     * @returns An object containing the contract name and a success flag.
+     */
     FungibleTokenContract.prototype.name = function () {
         return { name: this.CONTRACT_NAME, success: true };
     };
+    /**
+     * Retrieves the contract symbol.
+     * @returns An object containing the contract symbol and a success flag.
+     */
     FungibleTokenContract.prototype.symbol = function () {
         return { symbol: this.CONTRACT_SYMBOL, success: true };
     };
+    /**
+     * Retrieves the number of decimals for the token.
+     * @returns An object containing the number of decimals and a success flag.
+     */
     FungibleTokenContract.prototype.decimals = function () {
         return { decimals: this.CONTRACT_DECIMALS, success: true };
     };
+    /**
+     * Retrieves the total supply of the token.
+     * @returns An object containing the total supply and a success flag.
+     */
     FungibleTokenContract.prototype.totalSupply = function () {
         return { totalSupply: this.CONTRACT_TOTAL_SUPPLY, success: true };
     };
+    /**
+     * Retrieves the balance of a given account.
+     * @param {AccountInfo} _ - Account information (unused in this context).
+     * @param {Inputs} input - The input parameters, including balance and owner ID.
+     * @returns An object containing the balance and a success flag.
+     */
     FungibleTokenContract.prototype.balanceOf = function (_, input) {
         var balance = input.balance, ownerId = input.ownerId;
         return { address: ownerId, balance: balance !== null && balance !== void 0 ? balance : 0, success: true };
     };
+    /**
+     * Retrieves the allowance for a given spender.
+     * @param {AccountInfo} _ - Account information (unused in this context).
+     * @param {Inputs} input - The input parameters, including allowances and spender.
+     * @returns An object containing the allowance and a success flag.
+     */
     FungibleTokenContract.prototype.allowance = function (_, input) {
         var _a;
         var allowances = input.allowances, spender = input.spender;
@@ -63,6 +102,12 @@ var FungibleTokenContract = /** @class */ (function (_super) {
             success: true,
         };
     };
+    /**
+     * Approves a spender to withdraw from an account up to a certain amount.
+     * @param {AccountInfo} _ - Account information (unused in this context).
+     * @param {Inputs} input - The input parameters, including spender, amount, and approvals.
+     * @returns An object containing the updated approvals and a success flag.
+     */
     FungibleTokenContract.prototype.approve = function (_, input) {
         var _a;
         var spender = input.spender, amount = input.amount, approvals = input.approvals;
@@ -76,6 +121,12 @@ var FungibleTokenContract = /** @class */ (function (_super) {
         approvals[spender] = String(BigInt(currentApproval) + BigInt(amount));
         return { approvals: approvals, success: true };
     };
+    /**
+     * Transfers a specified amount of tokens to a specified recipient.
+     * @param {AccountInfo} _ - Account information (unused in this context).
+     * @param {Inputs} input - The input parameters, including amount, owner address, balance, recipient address, and recipient balance.
+     * @returns An object containing the updated balances and a success flag.
+     */
     FungibleTokenContract.prototype.transfer = function (_, input) {
         var _a;
         var _b;
