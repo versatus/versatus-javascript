@@ -194,7 +194,7 @@ var argv = yargs(process.argv.slice(2))
     });
 }, function (argv) {
     if (argv.inputJson) {
-        console.log('\x1b[0;33mChecking and preparing WASM file...\x1b[0m');
+        console.log('\x1b[0;33mChecking for WASM runtime...\x1b[0m');
         var scriptDir = void 0;
         if (isInstalledPackage) {
             scriptDir = installedPackagePath;
