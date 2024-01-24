@@ -33,14 +33,14 @@ export class Contract {
    * @returns The result of the strategy execution.
    */
   executeMethod(input: ContractInput) {
-    const { accountInfo, function: fn, inputs } = input
-    const strategy = this.methodStrategies[fn]
+    const { accountInfo, programFunction, programInputs } = input
+    const strategy = this.methodStrategies[programFunction]
 
     if (strategy) {
-      return strategy(accountInfo, inputs)
+      return strategy(accountInfo, programInputs)
     }
 
-    throw new Error(`Unknown method: ${fn}`)
+    throw new Error(`Unknown method: ${programFunction}`)
   }
 
   /**
@@ -60,7 +60,7 @@ export class Contract {
       const originalStrategy = this.methodStrategies[methodName]
       this.methodStrategies[methodName] = (
         accountInfo: ContractInput['accountInfo'],
-        contractInput: ContractInput['inputs']
+        contractInput: ContractInput['programInputs']
       ) => {
         const originalResult = originalStrategy(accountInfo, contractInput)
         return newStrategyFn(accountInfo, contractInput, originalResult)

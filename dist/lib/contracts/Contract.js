@@ -23,12 +23,12 @@ var Contract = /** @class */ (function () {
      * @returns The result of the strategy execution.
      */
     Contract.prototype.executeMethod = function (input) {
-        var accountInfo = input.accountInfo, fn = input.function, inputs = input.inputs;
-        var strategy = this.methodStrategies[fn];
+        var accountInfo = input.accountInfo, programFunction = input.programFunction, programInputs = input.programInputs;
+        var strategy = this.methodStrategies[programFunction];
         if (strategy) {
-            return strategy(accountInfo, inputs);
+            return strategy(accountInfo, programInputs);
         }
-        throw new Error("Unknown method: ".concat(fn));
+        throw new Error("Unknown method: ".concat(programFunction));
     };
     /**
      * Adds a new strategy function to `methodStrategies` or extends an existing one.

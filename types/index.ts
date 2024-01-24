@@ -9,8 +9,8 @@
 export interface ContractInput {
   version: number
   accountInfo: AccountInfo
-  function: string
-  inputs: Inputs
+  programFunction: string
+  programInputs: Inputs
 }
 
 /**
