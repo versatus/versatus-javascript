@@ -1,10 +1,11 @@
 #!/bin/bash
+source ./lib/scripts/colored_echo.sh
 
-echo "Checking system for dependencies..."
+print_info "Checking system for dependencies..."
 
 # Function to install jq
 install_jq() {
-    echo "Installing jq..."
+    print_info "Installing jq..."
     if [ "$(uname -s)" = "Darwin" ]; then
         # macOS installation
         brew install jq
@@ -13,7 +14,7 @@ install_jq() {
         apt-get update
         apt-get install -y jq
     else
-        echo "Unsupported operating system for jq installation."
+        print_error "Unsupported operating system for jq installation."
         return 1
     fi
 }
@@ -27,15 +28,15 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 if command -v javy >/dev/null 2>&1; then
-    echo "Javy is already installed."
+    print_info "Javy is already installed."
 else
-    echo "ALERT: javy is not installed! Attempting to download and install javy."
+    print_warning "ALERT: javy is not installed! Attempting to download and install javy."
 
     # Run the install_javy.sh script from the determined script directory
     if "${SCRIPT_DIR}/install_javy.sh"; then
-        echo "Javy installation completed."
+        print_success "Javy installation completed."
     else
-        echo "Javy installation failed."
+        print_error "Javy installation failed."
         exit 1
     fi
 fi

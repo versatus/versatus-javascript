@@ -70,7 +70,7 @@ export class FungibleTokenContract extends Contract {
     if (!spender) return { error: 'spender not found', success: false }
     if (!amount) return { error: 'amount not found', success: false }
     const currentApproval = approvals[spender] ?? 0
-    approvals[spender] = String(parseInt(currentApproval) + parseInt(amount))
+    approvals[spender] = String(BigInt(currentApproval) + BigInt(amount))
 
     return { approvals, success: true }
   }
@@ -93,17 +93,17 @@ export class FungibleTokenContract extends Contract {
     if (!recipientAddress)
       return { error: 'recipient address not found', success: false }
 
-    if (parseInt(balance) < parseInt(amount))
+    if (BigInt(balance) < BigInt(amount))
       return { error: 'insufficient funds', success: false }
     const balances = {
       [ownerAddress]: balance,
       [recipientAddress]: recipientBalance,
     }
 
-    balances[ownerAddress] = String(parseInt(balance) - parseInt(amount))
-    balances[recipientAddress] = String(
-      parseInt(balances[recipientAddress] ?? '0') + parseInt(amount)
-    )
+    balances[ownerAddress] = BigInt(BigInt(balance) - BigInt(amount)).toString()
+    balances[recipientAddress] = BigInt(
+      BigInt(balances[recipientAddress] ?? '0') + BigInt(amount)
+    ).toString()
 
     return { balances, success: true }
   }

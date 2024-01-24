@@ -6,10 +6,12 @@ set -e
 # Run system checks first
 ./lib/scripts/sys-check.sh
 
-echo "building js w/ webpack"
+source ./lib/scripts/colored_echo.sh
+
+print_info "building js w/ webpack"
 npx webpack --config ./lib/webpack.config.cjs
 
-echo "building wasm with javy"
+print_info "building wasm with javy"
 javy compile dist/bundle.js -o dist/build.wasm
 
-echo "build completed successfully."
+print_success "build completed successfully."

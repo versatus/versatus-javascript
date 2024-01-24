@@ -5,6 +5,8 @@ set -e
 
 #VERSA_WASM_VERSION="v1.0.0"
 
+source ./lib/scripts/colored_echo.sh
+
 # Use the current working directory as the root directory
 ROOT_DIR=$(pwd)
 WASM_PATH="$ROOT_DIR/build/versa.wasm"
@@ -17,12 +19,12 @@ if [ ! -d "$ROOT_DIR/dist" ]; then
 fi
 
 # Check if the WASM file exists and download it if it does not
-echo -e "\033[0;33mChecking if WASM file exists...\033[0m"
+print_info "Checking if WASM file exists..."
 if [ ! -f "$WASM_PATH" ]; then
-    echo -e "\033[0;31mWASM file not found. Downloading from $WASM_URL...\033[0m"
+    print_warning "\033[0;31mWASM file not found. Downloading from $WASM_URL..."
     curl -sS -L -o "$WASM_PATH" "$WASM_URL"
 else
-    echo -e "\033[0;34mWASM file already exists. Skipping download.\033[0m"
+    print_success "WASM file already exists. Skipping download."
 fi
 
 # Make the WASM file executable

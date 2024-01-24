@@ -73,7 +73,7 @@ var FungibleTokenContract = /** @class */ (function (_super) {
         if (!amount)
             return { error: 'amount not found', success: false };
         var currentApproval = (_a = approvals[spender]) !== null && _a !== void 0 ? _a : 0;
-        approvals[spender] = String(parseInt(currentApproval) + parseInt(amount));
+        approvals[spender] = String(BigInt(currentApproval) + BigInt(amount));
         return { approvals: approvals, success: true };
     };
     FungibleTokenContract.prototype.transfer = function (_, input) {
@@ -90,14 +90,14 @@ var FungibleTokenContract = /** @class */ (function (_super) {
             return { error: 'owner address not found', success: false };
         if (!recipientAddress)
             return { error: 'recipient address not found', success: false };
-        if (parseInt(balance) < parseInt(amount))
+        if (BigInt(balance) < BigInt(amount))
             return { error: 'insufficient funds', success: false };
         var balances = (_a = {},
             _a[ownerAddress] = balance,
             _a[recipientAddress] = recipientBalance,
             _a);
-        balances[ownerAddress] = String(parseInt(balance) - parseInt(amount));
-        balances[recipientAddress] = String(parseInt((_b = balances[recipientAddress]) !== null && _b !== void 0 ? _b : '0') + parseInt(amount));
+        balances[ownerAddress] = BigInt(BigInt(balance) - BigInt(amount)).toString();
+        balances[recipientAddress] = BigInt(BigInt((_b = balances[recipientAddress]) !== null && _b !== void 0 ? _b : '0') + BigInt(amount)).toString();
         return { balances: balances, success: true };
     };
     return FungibleTokenContract;

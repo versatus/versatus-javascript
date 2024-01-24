@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/bn.js": "^5.1.5",
     "@types/yargs": "^17.0.32",
     "prettier": "^3.1.0",
     "typescript": "^5.3.3"
@@ -24,8 +25,8 @@
     "dist/"
   ],
   "dependencies": {
-    "big-integer": "^1.6.52",
     "fs": "^0.0.1-security",
+    "long": "^5.2.3",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
     "yargs": "^17.7.2"
