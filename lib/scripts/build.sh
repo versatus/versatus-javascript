@@ -3,8 +3,8 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Run system checks first
-./lib/scripts/sys-check.sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/colored_echo.sh"
 
 source ./lib/scripts/colored_echo.sh
 

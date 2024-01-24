@@ -1,5 +1,6 @@
 #!/bin/bash
-source ./lib/scripts/colored_echo.sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/colored_echo.sh"
 
 print_info "Checking system for dependencies..."
 

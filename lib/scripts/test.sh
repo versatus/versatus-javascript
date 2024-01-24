@@ -3,7 +3,8 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-source ./lib/scripts/colored_echo.sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/colored_echo.sh"
 
 # Use the current working directory as the root directory
 ROOT_DIR=$(pwd)
