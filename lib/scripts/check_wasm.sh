@@ -5,7 +5,8 @@ set -e
 
 #VERSA_WASM_VERSION="v1.0.0"
 
-source ./lib/scripts/colored_echo.sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/colored_echo.sh"
 
 # Use the current working directory as the root directory
 ROOT_DIR=$(pwd)
