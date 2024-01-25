@@ -160,6 +160,7 @@ var argv = yargs(process.argv.slice(2))
                 });
             }
             else {
+                console.log({ filePath: filePath_1 });
                 injectFileInWrapper(filePath_1)
                     .then(function () {
                     runBuildProcess();

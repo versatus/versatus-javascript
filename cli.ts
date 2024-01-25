@@ -219,6 +219,7 @@ const argv = yargs(process.argv.slice(2))
                 }
               )
             } else {
+              console.log({ filePath })
               injectFileInWrapper(filePath)
                 .then(() => {
                   runBuildProcess()
