@@ -95,7 +95,7 @@ const argv = yargs(process.argv.slice(2))
           (match, className) => {
             const importPath = isInstalledPackage
               ? `'@versatus/versatus-javascript'`
-              : `'./types'`
+              : `'./lib/types'`
             return `import { ${className} } from ${importPath};`
           }
         )

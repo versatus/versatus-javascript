@@ -1,5 +1,5 @@
 import { Contract } from './Contract'
-import { AccountInfo, ContractInput, Inputs } from '../../types'
+import { AccountInfo, ContractInput, Inputs } from '../types'
 
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.

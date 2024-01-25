@@ -1,4 +1,4 @@
-import { ContractInput } from '../../types'
+import { ContractInput } from '../types'
 
 /**
  * Class representing a Contract with methods to manage and execute contract strategies.

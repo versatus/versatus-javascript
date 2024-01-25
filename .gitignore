@@ -134,3 +134,4 @@ example-contract.js
 example-contract.ts
 inputs
 .DS_Store
+dist/example-contract.d.ts

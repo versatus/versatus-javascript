@@ -80,7 +80,7 @@ var argv = yargs(process.argv.slice(2))
         exampleContractContent = exampleContractContent.replace(typesRegex, function (match, className) {
             var importPath = isInstalledPackage
                 ? "'@versatus/versatus-javascript'"
-                : "'./types'";
+                : "'./lib/types'";
             return "import { ".concat(className, " } from ").concat(importPath, ";");
         });
     }

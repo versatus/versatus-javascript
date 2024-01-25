@@ -1,5 +1,5 @@
 import { Contract } from './Contract';
-import { AccountInfo, Inputs } from '../../types';
+import { AccountInfo, Inputs } from '../types';
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
  * It encapsulates the core functionality and properties of a fungible token.
