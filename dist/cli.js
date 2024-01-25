@@ -320,13 +320,13 @@ function runBuildProcess() {
 function runTestProcess(inputJsonPath) {
     var scriptDir;
     if (isInstalledPackage) {
-        // In an installed package environment
-        scriptDir = installedPackagePath;
+        scriptDir = process.cwd();
     }
     else {
         // In the development environment
         scriptDir = process.cwd();
     }
+    console.log({ scriptDir: scriptDir });
     var testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'test.sh');
     // Spawn a shell and execute the test.sh script within the shell
     var testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
