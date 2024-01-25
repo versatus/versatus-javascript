@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 import yargs from 'yargs';
 import fs from 'fs';
 import path from 'path';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 var isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
@@ -194,7 +194,6 @@ var argv = yargs(process.argv.slice(2))
     });
 }, function (argv) {
     if (argv.inputJson) {
-        console.log('\x1b[0;33mChecking for WASM runtime...\x1b[0m');
         var scriptDir = void 0;
         if (isInstalledPackage) {
             scriptDir = installedPackagePath;
@@ -204,14 +203,13 @@ var argv = yargs(process.argv.slice(2))
             scriptDir = process.cwd();
         }
         var checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_wasm.sh');
-        var execOptions = { maxBuffer: 1024 * 1024 }; // Increase buffer size to 1MB
-        exec("bash \"".concat(checkWasmScriptPath, "\""), execOptions, function (checkWasmError, checkWasmStdout, checkWasmStderr) {
-            if (checkWasmError) {
-                console.error("Error during WASM check: ".concat(checkWasmError));
-                return;
-            }
-            if (checkWasmStderr) {
-                console.error("WASM check stderr: ".concat(checkWasmStderr));
+        var child = spawn('bash', [checkWasmScriptPath], { stdio: 'inherit' });
+        child.on('error', function (error) {
+            console.error("Error during WASM check: ".concat(error));
+        });
+        child.on('close', function (code) {
+            if (code !== 0) {
+                console.error("WASM check script exited with code ".concat(code));
                 return;
             }
             console.log('\x1b[0;33mStarting test...\x1b[0m');
@@ -328,31 +326,17 @@ function runTestProcess(inputJsonPath) {
         // In the development environment
         scriptDir = process.cwd();
     }
-    var checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_wasm.sh');
-    // Execute the check-wasm.sh script
-    exec("bash \"".concat(checkWasmScriptPath, "\""), function (checkWasmError, checkWasmStdout, checkWasmStderr) {
-        if (checkWasmError) {
-            console.error("check_wasm.sh exec error: ".concat(checkWasmError));
-            return;
+    var testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'test.sh');
+    // Spawn a shell and execute the test.sh script within the shell
+    var testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
+        stdio: 'inherit',
+    });
+    testProcess.on('error', function (error) {
+        console.error("test.sh spawn error: ".concat(error));
+    });
+    testProcess.on('exit', function (code) {
+        if (code !== 0) {
+            console.error("test.sh exited with code ".concat(code));
         }
-        console.log("check-wasm.sh stdout: ".concat(checkWasmStdout));
-        console.log("check-wasm.sh stderr: ".concat(checkWasmStderr));
-        console.log('check-wasm.sh script executed successfully. Proceeding with test...');
-        // Continue with the rest of the test process after checking WASM
-        // Define the path to the test.sh script
-        var testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'test.sh');
-        // Execute the test.sh script with the input JSON file path as an argument
-        exec("bash \"".concat(testScriptPath, "\" \"").concat(inputJsonPath, "\""), function (testError, testStdout, testStderr) {
-            if (testError) {
-                console.error("exec error: ".concat(testError));
-                return;
-            }
-            if (testStdout) {
-                console.log("stdout: ".concat(testStdout));
-            }
-            if (testStderr) {
-                console.error("stderr: ".concat(testStderr));
-            }
-        });
     });
 }

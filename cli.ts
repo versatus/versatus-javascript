@@ -3,7 +3,7 @@
 import yargs from 'yargs'
 import fs from 'fs'
 import path from 'path'
-import { exec } from 'child_process'
+import { exec, spawn } from 'child_process'
 import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isInstalledPackage = fs.existsSync(
@@ -260,8 +260,6 @@ const argv = yargs(process.argv.slice(2))
     },
     (argv) => {
       if (argv.inputJson) {
-        console.log('\x1b[0;33mChecking for WASM runtime...\x1b[0m')
-
         let scriptDir
         if (isInstalledPackage) {
           scriptDir = installedPackagePath
@@ -277,25 +275,21 @@ const argv = yargs(process.argv.slice(2))
           'check_wasm.sh'
         )
 
-        const execOptions = { maxBuffer: 1024 * 1024 } // Increase buffer size to 1MB
+        const child = spawn('bash', [checkWasmScriptPath], { stdio: 'inherit' })
 
-        exec(
-          `bash "${checkWasmScriptPath}"`,
-          execOptions,
-          (checkWasmError, checkWasmStdout, checkWasmStderr) => {
-            if (checkWasmError) {
-              console.error(`Error during WASM check: ${checkWasmError}`)
-              return
-            }
-            if (checkWasmStderr) {
-              console.error(`WASM check stderr: ${checkWasmStderr}`)
-              return
-            }
-            console.log('\x1b[0;33mStarting test...\x1b[0m')
-            const filePath = path.resolve(process.cwd(), argv.inputJson)
-            runTestProcess(filePath)
+        child.on('error', (error) => {
+          console.error(`Error during WASM check: ${error}`)
+        })
+
+        child.on('close', (code) => {
+          if (code !== 0) {
+            console.error(`WASM check script exited with code ${code}`)
+            return
           }
-        )
+          console.log('\x1b[0;33mStarting test...\x1b[0m')
+          const filePath = path.resolve(process.cwd(), argv.inputJson)
+          runTestProcess(filePath)
+        })
       } else {
         console.error('You must specify an inputJson file to test with.')
         process.exit(1)
@@ -430,53 +424,20 @@ function runTestProcess(inputJsonPath: string) {
     // In the development environment
     scriptDir = process.cwd()
   }
-  const checkWasmScriptPath = path.resolve(
-    scriptDir,
-    'lib',
-    'scripts',
-    'check_wasm.sh'
-  )
+  const testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'test.sh')
 
-  // Execute the check-wasm.sh script
-  exec(
-    `bash "${checkWasmScriptPath}"`,
-    (checkWasmError, checkWasmStdout, checkWasmStderr) => {
-      if (checkWasmError) {
-        console.error(`check_wasm.sh exec error: ${checkWasmError}`)
-        return
-      }
-      console.log(`check-wasm.sh stdout: ${checkWasmStdout}`)
-      console.log(`check-wasm.sh stderr: ${checkWasmStderr}`)
+  // Spawn a shell and execute the test.sh script within the shell
+  const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
+    stdio: 'inherit',
+  })
 
-      console.log(
-        'check-wasm.sh script executed successfully. Proceeding with test...'
-      )
+  testProcess.on('error', (error) => {
+    console.error(`test.sh spawn error: ${error}`)
+  })
 
-      // Continue with the rest of the test process after checking WASM
-      // Define the path to the test.sh script
-      const testScriptPath = path.resolve(
-        scriptDir,
-        'lib',
-        'scripts',
-        'test.sh'
-      )
-
-      // Execute the test.sh script with the input JSON file path as an argument
-      exec(
-        `bash "${testScriptPath}" "${inputJsonPath}"`,
-        (testError, testStdout, testStderr) => {
-          if (testError) {
-            console.error(`exec error: ${testError}`)
-            return
-          }
-          if (testStdout) {
-            console.log(`stdout: ${testStdout}`)
-          }
-          if (testStderr) {
-            console.error(`stderr: ${testStderr}`)
-          }
-        }
-      )
+  testProcess.on('exit', (code) => {
+    if (code !== 0) {
+      console.error(`test.sh exited with code ${code}`)
     }
-  )
+  })
 }

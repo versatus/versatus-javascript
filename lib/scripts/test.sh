@@ -32,7 +32,7 @@ EXECUTE_RESPONSE=$("$WASM_PATH" execute --wasm "$BUILD_WASM_PATH" --json "$INPUT
 # Extract the success value from the JSON output
 TEST_RESULT=$(echo "$EXECUTE_RESPONSE" | jq -r '.success')
 
-print_warning "\nTest results:"
+print_info "\nTest results:"
 
 if [ "$TEST_RESULT" == "true" ]; then
     print_success "Contract method was successful."
