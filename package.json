@@ -20,7 +20,8 @@
   "dependencies": {
     "fs": "^0.0.1-security",
     "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/yargs": "^17.0.32",
@@ -28,8 +29,7 @@
     "prettier": "^3.1.0",
     "typedoc": "^0.25.7",
     "typedoc-plugin-markdown": "^3.17.1",
-    "typescript": "^5.3.3",
-    "yargs": "^17.7.2"
+    "typescript": "^5.3.3"
   },
   "author": "https://github.com/hathbanger",
   "license": "ISC"
