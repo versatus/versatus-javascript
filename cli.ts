@@ -402,6 +402,8 @@ function runBuildProcess() {
       console.error(`Webpack stderr: ${webpackStderr}`)
     }
 
+    console.log({ buildPath })
+
     // Now run Javy
     const javyCommand = `javy compile ${path.join(
       buildPath,

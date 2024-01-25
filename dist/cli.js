@@ -305,6 +305,7 @@ function runBuildProcess() {
         if (webpackStderr) {
             console.error("Webpack stderr: ".concat(webpackStderr));
         }
+        console.log({ buildPath: buildPath });
         // Now run Javy
         var javyCommand = "javy compile ".concat(path.join(buildPath, 'bundle.js'), " -o ").concat(path.join(buildPath, 'build.wasm'));
         exec(javyCommand, function (javyError, javyStdout, javyStderr) {
