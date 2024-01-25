@@ -25,7 +25,7 @@ Represents a generic record of inputs, where keys are strings and values can be 
 
 #### Defined in
 
-[types/index.ts:48](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L48)
+[types/types.ts:48](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L48)
 
 ___
 
@@ -37,4 +37,4 @@ Defines a linked program in a generic format.
 
 #### Defined in
 
-[types/index.ts:42](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L42)
+[types/types.ts:42](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L42)

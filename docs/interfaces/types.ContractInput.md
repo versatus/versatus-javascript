@@ -25,7 +25,7 @@ Information related to the account associated with the contract.
 
 #### Defined in
 
-[types/index.ts:11](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L11)
+[types/types.ts:11](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L11)
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 #### Defined in
 
-[types/index.ts:12](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L12)
+[types/types.ts:12](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L12)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 #### Defined in
 
-[types/index.ts:13](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L13)
+[types/types.ts:13](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L13)
 
 ___
 
@@ -57,4 +57,4 @@ The version number of the contract.
 
 #### Defined in
 
-[types/index.ts:10](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L10)
+[types/types.ts:10](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L10)

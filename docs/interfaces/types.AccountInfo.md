@@ -24,7 +24,7 @@ Additional data related to the account, potentially in a serialized format.
 
 #### Defined in
 
-[types/index.ts:26](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L26)
+[types/types.ts:26](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L26)
 
 ___
 
@@ -36,7 +36,7 @@ A collection of programs linked to this account, indexed by a key.
 
 #### Defined in
 
-[types/index.ts:25](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L25)
+[types/types.ts:25](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L25)
 
 ___
 
@@ -48,4 +48,4 @@ The namespace of the program associated with this account.
 
 #### Defined in
 
-[types/index.ts:24](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L24)
+[types/types.ts:24](https://github.com/versatus/versatus-javascript/blob/84f84d5/types/index.ts#L24)
