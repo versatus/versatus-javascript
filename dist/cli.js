@@ -293,6 +293,7 @@ function runBuildProcess() {
         // In the development environment
         webpackConfigPath = path.resolve(__dirname, '../', 'lib', 'webpack.config.cjs');
     }
+    console.log({ webpackConfigPath: webpackConfigPath });
     var webpackCommand = "npx webpack --config ".concat(webpackConfigPath);
     exec(webpackCommand, function (webpackError, webpackStdout, webpackStderr) {
         if (webpackError) {

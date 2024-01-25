@@ -387,6 +387,9 @@ function runBuildProcess() {
       'webpack.config.cjs'
     )
   }
+
+  console.log({ webpackConfigPath })
+
   const webpackCommand = `npx webpack --config ${webpackConfigPath}`
   exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
     if (webpackError) {
