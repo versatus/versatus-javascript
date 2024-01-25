@@ -225,7 +225,7 @@ var argv = yargs(process.argv.slice(2))
     .help().argv;
 function injectFileInWrapper(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, distWrapperFilePath, wrapperContent;
+        var projectRoot, buildPath, buildLibPath, wrapperFilePath, versatusHelpersFilepath, distWrapperFilePath, versatusWrapperFilePath, wrapperContent;
         return __generator(this, function (_a) {
             projectRoot = process.cwd();
             buildPath = path.join(projectRoot, 'build');
@@ -258,6 +258,8 @@ function injectFileInWrapper(filePath) {
             }
             distWrapperFilePath = path.join(buildPath, 'lib', 'wrapper.js');
             fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
+            versatusWrapperFilePath = path.join(buildPath, 'lib', 'versatus.js');
+            fs.copyFileSync(versatusHelpersFilepath, versatusWrapperFilePath);
             try {
                 wrapperContent = fs.readFileSync(distWrapperFilePath, 'utf8');
                 wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, "import start from '".concat(filePath, "';"));
@@ -293,7 +295,6 @@ function runBuildProcess() {
         // In the development environment
         webpackConfigPath = path.resolve(__dirname, '../', 'lib', 'webpack.config.cjs');
     }
-    console.log({ webpackConfigPath: webpackConfigPath });
     var webpackCommand = "npx webpack --config ".concat(webpackConfigPath);
     exec(webpackCommand, function (webpackError, webpackStdout, webpackStderr) {
         if (webpackError) {

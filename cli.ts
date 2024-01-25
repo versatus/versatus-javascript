@@ -335,6 +335,9 @@ async function injectFileInWrapper(filePath: string) {
   const distWrapperFilePath = path.join(buildPath, 'lib', 'wrapper.js')
   fs.copyFileSync(wrapperFilePath, distWrapperFilePath)
 
+  const versatusWrapperFilePath = path.join(buildPath, 'lib', 'versatus.js')
+  fs.copyFileSync(versatusHelpersFilepath, versatusWrapperFilePath)
+
   try {
     let wrapperContent = fs.readFileSync(distWrapperFilePath, 'utf8')
 
@@ -387,8 +390,6 @@ function runBuildProcess() {
       'webpack.config.cjs'
     )
   }
-
-  console.log({ webpackConfigPath })
 
   const webpackCommand = `npx webpack --config ${webpackConfigPath}`
   exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
