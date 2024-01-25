@@ -166,8 +166,6 @@ const argv = yargs(process.argv.slice(2))
         )
       }
 
-      console.log('Build command executed.') // Debug log
-
       // const sysCheckScriptPath = path.resolve(__dirname, 'lib', 'scripts', 'sys_check.sh');
       console.log(`Running system check script: ${sysCheckScriptPath}`) // Debug log
 
@@ -221,8 +219,6 @@ const argv = yargs(process.argv.slice(2))
                 }
               )
             } else {
-              // Handle non-TypeScript files or other build steps
-              // ...
               injectFileInWrapper(filePath)
                 .then(() => {
                   runBuildProcess()
@@ -231,14 +227,6 @@ const argv = yargs(process.argv.slice(2))
                   console.error('Error during the build process:', error)
                 })
             }
-
-            injectFileInWrapper(filePath)
-              .then(() => {
-                runBuildProcess()
-              })
-              .catch((error) => {
-                console.error('Error during the build process:', error)
-              })
           } else {
             console.error('You must specify a contract file to build.')
             process.exit(1)
@@ -402,11 +390,15 @@ function runBuildProcess() {
       console.error(`Webpack stderr: ${webpackStderr}`)
     }
 
+    const bundleBuildPath = path.join(buildPath, 'bundle.js')
+
+    console.log({ bundleBuildPath })
+
     // Now run Javy
-    const javyCommand = `javy compile ${path.join(
+    const javyCommand = `javy compile ${bundleBuildPath} -o ${path.join(
       buildPath,
-      'bundle.js'
-    )} -o ${path.join(buildPath, 'build.wasm')}`
+      'build.wasm'
+    )}`
     exec(javyCommand, (javyError, javyStdout, javyStderr) => {
       if (javyError) {
         console.error(`Javy exec error: ${javyError}`)

@@ -122,7 +122,6 @@ var argv = yargs(process.argv.slice(2))
         scriptDir = path.resolve(__dirname, '../');
         sysCheckScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'sys_check.sh');
     }
-    console.log('Build command executed.'); // Debug log
     // const sysCheckScriptPath = path.resolve(__dirname, 'lib', 'scripts', 'sys_check.sh');
     console.log("Running system check script: ".concat(sysCheckScriptPath)); // Debug log
     exec("bash \"".concat(sysCheckScriptPath, "\""), function (sysCheckError, sysCheckStdout, sysCheckStderr) {
@@ -161,8 +160,6 @@ var argv = yargs(process.argv.slice(2))
                 });
             }
             else {
-                // Handle non-TypeScript files or other build steps
-                // ...
                 injectFileInWrapper(filePath_1)
                     .then(function () {
                     runBuildProcess();
@@ -171,13 +168,6 @@ var argv = yargs(process.argv.slice(2))
                     console.error('Error during the build process:', error);
                 });
             }
-            injectFileInWrapper(filePath_1)
-                .then(function () {
-                runBuildProcess();
-            })
-                .catch(function (error) {
-                console.error('Error during the build process:', error);
-            });
         }
         else {
             console.error('You must specify a contract file to build.');
@@ -305,8 +295,10 @@ function runBuildProcess() {
         if (webpackStderr) {
             console.error("Webpack stderr: ".concat(webpackStderr));
         }
+        var bundleBuildPath = path.join(buildPath, 'bundle.js');
+        console.log({ bundleBuildPath: bundleBuildPath });
         // Now run Javy
-        var javyCommand = "javy compile ".concat(path.join(buildPath, 'bundle.js'), " -o ").concat(path.join(buildPath, 'build.wasm'));
+        var javyCommand = "javy compile ".concat(bundleBuildPath, " -o ").concat(path.join(buildPath, 'build.wasm'));
         exec(javyCommand, function (javyError, javyStdout, javyStderr) {
             if (javyError) {
                 console.error("Javy exec error: ".concat(javyError));
