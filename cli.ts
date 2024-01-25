@@ -421,7 +421,8 @@ function runBuildProcess() {
 function runTestProcess(inputJsonPath: string) {
   let scriptDir: string
   if (isInstalledPackage) {
-    scriptDir = process.cwd()
+    // In an installed package environment
+    scriptDir = installedPackagePath
   } else {
     // In the development environment
     scriptDir = process.cwd()

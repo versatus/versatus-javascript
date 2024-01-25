@@ -320,7 +320,8 @@ function runBuildProcess() {
 function runTestProcess(inputJsonPath) {
     var scriptDir;
     if (isInstalledPackage) {
-        scriptDir = process.cwd();
+        // In an installed package environment
+        scriptDir = installedPackagePath;
     }
     else {
         // In the development environment
