@@ -402,8 +402,6 @@ function runBuildProcess() {
       console.error(`Webpack stderr: ${webpackStderr}`)
     }
 
-    console.log({ buildPath })
-
     // Now run Javy
     const javyCommand = `javy compile ${path.join(
       buildPath,
@@ -430,8 +428,6 @@ function runTestProcess(inputJsonPath: string) {
     // In the development environment
     scriptDir = process.cwd()
   }
-
-  console.log({ scriptDir })
 
   const testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'test.sh')
 
