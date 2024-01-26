@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "target": "es5",
+    "target": "ES2020",
     "allowSyntheticDefaultImports": true,
     "module": "ESNext",
     "strict": true,

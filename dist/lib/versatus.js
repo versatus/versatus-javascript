@@ -7,20 +7,20 @@
  * Note: This function uses Javy.IO for I/O operations, which is assumed to be a part of the environment.
  */
 export function parseContractInput() {
-    var chunkSize = 1024;
-    var inputChunks = [];
-    var totalBytes = 0;
-    var stdInBuffer = new Uint8Array(chunkSize);
-    var fdIn = 0;
+    const chunkSize = 1024;
+    const inputChunks = [];
+    let totalBytes = 0;
+    const stdInBuffer = new Uint8Array(chunkSize);
+    const fdIn = 0;
     //@ts-ignore
-    var bytesRead = Javy.IO.readSync(fdIn, stdInBuffer);
+    const bytesRead = Javy.IO.readSync(fdIn, stdInBuffer);
     totalBytes += bytesRead;
     inputChunks.push(stdInBuffer.subarray(0, bytesRead));
-    var finalBuffer = inputChunks.reduce(function (context, chunk) {
+    const { finalBuffer } = inputChunks.reduce((context, chunk) => {
         context.finalBuffer.set(chunk, context.bufferOffset);
         context.bufferOffset += chunk.length;
         return context;
-    }, { bufferOffset: 0, finalBuffer: new Uint8Array(totalBytes) }).finalBuffer;
+    }, { bufferOffset: 0, finalBuffer: new Uint8Array(totalBytes) });
     return JSON.parse(new TextDecoder().decode(finalBuffer));
 }
 /**
@@ -32,9 +32,9 @@ export function parseContractInput() {
  * Note: This function assumes that Javy.IO is available in the environment for I/O operations.
  */
 export function sendOutput(output) {
-    var encodedOutput = new TextEncoder().encode(JSON.stringify(output));
-    var stdOutBuffer = new Uint8Array(encodedOutput);
-    var fd = 1;
+    const encodedOutput = new TextEncoder().encode(JSON.stringify(output));
+    const stdOutBuffer = new Uint8Array(encodedOutput);
+    const fd = 1;
     //@ts-ignore
     Javy.IO.writeSync(fd, stdOutBuffer);
 }

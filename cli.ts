@@ -84,7 +84,7 @@ const argv = yargs(process.argv.slice(2))
         (match, className) => {
           const importPath = isInstalledPackage
             ? `'@versatus/versatus-javascript'`
-            : `'./lib'`
+            : `'./lib/contracts/${className}'`
           return `import { ${className} } from ${importPath};`
         }
       )
@@ -194,6 +194,9 @@ const argv = yargs(process.argv.slice(2))
 
               // Specify the output directory for the transpiled files
               const outDir = path.resolve(process.cwd(), 'build')
+
+              console.log({ outDir })
+              console.log({ filePath })
 
               // Run tsc to transpile the TypeScript file
               exec(
@@ -328,7 +331,10 @@ async function injectFileInWrapper(filePath: string) {
   fs.copyFileSync(versatusHelpersFilepath, versatusWrapperFilePath)
 
   try {
-    let wrapperContent = fs.readFileSync(distWrapperFilePath, 'utf8')
+    let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8')
+
+    console.log({ filePath })
+    console.log({ versatusHelpersFilepath })
 
     wrapperContent = wrapperContent.replace(
       /^import start from '.*';?$/m,
@@ -349,7 +355,7 @@ async function injectFileInWrapper(filePath: string) {
 
 function runBuildProcess() {
   const projectRoot = process.cwd()
-  const distPath = path.join(projectRoot, 'dist')
+  const distPath = path.join(projectRoot, 'build')
   const buildPath = path.join(projectRoot, 'build')
 
   if (!fs.existsSync(distPath) && !isInstalledPackage) {
