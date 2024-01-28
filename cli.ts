@@ -145,8 +145,6 @@ const argv = yargs(process.argv.slice(2))
       }
 
       if (installedPackagePath) {
-        console.log('copying files to project root')
-
         const filesDir = path.join(installedPackagePath, 'dist', 'lib')
 
         const targetFilesDir = path.join(targetDir, 'build', 'lib')
@@ -222,9 +220,6 @@ const argv = yargs(process.argv.slice(2))
 
               // Specify the output directory for the transpiled files
               const outDir = path.resolve(process.cwd(), 'build')
-
-              console.log({ outDir })
-              console.log({ filePath })
 
               // Run tsc to transpile the TypeScript file
               exec(
@@ -358,9 +353,6 @@ async function injectFileInWrapper(filePath: string) {
 
   try {
     let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8')
-
-    console.log({ filePath })
-    console.log({ versatusHelpersFilepath })
 
     wrapperContent = wrapperContent.replace(
       /^import start from '.*';?$/m,

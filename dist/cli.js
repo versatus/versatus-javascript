@@ -79,7 +79,6 @@ const argv = yargs(process.argv.slice(2))
         });
     }
     if (installedPackagePath) {
-        console.log('copying files to project root');
         const filesDir = path.join(installedPackagePath, 'dist', 'lib');
         const targetFilesDir = path.join(targetDir, 'build', 'lib');
         if (!fs.existsSync(targetFilesDir)) {
@@ -127,8 +126,6 @@ const argv = yargs(process.argv.slice(2))
                 console.log('TypeScript file detected. Transpiling...');
                 // Specify the output directory for the transpiled files
                 const outDir = path.resolve(process.cwd(), 'build');
-                console.log({ outDir });
-                console.log({ filePath });
                 // Run tsc to transpile the TypeScript file
                 exec(`tsc --outDir ${outDir} ${filePath}`, (tscError, tscStdout, tscStderr) => {
                     if (tscError) {
@@ -236,8 +233,6 @@ async function injectFileInWrapper(filePath) {
     fs.copyFileSync(versatusHelpersFilepath, versatusWrapperFilePath);
     try {
         let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
-        console.log({ filePath });
-        console.log({ versatusHelpersFilepath });
         wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from '${filePath}';`);
         wrapperContent = wrapperContent.replace(/from '.*versatus';?$/m, `from '${versatusWrapperFilePath}.js'`);
         return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
