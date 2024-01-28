@@ -133,7 +133,7 @@ const argv = yargs(process.argv.slice(2))
       if (installedPackagePath) {
         console.log('copying files to project root')
 
-        const filesDir = path.join(process.cwd(), 'dist', 'lib')
+        const filesDir = path.join(installedPackagePath, 'dist', 'lib')
 
         const targetFilesDir = path.join(targetDir, 'build', 'lib')
 
