@@ -239,7 +239,7 @@ async function injectFileInWrapper(filePath) {
         console.log({ filePath });
         console.log({ versatusHelpersFilepath });
         wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from '${filePath}';`);
-        wrapperContent = wrapperContent.replace(/from '.*versatus';?$/m, `from '${versatusHelpersFilepath}.js'`);
+        wrapperContent = wrapperContent.replace(/from '.*versatus';?$/m, `from '${versatusWrapperFilePath}.js'`);
         return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
     }
     catch (error) {

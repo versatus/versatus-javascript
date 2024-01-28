@@ -369,7 +369,7 @@ async function injectFileInWrapper(filePath: string) {
 
     wrapperContent = wrapperContent.replace(
       /from '.*versatus';?$/m,
-      `from '${versatusHelpersFilepath}.js'`
+      `from '${versatusWrapperFilePath}.js'`
     )
 
     return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8')
