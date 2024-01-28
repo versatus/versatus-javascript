@@ -72,7 +72,7 @@ const argv = yargs(process.argv.slice(2))
         const filesDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'dist', 'lib');
         const targetFilesDir = path.join(targetDir, 'build', 'lib');
         if (!fs.existsSync(targetFilesDir)) {
-            fs.mkdirSync(targetFilesDir);
+            fs.mkdirSync(targetFilesDir, { recursive: true });
         }
         fs.readdirSync(targetFilesDir).forEach((file) => {
             const srcFile = path.join(filesDir, file);
