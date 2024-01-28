@@ -130,6 +130,35 @@ const argv = yargs(process.argv.slice(2))
         })
       }
 
+      if (installedPackagePath) {
+        console.log('copying files to project root')
+        const filesDir = path.join(
+          isInstalledPackage ? installedPackagePath : process.cwd(),
+          'dist',
+          'lib'
+        )
+
+        const targetFilesDir = path.join(targetDir, 'build/lib')
+
+        if (fs.existsSync(targetFilesDir)) {
+          if (!fs.existsSync(targetFilesDir)) {
+            fs.mkdirSync(targetFilesDir)
+          }
+          fs.readdirSync(targetFilesDir).forEach((file) => {
+            const srcFile = path.join(filesDir, file)
+            const destFile = path.join(targetInputsDir, file)
+            try {
+              fs.copyFileSync(srcFile, destFile)
+            } catch (error) {
+              console.error(
+                `Error copying file ${srcFile} to ${destFile}:`,
+                error
+              )
+            }
+          })
+        }
+      }
+
       console.log(
         '\x1b[0;32mExample contract and inputs initialized successfully.\x1b[0m'
       )
@@ -222,7 +251,6 @@ const argv = yargs(process.argv.slice(2))
                 }
               )
             } else {
-              console.log({ filePath })
               injectFileInWrapper(filePath)
                 .then(() => {
                   runBuildProcess()
@@ -296,8 +324,7 @@ async function injectFileInWrapper(filePath: string) {
   const buildLibPath = path.join(projectRoot, 'build', 'lib')
 
   // Ensure the dist directory exists
-  if (!fs.existsSync(buildPath) || !fs.existsSync(buildLibPath)) {
-    fs.mkdirSync(buildPath, { recursive: true })
+  if (!fs.existsSync(buildLibPath)) {
     fs.mkdirSync(buildLibPath, { recursive: true })
   }
 
@@ -355,7 +382,7 @@ async function injectFileInWrapper(filePath: string) {
 
 function runBuildProcess() {
   const projectRoot = process.cwd()
-  const distPath = path.join(projectRoot, 'build')
+  const distPath = path.join(projectRoot, 'dist')
   const buildPath = path.join(projectRoot, 'build')
 
   if (!fs.existsSync(distPath) && !isInstalledPackage) {
@@ -382,7 +409,7 @@ function runBuildProcess() {
       __dirname,
       '../',
       'lib',
-      'webpack.config.cjs'
+      'webpack.config.dev.cjs'
     )
   }
 
@@ -398,8 +425,6 @@ function runBuildProcess() {
     }
 
     const bundleBuildPath = path.join(buildPath, 'bundle.js')
-
-    console.log({ bundleBuildPath })
 
     // Now run Javy
     const javyCommand = `javy compile ${bundleBuildPath} -o ${path.join(
