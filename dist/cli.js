@@ -70,7 +70,7 @@ const argv = yargs(process.argv.slice(2))
     if (installedPackagePath) {
         console.log('copying files to project root');
         const filesDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'dist', 'lib');
-        const targetFilesDir = path.join(targetDir, 'build/lib');
+        const targetFilesDir = path.join(targetDir, 'build', 'lib');
         if (fs.existsSync(targetFilesDir)) {
             if (!fs.existsSync(targetFilesDir)) {
                 fs.mkdirSync(targetFilesDir);

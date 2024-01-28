@@ -138,7 +138,7 @@ const argv = yargs(process.argv.slice(2))
           'lib'
         )
 
-        const targetFilesDir = path.join(targetDir, 'build/lib')
+        const targetFilesDir = path.join(targetDir, 'build', 'lib')
 
         if (fs.existsSync(targetFilesDir)) {
           if (!fs.existsSync(targetFilesDir)) {
