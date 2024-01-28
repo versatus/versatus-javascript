@@ -7,6 +7,17 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
 const installedPackagePath = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
+function copyDirectory(src, dest) {
+    fs.mkdirSync(dest, { recursive: true });
+    let entries = fs.readdirSync(src, { withFileTypes: true });
+    for (let entry of entries) {
+        let srcPath = path.join(src, entry.name);
+        let destPath = path.join(dest, entry.name);
+        entry.isDirectory()
+            ? copyDirectory(srcPath, destPath)
+            : fs.copyFileSync(srcPath, destPath);
+    }
+}
 const isTypeScriptProject = () => {
     const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
     return fs.existsSync(tsConfigPath);
@@ -74,16 +85,7 @@ const argv = yargs(process.argv.slice(2))
         if (!fs.existsSync(targetFilesDir)) {
             fs.mkdirSync(targetFilesDir, { recursive: true });
         }
-        fs.readdirSync(filesDir).forEach((file) => {
-            const srcFile = path.join(filesDir, file);
-            const destFile = path.join(targetInputsDir, file);
-            try {
-                fs.copyFileSync(srcFile, destFile);
-            }
-            catch (error) {
-                console.error(`Error copying file ${srcFile} to ${destFile}:`, error);
-            }
-        });
+        copyDirectory(filesDir, targetFilesDir);
     }
     console.log('\x1b[0;32mExample contract and inputs initialized successfully.\x1b[0m');
 })
