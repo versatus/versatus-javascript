@@ -140,23 +140,21 @@ const argv = yargs(process.argv.slice(2))
 
         const targetFilesDir = path.join(targetDir, 'build', 'lib')
 
-        if (fs.existsSync(targetFilesDir)) {
-          if (!fs.existsSync(targetFilesDir)) {
-            fs.mkdirSync(targetFilesDir)
-          }
-          fs.readdirSync(targetFilesDir).forEach((file) => {
-            const srcFile = path.join(filesDir, file)
-            const destFile = path.join(targetInputsDir, file)
-            try {
-              fs.copyFileSync(srcFile, destFile)
-            } catch (error) {
-              console.error(
-                `Error copying file ${srcFile} to ${destFile}:`,
-                error
-              )
-            }
-          })
+        if (!fs.existsSync(targetFilesDir)) {
+          fs.mkdirSync(targetFilesDir)
         }
+        fs.readdirSync(targetFilesDir).forEach((file) => {
+          const srcFile = path.join(filesDir, file)
+          const destFile = path.join(targetInputsDir, file)
+          try {
+            fs.copyFileSync(srcFile, destFile)
+          } catch (error) {
+            console.error(
+              `Error copying file ${srcFile} to ${destFile}:`,
+              error
+            )
+          }
+        })
       }
 
       console.log(
