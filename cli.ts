@@ -90,7 +90,7 @@ const argv = yargs(process.argv.slice(2))
 
       // Update the import path for any contract class based on the environment
       const contractClassRegEx =
-        /^import \{ (.*) \} from '.*\/lib\/contracts\/.*'$/gm
+        /^import \{ (.*) \} from '.*\/lib\/contracts\/.*'*$/gm
       console.log({ isInstalledPackage })
       console.log('HERE!!!!')
       exampleContractContent = exampleContractContent.replace(
@@ -99,9 +99,6 @@ const argv = yargs(process.argv.slice(2))
           const importPath = isInstalledPackage
             ? `'@versatus/versatus-javascript'`
             : `'./lib/contracts/${className}'`
-
-          console.log({ importPath })
-
           return `import { ${className} } from ${importPath};`
         }
       )
