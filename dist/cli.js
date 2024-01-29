@@ -44,8 +44,6 @@ const argv = yargs(process.argv.slice(2))
     let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
     // Update the import path for any contract class based on the environment
     const contractClassRegEx = /^import \{ (.*) \} from '.*\/lib\/contracts\/.*'*$/gm;
-    console.log({ isInstalledPackage });
-    console.log('HERE!!!!');
     exampleContractContent = exampleContractContent.replace(contractClassRegEx, (match, className) => {
         const importPath = isInstalledPackage
             ? `'@versatus/versatus-javascript'`
@@ -80,7 +78,7 @@ const argv = yargs(process.argv.slice(2))
             }
         });
     }
-    if (installedPackagePath) {
+    if (isInstalledPackage) {
         const filesDir = path.join(installedPackagePath, 'dist', 'lib');
         const targetFilesDir = path.join(targetDir, 'build', 'lib');
         if (!fs.existsSync(targetFilesDir)) {
