@@ -44,14 +44,16 @@ const argv = yargs(process.argv.slice(2))
     let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
     // Update the import path for any contract class based on the environment
     const contractClassRegEx = /^import \{ (.*) \} from '.*\/lib\/contracts\/.*'$/gm;
-    const typesRegex = /^import \{ (.*) \} from '.*\/types'$/gm;
+    console.log({ isInstalledPackage });
     exampleContractContent = exampleContractContent.replace(contractClassRegEx, (match, className) => {
         const importPath = isInstalledPackage
             ? `'@versatus/versatus-javascript'`
             : `'./lib/contracts/${className}'`;
+        console.log({ importPath });
         return `import { ${className} } from ${importPath};`;
     });
     if (isTsProject) {
+        const typesRegex = /^import \{ (.*) \} from '.*\/types'$/gm;
         exampleContractContent = exampleContractContent.replace(typesRegex, (match, className) => {
             const importPath = isInstalledPackage
                 ? `'@versatus/versatus-javascript'`
