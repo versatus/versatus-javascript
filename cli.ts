@@ -91,8 +91,7 @@ const argv = yargs(process.argv.slice(2))
       // Update the import path for any contract class based on the environment
       const contractClassRegEx =
         /^import \{ (.*) \} from '.*\/lib\/contracts\/.*'*$/gm
-      console.log({ isInstalledPackage })
-      console.log('HERE!!!!')
+
       exampleContractContent = exampleContractContent.replace(
         contractClassRegEx,
         (match, className) => {
@@ -125,6 +124,7 @@ const argv = yargs(process.argv.slice(2))
         argv.example || 'fungible-token',
         'inputs'
       )
+
       const targetInputsDir = path.join(targetDir, 'inputs')
 
       if (fs.existsSync(inputsDir)) {
@@ -145,7 +145,7 @@ const argv = yargs(process.argv.slice(2))
         })
       }
 
-      if (installedPackagePath) {
+      if (isInstalledPackage) {
         const filesDir = path.join(installedPackagePath, 'dist', 'lib')
 
         const targetFilesDir = path.join(targetDir, 'build', 'lib')
