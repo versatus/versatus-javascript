@@ -1,0 +1,6 @@
+{
+  "entryPoints": ["lib", "types"],
+  "out": "docs",
+  "excludePrivate": false,
+  "excludeProtected": false
+}

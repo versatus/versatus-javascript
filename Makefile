@@ -18,6 +18,6 @@ publish:
 	$(Q)echo "--- publish done"
 
 reset:
-	$(Q)rm -rf dist
+	$(Q)rm -rf dist build example-contract* inputs
 	$(Q)yarn build
 	$(Q)echo "--- reset"

@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "target": "es5",
+    "target": "ES2020",
+    "allowSyntheticDefaultImports": true,
     "module": "ESNext",
     "strict": true,
     "esModuleInterop": true,
     "outDir": "dist",
+    "declaration": true,
     "moduleResolution": "node",
     "paths": {
       "*": ["node_modules/*", "src/types/*"]
-    },
+    }
   },
   "include": ["*.ts", "lib/**/*.ts", "examples/**/*.ts", "cli.cts"],
   "exclude": ["node_modules"]
