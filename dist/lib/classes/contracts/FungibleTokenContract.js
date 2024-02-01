@@ -1,5 +1,5 @@
 import { Contract } from './Contract.js';
-import { CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, } from '../builders.js';
+import { CreateInstructionBuilder, TokenDistributionBuilder, TokenUpdateBuilder, TransferInstructionBuilder, } from '../builders.js';
 import { AddressOrNamespace } from '../utils.js';
 import Address from '../Address.js';
 import { Outputs } from '../Outputs.js';
@@ -8,7 +8,8 @@ import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenUpdateField, } f
 import { bigIntToHexString } from '../../helpers.js';
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
- * It encapsulates the core functionality and properties of a fungible token.
+ * It encapsulates the core functionality and properties of the write
+ * functionality of a fungible token.
  */
 export class FungibleTokenContract extends Contract {
     /**
@@ -20,6 +21,20 @@ export class FungibleTokenContract extends Contract {
             create: this.create.bind(this),
             mint: this.mint.bind(this),
         };
+    }
+    approve(inputs) {
+        const { transaction } = inputs;
+        const { inputs: approveData, programId } = transaction;
+        const tokenId = new Address(programId);
+        const caller = new Address(transaction.from);
+        const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('approvals', new TokenMetadataExtend(JSON.parse(approveData))));
+        const approvalUpdate = new TokenUpdateBuilder()
+            .addTokenAddress(new AddressOrNamespace(tokenId))
+            .addUpdateAccountAddress(new AddressOrNamespace(caller))
+            .addUpdateField(update)
+            .build();
+        const updateInstruction = new Instruction('update', approvalUpdate);
+        return new Outputs(inputs, [updateInstruction]).toJson();
     }
     create(inputs) {
         const { transaction } = inputs;

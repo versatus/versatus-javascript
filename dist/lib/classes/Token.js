@@ -147,13 +147,9 @@ export class TokenUpdate {
     }
     toJson() {
         return {
-            account: typeof this.account === 'string'
-                ? this.account
-                : this.account?.toJson() ?? null,
-            token: typeof this.token === 'string'
-                ? this.token
-                : this.token?.toJson() ?? null,
-            updates: this.updates.map((update) => update.toJson()),
+            account: this.account ?? null,
+            token: this.token ?? null,
+            updates: this.updates.map((update) => update),
         };
     }
 }
