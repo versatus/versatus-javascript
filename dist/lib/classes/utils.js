@@ -1,3 +1,5 @@
+import Address from './Address.js';
+import { Namespace } from './Namespace.js';
 export class AddressOrNamespace {
     constructor(value) {
         this.value = value;
@@ -6,8 +8,14 @@ export class AddressOrNamespace {
         if (this.value === AddressOrNamespace.THIS) {
             return 'this';
         }
+        else if (this.value instanceof Address) {
+            return { address: this.value.toJson() };
+        }
+        else if (this.value instanceof Namespace) {
+            return { namespace: this.value.toJson() };
+        }
         else {
-            return this.value.toJson();
+            return this.value;
         }
     }
 }

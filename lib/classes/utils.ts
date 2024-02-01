@@ -15,8 +15,12 @@ export class AddressOrNamespace {
   toJson(): object | string {
     if (this.value === AddressOrNamespace.THIS) {
       return 'this'
+    } else if (this.value instanceof Address) {
+      return { address: (this.value as Address).toJson() }
+    } else if (this.value instanceof Namespace) {
+      return { namespace: (this.value as Namespace).toJson() }
     } else {
-      return (this.value as Address | Namespace).toJson()
+      return this.value
     }
   }
 }

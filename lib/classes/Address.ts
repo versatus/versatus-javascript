@@ -5,7 +5,7 @@ export default class Address {
     this.address = addressInput
   }
 
-  toJson(): object {
-    return { address: this.address }
+  toJson(): string {
+    return this.address
   }
 }

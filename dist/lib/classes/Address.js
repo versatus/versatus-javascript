@@ -3,6 +3,6 @@ export default class Address {
         this.address = addressInput;
     }
     toJson() {
-        return { address: this.address };
+        return this.address;
     }
 }
