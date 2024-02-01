@@ -8,7 +8,7 @@ function addJsExtensionToImports(directory) {
         if (stat.isDirectory()) {
             addJsExtensionToImports(filePath);
         }
-        else if (filePath.endsWith('.js')) {
+        else if (filePath.endsWith('.js') && !filePath.endsWith('.json')) {
             let content = fs.readFileSync(filePath, 'utf8');
             // Only replace import paths that are relative (start with './' or '../')
             content = content.replace(/from ['"](\.\/|\.\.\/)([\.\/\w_-]+)['"];/g, "from '$1$2.js';");

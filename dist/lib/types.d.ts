@@ -1,44 +1,92 @@
+import { AddressOrNamespace } from './classes';
+export type AccountType = 'User' | {
+    Program: Address;
+};
 /**
- * Represents the input data structure for a contract.
- * @typedef {Object} ContractInput
- * @property {number} version - The version number of the contract.
- * @property {AccountInfo} accountInfo - Information related to the account associated with the contract.
- * @property {string} function - The specific function to be executed in the contract.
- * @property {Inputs} inputs - A record of inputs required for the contract function execution.
+ * Represents a 20-byte Ethereum Compatible address.
+ *
+ * This structure is used to store Ethereum Compatible addresses, which are derived from the public key. It implements traits like Clone, Copy, Debug, Serialize, Deserialize, etc., for ease of use across various contexts.
  */
-export interface ContractInput {
+export type Address = string;
+export type U256 = [number, number, number, number];
+export type Status = 'Locked' | 'Free';
+export type TransactionType = {
+    [k: string]: unknown;
+};
+/**
+ * This file contains types the protocol uses to prepare data, structure it and call out to a particular compute payload. The inputs type for a contract call
+ */
+export interface Inputs {
+    account_info?: Account | null;
+    inputs: string;
+    op: string;
+    transaction: Transaction;
     version: number;
-    accountInfo: AccountInfo;
-    programFunction: string;
-    programInputs: Inputs;
+    [k: string]: unknown;
 }
 /**
- * Contains detailed information about the account associated with a contract.
- * @typedef {Object} AccountInfo
- * @property {string} programNamespace - The namespace of the program associated with this account.
- * @property {LinkedPrograms} linkedPrograms - A collection of programs linked to this account, indexed by a key.
- * @property {string} data - Additional data related to the account, potentially in a serialized format.
+ * Represents an LASR account.
+ *
+ * This structure contains details of an LASR account, including its address, associated programs, nonce, signatures, hashes, and certificates. It implements traits for serialization, hashing, and comparison.
  */
-export interface AccountInfo {
-    programNamespace: string;
-    linkedPrograms: LinkedPrograms;
-    data: string;
+export interface Account {
+    account_type: AccountType;
+    nonce: U256;
+    owner_address: Address;
+    program_account_data: ArbitraryData;
+    program_account_linked_programs: AddressOrNamespace[];
+    program_account_metadata: Metadata;
+    program_namespace?: AddressOrNamespace | null;
+    programs: {
+        [k: string]: Token;
+    };
+    [k: string]: unknown;
 }
 /**
- * Represents a collection of linked programs associated with an account.
- * @typedef {Object} LinkedPrograms
- * @property {LinkedProgram} key - An index signature, where each key is a string that maps to a `LinkedProgram`.
+ * Represents a generic data container.
+ *
+ * This structure is used to store arbitrary data as a vector of bytes (`Vec<u8>`). It provides a default, cloneable, serializable, and debuggable interface. It is typically used for storing data that doesn't have a fixed format or structure.
  */
-export interface LinkedPrograms {
-    [key: string]: LinkedProgram;
+export interface ArbitraryData {
+    [k: string]: string;
 }
 /**
- * Defines a linked program in a generic format.
- * @typedef {Record<string, any>} LinkedProgram - A generic object representing a linked program, with string keys and values of any type.
+ * Represents metadata as a byte vector.
+ *
+ * This structure is designed to encapsulate metadata, stored as a vector of bytes. It supports cloning, serialization, and debugging. The metadata can be of any form that fits into a byte array, making it a flexible container.
  */
-export type LinkedProgram = Record<string, any>;
-/**
- * Represents a generic record of inputs, where keys are strings and values can be of any type.
- * @typedef {Record<string, any>} Inputs
- */
-export type Inputs = Record<string, any>;
+export interface Metadata {
+    [k: string]: string;
+}
+export type TokenFieldValues = 'approvals' | 'balance' | 'data' | 'metadata' | 'owner_id' | 'program_id' | 'status' | 'token_ids';
+export interface Token {
+    allowance: {
+        [k: string]: U256;
+    };
+    approvals: {
+        [k: string]: U256[];
+    };
+    balance: U256;
+    data: ArbitraryData;
+    metadata: Metadata;
+    owner_id: Address;
+    program_id: Address;
+    status: Status;
+    token_ids: U256[];
+    [k: string]: unknown;
+}
+export interface Transaction {
+    from: string;
+    inputs: string;
+    nonce: string;
+    op: string;
+    programId: string;
+    r: string;
+    s: string;
+    to: string;
+    transactionType: TransactionType;
+    v: number;
+    value: string;
+    [k: string]: unknown;
+}
+export type InstructionKinds = 'create' | 'update' | 'transfer' | 'burn';
