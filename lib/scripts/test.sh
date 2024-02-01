@@ -11,8 +11,6 @@ ROOT_DIR=$(pwd)
 BUILD_WASM_PATH="$ROOT_DIR/build/build.wasm"
 WASM_PATH="$ROOT_DIR/build/versa.wasm"
 
-print_info "$BUILD_WASM_PATH"
-
 # Check if the JSON input file path is provided as an argument
 if [ -z "$1" ]; then
     print_error "Error: No JSON input file path provided."
@@ -26,22 +24,19 @@ if [ ! -f "$INPUT_JSON_PATH" ]; then
     exit 1
 fi
 
-print_info "Running the test using versa-wasm..."
+print_info "Running the test against versa-wasm..."
 
-# Store the response from versa-wasm execute in a variable
-EXECUTE_RESPONSE=$("$WASM_PATH" execute --wasm "$BUILD_WASM_PATH" --json "$INPUT_JSON_PATH" --meter-limit 100000000 | jq)
+EXECUTE_RESPONSE=$("$WASM_PATH" execute --wasm "$BUILD_WASM_PATH" --json "$INPUT_JSON_PATH" --meter-limit 100000000)
+EXECUTE_STATUS=$?
 
-# Extract the success value from the JSON output
-TEST_RESULT=$(echo "$EXECUTE_RESPONSE" | jq -r '.success')
-
-print_info "\nTest results:"
-
-if [ "$TEST_RESULT" == "true" ]; then
-    print_success "Contract method was successful."
-    print_info "Output: "
-    echo "$EXECUTE_RESPONSE"
+if [ $EXECUTE_STATUS -eq 0 ]; then
+    print_info "\nTest results:"
+    print_light_gray "=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/="
+    print_magenta "$EXECUTE_RESPONSE"
+    print_light_gray "=/=/=/=/=/=/=/=/=/=/=/=/=/=/=/="
+    print_light_green "Contract method was successful."
 else
-    print_error "Contract method was unsuccessful."
+    print_error "Command execution failed with exit code $EXECUTE_STATUS."
 fi
 
-print_info "Test complete."
+print_light_gray "Test complete."
