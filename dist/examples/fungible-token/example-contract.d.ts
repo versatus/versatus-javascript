@@ -1,3 +1,3 @@
-import { ContractInput } from '../../lib/types';
-declare const start: (input: ContractInput) => any;
+import { Inputs } from '../../lib';
+declare const start: (input: Inputs) => any;
 export default start;
