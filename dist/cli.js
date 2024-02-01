@@ -298,7 +298,6 @@ function runTestProcess(inputJsonPath) {
         scriptDir = process.cwd();
     }
     const testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'test.sh');
-    // Spawn a shell and execute the test.sh script within the shell
     const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
         stdio: 'inherit',
     });

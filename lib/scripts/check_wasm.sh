@@ -8,9 +8,13 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/colored_echo.sh"
 ROOT_DIR=$(pwd)
+
 WASM_PATH="$ROOT_DIR/build/versa.wasm"
 # WASM_URL="https://github.com/versatus/test-versatus-release-actions/releases/download/${VERSA_WASM_VERSION}/versa-wasm"
 WASM_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/versa-wasm" # OSX M2
+
+LASR_CLI_PATH="$ROOT_DIR/build/lasr-cli"
+LASR_CLI_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/lasr-cli" # OSX M2
 
 # Create the build directory if it doesn't exist
 if [ ! -d "$ROOT_DIR/build" ]; then
@@ -18,14 +22,27 @@ if [ ! -d "$ROOT_DIR/build" ]; then
 fi
 
 # Check if the WASM file exists and download it if it does not
-print_info "Checking if WASM file exists..."
+print_info "Checking if WASM runtime exists..."
 if [ ! -f "$WASM_PATH" ]; then
-    print_warning "WASM file not found. Downloading from $WASM_URL..."
+    print_warning "WASM runtime not found. Downloading from $WASM_URL..."
     # Use curl with a progress bar
     curl -L -o "$WASM_PATH" "$WASM_URL" -#
 else
-    print_success "WASM file already exists. Skipping download."
+    print_success "WASM runtime already exists. Skipping download."
 fi
 
 # Make the WASM file executable
 chmod +x "$WASM_PATH"
+
+# Check if the WASM file exists and download it if it does not
+print_info "Checking if LASR CLI exists..."
+if [ ! -f "$LASR_CLI_PATH" ]; then
+    print_warning "LASR CLI not found. Downloading from $LASR_CLI_URL..."
+    # Use curl with a progress bar
+    curl -L -o "$LASR_CLI_PATH" "$LASR_CLI_URL" -#
+else
+    print_success "LASR CLI already exists. Skipping download."
+fi
+
+# Make the WASM file executable
+chmod +x "$LASR_CLI_PATH"
