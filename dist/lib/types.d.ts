@@ -76,6 +76,7 @@ export interface Token {
     [k: string]: unknown;
 }
 export interface InitTransaction {
+    to: string;
     from: string;
     inputs: string;
     nonce: string;
@@ -86,6 +87,7 @@ export interface InitTransaction {
     [k: string]: unknown;
 }
 export interface Transaction extends InitTransaction {
+    to: string;
     from: string;
     inputs: string;
     nonce: string;
@@ -93,9 +95,8 @@ export interface Transaction extends InitTransaction {
     programId: string;
     r: string;
     s: string;
-    to: string;
-    transactionType: TransactionType;
     v: number;
+    transactionType: TransactionType;
     value: string;
     [k: string]: unknown;
 }
