@@ -11,6 +11,7 @@ export declare class FungibleTokenContract extends Contract {
      */
     constructor();
     approve(inputs: Inputs): object;
+    burn(inputs: Inputs): object;
     create(inputs: Inputs): object;
     mint(inputs: Inputs): object;
 }

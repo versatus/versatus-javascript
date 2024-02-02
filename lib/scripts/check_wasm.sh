@@ -22,7 +22,7 @@ if [ ! -d "$ROOT_DIR/build" ]; then
 fi
 
 # Check if the WASM file exists and download it if it does not
-print_info "Checking if WASM runtime exists..."
+print_light_gray "Checking if WASM runtime exists..."
 if [ ! -f "$WASM_PATH" ]; then
     print_warning "WASM runtime not found. Downloading from $WASM_URL..."
     # Use curl with a progress bar
@@ -35,7 +35,7 @@ fi
 chmod +x "$WASM_PATH"
 
 # Check if the WASM file exists and download it if it does not
-print_info "Checking if LASR CLI exists..."
+print_light_gray "Checking if LASR CLI exists..."
 if [ ! -f "$LASR_CLI_PATH" ]; then
     print_warning "LASR CLI not found. Downloading from $LASR_CLI_URL..."
     # Use curl with a progress bar

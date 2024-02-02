@@ -85,7 +85,7 @@ export class UpdateInstruction {
 
   toJson(): object {
     return {
-      updates: this.updates.map((update) => update.toJson()),
+      updates: this.updates.map((update) => update),
     }
   }
 }
@@ -127,16 +127,16 @@ export class BurnInstruction {
   private programId: AddressOrNamespace | null
   private token: Address | null
   private burnFrom: AddressOrNamespace | null
-  private amount: U256 | null
-  private tokenIds: U256[]
+  private amount: string | null
+  private tokenIds: string[]
 
   constructor(
     caller: Address | null,
     programId: AddressOrNamespace | null,
     token: Address | null,
     burnFrom: AddressOrNamespace | null,
-    amount: U256 | null,
-    tokenIds: U256[]
+    amount: string | null,
+    tokenIds: string[]
   ) {
     this.caller = caller
     this.programId = programId
@@ -152,8 +152,8 @@ export class BurnInstruction {
       programId: this.programId?.toJson(),
       token: this.token?.toJson(),
       from: this.burnFrom?.toJson(),
-      amount: this.amount === null ? null : this.amount.toJson(),
-      ids: this.tokenIds.map((id) => id.toJson()),
+      amount: this.amount === null ? null : this.amount,
+      ids: this.tokenIds.map((id) => id),
     }
   }
 }

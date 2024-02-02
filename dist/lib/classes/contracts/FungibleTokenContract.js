@@ -1,10 +1,9 @@
 import { Contract } from './Contract.js';
-import { CreateInstructionBuilder, TokenDistributionBuilder, TokenUpdateBuilder, TransferInstructionBuilder, } from '../builders.js';
-import { AddressOrNamespace } from '../utils.js';
+import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TokenUpdateBuilder, TransferInstructionBuilder, } from '../builders.js';
+import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
 import Address from '../Address.js';
 import { Outputs } from '../Outputs.js';
-import { Instruction } from '../Instruction.js';
-import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenUpdateField, } from '../Token.js';
+import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenUpdate, TokenUpdateField, } from '../Token.js';
 import { bigIntToHexString } from '../../helpers.js';
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
@@ -18,6 +17,8 @@ export class FungibleTokenContract extends Contract {
     constructor() {
         super();
         this.methodStrategies = {
+            approve: this.approve.bind(this),
+            burn: this.burn.bind(this),
             create: this.create.bind(this),
             mint: this.mint.bind(this),
         };
@@ -25,16 +26,28 @@ export class FungibleTokenContract extends Contract {
     approve(inputs) {
         const { transaction } = inputs;
         const { inputs: approveData, programId } = transaction;
-        const tokenId = new Address(programId);
+        const tokenId = new AddressOrNamespace(new Address(programId));
         const caller = new Address(transaction.from);
         const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('approvals', new TokenMetadataExtend(JSON.parse(approveData))));
-        const approvalUpdate = new TokenUpdateBuilder()
-            .addTokenAddress(new AddressOrNamespace(tokenId))
-            .addUpdateAccountAddress(new AddressOrNamespace(caller))
-            .addUpdateField(update)
+        const tokenUpdate = new TokenUpdate(new AddressOrNamespace(caller), tokenId, [update]);
+        const tokenOrProgramUpdate = new TokenOrProgramUpdate('tokenUpdate', tokenUpdate);
+        const updateInstruction = new TokenUpdateBuilder()
+            .addTokenAddress(tokenId)
+            .addUpdateField(tokenOrProgramUpdate)
             .build();
-        const updateInstruction = new Instruction('update', approvalUpdate);
         return new Outputs(inputs, [updateInstruction]).toJson();
+    }
+    burn(inputs) {
+        const { transaction } = inputs;
+        const caller = new Address(transaction.from);
+        const burnInstruction = new BurnInstructionBuilder()
+            .setProgramId(new AddressOrNamespace('this'))
+            .setCaller(caller)
+            .setTokenAddress(new Address('this'))
+            .setBurnFromAddress(new AddressOrNamespace(caller))
+            .setAmount(bigIntToHexString(BigInt(transaction.value)))
+            .build();
+        return new Outputs(inputs, [burnInstruction]).toJson();
     }
     create(inputs) {
         const { transaction } = inputs;
@@ -48,7 +61,7 @@ export class FungibleTokenContract extends Contract {
             .setReceiver(new AddressOrNamespace(caller))
             .extendUpdateFields(initUpdates)
             .build();
-        const create = new CreateInstructionBuilder()
+        const createInstruction = new CreateInstructionBuilder()
             .setProgramId(new AddressOrNamespace('this'))
             .setTotalSupply(bigIntToHexString(BigInt(transaction.value)))
             .setInitializedSupply(bigIntToHexString(BigInt(transaction.value)))
@@ -56,7 +69,6 @@ export class FungibleTokenContract extends Contract {
             .setProgramNamespace(new AddressOrNamespace('this'))
             .addTokenDistribution(initDistribution)
             .build();
-        const createInstruction = new Instruction('create', create);
         return new Outputs(inputs, [createInstruction]).toJson();
     }
     mint(inputs) {
@@ -78,11 +90,6 @@ export class FungibleTokenContract extends Contract {
             .setAmount(bigIntToHexString(payable))
             .setTokenAddress(payableToken)
             .build();
-        const transferToInstruction = new Instruction('transfer', transferTo);
-        const transferFromInstruction = new Instruction('transfer', transferFrom);
-        return new Outputs(inputs, [
-            transferToInstruction,
-            transferFromInstruction,
-        ]).toJson();
+        return new Outputs(inputs, [transferTo, transferFrom]).toJson();
     }
 }

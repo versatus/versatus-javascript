@@ -19,7 +19,7 @@ print_colored() {
 
     case $color in
         red)
-            echo -e "${RED}Error: ${message}${NC}"
+            echo -e "${RED}${message}${NC}"
             ;;
         green)
             echo -e "${GREEN}${message}${NC}"
@@ -28,7 +28,7 @@ print_colored() {
             echo -e "${BLUE}${message}${NC}"
             ;;
         yellow)
-            echo -e "${YELLOW}Warning: ${message}${NC}"
+            echo -e "${YELLOW}${message}${NC}"
             ;;
         cyan)
             echo -e "${CYAN}${message}${NC}"
@@ -53,7 +53,7 @@ print_colored() {
 
 print_error() {
     local message=$1
-    print_colored "red" "Error: $message"
+    print_colored "red" "$message"
 }
 
 print_warning() {

@@ -14,7 +14,7 @@ import { Outputs } from './Outputs'
 export class TokenUpdateBuilder {
   private account: AddressOrNamespace | null
   private token: AddressOrNamespace | null
-  private updates: TokenUpdateField[]
+  private updates: TokenOrProgramUpdate[]
 
   constructor() {
     this.account = null
@@ -32,26 +32,22 @@ export class TokenUpdateBuilder {
     return this
   }
 
-  addUpdateField(updateField: TokenUpdateField): TokenUpdateBuilder {
+  addUpdateField(updateField: TokenOrProgramUpdate): TokenUpdateBuilder {
     this.updates.push(updateField)
     return this
   }
 
-  build(): TokenUpdate {
+  build(): Instruction {
     const account =
       this.account instanceof AddressOrNamespace
         ? (this.account.toJson() as AddressOrNamespace)
         : this.account ?? null
-    const token =
-      this.token instanceof AddressOrNamespace
-        ? (this.token.toJson() as AddressOrNamespace)
-        : this.token ?? null
-    return new TokenUpdate(
-      account,
-      token,
-      this.updates.map((update: TokenUpdateField) =>
-        update.toJson()
-      ) as TokenUpdateField[]
+    const token = this.token ?? null
+    return new Instruction(
+      'update',
+      new UpdateInstruction(
+        this.updates.map((update) => update.toJson()) as TokenOrProgramUpdate[]
+      )
     )
   }
 }
@@ -178,14 +174,17 @@ export class CreateInstructionBuilder {
     return this
   }
 
-  build(): CreateInstruction {
-    return new CreateInstruction(
-      this.programNamespace,
-      this.programId,
-      this.programOwner,
-      this.totalSupply,
-      this.initializedSupply,
-      this.distribution
+  build(): Instruction {
+    return new Instruction(
+      'create',
+      new CreateInstruction(
+        this.programNamespace,
+        this.programId,
+        this.programOwner,
+        this.totalSupply,
+        this.initializedSupply,
+        this.distribution
+      )
     )
   }
 }
@@ -203,8 +202,8 @@ export class UpdateInstructionBuilder {
     return this
   }
 
-  build(): UpdateInstruction {
-    return new UpdateInstruction(this.updates)
+  build(): Instruction {
+    return new Instruction('update', new UpdateInstruction(this.updates))
   }
 }
 
@@ -247,14 +246,17 @@ export class TransferInstructionBuilder {
     return this
   }
 
-  build(): TransferInstruction {
+  build(): Instruction {
     const token = this.token ?? null
-    return new TransferInstruction(
-      token,
-      this.transferFrom,
-      this.transferTo,
-      this.amount,
-      this.ids
+    return new Instruction(
+      'transfer',
+      new TransferInstruction(
+        token,
+        this.transferFrom,
+        this.transferTo,
+        this.amount,
+        this.ids
+      )
     )
   }
 }
@@ -264,8 +266,8 @@ export class BurnInstructionBuilder {
   private programId: AddressOrNamespace | null = null
   private token: Address | null = null
   private burnFrom: AddressOrNamespace | null = null
-  private amount: U256 | null = null
-  private tokenIds: U256[] = []
+  private amount: string | null = null
+  private tokenIds: string[] = []
 
   setCaller(caller: Address): BurnInstructionBuilder {
     this.caller = caller
@@ -289,29 +291,32 @@ export class BurnInstructionBuilder {
     return this
   }
 
-  setAmount(amount: U256): BurnInstructionBuilder {
+  setAmount(amount: string): BurnInstructionBuilder {
     this.amount = amount
     return this
   }
 
-  addTokenId(tokenId: U256): BurnInstructionBuilder {
+  addTokenId(tokenId: string): BurnInstructionBuilder {
     this.tokenIds.push(tokenId)
     return this
   }
 
-  extendTokenIds(items: U256[]): BurnInstructionBuilder {
+  extendTokenIds(items: string[]): BurnInstructionBuilder {
     this.tokenIds.push(...items)
     return this
   }
 
-  build(): BurnInstruction {
-    return new BurnInstruction(
-      this.caller,
-      this.programId,
-      this.token,
-      this.burnFrom,
-      this.amount,
-      this.tokenIds
+  build(): Instruction {
+    return new Instruction(
+      'burn',
+      new BurnInstruction(
+        this.caller,
+        this.programId,
+        this.token,
+        this.burnFrom,
+        this.amount,
+        this.tokenIds
+      )
     )
   }
 }

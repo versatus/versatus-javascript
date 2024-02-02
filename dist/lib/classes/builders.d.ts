@@ -1,8 +1,7 @@
 import { AddressOrNamespace, TokenOrProgramUpdate } from './utils';
-import { TokenDistribution, TokenUpdate, TokenUpdateField } from './Token';
-import { U256 } from './U256';
+import { TokenDistribution, TokenUpdateField } from './Token';
 import Address from './Address';
-import { BurnInstruction, CreateInstruction, Instruction, TransferInstruction, UpdateInstruction } from './Instruction';
+import { Instruction } from './Instruction';
 import { Outputs } from './Outputs';
 export declare class TokenUpdateBuilder {
     private account;
@@ -11,8 +10,8 @@ export declare class TokenUpdateBuilder {
     constructor();
     addUpdateAccountAddress(account: AddressOrNamespace): TokenUpdateBuilder;
     addTokenAddress(tokenAddress: AddressOrNamespace): TokenUpdateBuilder;
-    addUpdateField(updateField: TokenUpdateField): TokenUpdateBuilder;
-    build(): TokenUpdate;
+    addUpdateField(updateField: TokenOrProgramUpdate): TokenUpdateBuilder;
+    build(): Instruction;
 }
 export declare class TokenDistributionBuilder {
     private programId;
@@ -44,13 +43,13 @@ export declare class CreateInstructionBuilder {
     setInitializedSupply(initializedSupply: string): CreateInstructionBuilder;
     addTokenDistribution(tokenDistribution: TokenDistribution): CreateInstructionBuilder;
     extendTokenDistribution(items: TokenDistribution[]): CreateInstructionBuilder;
-    build(): CreateInstruction;
+    build(): Instruction;
 }
 export declare class UpdateInstructionBuilder {
     private updates;
     addUpdate(update: TokenOrProgramUpdate): UpdateInstructionBuilder;
     extendUpdates(items: TokenOrProgramUpdate[]): UpdateInstructionBuilder;
-    build(): UpdateInstruction;
+    build(): Instruction;
 }
 export declare class TransferInstructionBuilder {
     private token;
@@ -64,7 +63,7 @@ export declare class TransferInstructionBuilder {
     setAmount(amount: string | null): TransferInstructionBuilder;
     addTokenId(tokenId: string): TransferInstructionBuilder;
     extendTokenIds(items: string[]): TransferInstructionBuilder;
-    build(): TransferInstruction;
+    build(): Instruction;
 }
 export declare class BurnInstructionBuilder {
     private caller;
@@ -77,10 +76,10 @@ export declare class BurnInstructionBuilder {
     setProgramId(programId: AddressOrNamespace): BurnInstructionBuilder;
     setTokenAddress(tokenAddress: Address): BurnInstructionBuilder;
     setBurnFromAddress(burnFromAddress: AddressOrNamespace): BurnInstructionBuilder;
-    setAmount(amount: U256): BurnInstructionBuilder;
-    addTokenId(tokenId: U256): BurnInstructionBuilder;
-    extendTokenIds(items: U256[]): BurnInstructionBuilder;
-    build(): BurnInstruction;
+    setAmount(amount: string): BurnInstructionBuilder;
+    addTokenId(tokenId: string): BurnInstructionBuilder;
+    extendTokenIds(items: string[]): BurnInstructionBuilder;
+    build(): Instruction;
 }
 export declare class LogInstructionBuilder {
 }

@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status.
-set -e
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/colored_echo.sh"
 
@@ -15,7 +12,7 @@ LASR_CLI_PATH="$ROOT_DIR/build/lasr-cli"
 
 # Check if the JSON input file path is provided as an argument
 if [ -z "$1" ]; then
-    print_error "Error: No JSON input file path provided."
+    print_error "No JSON input file path provided."
     exit 1
 fi
 INPUT_JSON_PATH="$1"
@@ -26,13 +23,13 @@ if [ ! -f "$INPUT_JSON_PATH" ]; then
     exit 1
 fi
 
-print_info "Running the test against VERSA.WASM..."
+print_light_gray "Running the test against VERSA.WASM..."
 
 EXECUTE_RESPONSE=$("$WASM_PATH" execute --wasm "$BUILD_WASM_PATH" --json "$INPUT_JSON_PATH" --meter-limit 100000000)
 EXECUTE_STATUS=$?
 
 if [ $EXECUTE_STATUS -eq 0 ]; then
-    print_info "\nTest results:"
+    print_light_gray "\nOutput:"
     print_light_gray "*******************************"
     print_magenta "$EXECUTE_RESPONSE"
     print_light_gray "*******************************"
@@ -41,9 +38,10 @@ if [ $EXECUTE_STATUS -eq 0 ]; then
     echo
 else
     print_error "Command execution failed with exit code $EXECUTE_STATUS ❌ "
+    exit 1
 fi
 
-print_info "Validating the PROGRAM OUTPUT..."
+print_light_gray "Validating the PROGRAM OUTPUT..."
 
 VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE")
 VALIDATION_STATUS=$?
@@ -54,8 +52,10 @@ if [ "$VALIDATION_STATUS" -eq 0 ]; then
     print_light_gray "*******************************"
 else
     print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
-    print_error "Output is invalid  ❌"
+    print_error "Output is invalid  ❌ "
     print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
 fi
 
 print_light_gray "Test complete."
+echo
+echo

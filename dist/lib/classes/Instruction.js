@@ -40,7 +40,7 @@ export class UpdateInstruction {
     }
     toJson() {
         return {
-            updates: this.updates.map((update) => update.toJson()),
+            updates: this.updates.map((update) => update),
         };
     }
 }
@@ -77,8 +77,8 @@ export class BurnInstruction {
             programId: this.programId?.toJson(),
             token: this.token?.toJson(),
             from: this.burnFrom?.toJson(),
-            amount: this.amount === null ? null : this.amount.toJson(),
-            ids: this.tokenIds.map((id) => id.toJson()),
+            amount: this.amount === null ? null : this.amount,
+            ids: this.tokenIds.map((id) => id),
         };
     }
 }

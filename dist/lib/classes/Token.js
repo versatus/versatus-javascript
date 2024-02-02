@@ -147,9 +147,9 @@ export class TokenUpdate {
     }
     toJson() {
         return {
-            account: this.account ?? null,
-            token: this.token ?? null,
-            updates: this.updates.map((update) => update),
+            account: this.account?.toJson() ?? null,
+            token: this.token?.toJson() ?? null,
+            updates: this.updates.map((update) => update.toJson()),
         };
     }
 }

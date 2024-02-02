@@ -1,6 +1,6 @@
 import { AddressOrNamespace } from './utils.js';
-import { TokenDistribution, TokenUpdate } from './Token.js';
-import { BurnInstruction, CreateInstruction, TransferInstruction, UpdateInstruction, } from './Instruction.js';
+import { TokenDistribution } from './Token.js';
+import { BurnInstruction, CreateInstruction, Instruction, TransferInstruction, UpdateInstruction, } from './Instruction.js';
 import { Outputs } from './Outputs.js';
 export class TokenUpdateBuilder {
     constructor() {
@@ -24,10 +24,8 @@ export class TokenUpdateBuilder {
         const account = this.account instanceof AddressOrNamespace
             ? this.account.toJson()
             : this.account ?? null;
-        const token = this.token instanceof AddressOrNamespace
-            ? this.token.toJson()
-            : this.token ?? null;
-        return new TokenUpdate(account, token, this.updates.map((update) => update.toJson()));
+        const token = this.token ?? null;
+        return new Instruction('update', new UpdateInstruction(this.updates.map((update) => update.toJson())));
     }
 }
 export class TokenDistributionBuilder {
@@ -114,7 +112,7 @@ export class CreateInstructionBuilder {
         return this;
     }
     build() {
-        return new CreateInstruction(this.programNamespace, this.programId, this.programOwner, this.totalSupply, this.initializedSupply, this.distribution);
+        return new Instruction('create', new CreateInstruction(this.programNamespace, this.programId, this.programOwner, this.totalSupply, this.initializedSupply, this.distribution));
     }
 }
 export class UpdateInstructionBuilder {
@@ -130,7 +128,7 @@ export class UpdateInstructionBuilder {
         return this;
     }
     build() {
-        return new UpdateInstruction(this.updates);
+        return new Instruction('update', new UpdateInstruction(this.updates));
     }
 }
 export class TransferInstructionBuilder {
@@ -167,7 +165,7 @@ export class TransferInstructionBuilder {
     }
     build() {
         const token = this.token ?? null;
-        return new TransferInstruction(token, this.transferFrom, this.transferTo, this.amount, this.ids);
+        return new Instruction('transfer', new TransferInstruction(token, this.transferFrom, this.transferTo, this.amount, this.ids));
     }
 }
 export class BurnInstructionBuilder {
@@ -208,7 +206,7 @@ export class BurnInstructionBuilder {
         return this;
     }
     build() {
-        return new BurnInstruction(this.caller, this.programId, this.token, this.burnFrom, this.amount, this.tokenIds);
+        return new Instruction('burn', new BurnInstruction(this.caller, this.programId, this.token, this.burnFrom, this.amount, this.tokenIds));
     }
 }
 export class LogInstructionBuilder {

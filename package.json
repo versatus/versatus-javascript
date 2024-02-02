@@ -15,7 +15,8 @@
   ],
   "scripts": {
     "build": "tsc && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "test": "node dist/test/FungibleTokenTest.js"
   },
   "dependencies": {
     "@babel/core": "^7.23.9",

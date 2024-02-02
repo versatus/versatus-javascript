@@ -106,7 +106,7 @@ const argv = yargs(process.argv.slice(2))
         sysCheckScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'sys_check.sh');
     }
     // const sysCheckScriptPath = path.resolve(__dirname, 'lib', 'scripts', 'sys_check.sh');
-    console.log(`Running system check script: ${sysCheckScriptPath}`); // Debug log
+    console.log(`\x1b[0;37mRunning system check script: ${sysCheckScriptPath}\x1b[0m`); // Debug log
     exec(`bash "${sysCheckScriptPath}"`, (sysCheckError, sysCheckStdout, sysCheckStderr) => {
         if (sysCheckError) {
             console.error(`Error during system check: ${sysCheckError}`);
@@ -117,22 +117,25 @@ const argv = yargs(process.argv.slice(2))
             console.error(`Error during system check: ${sysCheckError}`);
             return;
         }
-        console.log('System check passed. Proceeding with build...');
+        console.log('\x1b[0;37mSystem check passed. Proceeding with build...\x1b[0m');
         // Proceed with build process if system check is successful
         if (argv.file) {
-            console.log('\x1b[0;33mStarting build...\x1b[0m');
+            console.log('\x1b[0;37mStarting build...\x1b[0m');
             const filePath = path.resolve(process.cwd(), argv.file);
             if (filePath.endsWith('.ts')) {
-                console.log('TypeScript file detected. Transpiling...');
+                console.log('\x1b[0;37mTypeScript file detected. Transpiling...\x1b[0m');
                 // Specify the output directory for the transpiled files
                 const outDir = path.resolve(process.cwd(), 'build');
+                const command = isInstalledPackage
+                    ? `tsc --outDir ${outDir} ${filePath}`
+                    : 'tsc && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js';
                 // Run tsc to transpile the TypeScript file
-                exec(`tsc --outDir ${outDir} ${filePath}`, (tscError, tscStdout, tscStderr) => {
+                exec(command, (tscError, tscStdout, tscStderr) => {
                     if (tscError) {
                         console.error(`Error during TypeScript transpilation: ${tscError}`);
                         return;
                     }
-                    console.log('Transpilation complete. Proceeding with build...');
+                    console.log('\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m');
                     injectFileInWrapper(filePath)
                         .then(() => {
                         runBuildProcess();
@@ -185,7 +188,7 @@ const argv = yargs(process.argv.slice(2))
                 console.error(`WASM check script exited with code ${code}`);
                 return;
             }
-            console.log('\x1b[0;33mStarting test...\x1b[0m');
+            console.log('\x1b[0;37mStarting test...\x1b[0m');
             const filePath = path.resolve(process.cwd(), argv.inputJson);
             runTestProcess(filePath);
         });
@@ -247,11 +250,11 @@ function runBuildProcess() {
     const distPath = path.join(projectRoot, 'dist');
     const buildPath = path.join(projectRoot, 'build');
     if (!fs.existsSync(distPath) && !isInstalledPackage) {
-        console.log("Creating the 'dist' directory...");
+        console.log("\x1b[0;37mCreating the 'dist' directory...\x1b[0m");
         fs.mkdirSync(distPath, { recursive: true });
     }
     if (!fs.existsSync(buildPath)) {
-        console.log("Creating the 'build' directory...");
+        console.log("\x1b[0;37mCreating the 'build' directory...\x1b[0m");
         fs.mkdirSync(buildPath, { recursive: true });
     }
     let webpackConfigPath;
@@ -269,21 +272,32 @@ function runBuildProcess() {
             console.error(`Webpack exec error: ${webpackError}`);
             return;
         }
-        console.log(`Webpack stdout: ${webpackStdout}`);
+        console.log(`\x1b[0;37mWebpack stdout: ${webpackStdout}\x1b[0m`);
         if (webpackStderr) {
             console.error(`Webpack stderr: ${webpackStderr}`);
         }
         const bundleBuildPath = path.join(buildPath, 'bundle.js');
-        // Now run Javy
+        console.log(`\x1b[0;37mBuilding wasm...\x1b[0m`);
         const javyCommand = `javy compile ${bundleBuildPath} -o ${path.join(buildPath, 'build.wasm')}`;
         exec(javyCommand, (javyError, javyStdout, javyStderr) => {
+            if (javyStdout) {
+                console.log(`\x1b[0;37m${javyStdout}\x1b[0m`);
+                return;
+            }
             if (javyError) {
                 console.error(`Javy exec error: ${javyError}`);
                 return;
             }
             if (javyStderr) {
                 console.error(`Javy stderr: ${javyStderr}`);
+                return;
             }
+            console.log(`\x1b[0;37mWasm built...\x1b[0m`);
+            console.log();
+            console.log(`\x1b[0;35mReady to run:\x1b[0m`);
+            console.log(`\x1b[0;33mnpx vsjs test < path/to/input.json >\x1b[0m`);
+            console.log();
+            console.log();
         });
     });
 }

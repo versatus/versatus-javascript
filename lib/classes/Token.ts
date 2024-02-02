@@ -1,5 +1,6 @@
-import { AddressOrNamespace, StatusValue } from './utils'
-import { TokenFieldValues } from '../types'
+import { AddressOrNamespace, StatusValue, TokenOrProgramUpdate } from './utils'
+import { Token, TokenFieldValues } from '../types'
+import Address from './Address'
 
 export class TokenMetadataInsert {
   private key: string
@@ -246,9 +247,9 @@ export class TokenUpdate {
 
   toJson(): object {
     return {
-      account: this.account ?? null,
-      token: this.token ?? null,
-      updates: this.updates.map((update) => update),
+      account: this.account?.toJson() ?? null,
+      token: this.token?.toJson() ?? null,
+      updates: this.updates.map((update) => update.toJson()),
     }
   }
 }

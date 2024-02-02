@@ -1,6 +1,5 @@
 import { AddressOrNamespace, TokenOrProgramUpdate } from './utils';
 import Address from './Address';
-import { U256 } from './U256';
 import { TokenDistribution } from './Token';
 import { InstructionKinds } from '../types';
 export declare class Instruction {
@@ -40,7 +39,7 @@ export declare class BurnInstruction {
     private burnFrom;
     private amount;
     private tokenIds;
-    constructor(caller: Address | null, programId: AddressOrNamespace | null, token: Address | null, burnFrom: AddressOrNamespace | null, amount: U256 | null, tokenIds: U256[]);
+    constructor(caller: Address | null, programId: AddressOrNamespace | null, token: Address | null, burnFrom: AddressOrNamespace | null, amount: string | null, tokenIds: string[]);
     toJson(): object;
 }
 export declare class LogInstruction {
