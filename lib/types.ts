@@ -108,3 +108,13 @@ export interface Transaction {
 }
 
 export type InstructionKinds = 'create' | 'update' | 'transfer' | 'burn'
+
+export type KeyPairArray = KeyPair[]
+
+export interface KeyPair {
+  mnemonic: string
+  keypair: string
+  secret_key: string
+  public_key: string
+  address: string
+}

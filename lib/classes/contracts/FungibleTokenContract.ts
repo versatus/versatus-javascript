@@ -54,13 +54,11 @@ export class FungibleTokenContract extends Contract {
         new ApprovalsValue(new ApprovalsExtend([JSON.parse(approveData)]))
       )
     )
-
     const tokenUpdate = new TokenUpdate(
       new AddressOrNamespace(caller),
       tokenId,
       [update]
     )
-
     const tokenOrProgramUpdate = new TokenOrProgramUpdate(
       'tokenUpdate',
       tokenUpdate

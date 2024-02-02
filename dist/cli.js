@@ -221,6 +221,54 @@ const argv = yargs(process.argv.slice(2))
         process.exit(1);
     }
 })
+    .command('deploy [author] [name] [keypair]', 'Deploy a contract', (yargs) => {
+    yargs
+        .positional('author', {
+        describe: 'Author of the contract',
+        type: 'string',
+        demandOption: true,
+    })
+        .positional('name', {
+        describe: 'Name of the contract',
+        type: 'string',
+        demandOption: true,
+    })
+        .positional('keypairPath', {
+        describe: 'Path to the keypair file',
+        type: 'string',
+    })
+        .positional('secretKey', {
+        describe: 'Secret key for the wallet',
+        type: 'string',
+    });
+}, async (argv) => {
+    try {
+        if (!argv.secretKey) {
+            if (!argv.keypairPath) {
+                console.log('\x1b[0;33mInitializing wallet...\x1b[0m');
+                await initializeWallet();
+            }
+            else {
+                console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
+                await checkWallet(String(argv.keypairPath));
+            }
+        }
+        let secretKey;
+        if (argv.secretKey) {
+            secretKey = String(argv.secretKey);
+        }
+        else {
+            secretKey = await getSecretKeyFromKeyPairFile(String(argv.keypairPath));
+        }
+        console.log('\x1b[0;33mPublishing contract...\x1b[0m');
+        const cid = await publishContract(String(argv.author), String(argv.name));
+        console.log('\x1b[0;33mRegistering contract...\x1b[0m');
+        await registerContract(cid, secretKey);
+    }
+    catch (error) {
+        console.error(`Deployment error: ${error}`);
+    }
+})
     .help().argv;
 function runSpawn(command, args, options) {
     return new Promise((resolve, reject) => {
@@ -364,5 +412,74 @@ async function runTestProcess(inputJsonPath) {
         if (code !== 0) {
             console.error(`test.sh exited with code ${code}`);
         }
+    });
+}
+async function initializeWallet() {
+    await runCommand('./build/cli wallet new --save');
+    console.log('Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json');
+}
+async function checkWallet(keypairPath) {
+    try {
+        // Assuming keypairPath is a relative path from the current working directory to the keypair.json file
+        const command = `./build/cli wallet get-account --from-file --path ${keypairPath}`;
+        const output = await runCommand(command);
+        console.log('Wallet check successful:', output.trim());
+    }
+    catch (error) {
+        // Handle specific error messages or take actions based on the error
+        console.error('Failed to validate keypair file:', error);
+        process.exit(1); // Exit the process if the keypair file is not valid or other errors occur
+    }
+}
+async function getSecretKeyFromKeyPairFile(keypairFilePath) {
+    try {
+        console.log('getting secret key from keypair file');
+        const absolutePath = path.resolve(keypairFilePath); // Ensure the path is absolute
+        const fileContent = await fsp.readFile(absolutePath, 'utf8');
+        const keyPairs = JSON.parse(fileContent);
+        // Assuming you want the first keypair's secret key
+        if (keyPairs.length > 0) {
+            return keyPairs[0].secret_key;
+        }
+        else {
+            throw new Error('No keypairs found in the specified file.');
+        }
+    }
+    catch (error) {
+        console.error(`Failed to retrieve the secret key: ${error}`);
+        throw error; // Rethrow the error for further handling if needed
+    }
+}
+async function publishContract(author, name) {
+    const output = await runCommand(`./build/versatus-wasm publish -a ${author} -n ${name} -s _storage._tcp.incomplete.io -v 0 -w build/build.wasm -r --is-srv true`);
+    const cidMatch = output.match(/Content ID for Web3 Package is (\S+)/);
+    if (!cidMatch)
+        throw new Error('Failed to extract CID from publish output.');
+    console.log(`Contract published with CID: ${cidMatch[1]}`);
+    return cidMatch[1];
+}
+async function registerContract(cid, secretKey) {
+    await runCommand(`./build/cli wallet register-program --from-secret-key --secret-key "${secretKey}" --inputs '{"contentId": "${cid}"}'`);
+    console.log('Contract registered.');
+}
+async function runCommand(command) {
+    return new Promise((resolve, reject) => {
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                reject(`error: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                // If the stderr contains a specific error message, you might want to handle it differently
+                if (stderr.includes('No such file or directory')) {
+                    reject('KeyPair file not found. Please ensure the path is correct.');
+                }
+                else {
+                    reject(`stderr: ${stderr}`);
+                }
+                return;
+            }
+            resolve(stdout);
+        });
     });
 }
