@@ -18,7 +18,7 @@ export class ApprovalsInsert {
 }
 
 export class ApprovalsExtend {
-  private items: Array<[Address, string]>
+  private items: Array<[Address, string]> = []
 
   constructor(items: Array<[Address, string]>) {
     this.items = items
@@ -26,7 +26,7 @@ export class ApprovalsExtend {
 
   toJson(): object {
     return {
-      extend: this.items.map((item) => [item[0].toJson(), item[1]]),
+      extend: this.items.map((item) => [item[0], item[1]]),
     }
   }
 }

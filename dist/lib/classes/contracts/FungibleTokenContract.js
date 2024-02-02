@@ -5,6 +5,7 @@ import Address from '../Address.js';
 import { Outputs } from '../Outputs.js';
 import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenUpdate, TokenUpdateField, } from '../Token.js';
 import { bigIntToHexString } from '../../helpers.js';
+import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
  * It encapsulates the core functionality and properties of the write
@@ -29,7 +30,7 @@ export class FungibleTokenContract extends Contract {
         const { inputs: approveData, programId } = transaction;
         const tokenId = new AddressOrNamespace(new Address(programId));
         const caller = new Address(transaction.from);
-        const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('approvals', new TokenMetadataExtend(JSON.parse(approveData))));
+        const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('extend', new ApprovalsValue(new ApprovalsExtend([JSON.parse(approveData)]))));
         const tokenUpdate = new TokenUpdate(new AddressOrNamespace(caller), tokenId, [update]);
         const tokenOrProgramUpdate = new TokenOrProgramUpdate('tokenUpdate', tokenUpdate);
         const updateInstruction = new TokenUpdateBuilder()

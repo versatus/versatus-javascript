@@ -195,7 +195,7 @@ export class TokenFieldValue {
 
   constructor(
     kind: string,
-    value: TokenDataValue | TokenMetadataExtend | StatusValue
+    value: TokenDataValue | TokenMetadataExtend | StatusValue | ApprovalsValue
   ) {
     this.kind = kind
     this.value = value

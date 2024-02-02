@@ -20,6 +20,7 @@ import {
   TokenUpdateField,
 } from '../Token'
 import { bigIntToHexString } from '../../helpers'
+import { ApprovalsExtend, ApprovalsValue } from '../Approvals'
 
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
@@ -49,10 +50,11 @@ export class FungibleTokenContract extends Contract {
     const update = new TokenUpdateField(
       new TokenField('approvals'),
       new TokenFieldValue(
-        'approvals',
-        new TokenMetadataExtend(JSON.parse(approveData))
+        'extend',
+        new ApprovalsValue(new ApprovalsExtend([JSON.parse(approveData)]))
       )
     )
+
     const tokenUpdate = new TokenUpdate(
       new AddressOrNamespace(caller),
       tokenId,

@@ -11,11 +11,12 @@ export class ApprovalsInsert {
 }
 export class ApprovalsExtend {
     constructor(items) {
+        this.items = [];
         this.items = items;
     }
     toJson() {
         return {
-            extend: this.items.map((item) => [item[0].toJson(), item[1]]),
+            extend: this.items.map((item) => [item[0], item[1]]),
         };
     }
 }
