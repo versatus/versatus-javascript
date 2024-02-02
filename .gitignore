@@ -132,6 +132,8 @@ build
 .idea
 /example-contract.js
 /example-contract.ts
+/dist/example-contract.js
+/dist/example-contract.d.ts
 inputs
 .DS_Store
 .lasr
