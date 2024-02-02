@@ -92,7 +92,20 @@ export interface Token {
   [k: string]: unknown
 }
 
-export interface Transaction {
+export interface InitTransaction {
+  to: string
+  from: string
+  inputs: string
+  nonce: string
+  op: string
+  programId: string
+  transactionType: TransactionType
+  value: string
+  [k: string]: unknown
+}
+
+export interface Transaction extends InitTransaction {
+  to: string
   from: string
   inputs: string
   nonce: string
@@ -100,9 +113,8 @@ export interface Transaction {
   programId: string
   r: string
   s: string
-  to: string
-  transactionType: TransactionType
   v: number
+  transactionType: TransactionType
   value: string
   [k: string]: unknown
 }

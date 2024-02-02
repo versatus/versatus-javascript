@@ -75,7 +75,17 @@ export interface Token {
     tokenIds: U256[];
     [k: string]: unknown;
 }
-export interface Transaction {
+export interface InitTransaction {
+    from: string;
+    inputs: string;
+    nonce: string;
+    op: string;
+    programId: string;
+    transactionType: TransactionType;
+    value: string;
+    [k: string]: unknown;
+}
+export interface Transaction extends InitTransaction {
     from: string;
     inputs: string;
     nonce: string;

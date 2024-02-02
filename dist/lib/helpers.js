@@ -6,3 +6,26 @@ export function bigIntToHexString(bigintValue) {
     // Return the properly formatted hexadecimal string with '0x' prefix
     return '0x' + hexString;
 }
+export function buildInitTransaction(inputs, from, nonce, op, programId, value = 0) {
+    return {
+        inputs,
+        from,
+        nonce,
+        op,
+        programId,
+        transactionType: {
+            call: '0x0000000000000000000000000000000000000000000000000000000000000001',
+        },
+        value: bigIntToHexString(BigInt(value)),
+    };
+}
+export function buildInputs({ accountInfo, inputs, op, transaction, }) {
+    return {
+        accountInfo,
+        inputs,
+        op,
+        transaction,
+        programId: transaction.programId,
+        version: 0,
+    };
+}
