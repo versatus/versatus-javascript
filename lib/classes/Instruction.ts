@@ -153,7 +153,7 @@ export class BurnInstruction {
       token: this.token?.toJson(),
       from: this.burnFrom?.toJson(),
       amount: this.amount === null ? null : this.amount,
-      ids: this.tokenIds.map((id) => id),
+      tokenIds: this.tokenIds.map((id) => id),
     }
   }
 }

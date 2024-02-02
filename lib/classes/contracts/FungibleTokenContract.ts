@@ -50,7 +50,7 @@ export class FungibleTokenContract extends Contract {
     const update = new TokenUpdateField(
       new TokenField('approvals'),
       new TokenFieldValue(
-        'extend',
+        'insert',
         new ApprovalsValue(new ApprovalsExtend([JSON.parse(approveData)]))
       )
     )
@@ -60,6 +60,7 @@ export class FungibleTokenContract extends Contract {
       tokenId,
       [update]
     )
+
     const tokenOrProgramUpdate = new TokenOrProgramUpdate(
       'tokenUpdate',
       tokenUpdate
@@ -73,13 +74,13 @@ export class FungibleTokenContract extends Contract {
   }
 
   burn(inputs: Inputs) {
-    const { transaction } = inputs
+    const { transaction, programId } = inputs
     const caller = new Address(transaction.from)
 
     const burnInstruction = new BurnInstructionBuilder()
       .setProgramId(new AddressOrNamespace('this'))
       .setCaller(caller)
-      .setTokenAddress(new Address('this'))
+      .setTokenAddress(new Address(transaction.programId))
       .setBurnFromAddress(new AddressOrNamespace(caller))
       .setAmount(bigIntToHexString(BigInt(transaction?.value ?? 0)))
       .build()
