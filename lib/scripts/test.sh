@@ -6,9 +6,9 @@ source "$DIR/colored_echo.sh"
 # Use the current working directory as the root directory
 ROOT_DIR=$(pwd)
 BUILD_WASM_PATH="$ROOT_DIR/build/build.wasm"
-WASM_PATH="$ROOT_DIR/build/versa.wasm"
+WASM_PATH="$ROOT_DIR/build/versatus-wasm"
 
-LASR_CLI_PATH="$ROOT_DIR/build/lasr-cli"
+LASR_CLI_PATH="$ROOT_DIR/build/cli"
 
 # Check if the JSON input file path is provided as an argument
 if [ -z "$1" ]; then
@@ -37,28 +37,34 @@ if [ $EXECUTE_STATUS -eq 0 ]; then
     print_light_green "Contract method was successful ✅ "
     echo
 else
-    print_error "Command execution failed with exit code $EXECUTE_STATUS ❌ "
+    print_error "Contract method failed! ❌ "
+    print_light_gray "Your contract method was unsuccessful. Please update your contract method and try again. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
     exit 1
 fi
 
+filename=$(basename "$INPUT_JSON_PATH")
+print_info  "Tested input: \033[0;33m$filename\033[0m"
+echo
 print_light_gray "Validating the PROGRAM OUTPUT..."
-
-VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE")
+VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE" 2>&1)
 VALIDATION_STATUS=$?
 
 if [ "$VALIDATION_STATUS" -eq 0 ]; then
     print_light_gray "*******************************"
-    print_light_green "Contract method is valid ✅ "
+    print_light_green "Output is valid ✅ "
     print_light_gray "*******************************"
+    print_light_gray "Test complete."
+    exit 0
 else
-    filename=$(basename "$INPUT_JSON_PATH")
+
     print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
     print_error "Output is invalid  ❌ "
-    echo
-    print_info  "Tested file: \033[0;33m$filename\033[0m"
+    print_cyan "$VALIDATION_RESPONSE"
+    print_light_gray "Your contract method was successful but the output was incorrect. Please check the structure of your built instructions and try again. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
     print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
+    print_light_gray "Test complete."
+    echo
+    exit 1
 fi
 
-print_light_gray "Test complete."
-echo
-echo
+

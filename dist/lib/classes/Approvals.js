@@ -5,7 +5,7 @@ export class ApprovalsInsert {
     }
     toJson() {
         return {
-            insert: [this.key.toJson(), this.value.map((inner) => inner.toJson())],
+            insert: [this.key.toJson(), this.value.map((inner) => inner)],
         };
     }
 }
@@ -15,7 +15,7 @@ export class ApprovalsExtend {
     }
     toJson() {
         return {
-            extend: this.items.map((item) => [item[0].toJson(), item[1].toJson()]),
+            extend: this.items.map((item) => [item[0].toJson(), item[1]]),
         };
     }
 }

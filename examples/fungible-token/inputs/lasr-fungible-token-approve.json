@@ -1,5 +1,5 @@
 {
-  "inputs": "{\"spender\":\"0x1a2b3c4d5e6f70819293a4b5c6d7e8f9\",\"value\":\"0x1\"}",
+  "inputs": "{\"0x1a2b3c4d5e6f70819293a4b5c6d7e8f9\":\"0x0000000000000000000000000000000000000000000000000000000000000001\"}",
   "op": "approve",
   "transaction": {
     "from": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",

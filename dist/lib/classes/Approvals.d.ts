@@ -3,12 +3,12 @@ import { U256 } from './U256';
 export declare class ApprovalsInsert {
     private key;
     private value;
-    constructor(key: Address, value: U256[]);
+    constructor(key: Address, value: string[]);
     toJson(): object;
 }
 export declare class ApprovalsExtend {
     private items;
-    constructor(items: Array<[Address, U256]>);
+    constructor(items: Array<[Address, string]>);
     toJson(): object;
 }
 export declare class ApprovalsRemove {

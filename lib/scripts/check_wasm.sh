@@ -9,12 +9,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/colored_echo.sh"
 ROOT_DIR=$(pwd)
 
-WASM_PATH="$ROOT_DIR/build/versa.wasm"
+WASM_PATH="$ROOT_DIR/build/versatus-wasm"
 # WASM_URL="https://github.com/versatus/test-versatus-release-actions/releases/download/${VERSA_WASM_VERSION}/versa-wasm"
-WASM_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/versa-wasm" # OSX M2
+WASM_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/versatus-wasm" # OSX M2
 
-LASR_CLI_PATH="$ROOT_DIR/build/lasr-cli"
-LASR_CLI_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/lasr-cli" # OSX M2
+LASR_CLI_PATH="$ROOT_DIR/build/cli"
+LASR_CLI_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/cli" # OSX M2
 
 # Create the build directory if it doesn't exist
 if [ ! -d "$ROOT_DIR/build" ]; then

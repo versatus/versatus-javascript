@@ -1,6 +1,7 @@
 import { AddressOrNamespace, StatusValue, TokenOrProgramUpdate } from './utils'
 import { Token, TokenFieldValues } from '../types'
 import Address from './Address'
+import { ApprovalsValue } from './Approvals'
 
 export class TokenMetadataInsert {
   private key: string
@@ -186,7 +187,11 @@ export class TokenDataValue {
 
 export class TokenFieldValue {
   private kind: string
-  private value: TokenDataValue | TokenMetadataExtend | StatusValue
+  private value:
+    | TokenDataValue
+    | TokenMetadataExtend
+    | StatusValue
+    | ApprovalsValue
 
   constructor(
     kind: string,

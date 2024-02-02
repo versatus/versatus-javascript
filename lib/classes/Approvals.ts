@@ -3,30 +3,30 @@ import { U256 } from './U256'
 
 export class ApprovalsInsert {
   private key: Address
-  private value: U256[]
+  private value: string[]
 
-  constructor(key: Address, value: U256[]) {
+  constructor(key: Address, value: string[]) {
     this.key = key
     this.value = value
   }
 
   toJson(): object {
     return {
-      insert: [this.key.toJson(), this.value.map((inner) => inner.toJson())],
+      insert: [this.key.toJson(), this.value.map((inner) => inner)],
     }
   }
 }
 
 export class ApprovalsExtend {
-  private items: Array<[Address, U256]>
+  private items: Array<[Address, string]>
 
-  constructor(items: Array<[Address, U256]>) {
+  constructor(items: Array<[Address, string]>) {
     this.items = items
   }
 
   toJson(): object {
     return {
-      extend: this.items.map((item) => [item[0].toJson(), item[1].toJson()]),
+      extend: this.items.map((item) => [item[0].toJson(), item[1]]),
     }
   }
 }

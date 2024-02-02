@@ -160,8 +160,17 @@ const argv = yargs(process.argv.slice(2))
       }
 
       console.log(
-        '\x1b[0;32mExample contract and inputs initialized successfully.\x1b[0m'
+        '\x1b[0;37mExample contract and inputs initialized successfully.\x1b[0m'
       )
+      console.log()
+      console.log(`\x1b[0;35mReady to run:\x1b[0m`)
+      console.log(
+        `\x1b[0;33mvsjs build example-contract${
+          isTsProject ? '.ts' : '.js'
+        }\x1b[0m`
+      )
+      console.log()
+      console.log()
     }
   )
   .usage('Usage: $0 build [options]')
@@ -489,7 +498,7 @@ function runBuildProcess() {
       console.log(`\x1b[0;37mWasm built...\x1b[0m`)
       console.log()
       console.log(`\x1b[0;35mReady to run:\x1b[0m`)
-      console.log(`\x1b[0;33mnpx vsjs test inputs\x1b[0m`)
+      console.log(`\x1b[0;33mvsjs test inputs\x1b[0m`)
       console.log()
       console.log()
     })
