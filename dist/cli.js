@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import yargs from 'yargs';
+import { promises as fsp } from 'fs';
 import fs from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
@@ -163,42 +164,78 @@ const argv = yargs(process.argv.slice(2))
 })
     .command('test [inputJson]', 'Run the test suite for the project', (yargs) => {
     return yargs.positional('inputJson', {
-        describe: 'Path to the JSON input file for testing',
+        describe: 'Path to the JSON input file or directory containing JSON files for testing',
         type: 'string',
-        demandOption: true, // Make this argument required
-        demand: 'You must specify a JSON input file for testing',
+        demandOption: true,
+        demand: 'You must specify a JSON input file or directory for testing',
     });
-}, (argv) => {
+}, async (argv) => {
+    // Make this function async
     if (argv.inputJson) {
-        let scriptDir;
-        if (isInstalledPackage) {
-            scriptDir = installedPackagePath;
-        }
-        else {
-            // In the development environment
-            scriptDir = process.cwd();
-        }
-        const checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_wasm.sh');
-        const child = spawn('bash', [checkWasmScriptPath], { stdio: 'inherit' });
-        child.on('error', (error) => {
-            console.error(`Error during WASM check: ${error}`);
-        });
-        child.on('close', (code) => {
-            if (code !== 0) {
-                console.error(`WASM check script exited with code ${code}`);
-                return;
+        const inputPath = path.resolve(process.cwd(), argv.inputJson);
+        try {
+            const stats = await fsp.stat(inputPath);
+            let scriptDir;
+            if (isInstalledPackage) {
+                scriptDir = installedPackagePath;
             }
+            else {
+                scriptDir = process.cwd(); // In the development environment
+            }
+            const checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_wasm.sh');
+            // Assuming spawn is wrapped in a function that returns a Promise
+            await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' });
             console.log('\x1b[0;37mStarting test...\x1b[0m');
-            const filePath = path.resolve(process.cwd(), argv.inputJson);
-            runTestProcess(filePath);
-        });
+            if (stats.isDirectory()) {
+                const files = await fsp.readdir(inputPath);
+                for (let file of files) {
+                    if (path.extname(file) === '.json') {
+                        const filePath = path.join(inputPath, file);
+                        // Ensure runTestProcess is an async function or returns a Promise
+                        await runTestProcess(filePath);
+                    }
+                }
+            }
+            else if (stats.isFile()) {
+                // Ensure runTestProcess is an async function or returns a Promise
+                await runTestProcess(inputPath);
+            }
+            else {
+                console.error('The input path is neither a file nor a directory.');
+                process.exit(1);
+            }
+        }
+        catch (err) {
+            // @ts-ignore
+            console.error(`Error: ${err.message}`);
+            process.exit(1);
+        }
     }
     else {
-        console.error('You must specify an inputJson file to test with.');
+        console.error('You must specify an inputJson path to test with.');
         process.exit(1);
     }
 })
     .help().argv;
+function runSpawn(command, args, options) {
+    return new Promise((resolve, reject) => {
+        // @ts-ignore
+        const child = spawn(command, args, options);
+        // @ts-ignore
+        child.on('close', (code) => {
+            if (code === 0) {
+                resolve(code); // Resolve the promise successfully if the process exits with code 0
+            }
+            else {
+                reject(new Error(`Process exited with code ${code}`)); // Reject the promise if the process exits with a non-zero code
+            }
+        });
+        // @ts-ignore
+        child.on('error', (error) => {
+            reject(error); // Reject the promise if an error occurs
+        });
+    });
+}
 async function injectFileInWrapper(filePath) {
     const projectRoot = process.cwd();
     const buildPath = path.join(projectRoot, 'build');
@@ -295,13 +332,13 @@ function runBuildProcess() {
             console.log(`\x1b[0;37mWasm built...\x1b[0m`);
             console.log();
             console.log(`\x1b[0;35mReady to run:\x1b[0m`);
-            console.log(`\x1b[0;33mnpx vsjs test < path/to/input.json >\x1b[0m`);
+            console.log(`\x1b[0;33mnpx vsjs test inputs\x1b[0m`);
             console.log();
             console.log();
         });
     });
 }
-function runTestProcess(inputJsonPath) {
+async function runTestProcess(inputJsonPath) {
     let scriptDir;
     if (isInstalledPackage) {
         // In an installed package environment

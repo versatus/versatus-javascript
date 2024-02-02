@@ -51,8 +51,11 @@ if [ "$VALIDATION_STATUS" -eq 0 ]; then
     print_light_green "Contract method is valid ✅ "
     print_light_gray "*******************************"
 else
+    filename=$(basename "$INPUT_JSON_PATH")
     print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
     print_error "Output is invalid  ❌ "
+    echo
+    print_info  "Tested file: \033[0;33m$filename\033[0m"
     print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
 fi
 
