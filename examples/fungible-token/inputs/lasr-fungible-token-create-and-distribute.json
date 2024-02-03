@@ -1,10 +1,10 @@
 {
-  "inputs": "{\"name\":\"HelloToken\",\"symbol\":\"HLLO\",\"totalSupply\":\"0x000000000000000001\"}",
+  "contractInputs": "{\"name\":\"HelloToken\",\"symbol\":\"HLLO\",\"totalSupply\":\"0x000000000000000001\"}",
   "op": "createAndDistribute",
   "transaction": {
     "from": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
     "to": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
-    "inputs": "{\"name\":\"HelloToken\",\"symbol\":\"HLLO\",\"totalSupply\":\"0x000000000000000001\"}",
+    "transactionInputs": "{\"name\":\"HelloToken\",\"symbol\":\"HLLO\",\"totalSupply\":\"0x000000000000000001\"}",
     "nonce": "0x0000000000000000000000000000000000000000000000000000000000000001",
     "op": "createAndDistribute",
     "programId": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",

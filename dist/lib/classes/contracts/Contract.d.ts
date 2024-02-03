@@ -1,4 +1,4 @@
-import { Inputs } from '../../types';
+import { ComputeInputs } from '../../types';
 /**
  * Class representing a Contract with methods to manage and execute contract strategies.
  */
@@ -19,12 +19,12 @@ export declare class Contract {
      * @returns The result of executing the contract method.
      * @param inputs
      */
-    start(inputs: Inputs): any;
+    start(inputs: ComputeInputs): any;
     /**
      * Executes a contract method strategy based on the given input.
      * @throws Will throw an error if the method name specified in `input` is not found in `methodStrategies`.
      * @returns The result of the strategy execution.
      * @param inputs
      */
-    executeMethod(inputs: Inputs): any;
+    executeMethod(inputs: ComputeInputs): any;
 }

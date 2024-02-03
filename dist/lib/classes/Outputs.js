@@ -5,7 +5,7 @@ export class Outputs {
     }
     toJson() {
         return {
-            inputs: this.inputs,
+            computeInputs: this.inputs,
             instructions: this.instructions.map((instruction) => instruction.toJson()),
         };
     }

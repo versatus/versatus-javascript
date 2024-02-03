@@ -1,4 +1,4 @@
-import { InitTransaction, Inputs, Transaction } from './types'
+import { InitTransaction, ComputeInputs, Transaction } from './types'
 
 export function bigIntToHexString(bigintValue: BigInt): string {
   // Convert the BigInt to a hexadecimal string
@@ -12,7 +12,7 @@ export function bigIntToHexString(bigintValue: BigInt): string {
 }
 
 export function buildInitTransaction(
-  inputs: string,
+  transactionInputs: string,
   to: string,
   from: string,
   nonce: string,
@@ -21,7 +21,7 @@ export function buildInitTransaction(
   value: number = 0
 ): InitTransaction {
   return {
-    inputs,
+    transactionInputs,
     to,
     from,
     nonce,
@@ -34,9 +34,9 @@ export function buildInitTransaction(
   }
 }
 
-export function buildContractInput({
+export function buildComputeInputs({
   accountInfo,
-  inputs,
+  contractInputs,
   op,
   initTransaction,
   r,
@@ -44,16 +44,16 @@ export function buildContractInput({
   v,
 }: {
   accountInfo?: any
-  inputs: string
+  contractInputs: string
   op: string
   initTransaction: InitTransaction
   r: string
   s: string
   v: number
-}): Inputs {
+}): ComputeInputs {
   return {
     accountInfo,
-    inputs,
+    contractInputs,
     op,
     transaction: { ...initTransaction, r, s, v },
     programId: initTransaction.programId,

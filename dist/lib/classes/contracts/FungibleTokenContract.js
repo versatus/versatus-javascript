@@ -25,22 +25,22 @@ export class FungibleTokenContract extends Contract {
             mint: this.mint.bind(this),
         };
     }
-    approve(inputs) {
-        const { transaction } = inputs;
-        const { inputs: approveData, programId } = transaction;
+    approve(computeInputs) {
+        const { transaction } = computeInputs;
+        const { transactionInputs, programId } = transaction;
         const tokenId = new AddressOrNamespace(new Address(programId));
         const caller = new Address(transaction.from);
-        const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('insert', new ApprovalsValue(new ApprovalsExtend([JSON.parse(approveData)]))));
+        const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('insert', new ApprovalsValue(new ApprovalsExtend([JSON.parse(transactionInputs)]))));
         const tokenUpdate = new TokenUpdate(new AddressOrNamespace(caller), tokenId, [update]);
         const tokenOrProgramUpdate = new TokenOrProgramUpdate('tokenUpdate', tokenUpdate);
         const updateInstruction = new TokenUpdateBuilder()
             .addTokenAddress(tokenId)
             .addUpdateField(tokenOrProgramUpdate)
             .build();
-        return new Outputs(inputs, [updateInstruction]).toJson();
+        return new Outputs(computeInputs, [updateInstruction]).toJson();
     }
-    burn(inputs) {
-        const { transaction, programId } = inputs;
+    burn(computeInputs) {
+        const { transaction } = computeInputs;
         const caller = new Address(transaction.from);
         const burnInstruction = new BurnInstructionBuilder()
             .setProgramId(new AddressOrNamespace('this'))
@@ -49,26 +49,27 @@ export class FungibleTokenContract extends Contract {
             .setBurnFromAddress(new AddressOrNamespace(caller))
             .setAmount(bigIntToHexString(BigInt(transaction?.value ?? 0)))
             .build();
-        return new Outputs(inputs, [burnInstruction]).toJson();
+        return new Outputs(computeInputs, [burnInstruction]).toJson();
     }
-    create(inputs) {
-        const { transaction, inputs: contractInputs } = inputs;
+    create(computeInputs) {
+        const { transaction } = computeInputs;
+        const { transactionInputs } = transaction;
         const caller = new Address(transaction.from);
         const createInstruction = new CreateInstructionBuilder()
             .setProgramId(new AddressOrNamespace('this'))
-            .setTotalSupply(bigIntToHexString(BigInt(JSON.parse(contractInputs).totalSupply)))
+            .setTotalSupply(bigIntToHexString(BigInt(JSON.parse(transactionInputs).totalSupply)))
             .setInitializedSupply(bigIntToHexString(BigInt(0)))
             .setProgramOwner(caller)
             .setProgramNamespace(new AddressOrNamespace('this'))
             .build();
-        return new Outputs(inputs, [createInstruction]).toJson();
+        return new Outputs(computeInputs, [createInstruction]).toJson();
     }
-    createAndDistribute(inputs) {
-        const { transaction } = inputs;
-        const { inputs: createMetadata } = transaction;
+    createAndDistribute(computeInputs) {
+        const { transaction } = computeInputs;
+        const { transactionInputs } = transaction;
         const caller = new Address(transaction.from);
-        const update = new TokenUpdateField(new TokenField('metadata'), new TokenFieldValue('metadata', new TokenMetadataExtend(JSON.parse(createMetadata))));
-        const totalSupply = JSON.parse(createMetadata)?.totalSupply ?? 0;
+        const update = new TokenUpdateField(new TokenField('metadata'), new TokenFieldValue('metadata', new TokenMetadataExtend(JSON.parse(transactionInputs))));
+        const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? 0;
         const initalizedSupply = transaction?.value ?? 0;
         const initUpdates = [update];
         const initDistribution = new TokenDistributionBuilder()
@@ -85,10 +86,10 @@ export class FungibleTokenContract extends Contract {
             .setProgramNamespace(new AddressOrNamespace('this'))
             .addTokenDistribution(initDistribution)
             .build();
-        return new Outputs(inputs, [createInstruction]).toJson();
+        return new Outputs(computeInputs, [createInstruction]).toJson();
     }
-    mint(inputs) {
-        const { transaction } = inputs;
+    mint(computeInputs) {
+        const { transaction } = computeInputs;
         const caller = new Address(transaction.from);
         const payable = BigInt(transaction?.value ?? 0);
         const payableToken = new Address(transaction.programId);
@@ -106,6 +107,6 @@ export class FungibleTokenContract extends Contract {
             .setAmount(bigIntToHexString(payable))
             .setTokenAddress(payableToken)
             .build();
-        return new Outputs(inputs, [transferTo, transferFrom]).toJson();
+        return new Outputs(computeInputs, [transferTo, transferFrom]).toJson();
     }
 }

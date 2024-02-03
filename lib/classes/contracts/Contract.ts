@@ -1,4 +1,4 @@
-import { Inputs } from '../../types'
+import { ComputeInputs } from '../../types'
 
 /**
  * Class representing a Contract with methods to manage and execute contract strategies.
@@ -22,7 +22,7 @@ export class Contract {
    * @returns The result of executing the contract method.
    * @param inputs
    */
-  start(inputs: Inputs) {
+  start(inputs: ComputeInputs) {
     return this.executeMethod(inputs)
   }
 
@@ -32,7 +32,7 @@ export class Contract {
    * @returns The result of the strategy execution.
    * @param inputs
    */
-  executeMethod(inputs: Inputs) {
+  executeMethod(inputs: ComputeInputs) {
     const { op } = inputs
     const strategy = this.methodStrategies[op]
 

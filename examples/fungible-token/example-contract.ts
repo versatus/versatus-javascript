@@ -1,7 +1,7 @@
 import { FungibleTokenContract } from '../../lib/classes/contracts/FungibleTokenContract'
-import { Inputs } from '../../lib'
+import { ComputeInputs } from '../../lib'
 
-const start = (input: Inputs) => {
+const start = (input: ComputeInputs) => {
   const contract = new FungibleTokenContract()
   return contract.start(input)
 }

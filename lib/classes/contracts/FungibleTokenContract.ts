@@ -1,5 +1,5 @@
 import { Contract } from './Contract'
-import { Inputs } from '../../types'
+import { ComputeInputs } from '../../types'
 import {
   BurnInstructionBuilder,
   CreateInstructionBuilder,
@@ -42,16 +42,16 @@ export class FungibleTokenContract extends Contract {
     }
   }
 
-  approve(inputs: Inputs) {
-    const { transaction } = inputs
-    const { inputs: approveData, programId } = transaction
+  approve(computeInputs: ComputeInputs) {
+    const { transaction } = computeInputs
+    const { transactionInputs, programId } = transaction
     const tokenId = new AddressOrNamespace(new Address(programId))
     const caller = new Address(transaction.from)
     const update = new TokenUpdateField(
       new TokenField('approvals'),
       new TokenFieldValue(
         'insert',
-        new ApprovalsValue(new ApprovalsExtend([JSON.parse(approveData)]))
+        new ApprovalsValue(new ApprovalsExtend([JSON.parse(transactionInputs)]))
       )
     )
     const tokenUpdate = new TokenUpdate(
@@ -68,11 +68,11 @@ export class FungibleTokenContract extends Contract {
       .addUpdateField(tokenOrProgramUpdate)
       .build()
 
-    return new Outputs(inputs, [updateInstruction]).toJson()
+    return new Outputs(computeInputs, [updateInstruction]).toJson()
   }
 
-  burn(inputs: Inputs) {
-    const { transaction, programId } = inputs
+  burn(computeInputs: ComputeInputs) {
+    const { transaction } = computeInputs
     const caller = new Address(transaction.from)
 
     const burnInstruction = new BurnInstructionBuilder()
@@ -83,38 +83,39 @@ export class FungibleTokenContract extends Contract {
       .setAmount(bigIntToHexString(BigInt(transaction?.value ?? 0)))
       .build()
 
-    return new Outputs(inputs, [burnInstruction]).toJson()
+    return new Outputs(computeInputs, [burnInstruction]).toJson()
   }
 
-  create(inputs: Inputs) {
-    const { transaction, inputs: contractInputs } = inputs
+  create(computeInputs: ComputeInputs) {
+    const { transaction } = computeInputs
+    const { transactionInputs } = transaction
     const caller = new Address(transaction.from)
 
     const createInstruction = new CreateInstructionBuilder()
       .setProgramId(new AddressOrNamespace('this'))
       .setTotalSupply(
-        bigIntToHexString(BigInt(JSON.parse(contractInputs).totalSupply))
+        bigIntToHexString(BigInt(JSON.parse(transactionInputs).totalSupply))
       )
       .setInitializedSupply(bigIntToHexString(BigInt(0)))
       .setProgramOwner(caller)
       .setProgramNamespace(new AddressOrNamespace('this'))
       .build()
 
-    return new Outputs(inputs, [createInstruction]).toJson()
+    return new Outputs(computeInputs, [createInstruction]).toJson()
   }
 
-  createAndDistribute(inputs: Inputs) {
-    const { transaction } = inputs
-    const { inputs: createMetadata } = transaction
+  createAndDistribute(computeInputs: ComputeInputs) {
+    const { transaction } = computeInputs
+    const { transactionInputs } = transaction
     const caller = new Address(transaction.from)
     const update = new TokenUpdateField(
       new TokenField('metadata'),
       new TokenFieldValue(
         'metadata',
-        new TokenMetadataExtend(JSON.parse(createMetadata))
+        new TokenMetadataExtend(JSON.parse(transactionInputs))
       )
     )
-    const totalSupply = JSON.parse(createMetadata)?.totalSupply ?? 0
+    const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? 0
     const initalizedSupply = transaction?.value ?? 0
 
     const initUpdates = [update]
@@ -134,11 +135,11 @@ export class FungibleTokenContract extends Contract {
       .addTokenDistribution(initDistribution)
       .build()
 
-    return new Outputs(inputs, [createInstruction]).toJson()
+    return new Outputs(computeInputs, [createInstruction]).toJson()
   }
 
-  mint(inputs: Inputs) {
-    const { transaction } = inputs
+  mint(computeInputs: ComputeInputs) {
+    const { transaction } = computeInputs
     const caller = new Address(transaction.from)
     const payable = BigInt(transaction?.value ?? 0)
     const payableToken = new Address(transaction.programId)
@@ -159,6 +160,6 @@ export class FungibleTokenContract extends Contract {
       .setTokenAddress(payableToken)
       .build()
 
-    return new Outputs(inputs, [transferTo, transferFrom]).toJson()
+    return new Outputs(computeInputs, [transferTo, transferFrom]).toJson()
   }
 }

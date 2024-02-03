@@ -22,9 +22,9 @@ export type TransactionType = {
 /**
  * This file contains types the protocol uses to prepare data, structure it and call out to a particular compute payload. The inputs type for a contract call
  */
-export interface Inputs {
+export interface ComputeInputs {
   accountInfo?: Account | null
-  inputs: string
+  contractInputs: string
   op: string
   transaction: Transaction
   version: number
@@ -95,7 +95,7 @@ export interface Token {
 export interface InitTransaction {
   to: string
   from: string
-  inputs: string
+  transactionInputs: string
   nonce: string
   op: string
   programId: string
@@ -105,18 +105,9 @@ export interface InitTransaction {
 }
 
 export interface Transaction extends InitTransaction {
-  to: string
-  from: string
-  inputs: string
-  nonce: string
-  op: string
-  programId: string
   r: string
   s: string
   v: number
-  transactionType: TransactionType
-  value: string
-  [k: string]: unknown
 }
 
 export type InstructionKinds = 'create' | 'update' | 'transfer' | 'burn'

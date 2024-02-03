@@ -1,18 +1,18 @@
 import { Instruction } from './Instruction'
-import { Inputs } from '../types'
+import { ComputeInputs } from '../types'
 
 export class Outputs {
-  private inputs: Inputs | null
+  private inputs: ComputeInputs | null
   private instructions: Instruction[]
 
-  constructor(inputs: Inputs | null, instructions: Instruction[]) {
+  constructor(inputs: ComputeInputs | null, instructions: Instruction[]) {
     this.inputs = inputs
     this.instructions = instructions
   }
 
   toJson(): object {
     return {
-      inputs: this.inputs,
+      computeInputs: this.inputs,
       instructions: this.instructions.map((instruction) =>
         instruction.toJson()
       ),

@@ -1,10 +1,10 @@
 {
-  "inputs": "",
+  "contractInputs": "",
   "op": "mint",
   "transaction": {
     "from": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
     "to": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
-    "inputs": "",
+    "transactionInputs": "",
     "nonce": "0x0000000000000000000000000000000000000000000000000000000000000001",
     "op": "mint",
     "programId": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",

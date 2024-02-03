@@ -6,9 +6,9 @@ export function bigIntToHexString(bigintValue) {
     // Return the properly formatted hexadecimal string with '0x' prefix
     return '0x' + hexString;
 }
-export function buildInitTransaction(inputs, to, from, nonce, op, programId, value = 0) {
+export function buildInitTransaction(transactionInputs, to, from, nonce, op, programId, value = 0) {
     return {
-        inputs,
+        transactionInputs,
         to,
         from,
         nonce,
@@ -20,10 +20,10 @@ export function buildInitTransaction(inputs, to, from, nonce, op, programId, val
         value: bigIntToHexString(BigInt(value)),
     };
 }
-export function buildContractInput({ accountInfo, inputs, op, initTransaction, r, s, v, }) {
+export function buildComputeInputs({ accountInfo, contractInputs, op, initTransaction, r, s, v, }) {
     return {
         accountInfo,
-        inputs,
+        contractInputs,
         op,
         transaction: { ...initTransaction, r, s, v },
         programId: initTransaction.programId,

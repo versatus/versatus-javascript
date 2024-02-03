@@ -1,5 +1,5 @@
 import { Contract } from './Contract';
-import { Inputs } from '../../types';
+import { ComputeInputs } from '../../types';
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
  * It encapsulates the core functionality and properties of the write
@@ -10,9 +10,9 @@ export declare class FungibleTokenContract extends Contract {
      * Constructs a new instance of the FungibleTokenContract class.
      */
     constructor();
-    approve(inputs: Inputs): object;
-    burn(inputs: Inputs): object;
-    create(inputs: Inputs): object;
-    createAndDistribute(inputs: Inputs): object;
-    mint(inputs: Inputs): object;
+    approve(computeInputs: ComputeInputs): object;
+    burn(computeInputs: ComputeInputs): object;
+    create(computeInputs: ComputeInputs): object;
+    createAndDistribute(computeInputs: ComputeInputs): object;
+    mint(computeInputs: ComputeInputs): object;
 }

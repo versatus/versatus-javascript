@@ -1,3 +1,3 @@
-import { Inputs } from '../../lib';
-declare const start: (input: Inputs) => any;
+import { ComputeInputs } from '../../lib';
+declare const start: (input: ComputeInputs) => any;
 export default start;
