@@ -644,7 +644,7 @@ async function publishContract(author: string, name: string): Promise<string> {
 
 async function registerContract(cid: string, secretKey: string) {
   await runCommand(
-    `./build/cli wallet register-program --from-secret-key --secret-key "${secretKey}" --inputs '{"contentId": "${cid}"}'`
+    `./build/cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`
   )
   console.log('Contract registered.')
 }

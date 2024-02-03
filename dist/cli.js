@@ -459,7 +459,7 @@ async function publishContract(author, name) {
     return cidMatch[1];
 }
 async function registerContract(cid, secretKey) {
-    await runCommand(`./build/cli wallet register-program --from-secret-key --secret-key "${secretKey}" --inputs '{"contentId": "${cid}"}'`);
+    await runCommand(`./build/cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`);
     console.log('Contract registered.');
 }
 async function runCommand(command) {
