@@ -603,7 +603,7 @@ async function checkWallet(keypairPath: string) {
     // Assuming keypairPath is a relative path from the current working directory to the keypair.json file
     const command = `./build/cli wallet get-account --from-file --path ${keypairPath}`
     const output = await runCommand(command)
-    console.log('Wallet check successful:', output.trim())
+    console.log('Wallet check successful')
   } catch (error) {
     // Handle specific error messages or take actions based on the error
     console.error('Failed to validate keypair file:', error)
