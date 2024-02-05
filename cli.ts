@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs'
-import { promises as fsp } from 'fs'
+import { cp, promises as fsp } from 'fs'
 import fs from 'fs'
 import path from 'path'
 import { exec, spawn } from 'child_process'
@@ -392,13 +392,11 @@ const argv = yargs(process.argv.slice(2))
         }
 
         console.log('\x1b[0;33mPublishing contract...\x1b[0m')
-        const cid = await publishContract(
-          String(argv.author),
-          String(argv.name)
-        )
+        // @ts-ignore
+        const cid = await publishContract(argv.author, argv.name)
 
-        console.log('\x1b[0;33mRegistering contract...\x1b[0m')
-        await registerContract(cid, secretKey)
+        console.log('\x1b[0;33mRegistering program...\x1b[0m')
+        await registerProgram(cid, secretKey)
       } catch (error) {
         console.error(`Deployment error: ${error}`)
       }
@@ -633,18 +631,23 @@ async function getSecretKeyFromKeyPairFile(
 }
 
 async function publishContract(author: string, name: string): Promise<string> {
-  const output = await runCommand(
-    `./build/versatus-wasm publish -a ${author} -n ${name} -s _storage._tcp.incomplete.io -v 0 -w build/build.wasm -r --is-srv true`
-  )
+  if (!author || !name) {
+    console.log({ author })
+    console.log({ name })
+    throw new Error('Author and name are required to publish a contract.')
+  }
+  const command = `export VIPFS_ADDRESS=137.66.44.217:5001 && ./build/versatus-wasm publish -a ${author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`
+  const output = await runCommand(command)
+
   const cidMatch = output.match(/Content ID for Web3 Package is (\S+)/)
   if (!cidMatch) throw new Error('Failed to extract CID from publish output.')
   console.log(`Contract published with CID: ${cidMatch[1]}`)
   return cidMatch[1]
 }
 
-async function registerContract(cid: string, secretKey: string) {
+async function registerProgram(cid: string, secretKey: string) {
   await runCommand(
-    `./build/cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`
+    `./build/cli wallet register-program  --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`
   )
   console.log('Contract registered.')
 }

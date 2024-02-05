@@ -190,6 +190,8 @@ export class TokenFieldValue {
   private value:
     | TokenDataValue
     | TokenMetadataExtend
+    | TokenMetadataInsert
+    | TokenMetadataRemove
     | StatusValue
     | ApprovalsValue
     | ApprovalsExtend
@@ -199,6 +201,8 @@ export class TokenFieldValue {
     value:
       | TokenDataValue
       | TokenMetadataExtend
+      | TokenMetadataInsert
+      | TokenMetadataRemove
       | StatusValue
       | ApprovalsValue
       | ApprovalsExtend

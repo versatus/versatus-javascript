@@ -5,7 +5,9 @@ export class AddressOrNamespace {
         this.value = value;
     }
     toJson() {
-        if (this.value === AddressOrNamespace.THIS) {
+        if ((typeof this.value !== 'string' &&
+            this.value.toJson() === AddressOrNamespace.THIS) ||
+            this.value === AddressOrNamespace.THIS) {
             return 'this';
         }
         else if (this.value instanceof Address) {

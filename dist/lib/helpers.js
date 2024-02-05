@@ -1,32 +1,93 @@
+import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, } from './classes/builders.js';
+import { AddressOrNamespace } from './classes/utils.js';
+import Address from './classes/Address.js';
+import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenUpdateField, } from './classes/Token.js';
 export function bigIntToHexString(bigintValue) {
-    // Convert the BigInt to a hexadecimal string
     let hexString = bigintValue.toString(16);
-    // Ensure the string is 64 characters long, padding with leading zeros if necessary
     hexString = hexString.padStart(64, '0');
-    // Return the properly formatted hexadecimal string with '0x' prefix
     return '0x' + hexString;
 }
-export function buildInitTransaction(transactionInputs, to, from, nonce, op, programId, value = 0) {
-    return {
-        transactionInputs,
-        to,
-        from,
-        nonce,
-        op,
-        programId,
-        transactionType: {
-            call: '0x0000000000000000000000000000000000000000000000000000000000000001',
-        },
-        value: bigIntToHexString(BigInt(value)),
-    };
+export function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }) {
+    return new BurnInstructionBuilder()
+        .setProgramId(new AddressOrNamespace(new Address(programId)))
+        .setCaller(new Address(caller))
+        .setTokenAddress(new Address(tokenAddress))
+        .setBurnFromAddress(new AddressOrNamespace(new Address(from)))
+        .setAmount(bigIntToHexString(BigInt(amount)))
+        .build();
 }
-export function buildComputeInputs({ accountInfo, contractInputs, op, initTransaction, r, s, v, }) {
-    return {
-        accountInfo,
-        contractInputs,
-        op,
-        transaction: { ...initTransaction, r, s, v },
-        programId: initTransaction.programId,
-        version: 0,
-    };
+export function buildCreateInstruction({ programId, initializedSupply, totalSupply, programOwner, programNamespace, distributionInstruction, }) {
+    if (distributionInstruction) {
+        return new CreateInstructionBuilder()
+            .setProgramId(new AddressOrNamespace(new Address(programId)))
+            .setTotalSupply(bigIntToHexString(BigInt(totalSupply)))
+            .setInitializedSupply(bigIntToHexString(BigInt(initializedSupply)))
+            .addTokenDistribution(distributionInstruction)
+            .setProgramOwner(new Address(programOwner))
+            .setProgramNamespace(new AddressOrNamespace(new Address(programNamespace)))
+            .build();
+    }
+    return new CreateInstructionBuilder()
+        .setProgramId(new AddressOrNamespace(new Address(programId)))
+        .setTotalSupply(bigIntToHexString(BigInt(totalSupply)))
+        .setInitializedSupply(bigIntToHexString(BigInt(initializedSupply)))
+        .setProgramOwner(new Address(programOwner))
+        .setProgramNamespace(new AddressOrNamespace(new Address(programNamespace)))
+        .build();
+}
+export function buildTokenDistributionInstruction({ programId, initializedSupply, caller, tokenUpdates, }) {
+    return new TokenDistributionBuilder()
+        .setProgramId(new AddressOrNamespace(new Address(programId)))
+        .setAmount(bigIntToHexString(BigInt(initializedSupply)))
+        .setReceiver(new AddressOrNamespace(new Address(caller)))
+        .extendUpdateFields(tokenUpdates)
+        .build();
+}
+export function buildMintInstructions({ from, programId, paymentTokenAddress, paymentValue, returnedValue, }) {
+    const transferToProgram = buildTransferInstruction({
+        from: from,
+        to: 'this',
+        tokenAddress: paymentTokenAddress,
+        amount: paymentValue,
+    });
+    const transferToCaller = buildTransferInstruction({
+        from: 'this',
+        to: from,
+        tokenAddress: programId,
+        amount: returnedValue,
+    });
+    return [transferToProgram, transferToCaller];
+}
+export function buildTransferInstruction({ from, to, tokenAddress, amount, }) {
+    const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
+    const fromAddressOrNamespace = new AddressOrNamespace(new Address(from));
+    const tokenAddressOrNamespace = new Address(tokenAddress);
+    return new TransferInstructionBuilder()
+        .setTransferFrom(fromAddressOrNamespace)
+        .setTransferTo(toAddressOrNamespace)
+        .setAmount(bigIntToHexString(amount))
+        .setTokenAddress(tokenAddressOrNamespace)
+        .build();
+}
+export function buildTokenUpdateField({ field, value, action, }) {
+    let tokenFieldValueType;
+    if (field === 'metadata') {
+        if (action === 'extend') {
+            tokenFieldValueType = new TokenMetadataExtend(JSON.parse(value));
+        }
+        else if (action === 'insert') {
+            const [key, insertValue] = JSON.parse(value).split(':');
+            tokenFieldValueType = new TokenMetadataInsert(key, insertValue);
+        }
+        else if (action === 'remove') {
+            tokenFieldValueType = new TokenMetadataRemove(value);
+        }
+        else {
+            return new Error('Invalid action');
+        }
+    }
+    else {
+        return new Error('Invalid field');
+    }
+    return new TokenUpdateField(new TokenField(field), new TokenFieldValue(field, tokenFieldValueType));
 }

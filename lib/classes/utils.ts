@@ -13,7 +13,11 @@ export class AddressOrNamespace {
   }
 
   toJson(): object | string {
-    if (this.value === AddressOrNamespace.THIS) {
+    if (
+      (typeof this.value !== 'string' &&
+        this.value.toJson() === AddressOrNamespace.THIS) ||
+      this.value === AddressOrNamespace.THIS
+    ) {
       return 'this'
     } else if (this.value instanceof Address) {
       return { address: (this.value as Address).toJson() }

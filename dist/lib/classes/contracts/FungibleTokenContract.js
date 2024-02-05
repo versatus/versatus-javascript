@@ -1,10 +1,10 @@
 import { Contract } from './Contract.js';
-import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TokenUpdateBuilder, TransferInstructionBuilder, } from '../builders.js';
+import { TokenUpdateBuilder, } from '../builders.js';
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
 import Address from '../Address.js';
 import { Outputs } from '../Outputs.js';
-import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenUpdate, TokenUpdateField, } from '../Token.js';
-import { bigIntToHexString } from '../../helpers.js';
+import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../Token.js';
+import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, } from '../../helpers.js';
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
@@ -41,72 +41,74 @@ export class FungibleTokenContract extends Contract {
     }
     burn(computeInputs) {
         const { transaction } = computeInputs;
-        const caller = new Address(transaction.from);
-        const burnInstruction = new BurnInstructionBuilder()
-            .setProgramId(new AddressOrNamespace('this'))
-            .setCaller(caller)
-            .setTokenAddress(new Address(transaction.programId))
-            .setBurnFromAddress(new AddressOrNamespace(caller))
-            .setAmount(bigIntToHexString(BigInt(transaction?.value ?? 0)))
-            .build();
+        const burnInstruction = buildBurnInstruction({
+            from: transaction.from,
+            caller: transaction.from,
+            programId: 'this',
+            tokenAddress: transaction.programId,
+            amount: transaction.value,
+        });
         return new Outputs(computeInputs, [burnInstruction]).toJson();
     }
     create(computeInputs) {
         const { transaction } = computeInputs;
         const { transactionInputs } = transaction;
-        const caller = new Address(transaction.from);
-        const createInstruction = new CreateInstructionBuilder()
-            .setProgramId(new AddressOrNamespace('this'))
-            .setTotalSupply(bigIntToHexString(BigInt(JSON.parse(transactionInputs).totalSupply)))
-            .setInitializedSupply(bigIntToHexString(BigInt(0)))
-            .setProgramOwner(caller)
-            .setProgramNamespace(new AddressOrNamespace('this'))
-            .build();
+        const initializedSupply = JSON.parse(transactionInputs)?.initializedSupply ?? '0';
+        const totalSupply = JSON.parse(transactionInputs)?.totalSupply;
+        const createInstruction = buildCreateInstruction({
+            from: transaction.from,
+            initializedSupply: initializedSupply,
+            totalSupply: totalSupply,
+            programId: 'this',
+            programOwner: transaction.from,
+            programNamespace: 'this',
+        });
         return new Outputs(computeInputs, [createInstruction]).toJson();
     }
     createAndDistribute(computeInputs) {
         const { transaction } = computeInputs;
         const { transactionInputs } = transaction;
-        const caller = new Address(transaction.from);
-        const update = new TokenUpdateField(new TokenField('metadata'), new TokenFieldValue('metadata', new TokenMetadataExtend(JSON.parse(transactionInputs))));
         const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? 0;
-        const initalizedSupply = transaction?.value ?? 0;
-        const initUpdates = [update];
-        const initDistribution = new TokenDistributionBuilder()
-            .setProgramId(new AddressOrNamespace('this'))
-            .setAmount(bigIntToHexString(BigInt(initalizedSupply)))
-            .setReceiver(new AddressOrNamespace(caller))
-            .extendUpdateFields(initUpdates)
-            .build();
-        const createInstruction = new CreateInstructionBuilder()
-            .setProgramId(new AddressOrNamespace('this'))
-            .setTotalSupply(bigIntToHexString(BigInt(totalSupply)))
-            .setInitializedSupply(bigIntToHexString(BigInt(initalizedSupply)))
-            .setProgramOwner(caller)
-            .setProgramNamespace(new AddressOrNamespace('this'))
-            .addTokenDistribution(initDistribution)
-            .build();
-        return new Outputs(computeInputs, [createInstruction]).toJson();
+        const initializedSupply = transaction?.value ?? 0;
+        const tokenUpdateField = buildTokenUpdateField({
+            field: 'metadata',
+            value: transactionInputs,
+            action: 'extend',
+        });
+        if (tokenUpdateField instanceof Error) {
+            throw tokenUpdateField;
+        }
+        const tokenUpdates = [tokenUpdateField];
+        const initDistribution = buildTokenDistributionInstruction({
+            programId: 'this',
+            initializedSupply: initializedSupply,
+            caller: transaction.from,
+            tokenUpdates: tokenUpdates,
+        });
+        const createAndDistributeInstruction = buildCreateInstruction({
+            from: transaction.from,
+            initializedSupply: initializedSupply,
+            totalSupply: totalSupply,
+            programId: 'this',
+            programOwner: transaction.from,
+            programNamespace: 'this',
+            distributionInstruction: initDistribution,
+        });
+        return new Outputs(computeInputs, [createAndDistributeInstruction]).toJson();
     }
     mint(computeInputs) {
         const { transaction } = computeInputs;
-        const caller = new Address(transaction.from);
-        const payable = BigInt(transaction?.value ?? 0);
-        const payableToken = new Address(transaction.programId);
-        const minter = transaction.to;
-        const amount = bigIntToHexString(payable / BigInt('0x1'));
-        const transferTo = new TransferInstructionBuilder()
-            .setTransferFrom(new AddressOrNamespace('this'))
-            .setTransferTo(new AddressOrNamespace(caller))
-            .setAmount(amount)
-            .setTokenAddress(new Address(minter))
-            .build();
-        const transferFrom = new TransferInstructionBuilder()
-            .setTransferFrom(new AddressOrNamespace(caller))
-            .setTransferTo(new AddressOrNamespace('this'))
-            .setAmount(bigIntToHexString(payable))
-            .setTokenAddress(payableToken)
-            .build();
-        return new Outputs(computeInputs, [transferTo, transferFrom]).toJson();
+        const inputTokenAddress = '0x100444c7D04A842D19bc3eE63cB7b96682FF3f43';
+        const paymentValue = BigInt(transaction?.value);
+        const conversionRate = BigInt(2);
+        const returnedValue = paymentValue / conversionRate;
+        const mintInstructions = buildMintInstructions({
+            from: transaction.from,
+            programId: transaction.programId,
+            paymentTokenAddress: inputTokenAddress,
+            paymentValue: paymentValue,
+            returnedValue: returnedValue,
+        });
+        return new Outputs(computeInputs, [...mintInstructions]).toJson();
     }
 }

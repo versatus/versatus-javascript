@@ -75,7 +75,7 @@ export declare class TokenDataValue {
 export declare class TokenFieldValue {
     private kind;
     private value;
-    constructor(kind: string, value: TokenDataValue | TokenMetadataExtend | StatusValue | ApprovalsValue | ApprovalsExtend);
+    constructor(kind: string, value: TokenDataValue | TokenMetadataExtend | TokenMetadataInsert | TokenMetadataRemove | StatusValue | ApprovalsValue | ApprovalsExtend);
     toJson(): object;
 }
 export declare class TokenField {
