@@ -18,7 +18,7 @@ import {
   TokenUpdateField,
 } from './classes/Token'
 
-import { TokenFieldValues } from './types'
+import { TokenFieldValues, TokenUpdateValueTypes } from './types'
 
 export function bigIntToHexString(bigintValue: BigInt): string {
   let hexString = bigintValue.toString(16)
@@ -163,33 +163,28 @@ export function buildTokenUpdateField({
 }: {
   field: TokenFieldValues
   value: string
-  action: 'extend' | 'insert' | 'remove'
+  action: 'insert' | 'extend' | 'remove'
 }): TokenUpdateField | Error {
-  let tokenFieldValueType:
-    | TokenDataValue
-    | TokenMetadataExtend
-    | TokenMetadataInsert
-    | TokenMetadataRemove
-    | StatusValue
-    | ApprovalsValue
-    | ApprovalsExtend
+  let tokenFieldAction: TokenUpdateValueTypes
   if (field === 'metadata') {
     if (action === 'extend') {
-      tokenFieldValueType = new TokenMetadataExtend(JSON.parse(value))
+      tokenFieldAction = new TokenMetadataExtend(JSON.parse(value))
     } else if (action === 'insert') {
       const [key, insertValue] = JSON.parse(value).split(':')
-      tokenFieldValueType = new TokenMetadataInsert(key, insertValue)
+      tokenFieldAction = new TokenMetadataInsert(key, insertValue)
     } else if (action === 'remove') {
-      tokenFieldValueType = new TokenMetadataRemove(value)
+      tokenFieldAction = new TokenMetadataRemove(value)
     } else {
       return new Error('Invalid action')
     }
+  } else if (field === 'status') {
+    tokenFieldAction = new StatusValue(value)
   } else {
     return new Error('Invalid field')
   }
 
   return new TokenUpdateField(
     new TokenField(field),
-    new TokenFieldValue(field, tokenFieldValueType)
+    new TokenFieldValue(field, tokenFieldAction)
   )
 }

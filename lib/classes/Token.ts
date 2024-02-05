@@ -1,7 +1,13 @@
 import { AddressOrNamespace, StatusValue, TokenOrProgramUpdate } from './utils'
-import { Token, TokenFieldValues } from '../types'
+import { Token, TokenFieldValues, TokenUpdateValueTypes } from '../types'
 import Address from './Address'
-import { ApprovalsExtend, ApprovalsValue } from './Approvals'
+import {
+  ApprovalsExtend,
+  ApprovalsInsert,
+  ApprovalsRemove,
+  ApprovalsRevoke,
+  ApprovalsValue,
+} from './Approvals'
 
 export class TokenMetadataInsert {
   private key: string
@@ -187,26 +193,9 @@ export class TokenDataValue {
 
 export class TokenFieldValue {
   private kind: string
-  private value:
-    | TokenDataValue
-    | TokenMetadataExtend
-    | TokenMetadataInsert
-    | TokenMetadataRemove
-    | StatusValue
-    | ApprovalsValue
-    | ApprovalsExtend
+  private value: TokenUpdateValueTypes
 
-  constructor(
-    kind: string,
-    value:
-      | TokenDataValue
-      | TokenMetadataExtend
-      | TokenMetadataInsert
-      | TokenMetadataRemove
-      | StatusValue
-      | ApprovalsValue
-      | ApprovalsExtend
-  ) {
+  constructor(kind: string, value: TokenUpdateValueTypes) {
     this.kind = kind
     this.value = value
   }

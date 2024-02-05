@@ -1,6 +1,5 @@
-import { AddressOrNamespace, StatusValue } from './utils';
-import { TokenFieldValues } from '../types';
-import { ApprovalsExtend, ApprovalsValue } from './Approvals';
+import { AddressOrNamespace } from './utils';
+import { TokenFieldValues, TokenUpdateValueTypes } from '../types';
 export declare class TokenMetadataInsert {
     private key;
     private value;
@@ -75,7 +74,7 @@ export declare class TokenDataValue {
 export declare class TokenFieldValue {
     private kind;
     private value;
-    constructor(kind: string, value: TokenDataValue | TokenMetadataExtend | TokenMetadataInsert | TokenMetadataRemove | StatusValue | ApprovalsValue | ApprovalsExtend);
+    constructor(kind: string, value: TokenUpdateValueTypes);
     toJson(): object;
 }
 export declare class TokenField {

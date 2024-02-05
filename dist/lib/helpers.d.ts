@@ -39,5 +39,5 @@ export declare function buildTransferInstruction({ from, to, tokenAddress, amoun
 export declare function buildTokenUpdateField({ field, value, action, }: {
     field: TokenFieldValues;
     value: string;
-    action: 'extend' | 'insert' | 'remove';
+    action: 'insert' | 'extend' | 'remove';
 }): TokenUpdateField | Error;

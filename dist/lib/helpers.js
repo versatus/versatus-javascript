@@ -1,5 +1,5 @@
 import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, } from './classes/builders.js';
-import { AddressOrNamespace } from './classes/utils.js';
+import { AddressOrNamespace, StatusValue } from './classes/utils.js';
 import Address from './classes/Address.js';
 import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenUpdateField, } from './classes/Token.js';
 export function bigIntToHexString(bigintValue) {
@@ -70,24 +70,27 @@ export function buildTransferInstruction({ from, to, tokenAddress, amount, }) {
         .build();
 }
 export function buildTokenUpdateField({ field, value, action, }) {
-    let tokenFieldValueType;
+    let tokenFieldAction;
     if (field === 'metadata') {
         if (action === 'extend') {
-            tokenFieldValueType = new TokenMetadataExtend(JSON.parse(value));
+            tokenFieldAction = new TokenMetadataExtend(JSON.parse(value));
         }
         else if (action === 'insert') {
             const [key, insertValue] = JSON.parse(value).split(':');
-            tokenFieldValueType = new TokenMetadataInsert(key, insertValue);
+            tokenFieldAction = new TokenMetadataInsert(key, insertValue);
         }
         else if (action === 'remove') {
-            tokenFieldValueType = new TokenMetadataRemove(value);
+            tokenFieldAction = new TokenMetadataRemove(value);
         }
         else {
             return new Error('Invalid action');
         }
     }
+    else if (field === 'status') {
+        tokenFieldAction = new StatusValue(value);
+    }
     else {
         return new Error('Invalid field');
     }
-    return new TokenUpdateField(new TokenField(field), new TokenFieldValue(field, tokenFieldValueType));
+    return new TokenUpdateField(new TokenField(field), new TokenFieldValue(field, tokenFieldAction));
 }
