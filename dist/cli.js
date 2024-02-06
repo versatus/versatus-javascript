@@ -248,23 +248,29 @@ const argv = yargs(process.argv.slice(2))
                 console.log('\x1b[0;33mInitializing wallet...\x1b[0m');
                 await initializeWallet();
             }
-            else {
-                console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
-                await checkWallet(String(argv.keypairPath));
-            }
+        }
+        else if (argv.keypairPath) {
+            console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
+            await checkWallet(String(argv.keypairPath));
+        }
+        else {
+            console.error('You must specify a keypair file or secret key.');
+            process.exit(1);
         }
         let secretKey;
         if (argv.secretKey) {
             secretKey = String(argv.secretKey);
         }
         else {
-            secretKey = await getSecretKeyFromKeyPairFile(String(argv.keypairPath));
+            const keypairPath = './.lasr/wallet/keypair.json';
+            secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath));
         }
         console.log('\x1b[0;33mPublishing contract...\x1b[0m');
         // @ts-ignore
         const cid = await publishContract(argv.author, argv.name);
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
-        await registerProgram(cid, secretKey);
+        const response = await registerProgram(cid, secretKey);
+        console.log(response);
     }
     catch (error) {
         console.error(`Deployment error: ${error}`);
@@ -421,7 +427,7 @@ async function initializeWallet() {
 }
 async function checkWallet(keypairPath) {
     try {
-        // Assuming keypairPath is a relative path from the current working directory to the keypair.json file
+        console.log('Checking wallet...');
         const command = `./build/cli wallet get-account --from-file --path ${keypairPath}`;
         const output = await runCommand(command);
         console.log('Wallet check successful');
@@ -434,7 +440,7 @@ async function checkWallet(keypairPath) {
 }
 async function getSecretKeyFromKeyPairFile(keypairFilePath) {
     try {
-        console.log('getting secret key from keypair file');
+        console.log('Getting secret key from keypair file');
         const absolutePath = path.resolve(keypairFilePath); // Ensure the path is absolute
         const fileContent = await fsp.readFile(absolutePath, 'utf8');
         const keyPairs = JSON.parse(fileContent);
@@ -466,8 +472,7 @@ async function publishContract(author, name) {
     return cidMatch[1];
 }
 async function registerProgram(cid, secretKey) {
-    await runCommand(`./build/cli wallet register-program  --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`);
-    console.log('Contract registered.');
+    return await runCommand(`./build/cli wallet register-program  --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`);
 }
 async function runCommand(command) {
     return new Promise((resolve, reject) => {
@@ -477,7 +482,10 @@ async function runCommand(command) {
                 return;
             }
             if (stderr) {
-                // If the stderr contains a specific error message, you might want to handle it differently
+                const match = stderr.match(/&program_id = "([^"]+)"/);
+                if (match && match[1]) {
+                    resolve(match[1]);
+                }
                 if (stderr.includes('No such file or directory')) {
                     reject('KeyPair file not found. Please ensure the path is correct.');
                 }
