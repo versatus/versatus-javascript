@@ -30,6 +30,8 @@ import {
 } from '../../helpers'
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals'
 
+export const THIS = 'this'
+
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
  * It encapsulates the core functionality and properties of the write
@@ -85,7 +87,7 @@ export class FungibleTokenContract extends Contract {
     const burnInstruction = buildBurnInstruction({
       from: transaction.from,
       caller: transaction.from,
-      programId: 'this',
+      programId: THIS,
       tokenAddress: transaction.programId,
       amount: transaction.value,
     })
@@ -104,9 +106,9 @@ export class FungibleTokenContract extends Contract {
       from: transaction.from,
       initializedSupply: initializedSupply,
       totalSupply: totalSupply,
-      programId: 'this',
+      programId: THIS,
       programOwner: transaction.from,
-      programNamespace: 'this',
+      programNamespace: THIS,
     })
 
     return new Outputs(computeInputs, [createInstruction]).toJson()
@@ -115,8 +117,8 @@ export class FungibleTokenContract extends Contract {
   createAndDistribute(computeInputs: ComputeInputs) {
     const { transaction } = computeInputs
     const { transactionInputs } = transaction
-    const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? 0
-    const initializedSupply = transaction?.value ?? 0
+    const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? '0'
+    const initializedSupply = transaction?.value ?? '0'
 
     const tokenUpdateField = buildTokenUpdateField({
       field: 'metadata',
@@ -129,7 +131,7 @@ export class FungibleTokenContract extends Contract {
 
     const tokenUpdates = [tokenUpdateField]
     const initDistribution = buildTokenDistributionInstruction({
-      programId: 'this',
+      programId: THIS,
       initializedSupply: initializedSupply,
       caller: transaction.from,
       tokenUpdates: tokenUpdates,
@@ -139,9 +141,9 @@ export class FungibleTokenContract extends Contract {
       from: transaction.from,
       initializedSupply: initializedSupply,
       totalSupply: totalSupply,
-      programId: 'this',
+      programId: THIS,
       programOwner: transaction.from,
-      programNamespace: 'this',
+      programNamespace: THIS,
       distributionInstruction: initDistribution,
     })
 

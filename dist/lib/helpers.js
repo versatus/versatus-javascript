@@ -58,10 +58,18 @@ export function buildMintInstructions({ from, programId, paymentTokenAddress, pa
     });
     return [transferToProgram, transferToCaller];
 }
-export function buildTransferInstruction({ from, to, tokenAddress, amount, }) {
+export function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }) {
     const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
     const fromAddressOrNamespace = new AddressOrNamespace(new Address(from));
     const tokenAddressOrNamespace = new Address(tokenAddress);
+    if (tokenIds) {
+        return new TransferInstructionBuilder()
+            .setTransferFrom(fromAddressOrNamespace)
+            .setTransferTo(toAddressOrNamespace)
+            .setTokenAddress(tokenAddressOrNamespace)
+            .addTokenIds(tokenIds)
+            .build();
+    }
     return new TransferInstructionBuilder()
         .setTransferFrom(fromAddressOrNamespace)
         .setTransferTo(toAddressOrNamespace)

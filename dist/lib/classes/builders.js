@@ -155,8 +155,8 @@ export class TransferInstructionBuilder {
         this.amount = amount;
         return this;
     }
-    addTokenId(tokenId) {
-        this.ids.push(tokenId);
+    addTokenIds(tokenIds) {
+        this.ids.push(...tokenIds);
         return this;
     }
     extendTokenIds(items) {

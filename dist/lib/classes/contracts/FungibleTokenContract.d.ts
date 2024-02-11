@@ -1,5 +1,6 @@
 import { Contract } from './Contract';
 import { ComputeInputs } from '../../types';
+export declare const THIS = "this";
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
  * It encapsulates the core functionality and properties of the write

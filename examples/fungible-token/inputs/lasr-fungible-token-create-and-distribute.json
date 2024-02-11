@@ -1,10 +1,10 @@
 {
-  "contractInputs": "{\"name\":\"HelloToken\",\"symbol\":\"HLLO\",\"totalSupply\":\"0x000000000000000001\"}",
+  "contractInputs": "{\"name\":\"PUXATAWNY SHILL\",\"symbol\":\"PUX\",\"totalSupply\":\"0x174876e800\"}",
   "op": "createAndDistribute",
   "transaction": {
     "from": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
     "to": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
-    "transactionInputs": "{\"name\":\"Hath Token\",\"symbol\":\"HATH\",\"totalSupply\":\"0x174876e800\"}",
+    "transactionInputs": "{\"name\":\"PUXATAWNY SHILL\",\"symbol\":\"PUX\",\"totalSupply\":\"0x174876e800\"}",
     "nonce": "0x0000000000000000000000000000000000000000000000000000000000000001",
     "op": "createAndDistribute",
     "programId": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",

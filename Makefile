@@ -9,6 +9,11 @@ endif
 .PHONY: \
 		clean
 all: $(DEFAULT)
+
+clean:
+	$(Q)rm -rf dist build example-contract* inputs node_modules .parcel-cache
+	$(Q)echo "--- clean"
+
 help:
 	$(Q)echo "make clean             - Deletes build artifacts."
 

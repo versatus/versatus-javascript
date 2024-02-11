@@ -30,11 +30,12 @@ export declare function buildMintInstructions({ from, programId, paymentTokenAdd
     paymentValue: BigInt;
     returnedValue: BigInt;
 }): import("./classes").Instruction[];
-export declare function buildTransferInstruction({ from, to, tokenAddress, amount, }: {
+export declare function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }: {
     from: string;
     to: string;
     tokenAddress: string;
     amount: BigInt;
+    tokenIds?: string[];
 }): import("./classes").Instruction;
 export declare function buildTokenUpdateField({ field, value, action, }: {
     field: TokenFieldValues;

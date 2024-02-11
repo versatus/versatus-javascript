@@ -236,8 +236,8 @@ export class TransferInstructionBuilder {
     return this
   }
 
-  addTokenId(tokenId: string): TransferInstructionBuilder {
-    this.ids.push(tokenId)
+  addTokenIds(tokenIds: string[]): TransferInstructionBuilder {
+    this.ids.push(...tokenIds)
     return this
   }
 

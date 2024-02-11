@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
 import { fileURLToPath } from 'url';
+import { runCommand, runSpawn } from './lib/utils.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
 const installedPackagePath = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
@@ -96,9 +97,16 @@ const argv = yargs(process.argv.slice(2))
 })
     .usage('Usage: $0 build [options]')
     .command('build [file]', 'Build the project with the specified contract', (yargs) => {
-    return yargs.positional('file', {
+    return yargs
+        .positional('file', {
         describe: 'Contract file to include in the build',
         type: 'string',
+    })
+        .positional('target', {
+        describe: 'Secret key for the wallet',
+        type: 'string',
+        choices: ['node', 'wasm'],
+        default: 'node',
     });
 }, (argv) => {
     let scriptDir, sysCheckScriptPath;
@@ -130,7 +138,6 @@ const argv = yargs(process.argv.slice(2))
             const filePath = path.resolve(process.cwd(), argv.file);
             if (filePath.endsWith('.ts')) {
                 console.log('\x1b[0;37mTypeScript file detected. Transpiling...\x1b[0m');
-                // Specify the output directory for the transpiled files
                 const outDir = path.resolve(process.cwd(), 'build');
                 const command = isInstalledPackage
                     ? `tsc --outDir ${outDir} ${filePath}`
@@ -142,9 +149,9 @@ const argv = yargs(process.argv.slice(2))
                         return;
                     }
                     console.log('\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m');
-                    injectFileInWrapper(filePath)
+                    injectFileInWrapper(filePath, argv.target)
                         .then(() => {
-                        runBuildProcess();
+                        runBuildProcess(argv.target);
                     })
                         .catch((error) => {
                         console.error('Error during the build process:', error);
@@ -152,9 +159,9 @@ const argv = yargs(process.argv.slice(2))
                 });
             }
             else {
-                injectFileInWrapper(filePath)
+                injectFileInWrapper(filePath, argv.target)
                     .then(() => {
-                    runBuildProcess();
+                    runBuildProcess(argv.target);
                 })
                     .catch((error) => {
                     console.error('Error during the build process:', error);
@@ -265,84 +272,112 @@ const argv = yargs(process.argv.slice(2))
             const keypairPath = './.lasr/wallet/keypair.json';
             secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath));
         }
-        console.log('\x1b[0;33mPublishing contract...\x1b[0m');
+        console.log('\x1b[0;33mPublishing program...\x1b[0m');
         // @ts-ignore
-        const cid = await publishContract(argv.author, argv.name);
+        const cid = await publishProgram(argv.author, argv.name);
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
-        const response = await registerProgram(cid, secretKey);
-        console.log(response);
+        // const response = await registerProgram(cid, secretKey)
+        // console.log(response)
     }
     catch (error) {
         console.error(`Deployment error: ${error}`);
     }
 })
     .help().argv;
-function runSpawn(command, args, options) {
-    return new Promise((resolve, reject) => {
-        // @ts-ignore
-        const child = spawn(command, args, options);
-        // @ts-ignore
-        child.on('close', (code) => {
-            if (code === 0) {
-                resolve(code); // Resolve the promise successfully if the process exits with code 0
-            }
-            else {
-                reject(new Error(`Process exited with code ${code}`)); // Reject the promise if the process exits with a non-zero code
-            }
-        });
-        // @ts-ignore
-        child.on('error', (error) => {
-            reject(error); // Reject the promise if an error occurs
-        });
-    });
-}
-async function injectFileInWrapper(filePath) {
+async function injectFileInWrapper(filePath, target = 'node') {
     const projectRoot = process.cwd();
     const buildPath = path.join(projectRoot, 'build');
     const buildLibPath = path.join(projectRoot, 'build', 'lib');
-    // Ensure the dist directory exists
     if (!fs.existsSync(buildLibPath)) {
         fs.mkdirSync(buildLibPath, { recursive: true });
     }
     let wrapperFilePath;
-    let versatusHelpersFilepath = path.resolve(process.cwd(), './lib/versatus');
-    // Check if the script is running from within node_modules
-    if (isInstalledPackage) {
-        // In an installed package environment
+    if (target === 'node') {
+        let contractFilePath;
+        if (isTypeScriptProject()) {
+            // const outDir = path.resolve(process.cwd(), 'build')
+            // const command = `tsc --outDir ${outDir} ${filePath}`
+            // exec(command, (tscError, tscStdout, tscStderr) => {
+            //   if (tscError) {
+            //     console.error(`Error during TypeScript transpilation: ${tscError}`)
+            //     return
+            //   }
+            //
+            //   console.log(
+            //     '\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m'
+            //   )
+            // })
+            if (isInstalledPackage) {
+            }
+            else {
+                contractFilePath = './dist/example-contract.js';
+                if (fs.existsSync(contractFilePath)) {
+                    console.log('The contract file exists.');
+                }
+                else {
+                    console.log('The contract file does not exist. You must build first.');
+                }
+            }
+        }
+        if (isInstalledPackage) {
+            try {
+                wrapperFilePath =
+                    'node_modules/@versatus/versatus-javascript/dist/lib/node-wrapper.js';
+            }
+            catch (error) {
+                console.error('Error locating node-wrapper.js in node_modules:', error);
+                throw error;
+            }
+        }
+        else {
+            console.log('IN DEVELOPMENT ENVIRONMENT');
+            wrapperFilePath = path.resolve(__dirname, './lib/node-wrapper.js');
+        }
+        const distWrapperFilePath = path.join(buildPath, 'lib', 'node-wrapper.js');
+        fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
+        let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
+        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-contract.js.js';`);
+        console.log({ wrapperContent });
+        return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
+    }
+    else if (target === 'wasm') {
+        let versatusHelpersFilepath = path.resolve(process.cwd(), './lib/versatus');
+        if (isInstalledPackage) {
+            try {
+                wrapperFilePath =
+                    'node_modules/@versatus/versatus-javascript/dist/lib/wasm-wrapper.js';
+                versatusHelpersFilepath =
+                    'node_modules/@versatus/versatus-javascript/dist/lib/versatus.js';
+            }
+            catch (error) {
+                console.error('Error locating wasm-wrapper.js in node_modules:', error);
+                throw error;
+            }
+        }
+        else {
+            console.log('IN DEVELOPMENT ENVIRONMENT');
+            // In the development environment
+            wrapperFilePath = path.resolve(__dirname, './lib/wasm-wrapper.js');
+            versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js');
+        }
+        // Copy the wrapper file to the build directory
+        const distWrapperFilePath = path.join(buildPath, 'lib', 'wasm-wrapper.js');
+        fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
+        const versatusWrapperFilePath = path.join(buildPath, 'lib', 'versatus.js');
+        fs.copyFileSync(versatusHelpersFilepath, versatusWrapperFilePath);
         try {
-            wrapperFilePath =
-                'node_modules/@versatus/versatus-javascript/dist/lib/wrapper.js'; // Adjust this path to your default wrapper file
-            versatusHelpersFilepath =
-                'node_modules/@versatus/versatus-javascript/dist/lib/versatus.js'; // Adjust this path to your default helpers file
+            let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
+            wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from '${filePath}';`);
+            wrapperContent = wrapperContent.replace(/from '.*versatus';?$/m, `from '${versatusWrapperFilePath}.js'`);
+            return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
         }
         catch (error) {
-            console.error('Error locating wrapper.js in node_modules:', error);
+            console.error('Error updating wrapper.js in dist:', error);
             throw error;
         }
     }
-    else {
-        console.log('IN DEVELOPMENT ENVIRONMENT');
-        // In the development environment
-        wrapperFilePath = path.resolve(__dirname, './lib/wrapper.js');
-        versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js');
-    }
-    // Copy the wrapper file to the build directory
-    const distWrapperFilePath = path.join(buildPath, 'lib', 'wrapper.js');
-    fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
-    const versatusWrapperFilePath = path.join(buildPath, 'lib', 'versatus.js');
-    fs.copyFileSync(versatusHelpersFilepath, versatusWrapperFilePath);
-    try {
-        let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
-        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from '${filePath}';`);
-        wrapperContent = wrapperContent.replace(/from '.*versatus';?$/m, `from '${versatusWrapperFilePath}.js'`);
-        return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
-    }
-    catch (error) {
-        console.error('Error updating wrapper.js in dist:', error);
-        throw error;
-    }
 }
-function runBuildProcess() {
+function runBuildProcess(target = 'node') {
     const projectRoot = process.cwd();
     const distPath = path.join(projectRoot, 'dist');
     const buildPath = path.join(projectRoot, 'build');
@@ -354,6 +389,113 @@ function runBuildProcess() {
         console.log("\x1b[0;37mCreating the 'build' directory...\x1b[0m");
         fs.mkdirSync(buildPath, { recursive: true });
     }
+    if (target === 'node') {
+        console.log('BUILDING NODE!');
+        const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js');
+        const nodeMapWrapperPath = path.join('./build/lib', 'node-wrapper.js.map');
+        if (fs.existsSync(nodeWrapperPath)) {
+            fs.unlinkSync(nodeWrapperPath);
+            console.log('Existing node-wrapper.js deleted.');
+        }
+        if (fs.existsSync(nodeMapWrapperPath)) {
+            fs.unlinkSync(nodeMapWrapperPath);
+            console.log('Existing node-wrapper.js.map deleted.');
+        }
+        const parcelCommand = `npx parcel build  --target node ./lib/node-wrapper.ts`;
+        exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
+            if (tscError) {
+                console.error(`Error during TypeScript transpilation: ${tscError}`);
+                return;
+            }
+            console.log('\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m');
+        });
+    }
+    else if (target === 'wasm') {
+        buildWasm(buildPath);
+    }
+}
+async function runTestProcess(inputJsonPath) {
+    let scriptDir;
+    if (isInstalledPackage) {
+        scriptDir = installedPackagePath;
+    }
+    else {
+        scriptDir = process.cwd();
+    }
+    let target;
+    if (fs.existsSync('./build/lib/node-wrapper.js')) {
+        target = 'node';
+    }
+    else {
+        target = 'wasm';
+    }
+    const testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', target === 'node' ? 'test-node.sh' : 'test-wasm.sh');
+    const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
+        stdio: 'inherit',
+    });
+    testProcess.on('error', (error) => {
+        console.error(`test-wasm.sh spawn error: ${error}`);
+    });
+    testProcess.on('exit', (code) => {
+        if (code !== 0) {
+            console.error(`test-wasm.sh exited with code ${code}`);
+        }
+    });
+}
+async function initializeWallet() {
+    await runCommand('./build/cli wallet new --save');
+    console.log('Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json');
+}
+async function checkWallet(keypairPath) {
+    try {
+        console.log('Checking wallet...');
+        const command = `./build/cli wallet get-account --from-file --path ${keypairPath}`;
+        const output = await runCommand(command);
+        console.log('Wallet check successful');
+    }
+    catch (error) {
+        // Handle specific error messages or take actions based on the error
+        console.error('Failed to validate keypair file:', error);
+        process.exit(1); // Exit the process if the keypair file is not valid or other errors occur
+    }
+}
+async function getSecretKeyFromKeyPairFile(keypairFilePath) {
+    try {
+        console.log('Getting secret key from keypair file');
+        const absolutePath = path.resolve(keypairFilePath); // Ensure the path is absolute
+        const fileContent = await fsp.readFile(absolutePath, 'utf8');
+        const keyPairs = JSON.parse(fileContent);
+        // Assuming you want the first keypair's secret key
+        if (keyPairs.length > 0) {
+            return keyPairs[0].secret_key;
+        }
+        else {
+            throw new Error('No keypairs found in the specified file.');
+        }
+    }
+    catch (error) {
+        console.error(`Failed to retrieve the secret key: ${error}`);
+        throw error; // Rethrow the error for further handling if needed
+    }
+}
+async function publishProgram(author, name) {
+    if (!author || !name) {
+        console.log({ author });
+        console.log({ name });
+        throw new Error('Author and name are required to publish a contract.');
+    }
+    const command = `export VIPFS_ADDRESS=137.66.44.217:5001 && ./build/versatus-wasm publish -a ${author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`;
+    const output = await runCommand(command);
+    const cidMatch = output.match(/Content ID for Web3 Package is (\S+)/);
+    if (!cidMatch)
+        throw new Error('Failed to extract CID from publish output.');
+    console.log(`Contract published with CID: ${cidMatch[1]}`);
+    return cidMatch[1];
+}
+async function registerProgram(cid, secretKey) {
+    return await runCommand(`./build/cli wallet register-program  --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`);
+}
+async function buildWasm(buildPath) {
     let webpackConfigPath;
     if (isInstalledPackage) {
         // In an installed package environment
@@ -395,106 +537,6 @@ function runBuildProcess() {
             console.log(`\x1b[0;33mvsjs test inputs\x1b[0m`);
             console.log();
             console.log();
-        });
-    });
-}
-async function runTestProcess(inputJsonPath) {
-    let scriptDir;
-    if (isInstalledPackage) {
-        // In an installed package environment
-        scriptDir = installedPackagePath;
-    }
-    else {
-        // In the development environment
-        scriptDir = process.cwd();
-    }
-    const testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'test.sh');
-    const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
-        stdio: 'inherit',
-    });
-    testProcess.on('error', (error) => {
-        console.error(`test.sh spawn error: ${error}`);
-    });
-    testProcess.on('exit', (code) => {
-        if (code !== 0) {
-            console.error(`test.sh exited with code ${code}`);
-        }
-    });
-}
-async function initializeWallet() {
-    await runCommand('./build/cli wallet new --save');
-    console.log('Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json');
-}
-async function checkWallet(keypairPath) {
-    try {
-        console.log('Checking wallet...');
-        const command = `./build/cli wallet get-account --from-file --path ${keypairPath}`;
-        const output = await runCommand(command);
-        console.log('Wallet check successful');
-    }
-    catch (error) {
-        // Handle specific error messages or take actions based on the error
-        console.error('Failed to validate keypair file:', error);
-        process.exit(1); // Exit the process if the keypair file is not valid or other errors occur
-    }
-}
-async function getSecretKeyFromKeyPairFile(keypairFilePath) {
-    try {
-        console.log('Getting secret key from keypair file');
-        const absolutePath = path.resolve(keypairFilePath); // Ensure the path is absolute
-        const fileContent = await fsp.readFile(absolutePath, 'utf8');
-        const keyPairs = JSON.parse(fileContent);
-        // Assuming you want the first keypair's secret key
-        if (keyPairs.length > 0) {
-            return keyPairs[0].secret_key;
-        }
-        else {
-            throw new Error('No keypairs found in the specified file.');
-        }
-    }
-    catch (error) {
-        console.error(`Failed to retrieve the secret key: ${error}`);
-        throw error; // Rethrow the error for further handling if needed
-    }
-}
-async function publishContract(author, name) {
-    if (!author || !name) {
-        console.log({ author });
-        console.log({ name });
-        throw new Error('Author and name are required to publish a contract.');
-    }
-    const command = `export VIPFS_ADDRESS=137.66.44.217:5001 && ./build/versatus-wasm publish -a ${author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`;
-    const output = await runCommand(command);
-    const cidMatch = output.match(/Content ID for Web3 Package is (\S+)/);
-    if (!cidMatch)
-        throw new Error('Failed to extract CID from publish output.');
-    console.log(`Contract published with CID: ${cidMatch[1]}`);
-    return cidMatch[1];
-}
-async function registerProgram(cid, secretKey) {
-    return await runCommand(`./build/cli wallet register-program  --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`);
-}
-async function runCommand(command) {
-    return new Promise((resolve, reject) => {
-        exec(command, (error, stdout, stderr) => {
-            if (error) {
-                reject(`error: ${error.message}`);
-                return;
-            }
-            if (stderr) {
-                const match = stderr.match(/&program_id = "([^"]+)"/);
-                if (match && match[1]) {
-                    resolve(match[1]);
-                }
-                if (stderr.includes('No such file or directory')) {
-                    reject('KeyPair file not found. Please ensure the path is correct.');
-                }
-                else {
-                    reject(`stderr: ${stderr}`);
-                }
-                return;
-            }
-            resolve(stdout);
         });
     });
 }

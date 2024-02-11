@@ -10,7 +10,6 @@ export type AccountType = 'user' | {
  * This structure is used to store Ethereum Compatible addresses, which are derived from the public key. It implements traits like Clone, Copy, Debug, Serialize, Deserialize, etc., for ease of use across various contexts.
  */
 export type Address = string;
-export type U256 = [number, number, number, number];
 export type Status = 'locked' | 'free';
 export type TransactionType = {
     [k: string]: unknown;
@@ -33,7 +32,7 @@ export interface ComputeInputs {
  */
 export interface Account {
     accountType: AccountType;
-    nonce: U256;
+    nonce: string;
     ownerAddress: Address;
     programAccountData: ArbitraryData;
     programAccountLinkedPrograms: AddressOrNamespace[];
@@ -64,18 +63,18 @@ export type TokenFieldValues = 'approvals' | 'balance' | 'data' | 'metadata' | '
 export type TokenUpdateValueTypes = TokenDataValue | TokenDataInsert | TokenDataExtend | TokenDataRemove | TokenMetadataValue | TokenMetadataInsert | TokenMetadataExtend | TokenMetadataRemove | TokenIdValue | TokenIdPush | TokenIdExtend | TokenIdInsert | TokenIdPop | StatusValue | ApprovalsValue | ApprovalsInsert | ApprovalsExtend | ApprovalsRemove | ApprovalsRevoke;
 export interface Token {
     allowance: {
-        [k: string]: U256;
+        [k: string]: string;
     };
     approvals: {
-        [k: string]: U256[];
+        [k: string]: string[];
     };
-    balance: U256;
+    balance: string;
     data: ArbitraryData;
     metadata: Metadata;
     ownerId: Address;
     programId: Address;
     status: Status;
-    tokenIds: U256[];
+    tokenIds: string[];
     [k: string]: unknown;
 }
 export interface InitTransaction {

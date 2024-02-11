@@ -61,7 +61,7 @@ export declare class TransferInstructionBuilder {
     setTransferFrom(transferFrom: AddressOrNamespace): TransferInstructionBuilder;
     setTransferTo(transferTo: AddressOrNamespace): TransferInstructionBuilder;
     setAmount(amount: string | null): TransferInstructionBuilder;
-    addTokenId(tokenId: string): TransferInstructionBuilder;
+    addTokenIds(tokenIds: string[]): TransferInstructionBuilder;
     extendTokenIds(items: string[]): TransferInstructionBuilder;
     build(): Instruction;
 }

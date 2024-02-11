@@ -139,15 +139,25 @@ export function buildTransferInstruction({
   to,
   tokenAddress,
   amount,
+  tokenIds,
 }: {
   from: string
   to: string
   tokenAddress: string
   amount: BigInt
+  tokenIds?: string[]
 }) {
   const toAddressOrNamespace = new AddressOrNamespace(new Address(to))
   const fromAddressOrNamespace = new AddressOrNamespace(new Address(from))
   const tokenAddressOrNamespace = new Address(tokenAddress)
+  if (tokenIds) {
+    return new TransferInstructionBuilder()
+      .setTransferFrom(fromAddressOrNamespace)
+      .setTransferTo(toAddressOrNamespace)
+      .setTokenAddress(tokenAddressOrNamespace)
+      .addTokenIds(tokenIds)
+      .build()
+  }
   return new TransferInstructionBuilder()
     .setTransferFrom(fromAddressOrNamespace)
     .setTransferTo(toAddressOrNamespace)
