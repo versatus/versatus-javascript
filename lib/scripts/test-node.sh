@@ -6,7 +6,6 @@ source "$DIR/colored_echo.sh"
 # Use the current working directory as the root directory
 ROOT_DIR=$(pwd)
 BUILD_NODE_PATH="$ROOT_DIR/build/lib/node-wrapper.js"
-
 LASR_CLI_PATH="$ROOT_DIR/build/cli"
 
 # Check if the JSON input file path is provided as an argument

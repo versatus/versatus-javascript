@@ -314,15 +314,32 @@ const argv = yargs(process.argv.slice(2))
             scriptDir = process.cwd() // In the development environment
           }
 
+          let target
+
           const checkWasmScriptPath = path.resolve(
             scriptDir,
             'lib',
             'scripts',
-            'check_wasm.sh'
+            'check_cli.sh'
           )
 
           // Assuming spawn is wrapped in a function that returns a Promise
           await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' })
+
+          if (fs.existsSync('./build/lib/node-wrapper.js')) {
+            target = 'node'
+          } else {
+            target = 'wasm'
+            const checkWasmScriptPath = path.resolve(
+              scriptDir,
+              'lib',
+              'scripts',
+              'check_wasm.sh'
+            )
+
+            // Assuming spawn is wrapped in a function that returns a Promise
+            await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' })
+          }
 
           console.log('\x1b[0;37mStarting test...\x1b[0m')
 
@@ -332,12 +349,12 @@ const argv = yargs(process.argv.slice(2))
               if (path.extname(file) === '.json') {
                 const filePath = path.join(inputPath, file)
                 // Ensure runTestProcess is an async function or returns a Promise
-                await runTestProcess(filePath)
+                await runTestProcess(filePath, target)
               }
             }
           } else if (stats.isFile()) {
             // Ensure runTestProcess is an async function or returns a Promise
-            await runTestProcess(inputPath)
+            await runTestProcess(inputPath, target)
           } else {
             console.error('The input path is neither a file nor a directory.')
             process.exit(1)
@@ -565,20 +582,12 @@ function runBuildProcess(target: string = 'node') {
   }
 }
 
-async function runTestProcess(inputJsonPath: string) {
+async function runTestProcess(inputJsonPath: string, target: string = 'node') {
   let scriptDir: string
   if (isInstalledPackage) {
     scriptDir = installedPackagePath
   } else {
     scriptDir = process.cwd()
-  }
-
-  let target
-
-  if (fs.existsSync('./build/lib/node-wrapper.js')) {
-    target = 'node'
-  } else {
-    target = 'wasm'
   }
 
   const testScriptPath = path.resolve(
