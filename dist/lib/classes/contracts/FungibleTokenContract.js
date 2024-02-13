@@ -99,7 +99,7 @@ export class FungibleTokenContract extends Contract {
     }
     mint(computeInputs) {
         const { transaction } = computeInputs;
-        const inputTokenAddress = '0x100444c7D04A842D19bc3eE63cB7b96682FF3f43';
+        const inputTokenAddress = '0x0000000000000000000000000000000000000000';
         const paymentValue = BigInt(transaction?.value);
         const conversionRate = BigInt(2);
         const returnedValue = paymentValue / conversionRate;
