@@ -8,7 +8,7 @@ ROOT_DIR=$(pwd)
 BUILD_WASM_PATH="$ROOT_DIR/build/build.wasm"
 WASM_PATH="$ROOT_DIR/build/versatus-wasm"
 
-LASR_CLI_PATH="$ROOT_DIR/build/cli"
+LASR_CLI_PATH="$ROOT_DIR/build/lasr_cli"
 
 # Check if the JSON input file path is provided as an argument
 if [ -z "$1" ]; then

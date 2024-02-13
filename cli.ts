@@ -576,6 +576,7 @@ function runBuildProcess(target: string = 'node') {
       )
     })
   } else if (target === 'wasm') {
+    console.log('BUILDING WASM!')
     buildWasm(buildPath)
   }
 }
@@ -657,6 +658,7 @@ async function publishProgram(author: string, name: string): Promise<string> {
     console.log({ name })
     throw new Error('Author and name are required to publish a contract.')
   }
+
   const command = `export VIPFS_ADDRESS=137.66.44.217:5001 && ./build/versatus-wasm publish -a ${author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`
   const output = await runCommand(command)
 
@@ -729,5 +731,31 @@ async function buildWasm(buildPath: string) {
       console.log()
       console.log()
     })
+  })
+}
+
+async function buildNode(buildPath: string) {
+  console.log('BUILDING NODE!')
+  const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js')
+  const nodeMapWrapperPath = path.join('./build/lib', 'node-wrapper.js.map')
+
+  if (fs.existsSync(nodeWrapperPath)) {
+    fs.unlinkSync(nodeWrapperPath)
+    console.log('Existing node-wrapper.js deleted.')
+  }
+  if (fs.existsSync(nodeMapWrapperPath)) {
+    fs.unlinkSync(nodeMapWrapperPath)
+    console.log('Existing node-wrapper.js.map deleted.')
+  }
+  const parcelCommand = `npx parcel build  --target node ./lib/node-wrapper.ts`
+  exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
+    if (tscError) {
+      console.error(`Error during TypeScript transpilation: ${tscError}`)
+      return
+    }
+
+    console.log(
+      '\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m'
+    )
   })
 }

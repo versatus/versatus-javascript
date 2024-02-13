@@ -418,6 +418,7 @@ function runBuildProcess(target = 'node') {
         });
     }
     else if (target === 'wasm') {
+        console.log('BUILDING WASM!');
         buildWasm(buildPath);
     }
 }
@@ -538,5 +539,26 @@ async function buildWasm(buildPath) {
             console.log();
             console.log();
         });
+    });
+}
+async function buildNode(buildPath) {
+    console.log('BUILDING NODE!');
+    const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js');
+    const nodeMapWrapperPath = path.join('./build/lib', 'node-wrapper.js.map');
+    if (fs.existsSync(nodeWrapperPath)) {
+        fs.unlinkSync(nodeWrapperPath);
+        console.log('Existing node-wrapper.js deleted.');
+    }
+    if (fs.existsSync(nodeMapWrapperPath)) {
+        fs.unlinkSync(nodeMapWrapperPath);
+        console.log('Existing node-wrapper.js.map deleted.');
+    }
+    const parcelCommand = `npx parcel build  --target node ./lib/node-wrapper.ts`;
+    exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
+        if (tscError) {
+            console.error(`Error during TypeScript transpilation: ${tscError}`);
+            return;
+        }
+        console.log('\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m');
     });
 }
