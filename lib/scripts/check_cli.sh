@@ -9,8 +9,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/colored_echo.sh"
 ROOT_DIR=$(pwd)
 
-LASR_CLI_PATH="$ROOT_DIR/build/cli"
-LASR_CLI_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/cli" # OSX M2
+LASR_CLI_PATH="$ROOT_DIR/build/lasr_cli"
+LASR_CLI_URL="https://pub-7ab7c88a9a43431382c12cf40b7a6edf.r2.dev/lasr_cli" # OSX M2
 
 # Create the build directory if it doesn't exist
 if [ ! -d "$ROOT_DIR/build" ]; then

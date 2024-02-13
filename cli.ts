@@ -397,6 +397,7 @@ const argv = yargs(process.argv.slice(2))
     async (argv) => {
       try {
         if (!argv.secretKey) {
+          console.log('NO SECRET KEY!')
           if (!argv.keypairPath) {
             console.log('\x1b[0;33mInitializing wallet...\x1b[0m')
             await initializeWallet()
@@ -404,9 +405,6 @@ const argv = yargs(process.argv.slice(2))
         } else if (argv.keypairPath) {
           console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
           await checkWallet(String(argv.keypairPath))
-        } else {
-          console.error('You must specify a keypair file or secret key.')
-          process.exit(1)
         }
 
         let secretKey: string
@@ -422,8 +420,8 @@ const argv = yargs(process.argv.slice(2))
         const cid = await publishProgram(argv.author, argv.name)
 
         console.log('\x1b[0;33mRegistering program...\x1b[0m')
-        // const response = await registerProgram(cid, secretKey)
-        // console.log(response)
+        const response = await registerProgram(cid, secretKey)
+        console.log(response)
       } catch (error) {
         console.error(`Deployment error: ${error}`)
       }
@@ -613,7 +611,7 @@ async function runTestProcess(inputJsonPath: string, target: string = 'node') {
 }
 
 async function initializeWallet() {
-  await runCommand('./build/cli wallet new --save')
+  await runCommand('./build/lasr_cli wallet new --save')
   console.log(
     'Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json'
   )
@@ -622,7 +620,7 @@ async function initializeWallet() {
 async function checkWallet(keypairPath: string) {
   try {
     console.log('Checking wallet...')
-    const command = `./build/cli wallet get-account --from-file --path ${keypairPath}`
+    const command = `./build/lasr_cli wallet get-account --from-file --path ${keypairPath}`
     const output = await runCommand(command)
     console.log('Wallet check successful')
   } catch (error) {
@@ -670,7 +668,7 @@ async function publishProgram(author: string, name: string): Promise<string> {
 
 async function registerProgram(cid: string, secretKey: string) {
   return await runCommand(
-    `./build/cli wallet register-program  --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`
+    `./build/lasr_cli wallet register-program  --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`
   )
 }
 
