@@ -371,7 +371,7 @@ const argv = yargs(process.argv.slice(2))
     }
   )
   .command(
-    'deploy [author] [name] [keypair]',
+    'deploy [author] [name] [keypairPath] [secretKey] [target]',
     'Deploy a contract',
     (yargs) => {
       yargs
@@ -392,6 +392,12 @@ const argv = yargs(process.argv.slice(2))
         .positional('secretKey', {
           describe: 'Secret key for the wallet',
           type: 'string',
+        })
+        .positional('target', {
+          describe: 'Secret key for the wallet',
+          type: 'string',
+          choices: ['node', 'wasm'],
+          default: 'node',
         })
     },
     async (argv) => {
@@ -417,7 +423,12 @@ const argv = yargs(process.argv.slice(2))
 
         console.log('\x1b[0;33mPublishing program...\x1b[0m')
         // @ts-ignore
-        const cid = await publishProgram(argv.author, argv.name)
+        const cid = await publishProgram(
+          String(argv.author),
+          String(argv.name),
+          String(argv.target),
+          secretKey
+        )
 
         console.log('\x1b[0;33mRegistering program...\x1b[0m')
         const response = await registerProgram(cid, secretKey)
@@ -487,7 +498,6 @@ async function injectFileInWrapper(filePath: string, target: string = 'node') {
       /^import start from '.*';?$/m,
       `import start from './dist/example-contract.js';`
     )
-    console.log({ wrapperContent })
     return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8')
   } else if (target === 'wasm') {
     let versatusHelpersFilepath = path.resolve(process.cwd(), './lib/versatus')
@@ -536,7 +546,7 @@ async function injectFileInWrapper(filePath: string, target: string = 'node') {
   }
 }
 
-function runBuildProcess(target: string = 'node') {
+async function runBuildProcess(target: string = 'node') {
   const projectRoot = process.cwd()
   const distPath = path.join(projectRoot, 'dist')
   const buildPath = path.join(projectRoot, 'build')
@@ -553,31 +563,10 @@ function runBuildProcess(target: string = 'node') {
 
   if (target === 'node') {
     console.log('BUILDING NODE!')
-    const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js')
-    const nodeMapWrapperPath = path.join('./build/lib', 'node-wrapper.js.map')
-
-    if (fs.existsSync(nodeWrapperPath)) {
-      fs.unlinkSync(nodeWrapperPath)
-      console.log('Existing node-wrapper.js deleted.')
-    }
-    if (fs.existsSync(nodeMapWrapperPath)) {
-      fs.unlinkSync(nodeMapWrapperPath)
-      console.log('Existing node-wrapper.js.map deleted.')
-    }
-    const parcelCommand = `npx parcel build  --target node ./lib/node-wrapper.ts`
-    exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
-      if (tscError) {
-        console.error(`Error during TypeScript transpilation: ${tscError}`)
-        return
-      }
-
-      console.log(
-        '\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m'
-      )
-    })
+    await buildNode(buildPath)
   } else if (target === 'wasm') {
     console.log('BUILDING WASM!')
-    buildWasm(buildPath)
+    await buildWasm(buildPath)
   }
 }
 
@@ -652,20 +641,29 @@ async function getSecretKeyFromKeyPairFile(
   }
 }
 
-async function publishProgram(author: string, name: string): Promise<string> {
+async function publishProgram(
+  author: string,
+  name: string,
+  target: string = 'node',
+  secretKey: string
+): Promise<string> {
   if (!author || !name) {
-    console.log({ author })
-    console.log({ name })
     throw new Error('Author and name are required to publish a contract.')
   }
 
-  const command = `export VIPFS_ADDRESS=137.66.44.217:5001 && ./build/versatus-wasm publish -a ${author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`
+  const isWasm = target === 'wasm'
+  const command = `export VIPFS_ADDRESS= && ./build/lasr_cli publish --author ${author} --name ${name} --package-path ./build/${
+    isWasm ? 'build.wasm' : 'lib/node-wrapper.js'
+  } --remote 137.66.44.217:5001 --content-type program --from-secret-key --secret-key "${secretKey}"`
   const output = await runCommand(command)
 
-  const cidMatch = output.match(/Content ID for Web3 Package is (\S+)/)
-  if (!cidMatch) throw new Error('Failed to extract CID from publish output.')
-  console.log(`Contract published with CID: ${cidMatch[1]}`)
-  return cidMatch[1]
+  console.log(output)
+
+  const ipfsHashMatch = output.match(/(bafy[a-zA-Z0-9]{44,59})/)
+  if (!ipfsHashMatch)
+    throw new Error('Failed to extract CID from publish output.')
+  console.log(`Contract published with CID: ${ipfsHashMatch[1]}`)
+  return ipfsHashMatch[1]
 }
 
 async function registerProgram(cid: string, secretKey: string) {
