@@ -652,12 +652,10 @@ async function publishProgram(
   }
 
   const isWasm = target === 'wasm'
-  const command = `export VIPFS_ADDRESS= && ./build/lasr_cli publish --author ${author} --name ${name} --package-path ./build/${
+  const command = `./build/lasr_cli publish --author ${author} --name ${name} --package-path ./build/${
     isWasm ? 'build.wasm' : 'lib/node-wrapper.js'
-  } --remote 137.66.44.217:5001 --content-type program --from-secret-key --secret-key "${secretKey}"`
+  } --remote 137.66.44.217:5001 --content-type program --from-secret-key --secret-key "${secretKey}" --api-version 2`
   const output = await runCommand(command)
-
-  console.log(output)
 
   const ipfsHashMatch = output.match(/(bafy[a-zA-Z0-9]{44,59})/)
   if (!ipfsHashMatch)
