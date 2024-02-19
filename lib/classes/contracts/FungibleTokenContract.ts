@@ -106,9 +106,10 @@ export class FungibleTokenContract extends Contract {
   createAndDistribute(computeInputs: ComputeInputs) {
     const { transaction } = computeInputs
     const { transactionInputs } = transaction
-    const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? '0'
-    const initializedSupply =
-      JSON.parse(transactionInputs).initializedSupply ?? '0'
+    const parsedInputMetadata = JSON.parse(transactionInputs)
+    const totalSupply = parsedInputMetadata?.totalSupply ?? '0'
+    const initializedSupply = parsedInputMetadata?.initializedSupply ?? '0'
+    const to = parsedInputMetadata?.to ?? transaction.from
 
     const tokenUpdateField = buildTokenUpdateField({
       field: 'metadata',
@@ -123,7 +124,7 @@ export class FungibleTokenContract extends Contract {
     const initDistribution = buildTokenDistributionInstruction({
       programId: THIS,
       initializedSupply: initializedSupply,
-      caller: transaction.from,
+      caller: to,
       tokenUpdates: tokenUpdates,
     })
 
