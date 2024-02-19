@@ -1,12 +1,12 @@
 import { Contract } from './Contract.js';
-import { TokenUpdateBuilder, } from '../builders.js';
+import { TokenUpdateBuilder } from '../builders.js';
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
 import Address from '../Address.js';
 import { Outputs } from '../Outputs.js';
 import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../Token.js';
 import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, } from '../../helpers.js';
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
-export const THIS = 'this';
+import { THIS } from '../../consts.js';
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
  * It encapsulates the core functionality and properties of the write
@@ -70,7 +70,7 @@ export class FungibleTokenContract extends Contract {
         const { transaction } = computeInputs;
         const { transactionInputs } = transaction;
         const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? '0';
-        const initializedSupply = transaction?.value ?? '0';
+        const initializedSupply = JSON.parse(transactionInputs).initializedSupply ?? '0';
         const tokenUpdateField = buildTokenUpdateField({
             field: 'metadata',
             value: transactionInputs,

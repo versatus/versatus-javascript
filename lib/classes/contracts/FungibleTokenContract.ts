@@ -1,13 +1,6 @@
 import { Contract } from './Contract'
 import { ComputeInputs } from '../../types'
-import {
-  BurnInstructionBuilder,
-  CreateInstructionBuilder,
-  TokenDistributionBuilder,
-  TokenUpdateBuilder,
-  TransferInstructionBuilder,
-  UpdateInstructionBuilder,
-} from '../builders'
+import { TokenUpdateBuilder } from '../builders'
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils'
 import Address from '../Address'
 import { Outputs } from '../Outputs'
@@ -15,22 +8,18 @@ import { Outputs } from '../Outputs'
 import {
   TokenField,
   TokenFieldValue,
-  TokenMetadataExtend,
   TokenUpdate,
   TokenUpdateField,
 } from '../Token'
 import {
-  bigIntToHexString,
   buildBurnInstruction,
   buildCreateInstruction,
   buildMintInstructions,
   buildTokenUpdateField,
-  buildTransferInstruction,
   buildTokenDistributionInstruction,
 } from '../../helpers'
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals'
-
-export const THIS = 'this'
+import { THIS } from '../../consts'
 
 /**
  * Class representing a fungible token contract, extending the base `Contract` class.
@@ -118,7 +107,8 @@ export class FungibleTokenContract extends Contract {
     const { transaction } = computeInputs
     const { transactionInputs } = transaction
     const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? '0'
-    const initializedSupply = transaction?.value ?? '0'
+    const initializedSupply =
+      JSON.parse(transactionInputs).initializedSupply ?? '0'
 
     const tokenUpdateField = buildTokenUpdateField({
       field: 'metadata',

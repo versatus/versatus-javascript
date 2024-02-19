@@ -6,7 +6,6 @@ import {
 } from './classes/builders'
 import { AddressOrNamespace, StatusValue } from './classes/utils'
 import Address from './classes/Address'
-import { ApprovalsExtend, ApprovalsValue } from './classes/Approvals'
 import {
   TokenDataValue,
   TokenDistribution,
