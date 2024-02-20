@@ -74,7 +74,7 @@ export async function publishProgram(author, name, target = 'node', secretKey) {
         command = `export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/versatus-wasm publish -a ${author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`;
     }
     else {
-        command = `export LASR_RPC_URL=${LASR_RPC_URL} && export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/lasr_cli publish --author ${author} --name ${name} --package-path build/${isWasm ? '' : 'lib'} --entrypoint build/${isWasm ? 'build.wasm' : 'lib/node-wrapper.js'}  --remote ${VIPFS_ADDRESS} --runtime ${target} --content-type program --from-secret-key --secret-key "${secretKey}" --api-version 1`;
+        command = `export LASR_RPC_URL=${LASR_RPC_URL} && export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/lasr_cli publish --author ${author} --name ${name} --package-path build/${isWasm ? '' : 'lib'} --entrypoint build/lib/node-wrapper.js --remote ${VIPFS_ADDRESS} --runtime ${target} --content-type program --from-secret-key --secret-key "${secretKey}" --api-version 1`;
     }
     const output = await runCommand(command);
     const ipfsHashMatch = output.match(/(bafy[a-zA-Z0-9]{44,59})/);
