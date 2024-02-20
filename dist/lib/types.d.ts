@@ -1,6 +1,7 @@
 import { AddressOrNamespace, StatusValue } from './classes/utils';
 import { ApprovalsExtend, ApprovalsInsert, ApprovalsRemove, ApprovalsRevoke, ApprovalsValue } from './classes/Approvals';
 import { TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenDataValue, TokenIdExtend, TokenIdInsert, TokenIdPop, TokenIdPush, TokenIdValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenMetadataValue } from './classes/Token';
+import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramDataValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramMetadataValue } from './classes';
 export type AccountType = 'user' | {
     Program: Address;
 };
@@ -59,6 +60,8 @@ export interface ArbitraryData {
 export interface Metadata {
     [k: string]: string;
 }
+export type ProgramFieldValues = 'balance' | 'data' | 'metadata' | 'ownerId' | 'status';
+export type ProgramUpdateValueTypes = ProgramDataValue | ProgramDataInsert | ProgramDataExtend | ProgramDataRemove | ProgramMetadataValue | ProgramMetadataInsert | ProgramMetadataExtend | ProgramMetadataRemove | StatusValue;
 export type TokenFieldValues = 'approvals' | 'balance' | 'data' | 'metadata' | 'ownerId' | 'programId' | 'status' | 'tokenIds';
 export type TokenUpdateValueTypes = TokenDataValue | TokenDataInsert | TokenDataExtend | TokenDataRemove | TokenMetadataValue | TokenMetadataInsert | TokenMetadataExtend | TokenMetadataRemove | TokenIdValue | TokenIdPush | TokenIdExtend | TokenIdInsert | TokenIdPop | StatusValue | ApprovalsValue | ApprovalsInsert | ApprovalsExtend | ApprovalsRemove | ApprovalsRevoke;
 export interface Token {

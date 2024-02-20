@@ -6,7 +6,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { runSpawn } from './lib/utils.js';
-import { checkWallet, copyDirectory, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, publishProgram, registerProgram, runBuildProcess, runTestProcess, } from './lib/cli-helpers.js';
+import { buildNode, checkWallet, copyDirectory, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, publishProgram, registerProgram, runTestProcess, } from './lib/cli-helpers.js';
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const initCommand = (yargs) => {
     return yargs.positional('example', {
@@ -283,6 +283,27 @@ yargs(process.argv.slice(2))
     }
 })
     .help().argv;
+export async function runBuildProcess(target = 'node') {
+    const projectRoot = process.cwd();
+    const distPath = path.join(projectRoot, 'dist');
+    const buildPath = path.join(projectRoot, 'build');
+    if (!fs.existsSync(distPath) && !isInstalledPackage) {
+        console.log("\x1b[0;37mCreating the 'dist' directory...\x1b[0m");
+        fs.mkdirSync(distPath, { recursive: true });
+    }
+    if (!fs.existsSync(buildPath)) {
+        console.log("\x1b[0;37mCreating the 'build' directory...\x1b[0m");
+        fs.mkdirSync(buildPath, { recursive: true });
+    }
+    if (target === 'node') {
+        console.log('BUILDING NODE!');
+        await buildNode(buildPath);
+    }
+    else if (target === 'wasm') {
+        console.log('BUILDING WASM!');
+        await buildWasm(buildPath);
+    }
+}
 export async function injectFileInWrapper(filePath, target = 'node') {
     const projectRoot = process.cwd();
     const buildPath = path.join(projectRoot, 'build');
@@ -362,4 +383,49 @@ export async function injectFileInWrapper(filePath, target = 'node') {
             throw error;
         }
     }
+}
+export async function buildWasm(buildPath) {
+    let webpackConfigPath;
+    if (isInstalledPackage) {
+        // In an installed package environment
+        webpackConfigPath = path.resolve(installedPackagePath, 'lib', 'webpack.config.cjs');
+    }
+    else {
+        // In the development environment
+        webpackConfigPath = path.resolve(__dirname, '../', 'lib', 'webpack.config.dev.cjs');
+    }
+    const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
+    exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
+        if (webpackError) {
+            console.error(`Webpack exec error: ${webpackError}`);
+            return;
+        }
+        console.log(`\x1b[0;37mWebpack stdout: ${webpackStdout}\x1b[0m`);
+        if (webpackStderr) {
+            console.error(`Webpack stderr: ${webpackStderr}`);
+        }
+        const bundleBuildPath = path.join(buildPath, 'bundle.js');
+        console.log(`\x1b[0;37mBuilding wasm...\x1b[0m`);
+        const javyCommand = `javy compile ${bundleBuildPath} -o ${path.join(buildPath, 'build.wasm')}`;
+        exec(javyCommand, (javyError, javyStdout, javyStderr) => {
+            if (javyStdout) {
+                console.log(`\x1b[0;37m${javyStdout}\x1b[0m`);
+                return;
+            }
+            if (javyError) {
+                console.error(`Javy exec error: ${javyError}`);
+                return;
+            }
+            if (javyStderr) {
+                console.error(`Javy stderr: ${javyStderr}`);
+                return;
+            }
+            console.log(`\x1b[0;37mWasm built...\x1b[0m`);
+            console.log();
+            console.log(`\x1b[0;35mReady to run:\x1b[0m`);
+            console.log(`\x1b[0;33mvsjs test inputs\x1b[0m`);
+            console.log();
+            console.log();
+        });
+    });
 }

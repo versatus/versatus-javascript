@@ -1,4 +1,4 @@
-import { Contract } from './Contract'
+import { Program } from './Program'
 import { FungibleTokenContract } from './FungibleTokenContract'
 
-export { Contract, FungibleTokenContract }
+export { Program, FungibleTokenContract }

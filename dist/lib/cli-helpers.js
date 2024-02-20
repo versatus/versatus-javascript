@@ -20,51 +20,6 @@ export function copyDirectory(src, dest) {
             : fs.copyFileSync(srcPath, destPath);
     }
 }
-export async function buildWasm(buildPath) {
-    let webpackConfigPath;
-    if (isInstalledPackage) {
-        // In an installed package environment
-        webpackConfigPath = path.resolve(installedPackagePath, 'lib', 'webpack.config.cjs');
-    }
-    else {
-        // In the development environment
-        webpackConfigPath = path.resolve(__dirname, '../', 'lib', 'webpack.config.dev.cjs');
-    }
-    const webpackCommand = `npx webpack --config ${webpackConfigPath}`;
-    exec(webpackCommand, (webpackError, webpackStdout, webpackStderr) => {
-        if (webpackError) {
-            console.error(`Webpack exec error: ${webpackError}`);
-            return;
-        }
-        console.log(`\x1b[0;37mWebpack stdout: ${webpackStdout}\x1b[0m`);
-        if (webpackStderr) {
-            console.error(`Webpack stderr: ${webpackStderr}`);
-        }
-        const bundleBuildPath = path.join(buildPath, 'bundle.js');
-        console.log(`\x1b[0;37mBuilding wasm...\x1b[0m`);
-        const javyCommand = `javy compile ${bundleBuildPath} -o ${path.join(buildPath, 'build.wasm')}`;
-        exec(javyCommand, (javyError, javyStdout, javyStderr) => {
-            if (javyStdout) {
-                console.log(`\x1b[0;37m${javyStdout}\x1b[0m`);
-                return;
-            }
-            if (javyError) {
-                console.error(`Javy exec error: ${javyError}`);
-                return;
-            }
-            if (javyStderr) {
-                console.error(`Javy stderr: ${javyStderr}`);
-                return;
-            }
-            console.log(`\x1b[0;37mWasm built...\x1b[0m`);
-            console.log();
-            console.log(`\x1b[0;35mReady to run:\x1b[0m`);
-            console.log(`\x1b[0;33mvsjs test inputs\x1b[0m`);
-            console.log();
-            console.log();
-        });
-    });
-}
 export async function buildNode(buildPath) {
     console.log('BUILDING NODE!');
     const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js');
@@ -114,7 +69,13 @@ export async function publishProgram(author, name, target = 'node', secretKey) {
         throw new Error('Author and name are required to publish a contract.');
     }
     const isWasm = target === 'wasm';
-    const command = `export LASR_RPC_URL=${LASR_RPC_URL} && export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/lasr_cli publish --author ${author} --name ${name} --package-path build/${isWasm ? 'build.wasm' : 'lib'} --entrypoint build/${isWasm ? 'build.wasm' : 'lib/node-wrapper.js'}  --remote ${VIPFS_ADDRESS} --runtime ${target} --content-type program --from-secret-key --secret-key "${secretKey}" --api-version 1`;
+    let command;
+    if (isWasm) {
+        command = `export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/versatus-wasm publish -a ${author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`;
+    }
+    else {
+        command = `export LASR_RPC_URL=${LASR_RPC_URL} && export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/lasr_cli publish --author ${author} --name ${name} --package-path build/${isWasm ? '' : 'lib'} --entrypoint build/${isWasm ? 'build.wasm' : 'lib/node-wrapper.js'}  --remote ${VIPFS_ADDRESS} --runtime ${target} --content-type program --from-secret-key --secret-key "${secretKey}" --api-version 1`;
+    }
     const output = await runCommand(command);
     const ipfsHashMatch = output.match(/(bafy[a-zA-Z0-9]{44,59})/);
     if (!ipfsHashMatch)
@@ -200,27 +161,6 @@ export async function injectFileInWrapper(filePath, target = 'node') {
             console.error('Error updating wrapper.js in dist:', error);
             throw error;
         }
-    }
-}
-export async function runBuildProcess(target = 'node') {
-    const projectRoot = process.cwd();
-    const distPath = path.join(projectRoot, 'dist');
-    const buildPath = path.join(projectRoot, 'build');
-    if (!fs.existsSync(distPath) && !isInstalledPackage) {
-        console.log("\x1b[0;37mCreating the 'dist' directory...\x1b[0m");
-        fs.mkdirSync(distPath, { recursive: true });
-    }
-    if (!fs.existsSync(buildPath)) {
-        console.log("\x1b[0;37mCreating the 'build' directory...\x1b[0m");
-        fs.mkdirSync(buildPath, { recursive: true });
-    }
-    if (target === 'node') {
-        console.log('BUILDING NODE!');
-        await buildNode(buildPath);
-    }
-    else if (target === 'wasm') {
-        console.log('BUILDING WASM!');
-        await buildWasm(buildPath);
     }
 }
 export async function runTestProcess(inputJsonPath, target = 'node') {

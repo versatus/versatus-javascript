@@ -3,8 +3,13 @@ import {
   CreateInstructionBuilder,
   TokenDistributionBuilder,
   TransferInstructionBuilder,
+  UpdateInstructionBuilder,
 } from './classes/builders'
-import { AddressOrNamespace, StatusValue } from './classes/utils'
+import {
+  AddressOrNamespace,
+  StatusValue,
+  TokenOrProgramUpdate,
+} from './classes/utils'
 import Address from './classes/Address'
 import {
   TokenDataValue,
@@ -17,7 +22,21 @@ import {
   TokenUpdateField,
 } from './classes/Token'
 
-import { TokenFieldValues, TokenUpdateValueTypes } from './types'
+import {
+  ProgramFieldValues,
+  ProgramUpdateValueTypes,
+  TokenFieldValues,
+  TokenUpdateValueTypes,
+} from './types'
+import {
+  ProgramField,
+  ProgramFieldValue,
+  ProgramMetadataExtend,
+  ProgramMetadataInsert,
+  ProgramMetadataRemove,
+  ProgramUpdate,
+  ProgramUpdateField,
+} from './classes/Program'
 
 export function bigIntToHexString(bigintValue: BigInt): string {
   let hexString = bigintValue.toString(16)
@@ -84,21 +103,29 @@ export function buildCreateInstruction({
     .build()
 }
 
+export function buildUpdateInstruction({
+  update,
+}: {
+  update: TokenOrProgramUpdate
+}) {
+  return new UpdateInstructionBuilder().addUpdate(update).build()
+}
+
 export function buildTokenDistributionInstruction({
   programId,
   initializedSupply,
-  caller,
+  to,
   tokenUpdates,
 }: {
   programId: string
   initializedSupply: string
-  caller: string
+  to: string
   tokenUpdates: TokenUpdateField[]
 }) {
   return new TokenDistributionBuilder()
     .setProgramId(new AddressOrNamespace(new Address(programId)))
     .setAmount(bigIntToHexString(BigInt(initializedSupply)))
-    .setReceiver(new AddressOrNamespace(new Address(caller)))
+    .setReceiver(new AddressOrNamespace(new Address(to)))
     .extendUpdateFields(tokenUpdates)
     .build()
 }
@@ -195,5 +222,38 @@ export function buildTokenUpdateField({
   return new TokenUpdateField(
     new TokenField(field),
     new TokenFieldValue(field, tokenFieldAction)
+  )
+}
+
+export function buildProgramUpdateField({
+  field,
+  value,
+  action,
+}: {
+  field: ProgramFieldValues
+  value: string
+  action: 'insert' | 'extend' | 'remove'
+}): ProgramUpdateField | Error {
+  let programFieldAction: ProgramUpdateValueTypes
+  if (field === 'metadata') {
+    if (action === 'extend') {
+      programFieldAction = new ProgramMetadataExtend(JSON.parse(value))
+    } else if (action === 'insert') {
+      const [key, insertValue] = JSON.parse(value).split(':')
+      programFieldAction = new ProgramMetadataInsert(key, insertValue)
+    } else if (action === 'remove') {
+      programFieldAction = new ProgramMetadataRemove(value)
+    } else {
+      return new Error('Invalid action')
+    }
+  } else if (field === 'status') {
+    programFieldAction = new StatusValue(value)
+  } else {
+    return new Error('Invalid field')
+  }
+
+  return new ProgramUpdateField(
+    new ProgramField(field),
+    new ProgramFieldValue(field, programFieldAction)
   )
 }

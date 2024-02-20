@@ -85,7 +85,7 @@ export class UpdateInstruction {
 
   toJson(): object {
     return {
-      updates: this.updates.map((update) => update),
+      updates: this.updates.map((update) => update.toJson()),
     }
   }
 }

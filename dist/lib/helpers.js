@@ -1,7 +1,8 @@
-import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, } from './classes/builders.js';
-import { AddressOrNamespace, StatusValue } from './classes/utils.js';
+import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, UpdateInstructionBuilder, } from './classes/builders.js';
+import { AddressOrNamespace, StatusValue, } from './classes/utils.js';
 import Address from './classes/Address.js';
 import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenUpdateField, } from './classes/Token.js';
+import { ProgramField, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramUpdateField, } from './classes/Program.js';
 export function bigIntToHexString(bigintValue) {
     let hexString = bigintValue.toString(16);
     hexString = hexString.padStart(64, '0');
@@ -35,11 +36,14 @@ export function buildCreateInstruction({ programId, initializedSupply, totalSupp
         .setProgramNamespace(new AddressOrNamespace(new Address(programNamespace)))
         .build();
 }
-export function buildTokenDistributionInstruction({ programId, initializedSupply, caller, tokenUpdates, }) {
+export function buildUpdateInstruction({ update, }) {
+    return new UpdateInstructionBuilder().addUpdate(update).build();
+}
+export function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, }) {
     return new TokenDistributionBuilder()
         .setProgramId(new AddressOrNamespace(new Address(programId)))
         .setAmount(bigIntToHexString(BigInt(initializedSupply)))
-        .setReceiver(new AddressOrNamespace(new Address(caller)))
+        .setReceiver(new AddressOrNamespace(new Address(to)))
         .extendUpdateFields(tokenUpdates)
         .build();
 }
@@ -101,4 +105,29 @@ export function buildTokenUpdateField({ field, value, action, }) {
         return new Error('Invalid field');
     }
     return new TokenUpdateField(new TokenField(field), new TokenFieldValue(field, tokenFieldAction));
+}
+export function buildProgramUpdateField({ field, value, action, }) {
+    let programFieldAction;
+    if (field === 'metadata') {
+        if (action === 'extend') {
+            programFieldAction = new ProgramMetadataExtend(JSON.parse(value));
+        }
+        else if (action === 'insert') {
+            const [key, insertValue] = JSON.parse(value).split(':');
+            programFieldAction = new ProgramMetadataInsert(key, insertValue);
+        }
+        else if (action === 'remove') {
+            programFieldAction = new ProgramMetadataRemove(value);
+        }
+        else {
+            return new Error('Invalid action');
+        }
+    }
+    else if (field === 'status') {
+        programFieldAction = new StatusValue(value);
+    }
+    else {
+        return new Error('Invalid field');
+    }
+    return new ProgramUpdateField(new ProgramField(field), new ProgramFieldValue(field, programFieldAction));
 }

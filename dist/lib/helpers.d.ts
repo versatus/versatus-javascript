@@ -1,5 +1,7 @@
+import { TokenOrProgramUpdate } from './classes/utils';
 import { TokenDistribution, TokenUpdateField } from './classes/Token';
-import { TokenFieldValues } from './types';
+import { ProgramFieldValues, TokenFieldValues } from './types';
+import { ProgramUpdateField } from './classes/Program';
 export declare function bigIntToHexString(bigintValue: BigInt): string;
 export declare function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }: {
     from: string;
@@ -17,10 +19,13 @@ export declare function buildCreateInstruction({ programId, initializedSupply, t
     programNamespace: string;
     distributionInstruction?: TokenDistribution;
 }): import("./classes").Instruction;
-export declare function buildTokenDistributionInstruction({ programId, initializedSupply, caller, tokenUpdates, }: {
+export declare function buildUpdateInstruction({ update, }: {
+    update: TokenOrProgramUpdate;
+}): import("./classes").Instruction;
+export declare function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, }: {
     programId: string;
     initializedSupply: string;
-    caller: string;
+    to: string;
     tokenUpdates: TokenUpdateField[];
 }): TokenDistribution;
 export declare function buildMintInstructions({ from, programId, paymentTokenAddress, paymentValue, returnedValue, }: {
@@ -42,3 +47,8 @@ export declare function buildTokenUpdateField({ field, value, action, }: {
     value: string;
     action: 'insert' | 'extend' | 'remove';
 }): TokenUpdateField | Error;
+export declare function buildProgramUpdateField({ field, value, action, }: {
+    field: ProgramFieldValues;
+    value: string;
+    action: 'insert' | 'extend' | 'remove';
+}): ProgramUpdateField | Error;

@@ -17,12 +17,18 @@ clean:
 help:
 	$(Q)echo "make clean             - Deletes build artifacts."
 
+lasr-test:
+	$(Q)echo "--- lasr-test"
+	$(Q)yarn run test
+
 publish:
 	$(Q)echo "--- publish"
 	$(Q)npm publish --access public
 	$(Q)echo "--- publish done"
 
-reset:
-	$(Q)rm -rf dist build example-contract* inputs
+reset: clean
+	$(Q)yarn install
 	$(Q)yarn build
+	$(Q)npx vsjs init
+	$(Q)npx vsjs build example-contract.ts
 	$(Q)echo "--- reset"

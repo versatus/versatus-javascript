@@ -79,7 +79,7 @@ export class StatusValue {
 
 export class TokenOrProgramUpdate {
   private kind: string
-  private value: TokenUpdate | ProgramUpdate // Assuming these are the possible types
+  private value: TokenUpdate | ProgramUpdate
 
   constructor(kind: string, value: TokenUpdate | ProgramUpdate) {
     this.kind = kind

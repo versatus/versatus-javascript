@@ -1,5 +1,6 @@
 import Address from './Address'
-import { AddressOrNamespace } from './utils'
+import { AddressOrNamespace, StatusValue } from './utils'
+import { ProgramUpdateValueTypes } from '../types'
 
 export class LinkedProgramsInsert {
   private key: Address
@@ -163,9 +164,18 @@ export class ProgramDataValue {
 
 export class ProgramFieldValue {
   private kind: string
-  private value: ProgramDataValue | ProgramMetadataValue // Assuming these are the possible types
+  private value: ProgramUpdateValueTypes
 
-  constructor(kind: string, value: ProgramDataValue | ProgramMetadataValue) {
+  constructor(
+    kind: string,
+    value:
+      | ProgramDataValue
+      | ProgramMetadataValue
+      | ProgramMetadataInsert
+      | ProgramMetadataExtend
+      | ProgramMetadataRemove
+      | StatusValue
+  ) {
     this.kind = kind
     this.value = value
   }

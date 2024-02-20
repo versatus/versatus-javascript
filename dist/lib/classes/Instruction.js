@@ -40,7 +40,7 @@ export class UpdateInstruction {
     }
     toJson() {
         return {
-            updates: this.updates.map((update) => update),
+            updates: this.updates.map((update) => update.toJson()),
         };
     }
 }

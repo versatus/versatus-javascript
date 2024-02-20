@@ -1,5 +1,5 @@
 import Address from './Address';
-import { AddressOrNamespace } from './utils';
+import { AddressOrNamespace, StatusValue } from './utils';
 export declare class LinkedProgramsInsert {
     private key;
     constructor(key: Address);
@@ -65,7 +65,7 @@ export declare class ProgramDataValue {
 export declare class ProgramFieldValue {
     private kind;
     private value;
-    constructor(kind: string, value: ProgramDataValue | ProgramMetadataValue);
+    constructor(kind: string, value: ProgramDataValue | ProgramMetadataValue | ProgramMetadataInsert | ProgramMetadataExtend | ProgramMetadataRemove | StatusValue);
     toJson(): object;
 }
 export declare class ProgramField {

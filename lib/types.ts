@@ -23,6 +23,16 @@ import {
   TokenMetadataRemove,
   TokenMetadataValue,
 } from './classes/Token'
+import {
+  ProgramDataExtend,
+  ProgramDataInsert,
+  ProgramDataRemove,
+  ProgramDataValue,
+  ProgramMetadataExtend,
+  ProgramMetadataInsert,
+  ProgramMetadataRemove,
+  ProgramMetadataValue,
+} from './classes'
 
 export type AccountType =
   | 'user'
@@ -87,6 +97,24 @@ export interface ArbitraryData {
 export interface Metadata {
   [k: string]: string
 }
+
+export type ProgramFieldValues =
+  | 'balance'
+  | 'data'
+  | 'metadata'
+  | 'ownerId'
+  | 'status'
+
+export type ProgramUpdateValueTypes =
+  | ProgramDataValue
+  | ProgramDataInsert
+  | ProgramDataExtend
+  | ProgramDataRemove
+  | ProgramMetadataValue
+  | ProgramMetadataInsert
+  | ProgramMetadataExtend
+  | ProgramMetadataRemove
+  | StatusValue
 
 export type TokenFieldValues =
   | 'approvals'

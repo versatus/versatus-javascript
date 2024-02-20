@@ -1,11 +1,11 @@
-import { Contract } from './Contract.js';
+import { Program } from './Program.js';
 import { Outputs } from '../Outputs.js';
 import { buildCreateInstruction, buildMintInstructions } from '../../helpers.js';
 /**
  * Class representing a non-fungible token contract, extending the base `Contract` class.
  * It encapsulates the core functionality and properties of a non-fungible token (ERC721-like).
  */
-export class NonFungibleTokenContract extends Contract {
+export class NonFungibleTokenContract extends Program {
     constructor() {
         super();
         this.methodStrategies = {
