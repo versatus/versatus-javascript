@@ -75,7 +75,6 @@ export class FungibleTokenContract extends Program {
 
   burn(computeInputs: ComputeInputs) {
     const { transaction } = computeInputs
-
     const burnInstruction = buildBurnInstruction({
       from: transaction.from,
       caller: transaction.from,

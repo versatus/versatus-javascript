@@ -97,7 +97,6 @@ export async function getSecretKeyFromKeyPairFile(
     const fileContent = await fsp.readFile(absolutePath, 'utf8')
     const keyPairs: KeyPairArray = JSON.parse(fileContent)
 
-    // Assuming you want the first keypair's secret key
     if (keyPairs.length > 0) {
       return keyPairs[0].secret_key
     } else {
@@ -136,6 +135,9 @@ export async function publishProgram(
       isWasm ? '' : 'lib'
     } --entrypoint build/lib/node-wrapper.js --remote ${VIPFS_ADDRESS} --runtime ${target} --content-type program --from-secret-key --secret-key "${secretKey}" --api-version 1`
   }
+
+  console.log(command)
+
   const output = await runCommand(command)
 
   const ipfsHashMatch = output.match(/(bafy[a-zA-Z0-9]{44,59})/)
