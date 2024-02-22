@@ -25,13 +25,13 @@ import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts'
 import { ProgramUpdate } from '../Program'
 
 /**
- * Class representing a fungible token contract, extending the base `Contract` class.
+ * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
  * functionality of a fungible token.
  */
-export class FungibleTokenContract extends Program {
+export class FungibleTokenProgram extends Program {
   /**
-   * Constructs a new instance of the FungibleTokenContract class.
+   * Constructs a new instance of the FungibleTokenProgram class.
    */
   constructor() {
     super()
@@ -56,6 +56,7 @@ export class FungibleTokenContract extends Program {
         new ApprovalsValue(new ApprovalsExtend([JSON.parse(transactionInputs)]))
       )
     )
+
     const tokenUpdate = new TokenUpdate(
       new AddressOrNamespace(caller),
       tokenId,

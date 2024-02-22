@@ -1,4 +1,4 @@
-import { FungibleTokenContract } from '../lib/classes/contracts/FungibleTokenContract.js';
+import { FungibleTokenProgram } from '../lib/classes/programs/FungibleTokenProgram.js';
 process.stdin.setEncoding('utf8');
 let data = '';
 process.stdin.on('readable', () => {
@@ -10,7 +10,7 @@ process.stdin.on('readable', () => {
 process.stdin.on('end', () => {
     try {
         const parsedData = JSON.parse(data);
-        const fungibleTokenTest = new FungibleTokenContract();
+        const fungibleTokenTest = new FungibleTokenProgram();
         const output = fungibleTokenTest.createAndDistribute(parsedData);
         console.log(JSON.stringify(output));
     }

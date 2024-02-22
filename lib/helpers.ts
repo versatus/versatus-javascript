@@ -29,6 +29,9 @@ import {
   TokenUpdateValueTypes,
 } from './types'
 import {
+  ProgramDataExtend,
+  ProgramDataInsert,
+  ProgramDataRemove,
   ProgramField,
   ProgramFieldValue,
   ProgramMetadataExtend,
@@ -244,7 +247,18 @@ export function buildProgramUpdateField({
     } else if (action === 'remove') {
       programFieldAction = new ProgramMetadataRemove(value)
     } else {
-      return new Error('Invalid action')
+      return new Error('Invalid metadata action')
+    }
+  } else if (field === 'data') {
+    if (action === 'extend') {
+      programFieldAction = new ProgramDataExtend(JSON.parse(value))
+    } else if (action === 'insert') {
+      const [key, insertValue] = JSON.parse(value).split(':')
+      programFieldAction = new ProgramDataInsert(key, insertValue)
+    } else if (action === 'remove') {
+      programFieldAction = new ProgramDataRemove(value)
+    } else {
+      return new Error('Invalid data action')
     }
   } else if (field === 'status') {
     programFieldAction = new StatusValue(value)

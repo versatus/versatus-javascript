@@ -1,5 +1,5 @@
 export * from './classes/index';
-export * from './classes/contracts/index';
+export * from './classes/programs/index';
 export * from './versatus';
 export * from './wasm-wrapper';
 export * from './node-wrapper';

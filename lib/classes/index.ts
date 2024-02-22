@@ -1,4 +1,4 @@
-export * from './contracts/index'
+export * from './programs/index'
 export * from './Address'
 export * from './Allowance'
 export * from './Approvals'

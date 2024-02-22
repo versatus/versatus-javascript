@@ -65,7 +65,7 @@ export declare class ProgramDataValue {
 export declare class ProgramFieldValue {
     private kind;
     private value;
-    constructor(kind: string, value: ProgramDataValue | ProgramMetadataValue | ProgramMetadataInsert | ProgramMetadataExtend | ProgramMetadataRemove | StatusValue);
+    constructor(kind: string, value: ProgramDataValue | ProgramDataInsert | ProgramDataExtend | ProgramDataRemove | ProgramMetadataValue | ProgramMetadataInsert | ProgramMetadataExtend | ProgramMetadataRemove | StatusValue);
     toJson(): object;
 }
 export declare class ProgramField {

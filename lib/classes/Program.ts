@@ -170,6 +170,9 @@ export class ProgramFieldValue {
     kind: string,
     value:
       | ProgramDataValue
+      | ProgramDataInsert
+      | ProgramDataExtend
+      | ProgramDataRemove
       | ProgramMetadataValue
       | ProgramMetadataInsert
       | ProgramMetadataExtend

@@ -64,17 +64,38 @@ export class Program {
   update(computeInputs: ComputeInputs) {
     const { transaction } = computeInputs
     const { transactionInputs } = transaction
+    const parsedTransactionInputs = JSON.parse(transactionInputs)
 
-    const programUpdateField = buildProgramUpdateField({
-      field: 'metadata',
-      value: transactionInputs,
-      action: 'extend',
-    })
-    if (programUpdateField instanceof Error) {
-      throw programUpdateField
+    const data = parsedTransactionInputs?.data ?? undefined
+    const metadata = parsedTransactionInputs?.metadata ?? undefined
+    // const status = parsedTransactionInputs?.status ?? ''
+
+    const programUpdates = []
+
+    if (metadata) {
+      const fieldUpdate = buildProgramUpdateField({
+        field: 'metadata',
+        value: JSON.stringify(metadata),
+        action: 'extend',
+      })
+      if (fieldUpdate instanceof Error) {
+        throw fieldUpdate
+      }
+      programUpdates.push(fieldUpdate)
     }
 
-    const programUpdates = [programUpdateField]
+    if (data) {
+      const fieldUpdate = buildProgramUpdateField({
+        field: 'data',
+        value: JSON.stringify(data),
+        action: 'extend',
+      })
+      if (fieldUpdate instanceof Error) {
+        throw fieldUpdate
+      }
+      programUpdates.push(fieldUpdate)
+    }
+
     const programMetadataUpdateInstruction = buildUpdateInstruction({
       update: new TokenOrProgramUpdate(
         'programUpdate',
