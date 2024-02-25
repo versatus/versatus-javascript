@@ -39,6 +39,7 @@ export async function broadcast(callTx, privateKey) {
         callTx.nonce = newNonce;
         callTx.transactionType[broadcastType] = newNonce;
         const orderedTx = reorderTransactionKeys(callTx);
+        console.log({ orderedTx });
         const orderedTxString = JSON.stringify(orderedTx);
         const bytes = toUtf8Bytes(orderedTxString);
         const keccak256Hash = keccak256(bytes);
@@ -46,6 +47,7 @@ export async function broadcast(callTx, privateKey) {
         const r = formatVerse(signature.r.toString());
         const s = formatVerse(signature.s.toString());
         const recover = signature.recovery;
+        console.log({ r, s, recover });
         if (!recover) {
             throw new Error('Invalid signature');
         }
