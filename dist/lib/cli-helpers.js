@@ -24,6 +24,11 @@ export async function buildNode(buildPath) {
     console.log('BUILDING NODE!');
     const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js');
     const nodeMapWrapperPath = path.join('./build/lib', 'node-wrapper.js.map');
+    const parcelCache = './parcel-cache';
+    if (fs.existsSync(parcelCache)) {
+        fs.unlinkSync(parcelCache);
+        console.log('Existing .parcel-cache deleted.');
+    }
     if (fs.existsSync(nodeWrapperPath)) {
         fs.unlinkSync(nodeWrapperPath);
         console.log('Existing node-wrapper.js deleted.');
@@ -32,7 +37,7 @@ export async function buildNode(buildPath) {
         fs.unlinkSync(nodeMapWrapperPath);
         console.log('Existing node-wrapper.js.map deleted.');
     }
-    const parcelCommand = `npx parcel build  --target node ./lib/node-wrapper.ts`;
+    const parcelCommand = `npx parcel build  --target node ./lib/node-wrapper.ts --no-cache`;
     exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
         if (tscError) {
             console.error(`Error during TypeScript transpilation: ${tscError}`);
@@ -61,19 +66,26 @@ export async function getSecretKeyFromKeyPairFile(keypairFilePath) {
     }
 }
 export async function registerProgram(cid, secretKey) {
-    return await runCommand(`export LASR_RPC_URL=${LASR_RPC_URL} && export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/lasr_cli wallet register-program  --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`);
+    const command = `export LASR_RPC_URL=${LASR_RPC_URL} && export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/lasr_cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`;
+    console.log(command);
+    return await runCommand(command);
 }
 export async function publishProgram(author, name, target = 'node', secretKey) {
     if (!author || !name) {
         throw new Error('Author and name are required to publish a contract.');
     }
+    console.log('NAME NAME NAME NAME NAME');
+    console.log(`NAME NAME ${name} NAME NAME`);
+    console.log('NAME NAME NAME NAME NAME');
     const isWasm = target === 'wasm';
+    process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292';
+    process.env.VIPFS_ADDRESS = '167.99.20.121:5001';
     let command;
     if (isWasm) {
         command = `export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/versatus-wasm publish -a ${author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`;
     }
     else {
-        command = `export LASR_RPC_URL=${LASR_RPC_URL} && export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/lasr_cli publish --author ${author} --name ${name} --package-path build/${isWasm ? '' : 'lib'} --entrypoint build/lib/node-wrapper.js --remote ${VIPFS_ADDRESS} --runtime ${target} --content-type program --from-secret-key --secret-key "${secretKey}" --api-version 1`;
+        command = `build/lasr_cli publish --author ${author} --name ${name} --verbose --package-path build/${isWasm ? '' : 'lib'} --entrypoint build/lib/node-wrapper.js -r --remote ${VIPFS_ADDRESS} --runtime ${target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
     }
     console.log(command);
     const output = await runCommand(command);

@@ -23,6 +23,8 @@ fi
 
 print_light_gray "Running the test with NODE..."
 
+cat "$INPUT_JSON_PATH" | jq
+
 EXECUTE_RESPONSE=$(JSON_PAYLOAD=$(cat "$INPUT_JSON_PATH") && echo "$JSON_PAYLOAD" | node "$BUILD_NODE_PATH")
 EXECUTE_STATUS=$?
 

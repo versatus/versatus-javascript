@@ -1,8 +1,9 @@
 import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, UpdateInstructionBuilder, } from './classes/builders.js';
-import { AddressOrNamespace, StatusValue, } from './classes/utils.js';
+import { AddressOrNamespace, StatusValue, TokenOrProgramUpdate, } from './classes/utils.js';
 import Address from './classes/Address.js';
 import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenUpdateField, } from './classes/Token.js';
-import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramField, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramUpdateField, } from './classes/Program.js';
+import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramField, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramUpdate, ProgramUpdateField, } from './classes/Program.js';
+import { THIS } from './consts.js';
 export function bigIntToHexString(bigintValue) {
     let hexString = bigintValue.toString(16);
     hexString = hexString.padStart(64, '0');
@@ -145,4 +146,29 @@ export function buildProgramUpdateField({ field, value, action, }) {
         return new Error('Invalid field');
     }
     return new ProgramUpdateField(new ProgramField(field), new ProgramFieldValue(field, programFieldAction));
+}
+export function buildTokenMetadataUpdateInstruction({ transactionInputs, }) {
+    const tokenUpdateField = buildTokenUpdateField({
+        field: 'metadata',
+        value: transactionInputs,
+        action: 'extend',
+    });
+    if (tokenUpdateField instanceof Error) {
+        throw tokenUpdateField;
+    }
+    return [tokenUpdateField];
+}
+export function buildProgramMetadataUpdateInstruction({ transactionInputs, }) {
+    const programUpdateField = buildProgramUpdateField({
+        field: 'metadata',
+        value: transactionInputs,
+        action: 'extend',
+    });
+    if (programUpdateField instanceof Error) {
+        throw programUpdateField;
+    }
+    const programUpdates = [programUpdateField];
+    return buildUpdateInstruction({
+        update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
+    });
 }

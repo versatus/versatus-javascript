@@ -1,4 +1,4 @@
-import start from '../examples/fungible-token/example-contract.js';
+import start from '../examples/faucet/example-contract.js';
 process.stdin.setEncoding('utf8');
 let data = '';
 process.stdin.on('readable', () => {
@@ -11,7 +11,7 @@ process.stdin.on('end', () => {
     try {
         const parsedData = JSON.parse(data);
         const result = start(parsedData);
-        console.log(JSON.stringify(result));
+        process.stdout.write(JSON.stringify(result));
     }
     catch (err) {
         console.error('Failed to parse JSON input:', err);

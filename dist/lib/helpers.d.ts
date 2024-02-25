@@ -52,3 +52,9 @@ export declare function buildProgramUpdateField({ field, value, action, }: {
     value: string;
     action: 'insert' | 'extend' | 'remove';
 }): ProgramUpdateField | Error;
+export declare function buildTokenMetadataUpdateInstruction({ transactionInputs, }: {
+    transactionInputs: string;
+}): TokenUpdateField[];
+export declare function buildProgramMetadataUpdateInstruction({ transactionInputs, }: {
+    transactionInputs: string;
+}): import("./classes").Instruction;

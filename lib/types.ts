@@ -37,7 +37,7 @@ import {
 export type AccountType =
   | 'user'
   | {
-      Program: Address
+      Program: string
     }
 /**
  * Represents a 20-byte Ethereum Compatible address.
@@ -56,7 +56,7 @@ export type TransactionType = {
  * This file contains types the protocol uses to prepare data, structure it and call out to a particular compute payload. The inputs type for a contract call
  */
 export interface ComputeInputs {
-  accountInfo?: Account | null
+  accountInfo?: Account
   contractInputs: string
   op: string
   transaction: Transaction

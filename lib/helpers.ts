@@ -40,6 +40,7 @@ import {
   ProgramUpdate,
   ProgramUpdateField,
 } from './classes/Program'
+import { THIS } from './consts'
 
 export function bigIntToHexString(bigintValue: BigInt): string {
   let hexString = bigintValue.toString(16)
@@ -270,4 +271,46 @@ export function buildProgramUpdateField({
     new ProgramField(field),
     new ProgramFieldValue(field, programFieldAction)
   )
+}
+
+export function buildTokenMetadataUpdateInstruction({
+  transactionInputs,
+}: {
+  transactionInputs: string
+}) {
+  const tokenUpdateField = buildTokenUpdateField({
+    field: 'metadata',
+    value: transactionInputs,
+    action: 'extend',
+  })
+  if (tokenUpdateField instanceof Error) {
+    throw tokenUpdateField
+  }
+
+  return [tokenUpdateField]
+}
+
+export function buildProgramMetadataUpdateInstruction({
+  transactionInputs,
+}: {
+  transactionInputs: string
+}) {
+  const programUpdateField = buildProgramUpdateField({
+    field: 'metadata',
+    value: transactionInputs,
+    action: 'extend',
+  })
+
+  if (programUpdateField instanceof Error) {
+    throw programUpdateField
+  }
+
+  const programUpdates = [programUpdateField]
+
+  return buildUpdateInstruction({
+    update: new TokenOrProgramUpdate(
+      'programUpdate',
+      new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
+    ),
+  })
 }

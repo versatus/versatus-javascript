@@ -6,8 +6,9 @@ ifdef VERBOSE
 else
   Q := @
 endif
-.PHONY: \
-		clean
+
+.PHONY: clean help lasr-test publish reset build reset-faucet reset-snake reset-fungible-token
+
 all: $(DEFAULT)
 
 clean:
@@ -15,7 +16,13 @@ clean:
 	$(Q)echo "--- clean"
 
 help:
-	$(Q)echo "make clean             - Deletes build artifacts."
+	$(Q)echo "make clean                 - Deletes build artifacts."
+	$(Q)echo "make lasr-test             - Runs the LASR tests."
+	$(Q)echo "make publish               - Publishes the package."
+	$(Q)echo "make reset                 - Resets the environment."
+	$(Q)echo "make reset-faucet          - Resets the environment with faucet."
+	$(Q)echo "make reset-snake           - Resets the environment with snake."
+	$(Q)echo "make reset-fungible-token  - Resets the environment with fungible-token."
 
 lasr-test:
 	$(Q)echo "--- lasr-test"
@@ -26,9 +33,26 @@ publish:
 	$(Q)npm publish --access public
 	$(Q)echo "--- publish done"
 
-reset: clean
+build:
 	$(Q)yarn install
 	$(Q)yarn build
+
+reset: clean build
 	$(Q)npx vsjs init
 	$(Q)npx vsjs build example-contract.ts
 	$(Q)echo "--- reset"
+
+reset-faucet: clean build
+	$(Q)npx vsjs init faucet
+	$(Q)npx vsjs build example-contract.ts
+	$(Q)echo "--- reset with faucet"
+
+reset-snake: clean build
+	$(Q)npx vsjs init snake
+	$(Q)npx vsjs build example-contract.ts
+	$(Q)echo "--- reset with snake"
+
+reset-fungible-token: clean build
+	$(Q)npx vsjs init fungible-token
+	$(Q)npx vsjs build example-contract.ts
+	$(Q)echo "--- reset with fungible-token"

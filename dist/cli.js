@@ -5,14 +5,15 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
-import { runSpawn } from './lib/utils.js';
-import { buildNode, checkWallet, copyDirectory, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, publishProgram, registerProgram, runTestProcess, } from './lib/cli-helpers.js';
+import { runCommand, runSpawn } from './lib/utils.js';
+import { buildNode, checkWallet, copyDirectory, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, registerProgram, runTestProcess, } from './lib/cli-helpers.js';
+import { VIPFS_ADDRESS } from './lib/consts.js';
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const initCommand = (yargs) => {
     return yargs.positional('example', {
         describe: 'The example contract to initialize',
         type: 'string',
-        choices: ['fungible-token'],
+        choices: ['fungible-token', 'snake', 'faucet'],
         demandOption: true,
     });
 };
@@ -65,7 +66,7 @@ const deployCommand = (yargs) => {
 };
 yargs(process.argv.slice(2))
     .command('init [example]', 'Initialize a project with an example contract', initCommand, (argv) => {
-    console.log('\x1b[0;33mInitializing example contract...\x1b[0m');
+    console.log(`\x1b[0;33mInitializing example contract: ${argv.example || 'fungible-token' || 'faucet'}...\x1b[0m`);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
         ? path.resolve(installedPackagePath, isTsProject ? '' : 'dist', 'examples', argv.example || 'fungible-token')
@@ -254,9 +255,13 @@ yargs(process.argv.slice(2))
     try {
         if (!argv.secretKey) {
             console.log('NO SECRET KEY!');
-            if (!argv.keypairPath) {
+            if (!argv.keypairPath &&
+                fs.existsSync('./lasr/wallet/keypair.json')) {
                 console.log('\x1b[0;33mInitializing wallet...\x1b[0m');
                 await initializeWallet();
+            }
+            else {
+                console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
             }
         }
         else if (argv.keypairPath) {
@@ -272,8 +277,28 @@ yargs(process.argv.slice(2))
             secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath));
         }
         console.log('\x1b[0;33mPublishing program...\x1b[0m');
-        // @ts-ignore
-        const cid = await publishProgram(String(argv.author), String(argv.name), String(argv.target), secretKey);
+        console.log('NAME NAME NAME NAME NAME');
+        console.log(`NAME NAME ${argv.name} NAME NAME`);
+        console.log('NAME NAME NAME NAME NAME');
+        const isWasm = argv.target === 'wasm';
+        process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292';
+        process.env.VIPFS_ADDRESS = '167.99.20.121:5001';
+        let command;
+        if (isWasm) {
+            command = `build/versatus-wasm publish -a ${argv.author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`;
+        }
+        else {
+            command = `build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/${isWasm ? '' : 'lib'} --entrypoint build/lib/node-wrapper.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
+        }
+        console.log(command);
+        const output = await runCommand(command);
+        const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g;
+        const ipfsHashMatch = output.match(cidPattern);
+        if (!ipfsHashMatch)
+            throw new Error('Failed to extract CID from publish output.');
+        console.log(`MATCHES: ${ipfsHashMatch.map((m) => m)}`);
+        console.log(`Contract published with CID: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
+        const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         const response = await registerProgram(cid, secretKey);
         console.log(response);

@@ -1,44 +1,26 @@
 import { Program } from './Program.js';
-import { TokenUpdateBuilder } from '../builders.js';
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
-import Address from '../Address.js';
 import { Outputs } from '../Outputs.js';
-import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../Token.js';
-import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramMetadataUpdateInstruction, } from '../../helpers.js';
-import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
+import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../helpers.js';
 import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts.js';
+import { ProgramUpdate } from '../Program.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
  * functionality of a fungible token.
  */
-export class FungibleTokenProgram extends Program {
+export class SnakeProgram extends Program {
     /**
      * Constructs a new instance of the FungibleTokenProgram class.
      */
     constructor() {
         super();
         Object.assign(this.methodStrategies, {
-            approve: this.approve.bind(this),
             burn: this.burn.bind(this),
             create: this.create.bind(this),
             createAndDistribute: this.createAndDistribute.bind(this),
             mint: this.mint.bind(this),
         });
-    }
-    approve(computeInputs) {
-        const { transaction } = computeInputs;
-        const { transactionInputs, programId } = transaction;
-        const tokenId = new AddressOrNamespace(new Address(programId));
-        const caller = new Address(transaction.from);
-        const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('insert', new ApprovalsValue(new ApprovalsExtend([JSON.parse(transactionInputs)]))));
-        const tokenUpdate = new TokenUpdate(new AddressOrNamespace(caller), tokenId, [update]);
-        const tokenOrProgramUpdate = new TokenOrProgramUpdate('tokenUpdate', tokenUpdate);
-        const updateInstruction = new TokenUpdateBuilder()
-            .addTokenAddress(tokenId)
-            .addUpdateField(tokenOrProgramUpdate)
-            .build();
-        return new Outputs(computeInputs, [updateInstruction]).toJson();
     }
     burn(computeInputs) {
         const { transaction } = computeInputs;
@@ -55,7 +37,7 @@ export class FungibleTokenProgram extends Program {
         const { transaction } = computeInputs;
         const { transactionInputs } = transaction;
         const initializedSupply = JSON.parse(transactionInputs)?.initializedSupply ?? '0';
-        const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? '0';
+        const totalSupply = JSON.parse(transactionInputs)?.totalSupply;
         const createInstruction = buildCreateInstruction({
             from: transaction.from,
             initializedSupply: initializedSupply,
@@ -82,7 +64,24 @@ export class FungibleTokenProgram extends Program {
             throw tokenUpdateField;
         }
         const tokenUpdates = [tokenUpdateField];
-        const programMetadataUpdateInstruction = buildProgramMetadataUpdateInstruction({ transactionInputs });
+        const updateProgramMetadata = buildProgramUpdateField({
+            field: 'metadata',
+            value: transactionInputs,
+            action: 'extend',
+        });
+        if (updateProgramMetadata instanceof Error) {
+            throw updateProgramMetadata;
+        }
+        const programSnakeHexUpdate = buildProgramUpdateField({
+            field: 'data',
+            value: JSON.stringify({
+                snek: 'PGh0bWw+CjxzdHlsZT4jc25ha2UgewogICAgZm9udC1mYW1pbHk6ICJDb3VyaWVyIE5ldyIsIG1vbm9zcGFjZTsKICAgIGNvbG9yOiAjRjBEQjRGOwogICAgYmFja2dyb3VuZDogIzMyMzMzMDsKICAgIGRpc3BsYXk6IGlubGluZS1ibG9jazsKICAgIHdoaXRlLXNwYWNlOiBwcmU7CiAgICBsaW5lLWhlaWdodDogOXB4OwogICAgZm9udC1zaXplOiAxNXB4Owp9PC9zdHlsZT4KPGRpdiBpZD0ic25ha2UiPjwvZGl2Pgo8c2NyaXB0PgogICAgY29uc29sZS5sb2coIk1PVU5URUQgU05BS0UgR0FNRSIpCiAgICBsZXQgc25ha2UgPQogICAgICAgIGZ1bmN0aW9uKGEsYixjLGQsZSl7YS51bnNoaWZ0KGIpO2NeYVswXSYmYS5wb3AoKTtmb3IoYj1kKmQ7Yi0tOyllPVtlXSsi4pagICJbIX5hLmluZGV4T2YoYikmYiE9Y10rWyJcbiJbYiVkXV07cmV0dXJufmEuaW5kZXhPZihhWzBdLDEpfHxlfTsKICAgIChmdW5jdGlvbigpewogICAgICAgIGxldCBzaXplID0gNDA7CiAgICAgICAgbGV0IG9sZHN0ZXAsIHN0ZXAgPSAtMTsKICAgICAgICBkb2N1bWVudC5vbmtleWRvd24gPSBmdW5jdGlvbihlKSB7CiAgICAgICAgICAgIGxldCBrZXlDb2RlID0gKGUgfHwgd2luZG93LmV2ZW50KS5rZXlDb2RlLAogICAgICAgICAgICAgICAgbmV4dHN0ZXAgPSBbMSxzaXplLC0xLC1zaXplXVtrZXlDb2RlLTM3XTsKICAgICAgICAgICAgc3RlcCA9IChuZXh0c3RlcCA9PSAtb2xkc3RlcCkgPyBvbGRzdGVwIDogbmV4dHN0ZXA7CiAgICAgICAgfQogICAgICAgIGxldCBjZW50ZXIsIGFwcGxlID0gY2VudGVyID0gc2l6ZSooc2l6ZSouNSsuNSk7CiAgICAgICAgbGV0IGYsc25ha2llID0gKGY9ZnVuY3Rpb24oYyxpKXtyZXR1cm4gaT9mKGMsLS1pKS5jb25jYXQoYyk6W119KShjZW50ZXIsNSk7CiAgICAgICAgKGZ1bmN0aW9uKCkgewogICAgICAgICAgICBsZXQgb2xkbGVuZ3RoID0gc25ha2llLmxlbmd0aCwgbmV4dCA9IChzbmFraWVbMF0rKG9sZHN0ZXA9c3RlcCkrc2l6ZSpzaXplKSUoc2l6ZSpzaXplKSwKICAgICAgICAgICAgICAgIGdhbWUgPSBzbmFrZShzbmFraWUsIG5leHQsIGFwcGxlLCBzaXplKTsKICAgICAgICAgICAgaWYgKHR5cGVvZiBnYW1lID09PSAibnVtYmVyIikgewogICAgICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoICJzbmFrZSIgKS5pbm5lckhUTUwgKz0gKGY9ZnVuY3Rpb24oaSl7cmV0dXJuIGk/ZigtLWkpKyIgIjoiIn0pKHNpemUqLjUtNSkgKyAiR2FtZSBPdmVyIjsKICAgICAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCAic25ha2UiICkuaW5uZXJIVE1MID0gZ2FtZTsKICAgICAgICAgICAgICAgIHNldFRpbWVvdXQoYXJndW1lbnRzLmNhbGxlZSwgMTAwKTsKICAgICAgICAgICAgfQogICAgICAgICAgICBpZiAoc25ha2llLmxlbmd0aCAhPT0gb2xkbGVuZ3RoKSB7CiAgICAgICAgICAgICAgICB3aGlsZSAofnNuYWtpZS5pbmRleE9mKGFwcGxlKSkgewogICAgICAgICAgICAgICAgICAgIGFwcGxlID0gTWF0aC5mbG9vcihNYXRoLnJhbmRvbSgpKnNpemUqc2l6ZSk7CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICB9KSgpOwogICAgfSkoKTsKPC9zY3JpcHQ+CjwvaHRtbD4=',
+            }),
+            action: 'extend',
+        });
+        if (programSnakeHexUpdate instanceof Error) {
+            throw programSnakeHexUpdate;
+        }
         const distributionInstruction = buildTokenDistributionInstruction({
             programId: THIS,
             initializedSupply,
@@ -97,6 +96,10 @@ export class FungibleTokenProgram extends Program {
             programOwner: from,
             programNamespace: THIS,
             distributionInstruction,
+        });
+        const programUpdates = [updateProgramMetadata, programSnakeHexUpdate];
+        const programMetadataUpdateInstruction = buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
         });
         return new Outputs(computeInputs, [
             createAndDistributeInstruction,

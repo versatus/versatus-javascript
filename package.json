@@ -36,6 +36,7 @@
     "@bytecodealliance/jco": "^1.0.0",
     "@types/yargs": "^17.0.32",
     "babel-loader": "^9.1.3",
+    "commander": "^12.0.0",
     "core-js": "^3.35.1",
     "fs": "^0.0.1-security",
     "webpack": "^5.90.0",

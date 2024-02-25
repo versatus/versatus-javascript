@@ -1,55 +1,23 @@
 import { Program } from './Program.js';
-import { TokenUpdateBuilder } from '../builders.js';
-import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
-import Address from '../Address.js';
 import { Outputs } from '../Outputs.js';
-import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../Token.js';
-import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramMetadataUpdateInstruction, } from '../../helpers.js';
-import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
-import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts.js';
+import { buildCreateInstruction, buildTokenUpdateField, buildTokenDistributionInstruction, buildTransferInstruction, buildProgramMetadataUpdateInstruction, } from '../../helpers.js';
+import { THIS } from '../../consts.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
  * functionality of a fungible token.
  */
-export class FungibleTokenProgram extends Program {
+export class FaucetProgram extends Program {
     /**
      * Constructs a new instance of the FungibleTokenProgram class.
      */
     constructor() {
         super();
         Object.assign(this.methodStrategies, {
-            approve: this.approve.bind(this),
-            burn: this.burn.bind(this),
             create: this.create.bind(this),
             createAndDistribute: this.createAndDistribute.bind(this),
-            mint: this.mint.bind(this),
+            faucet: this.faucet.bind(this),
         });
-    }
-    approve(computeInputs) {
-        const { transaction } = computeInputs;
-        const { transactionInputs, programId } = transaction;
-        const tokenId = new AddressOrNamespace(new Address(programId));
-        const caller = new Address(transaction.from);
-        const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('insert', new ApprovalsValue(new ApprovalsExtend([JSON.parse(transactionInputs)]))));
-        const tokenUpdate = new TokenUpdate(new AddressOrNamespace(caller), tokenId, [update]);
-        const tokenOrProgramUpdate = new TokenOrProgramUpdate('tokenUpdate', tokenUpdate);
-        const updateInstruction = new TokenUpdateBuilder()
-            .addTokenAddress(tokenId)
-            .addUpdateField(tokenOrProgramUpdate)
-            .build();
-        return new Outputs(computeInputs, [updateInstruction]).toJson();
-    }
-    burn(computeInputs) {
-        const { transaction } = computeInputs;
-        const burnInstruction = buildBurnInstruction({
-            from: transaction.from,
-            caller: transaction.from,
-            programId: THIS,
-            tokenAddress: transaction.programId,
-            amount: transaction.value,
-        });
-        return new Outputs(computeInputs, [burnInstruction]).toJson();
     }
     create(computeInputs) {
         const { transaction } = computeInputs;
@@ -103,19 +71,15 @@ export class FungibleTokenProgram extends Program {
             programMetadataUpdateInstruction,
         ]).toJson();
     }
-    mint(computeInputs) {
+    faucet(computeInputs) {
         const { transaction } = computeInputs;
-        const inputTokenAddress = ETH_PROGRAM_ADDRESS;
-        const paymentValue = BigInt(transaction?.value);
-        const conversionRate = BigInt(2);
-        const returnedValue = paymentValue / conversionRate;
-        const mintInstructions = buildMintInstructions({
-            from: transaction.from,
-            programId: transaction.programId,
-            paymentTokenAddress: inputTokenAddress,
-            paymentValue: paymentValue,
-            returnedValue: returnedValue,
+        const amountToFaucet = BigInt('100');
+        const transferToCaller = buildTransferInstruction({
+            from: 'this',
+            to: transaction.from,
+            tokenAddress: transaction.programId,
+            amount: amountToFaucet,
         });
-        return new Outputs(computeInputs, mintInstructions).toJson();
+        return new Outputs(computeInputs, [transferToCaller]).toJson();
     }
 }
