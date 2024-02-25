@@ -1,5 +1,5 @@
 import { Account, InitTransaction, Transaction, TransactionType } from './types'
-import { ethers, keccak256, toUtf8Bytes } from 'ethers'
+import { Wallet, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
 import { RPC_URL } from './consts'
 
@@ -16,7 +16,7 @@ import { RPC_URL } from './consts'
  */
 export async function broadcast(callTx: InitTransaction, privateKey: string) {
   try {
-    const wallet = new ethers.Wallet(privateKey)
+    const wallet = new Wallet(privateKey)
     let account: Account | null = null
     const broadcastType = callTx.op === 'send' ? 'send' : 'call'
 

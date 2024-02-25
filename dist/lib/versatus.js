@@ -1,4 +1,4 @@
-import { ethers, keccak256, toUtf8Bytes } from 'ethers';
+import { Wallet, keccak256, toUtf8Bytes } from 'ethers';
 import * as secp256k1 from '@noble/secp256k1';
 import { RPC_URL } from './consts.js';
 /**
@@ -14,7 +14,7 @@ import { RPC_URL } from './consts.js';
  */
 export async function broadcast(callTx, privateKey) {
     try {
-        const wallet = new ethers.Wallet(privateKey);
+        const wallet = new Wallet(privateKey);
         let account = null;
         const broadcastType = callTx.op === 'send' ? 'send' : 'call';
         try {
