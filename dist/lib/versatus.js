@@ -35,11 +35,10 @@ export async function broadcast(callTx, privateKey) {
             }
             throw error;
         }
-        const newNonce = account.nonce;
+        const newNonce = getNewNonce(account.nonce);
         callTx.nonce = newNonce;
         callTx.transactionType[broadcastType] = newNonce;
         const orderedTx = reorderTransactionKeys(callTx);
-        console.log({ orderedTx });
         const orderedTxString = JSON.stringify(orderedTx);
         const bytes = toUtf8Bytes(orderedTxString);
         const keccak256Hash = keccak256(bytes);
@@ -233,21 +232,9 @@ export function reorderTransactionKeys(initTransaction) {
  * @throws {Error} Throws an error if nonce calculation or formatting fails.
  */
 export function getNewNonce(nonce) {
-    try {
-        if (!nonce) {
-            return formatVerse('0').toString();
-        }
-        const parsedNonce = BigInt(nonce);
-        return formatVerse((parsedNonce + BigInt(1)).toString());
+    if (!nonce) {
+        return formatVerse('0').toString();
     }
-    catch (error) {
-        if (error instanceof Error) {
-            console.error(error.message);
-            throw error;
-        }
-        else {
-            console.error('An unexpected error occurred:', error);
-            throw new Error('An unexpected error occurred');
-        }
-    }
+    const parsedNonce = BigInt(nonce);
+    return formatVerse((parsedNonce + BigInt(1)).toString());
 }

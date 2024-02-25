@@ -56,4 +56,4 @@ export declare function reorderTransactionKeys(initTransaction: InitTransaction)
  * @returns {string | Error} The new nonce, incremented and formatted as a hexadecimal string, or an error if the operation fails.
  * @throws {Error} Throws an error if nonce calculation or formatting fails.
  */
-export declare function getNewNonce(nonce: string | undefined): string | Error;
+export declare function getNewNonce(nonce: string | undefined): string;

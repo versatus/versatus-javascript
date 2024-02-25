@@ -36,12 +36,10 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
       throw error
     }
 
-    const newNonce = account.nonce
+    const newNonce = getNewNonce(account.nonce)
     callTx.nonce = newNonce
     callTx.transactionType[broadcastType] = newNonce
     const orderedTx = reorderTransactionKeys(callTx)
-
-    console.log({ orderedTx })
     const orderedTxString = JSON.stringify(orderedTx)
     const bytes = toUtf8Bytes(orderedTxString)
     const keccak256Hash = keccak256(bytes)
@@ -49,7 +47,6 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
       keccak256Hash.replace('0x', ''),
       privateKey
     )
-
     const r = formatVerse(signature.r.toString())
     const s = formatVerse(signature.s.toString())
     const recover = signature.recovery
@@ -259,21 +256,11 @@ export function reorderTransactionKeys(
  * @returns {string | Error} The new nonce, incremented and formatted as a hexadecimal string, or an error if the operation fails.
  * @throws {Error} Throws an error if nonce calculation or formatting fails.
  */
-export function getNewNonce(nonce: string | undefined): string | Error {
-  try {
-    if (!nonce) {
-      return formatVerse('0').toString()
-    }
-
-    const parsedNonce = BigInt(nonce)
-    return formatVerse((parsedNonce + BigInt(1)).toString())
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error(error.message)
-      throw error
-    } else {
-      console.error('An unexpected error occurred:', error)
-      throw new Error('An unexpected error occurred')
-    }
+export function getNewNonce(nonce: string | undefined): string {
+  if (!nonce) {
+    return formatVerse('0').toString()
   }
+
+  const parsedNonce = BigInt(nonce)
+  return formatVerse((parsedNonce + BigInt(1)).toString())
 }
