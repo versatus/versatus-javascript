@@ -1,6 +1,5 @@
 import { Account, InitTransaction, Transaction, TransactionType } from './types'
-import { keccak256, toUtf8Bytes } from 'ethers/lib.esm'
-import { ethers } from 'ethers'
+import { ethers, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
 import { RPC_URL } from './consts'
 
