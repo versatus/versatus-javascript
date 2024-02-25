@@ -53,10 +53,11 @@ export function sendOutput(output) {
  * @returns {Promise<string | Error>} The result of the blockchain call, which could be a transaction hash or an error.
  * @throws {Error} Throws an error if account retrieval, transaction signing, or the RPC call fails.
  */
-export async function sendCallTransaction(callTx, privateKey) {
+export async function broadcast(callTx, privateKey) {
     try {
         const wallet = new ethers.Wallet(privateKey);
-        let account = null; // Initialize account as null or as an Account type
+        let account = null;
+        const broadcastType = callTx.op === 'send' ? 'send' : 'call';
         try {
             const accountResult = await getAccount(wallet.address);
             if (accountResult && 'nonce' in accountResult) {
@@ -77,7 +78,7 @@ export async function sendCallTransaction(callTx, privateKey) {
         }
         const newNonce = account.nonce;
         callTx.nonce = newNonce;
-        callTx.transactionType.call = newNonce;
+        callTx.transactionType[broadcastType] = newNonce;
         const orderedTx = reorderTransactionKeys(callTx);
         const orderedTxString = JSON.stringify(orderedTx);
         const bytes = toUtf8Bytes(orderedTxString);
@@ -95,7 +96,7 @@ export async function sendCallTransaction(callTx, privateKey) {
             s,
             v: recover,
         };
-        return await callLasrRpc('lasr_call', [transactionWithSignature], RPC_URL);
+        return await callLasrRpc(`lasr_${broadcastType}`, [transactionWithSignature], RPC_URL);
     }
     catch (error) {
         if (error instanceof Error) {

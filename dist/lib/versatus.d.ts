@@ -28,7 +28,7 @@ export declare function sendOutput(output: any): void;
  * @returns {Promise<string | Error>} The result of the blockchain call, which could be a transaction hash or an error.
  * @throws {Error} Throws an error if account retrieval, transaction signing, or the RPC call fails.
  */
-export declare function sendCallTransaction(callTx: InitTransaction, privateKey: string): Promise<string | Error>;
+export declare function broadcast(callTx: InitTransaction, privateKey: string): Promise<string | Error>;
 /**
  * Makes an asynchronous call to a specified RPC method with the given parameters and RPC URL.
  * This generic function is designed to handle various LASR RPC calls by specifying the method name,
