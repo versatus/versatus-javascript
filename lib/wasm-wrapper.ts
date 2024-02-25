@@ -1,5 +1,5 @@
 import start from '../examples/fungible-token/example-contract'
-import { parseContractInput, sendOutput } from './versatus'
+import { parseContractInput, sendOutput } from './wasm-helpers'
 
 function main() {
   const input = parseContractInput()
