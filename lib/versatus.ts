@@ -36,7 +36,9 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
       throw error
     }
 
+    console.log('nonce before', account.nonce)
     const newNonce = getNewNonce(account.nonce)
+    console.log('newNonce', newNonce)
     callTx.nonce = newNonce
     callTx.transactionType[broadcastType] = newNonce
     const orderedTx = reorderTransactionKeys(callTx)
