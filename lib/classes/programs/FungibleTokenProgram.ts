@@ -19,7 +19,6 @@ import {
   buildTokenDistributionInstruction,
   buildProgramUpdateField,
   buildUpdateInstruction,
-  buildProgramMetadataUpdateInstruction,
 } from '../../helpers'
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals'
 import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts'
@@ -124,10 +123,26 @@ export class FungibleTokenProgram extends Program {
       throw tokenUpdateField
     }
 
-    const tokenUpdates = [tokenUpdateField]
+    const programUpdateField = buildProgramUpdateField({
+      field: 'metadata',
+      value: transactionInputs,
+      action: 'extend',
+    })
 
-    const programMetadataUpdateInstruction =
-      buildProgramMetadataUpdateInstruction({ transactionInputs })
+    if (programUpdateField instanceof Error) {
+      throw programUpdateField
+    }
+
+    const programUpdates = [programUpdateField]
+
+    const programMetadataUpdateInstruction = buildUpdateInstruction({
+      update: new TokenOrProgramUpdate(
+        'programUpdate',
+        new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
+      ),
+    })
+
+    const tokenUpdates = [tokenUpdateField]
 
     const distributionInstruction = buildTokenDistributionInstruction({
       programId: THIS,

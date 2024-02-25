@@ -182,6 +182,17 @@ export interface Transaction extends InitTransaction {
   v: number
 }
 
+export type Wallet = {
+  keypair: string
+  secret_key: string
+  public_key: string
+  encryption_public_key: string
+  encryption_secret_key: string
+  address: string
+  type: 'derived' | 'imported'
+  nonce: string
+}
+
 export type InstructionKinds = 'create' | 'update' | 'transfer' | 'burn'
 
 export type KeyPairArray = KeyPair[]

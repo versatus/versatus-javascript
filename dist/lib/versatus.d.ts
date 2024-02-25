@@ -1,3 +1,4 @@
+import { Account, InitTransaction, Transaction } from './types';
 /**
  * Parses the input for a contract from the standard input stream.
  * @returns {any} The parsed input object from the standard input.
@@ -16,3 +17,9 @@ export declare function parseContractInput(): any;
  * Note: This function assumes that Javy.IO is available in the environment for I/O operations.
  */
 export declare function sendOutput(output: any): void;
+export declare function sendCallTransaction(callTx: InitTransaction, privateKey: string): Promise<string | Error>;
+export declare function callLasrRpc(method: string, params: string | string[] | Record<string, unknown> | Transaction[], rpc: string): Promise<string | Error>;
+export declare function getAccount(address: string): Promise<Account | Error>;
+export declare function formatVerse(numberString: string): string;
+export declare function reorderTransactionKeys(initTransaction: InitTransaction): InitTransaction;
+export declare function getNewNonce(nonce: string | undefined): string | Error;

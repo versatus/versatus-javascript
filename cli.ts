@@ -325,7 +325,7 @@ yargs(process.argv.slice(2))
           if (isInstalledPackage) {
             scriptDir = installedPackagePath
           } else {
-            scriptDir = process.cwd() // In the development environment
+            scriptDir = process.cwd()
           }
 
           let target
@@ -417,10 +417,6 @@ yargs(process.argv.slice(2))
         }
 
         console.log('\x1b[0;33mPublishing program...\x1b[0m')
-        console.log('NAME NAME NAME NAME NAME')
-        console.log(`NAME NAME ${argv.name} NAME NAME`)
-        console.log('NAME NAME NAME NAME NAME')
-
         const isWasm = argv.target === 'wasm'
 
         process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292'
@@ -428,7 +424,7 @@ yargs(process.argv.slice(2))
 
         let command
         if (isWasm) {
-          command = `build/versatus-wasm publish -a ${argv.author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`
+          command = `build/versatus-wasm publish -a ${argv.author} -n ${argv.name} -v 0 -w build/build.wasm -r --is-srv true`
         } else {
           command = `build/lasr_cli publish --author ${argv.author} --name ${
             argv.name
@@ -527,7 +523,7 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
     let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8')
     wrapperContent = wrapperContent.replace(
       /^import start from '.*';?$/m,
-      `import start from './dist/example-contract.js.js';`
+      `import start from './dist/example-contract.js';`
     )
     return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8')
   } else if (target === 'wasm') {

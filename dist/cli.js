@@ -202,7 +202,7 @@ yargs(process.argv.slice(2))
                 scriptDir = installedPackagePath;
             }
             else {
-                scriptDir = process.cwd(); // In the development environment
+                scriptDir = process.cwd();
             }
             let target;
             const checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_cli.sh');
@@ -277,15 +277,12 @@ yargs(process.argv.slice(2))
             secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath));
         }
         console.log('\x1b[0;33mPublishing program...\x1b[0m');
-        console.log('NAME NAME NAME NAME NAME');
-        console.log(`NAME NAME ${argv.name} NAME NAME`);
-        console.log('NAME NAME NAME NAME NAME');
         const isWasm = argv.target === 'wasm';
         process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292';
         process.env.VIPFS_ADDRESS = '167.99.20.121:5001';
         let command;
         if (isWasm) {
-            command = `build/versatus-wasm publish -a ${argv.author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`;
+            command = `build/versatus-wasm publish -a ${argv.author} -n ${argv.name} -v 0 -w build/build.wasm -r --is-srv true`;
         }
         else {
             command = `build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/${isWasm ? '' : 'lib'} --entrypoint build/lib/node-wrapper.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
@@ -369,7 +366,7 @@ export async function injectFileInWrapper(filePath, target = 'node') {
         const distWrapperFilePath = path.join(buildPath, 'lib', 'node-wrapper.js');
         fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
         let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
-        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-contract.js.js.js';`);
+        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-contract.js.js';`);
         return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
     }
     else if (target === 'wasm') {

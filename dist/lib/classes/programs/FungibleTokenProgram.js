@@ -4,9 +4,10 @@ import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
 import Address from '../Address.js';
 import { Outputs } from '../Outputs.js';
 import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../Token.js';
-import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramMetadataUpdateInstruction, } from '../../helpers.js';
+import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../helpers.js';
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
 import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts.js';
+import { ProgramUpdate } from '../Program.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
@@ -81,8 +82,19 @@ export class FungibleTokenProgram extends Program {
         if (tokenUpdateField instanceof Error) {
             throw tokenUpdateField;
         }
+        const programUpdateField = buildProgramUpdateField({
+            field: 'metadata',
+            value: transactionInputs,
+            action: 'extend',
+        });
+        if (programUpdateField instanceof Error) {
+            throw programUpdateField;
+        }
+        const programUpdates = [programUpdateField];
+        const programMetadataUpdateInstruction = buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
+        });
         const tokenUpdates = [tokenUpdateField];
-        const programMetadataUpdateInstruction = buildProgramMetadataUpdateInstruction({ transactionInputs });
         const distributionInstruction = buildTokenDistributionInstruction({
             programId: THIS,
             initializedSupply,
