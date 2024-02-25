@@ -96,6 +96,14 @@ export class ProgramDataValue {
         return { data: this.value.toJson() };
     }
 }
+export class ProgramAccountDataExtend {
+    constructor(map) {
+        this.map = map;
+    }
+    toJson() {
+        return { extend: this.map };
+    }
+}
 export class ProgramFieldValue {
     constructor(kind, value) {
         this.kind = kind;

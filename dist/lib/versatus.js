@@ -35,9 +35,7 @@ export async function broadcast(callTx, privateKey) {
             }
             throw error;
         }
-        console.log('nonce before', account.nonce);
         const newNonce = getNewNonce(account.nonce);
-        console.log('newNonce', newNonce);
         callTx.nonce = newNonce;
         callTx.transactionType[broadcastType] = newNonce;
         const orderedTx = reorderTransactionKeys(callTx);
@@ -48,10 +46,9 @@ export async function broadcast(callTx, privateKey) {
         const r = formatVerse(signature.r.toString());
         const s = formatVerse(signature.s.toString());
         const recover = signature.recovery;
-        console.log({ r, s, recover });
-        if (!recover) {
-            throw new Error('Invalid signature');
-        }
+        // if (!recover) {
+        //   throw new Error('Invalid signature')
+        // }
         const transactionWithSignature = {
             ...orderedTx,
             r,

@@ -162,6 +162,18 @@ export class ProgramDataValue {
   }
 }
 
+export class ProgramAccountDataExtend {
+  private map: Record<string, string>
+
+  constructor(map: Record<string, string>) {
+    this.map = map
+  }
+
+  toJson(): object {
+    return { extend: this.map }
+  }
+}
+
 export class ProgramFieldValue {
   private kind: string
   private value: ProgramUpdateValueTypes

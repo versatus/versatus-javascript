@@ -1,7 +1,9 @@
 import { Program } from './Program.js';
 import { Outputs } from '../Outputs.js';
-import { buildCreateInstruction, buildTokenUpdateField, buildTokenDistributionInstruction, buildTransferInstruction, buildProgramMetadataUpdateInstruction, } from '../../helpers.js';
+import { buildCreateInstruction, buildTokenUpdateField, buildTokenDistributionInstruction, buildTransferInstruction, buildProgramMetadataUpdateInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../helpers.js';
 import { THIS } from '../../consts.js';
+import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
+import { ProgramUpdate } from '../Program.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
@@ -72,14 +74,54 @@ export class FaucetProgram extends Program {
         ]).toJson();
     }
     faucet(computeInputs) {
-        const { transaction } = computeInputs;
+        const { transaction, accountInfo } = computeInputs;
+        const { transactionInputs, from } = transaction;
+        const parsedInputMetadata = JSON.parse(transactionInputs);
         const amountToFaucet = BigInt('100');
+        const to = parsedInputMetadata?.to;
         const transferToCaller = buildTransferInstruction({
             from: 'this',
-            to: transaction.from,
+            to: to,
             tokenAddress: transaction.programId,
             amount: amountToFaucet,
         });
-        return new Outputs(computeInputs, [transferToCaller]).toJson();
+        const recipientsStr = accountInfo?.programAccountData.recipients;
+        if (!recipientsStr) {
+            throw new Error('No recipients found');
+        }
+        const recipients = JSON.parse(recipientsStr);
+        const faucetRecipientCanClaim = canClaimTokens(to, recipients);
+        if (!faucetRecipientCanClaim) {
+            throw new Error('Too soon to claim tokens.');
+        }
+        const currentTime = new Date().getTime();
+        const faucetRecipientsUpdate = buildProgramUpdateField({
+            field: 'data',
+            value: JSON.stringify({
+                recipients: JSON.stringify({ [to]: currentTime }),
+            }),
+            action: 'extend',
+        });
+        if (faucetRecipientsUpdate instanceof Error) {
+            throw faucetRecipientsUpdate;
+        }
+        const programUpdates = [faucetRecipientsUpdate];
+        const programMetadataUpdateInstruction = buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
+        });
+        return new Outputs(computeInputs, [
+            transferToCaller,
+            programMetadataUpdateInstruction,
+        ]).toJson();
     }
+}
+function canClaimTokens(recipientAddress, recipients) {
+    const currentTime = new Date().getTime();
+    const lastClaimTime = recipients[recipientAddress];
+    if (lastClaimTime === undefined) {
+        return true;
+    }
+    const oneHour = 60 * 1000;
+    const timeSinceLastClaim = currentTime - lastClaimTime;
+    return timeSinceLastClaim >= oneHour;
 }

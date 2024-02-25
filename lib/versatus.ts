@@ -36,9 +36,7 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
       throw error
     }
 
-    console.log('nonce before', account.nonce)
     const newNonce = getNewNonce(account.nonce)
-    console.log('newNonce', newNonce)
     callTx.nonce = newNonce
     callTx.transactionType[broadcastType] = newNonce
     const orderedTx = reorderTransactionKeys(callTx)
@@ -51,13 +49,10 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
     )
     const r = formatVerse(signature.r.toString())
     const s = formatVerse(signature.s.toString())
-    const recover = signature.recovery
-
-    console.log({ r, s, recover })
-
-    if (!recover) {
-      throw new Error('Invalid signature')
-    }
+    const recover = signature.recovery as number
+    // if (!recover) {
+    //   throw new Error('Invalid signature')
+    // }
 
     const transactionWithSignature: Transaction = {
       ...orderedTx,
@@ -65,7 +60,6 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
       s,
       v: recover,
     }
-
     return await callLasrRpc(
       `lasr_${broadcastType}`,
       [transactionWithSignature],

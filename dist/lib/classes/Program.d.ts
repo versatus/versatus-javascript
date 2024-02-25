@@ -62,6 +62,11 @@ export declare class ProgramDataValue {
     constructor(value: ProgramDataInsert | ProgramDataExtend | ProgramDataRemove);
     toJson(): object;
 }
+export declare class ProgramAccountDataExtend {
+    private map;
+    constructor(map: Record<string, string>);
+    toJson(): object;
+}
 export declare class ProgramFieldValue {
     private kind;
     private value;
