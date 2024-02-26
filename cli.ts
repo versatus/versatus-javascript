@@ -6,7 +6,7 @@ import fs from 'fs'
 import path from 'path'
 import { exec, spawn } from 'child_process'
 import { fileURLToPath } from 'url'
-import { runCommand, runSpawn } from './lib/utils'
+import { runCommand, runSpawn } from './lib/shell'
 import {
   BuildCommandArgs,
   buildNode,

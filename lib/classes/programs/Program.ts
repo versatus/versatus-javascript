@@ -1,11 +1,5 @@
 import { ComputeInputs } from '../../types'
-import {
-  buildCreateInstruction,
-  buildProgramUpdateField,
-  buildTokenDistributionInstruction,
-  buildTokenUpdateField,
-  buildUpdateInstruction,
-} from '../../helpers'
+import { buildProgramUpdateField, buildUpdateInstruction } from '../../builders'
 import { THIS } from '../../consts'
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils'
 import { ProgramUpdate } from '../Program'

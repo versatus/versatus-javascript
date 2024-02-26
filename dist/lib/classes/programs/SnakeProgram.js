@@ -1,7 +1,7 @@
 import { Program } from './Program.js';
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
 import { Outputs } from '../Outputs.js';
-import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../helpers.js';
+import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../builders.js';
 import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts.js';
 import { ProgramUpdate } from '../Program.js';
 /**

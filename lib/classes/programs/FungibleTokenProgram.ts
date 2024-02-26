@@ -19,7 +19,7 @@ import {
   buildTokenDistributionInstruction,
   buildProgramUpdateField,
   buildUpdateInstruction,
-} from '../../helpers'
+} from '../../builders'
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals'
 import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts'
 import { ProgramUpdate } from '../Program'

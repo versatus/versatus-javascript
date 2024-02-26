@@ -4,11 +4,7 @@ import Address from './classes/Address.js';
 import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenUpdateField, } from './classes/Token.js';
 import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramField, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramUpdate, ProgramUpdateField, } from './classes/Program.js';
 import { THIS } from './consts.js';
-export function bigIntToHexString(bigintValue) {
-    let hexString = bigintValue.toString(16);
-    hexString = hexString.padStart(64, '0');
-    return '0x' + hexString;
-}
+import { bigIntToHexString } from './utils.js';
 export function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }) {
     return new BurnInstructionBuilder()
         .setProgramId(new AddressOrNamespace(new Address(programId)))

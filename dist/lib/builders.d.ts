@@ -2,7 +2,6 @@ import { TokenOrProgramUpdate } from './classes/utils';
 import { TokenDistribution, TokenUpdateField } from './classes/Token';
 import { ProgramFieldValues, TokenFieldValues } from './types';
 import { ProgramUpdateField } from './classes/Program';
-export declare function bigIntToHexString(bigintValue: BigInt): string;
 export declare function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }: {
     from: string;
     caller: string;

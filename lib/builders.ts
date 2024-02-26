@@ -41,12 +41,7 @@ import {
   ProgramUpdateField,
 } from './classes/Program'
 import { THIS } from './consts'
-
-export function bigIntToHexString(bigintValue: BigInt): string {
-  let hexString = bigintValue.toString(16)
-  hexString = hexString.padStart(64, '0')
-  return '0x' + hexString
-}
+import { bigIntToHexString } from './utils'
 
 export function buildBurnInstruction({
   from,

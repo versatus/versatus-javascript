@@ -1,7 +1,10 @@
+import * as versatus from './versatus.js';
+import * as builders from './builders.js';
+import * as utils from './utils.js';
 export * from './classes/index.js';
 export * from './classes/programs/index.js';
-export * from './versatus.js';
 export * from './wasm-wrapper.js';
-export * from './node-wrapper.js';
 export * from './types.js';
-export * from './helpers.js';
+export { builders };
+export { versatus };
+export { utils };

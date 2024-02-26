@@ -10,10 +10,11 @@ import {
   buildProgramMetadataUpdateInstruction,
   buildProgramUpdateField,
   buildUpdateInstruction,
-} from '../../helpers'
-import { THIS } from '../../consts'
+} from '../../builders'
+import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts'
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils'
 import { ProgramUpdate } from '../Program'
+import { formatVerse } from '../../utils'
 
 /**
  * Class representing a fungible token program, extending the base `Program` class.
@@ -54,7 +55,7 @@ export class FaucetProgram extends Program {
 
   createAndDistribute(computeInputs: ComputeInputs) {
     const { transaction } = computeInputs
-    const { transactionInputs, from } = transaction
+    const { transactionInputs, from, programId } = transaction
     const parsedInputMetadata = JSON.parse(transactionInputs)
     const totalSupply = parsedInputMetadata?.totalSupply ?? '0'
     const initializedSupply = parsedInputMetadata?.initializedSupply ?? '0'
@@ -91,9 +92,34 @@ export class FaucetProgram extends Program {
       distributionInstruction,
     })
 
+    const faucetRecipientsInit = buildProgramUpdateField({
+      field: 'data',
+      value: JSON.stringify({
+        programs: JSON.stringify({
+          [programId]: JSON.stringify({ recipients: JSON.stringify({}) }),
+        }),
+      }),
+      action: 'extend',
+    })
+
+    if (faucetRecipientsInit instanceof Error) {
+      throw faucetRecipientsInit
+    }
+
+    const createSupportedProgramsAndRecipientsUpdateInstruction =
+      buildUpdateInstruction({
+        update: new TokenOrProgramUpdate(
+          'programUpdate',
+          new ProgramUpdate(new AddressOrNamespace(THIS), [
+            faucetRecipientsInit,
+          ])
+        ),
+      })
+
     return new Outputs(computeInputs, [
       createAndDistributeInstruction,
       programMetadataUpdateInstruction,
+      createSupportedProgramsAndRecipientsUpdateInstruction,
     ]).toJson()
   }
 
@@ -101,22 +127,34 @@ export class FaucetProgram extends Program {
     const { transaction, accountInfo } = computeInputs
     const { transactionInputs, from } = transaction
     const parsedInputMetadata = JSON.parse(transactionInputs)
-    const amountToFaucet = BigInt('100')
+    const amountToFaucet = BigInt(formatVerse('1'))
     const to = parsedInputMetadata?.to
+    const programAddressToFaucet =
+      parsedInputMetadata?.programAddressToFaucet ?? transaction.programId
 
     const transferToCaller = buildTransferInstruction({
       from: 'this',
       to: to,
-      tokenAddress: transaction.programId,
+      tokenAddress: programAddressToFaucet,
       amount: amountToFaucet,
     })
 
-    const recipientsStr = accountInfo?.programAccountData.recipients
-    if (!recipientsStr) {
-      throw new Error('No recipients found')
+    const supportedProgramsStr = accountInfo?.programAccountData.programs
+    if (!supportedProgramsStr) {
+      throw new Error('No programs found')
     }
 
-    const recipients = JSON.parse(recipientsStr)
+    const programsMap = JSON.parse(supportedProgramsStr)
+    if (!programsMap) {
+      throw new Error('Requested program not found')
+    }
+
+    const desiredProgramMap = JSON.parse(programsMap[programAddressToFaucet])
+    if (!desiredProgramMap) {
+      throw new Error('Desired program not found')
+    }
+
+    const recipients = desiredProgramMap.recipients
     const faucetRecipientCanClaim = canClaimTokens(to, recipients)
 
     if (!faucetRecipientCanClaim) {
@@ -139,7 +177,7 @@ export class FaucetProgram extends Program {
 
     const programUpdates = [faucetRecipientsUpdate]
 
-    const programMetadataUpdateInstruction = buildUpdateInstruction({
+    const programDataUpdateInstruction = buildUpdateInstruction({
       update: new TokenOrProgramUpdate(
         'programUpdate',
         new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
@@ -148,7 +186,7 @@ export class FaucetProgram extends Program {
 
     return new Outputs(computeInputs, [
       transferToCaller,
-      programMetadataUpdateInstruction,
+      programDataUpdateInstruction,
     ]).toJson()
   }
 }

@@ -46,7 +46,7 @@ reset: clean build
 reset-faucet: clean build
 	$(Q)npx vsjs init faucet
 	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs/faucet-faucet.json
+	$(Q)npx vsjs test inputs/lasr-faucet.json
 	$(Q)echo "--- reset with faucet"
 
 reset-snake: clean build

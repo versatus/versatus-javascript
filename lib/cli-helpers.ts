@@ -2,7 +2,7 @@ import fs, { promises as fsp } from 'fs'
 import path from 'path'
 import { exec, spawn } from 'child_process'
 import { KeyPairArray } from './types'
-import { runCommand, runSpawn } from './utils'
+import { runCommand } from './shell'
 import { LASR_RPC_URL, VIPFS_ADDRESS } from './consts'
 import { Arguments } from 'yargs'
 

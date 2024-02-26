@@ -1,9 +1,10 @@
 import { Program } from './Program.js';
 import { Outputs } from '../Outputs.js';
-import { buildCreateInstruction, buildTokenUpdateField, buildTokenDistributionInstruction, buildTransferInstruction, buildProgramMetadataUpdateInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../helpers.js';
+import { buildCreateInstruction, buildTokenUpdateField, buildTokenDistributionInstruction, buildTransferInstruction, buildProgramMetadataUpdateInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../builders.js';
 import { THIS } from '../../consts.js';
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
 import { ProgramUpdate } from '../Program.js';
+import { formatVerse } from '../../utils.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
@@ -38,7 +39,7 @@ export class FaucetProgram extends Program {
     }
     createAndDistribute(computeInputs) {
         const { transaction } = computeInputs;
-        const { transactionInputs, from } = transaction;
+        const { transactionInputs, from, programId } = transaction;
         const parsedInputMetadata = JSON.parse(transactionInputs);
         const totalSupply = parsedInputMetadata?.totalSupply ?? '0';
         const initializedSupply = parsedInputMetadata?.initializedSupply ?? '0';
@@ -68,28 +69,55 @@ export class FaucetProgram extends Program {
             programNamespace: THIS,
             distributionInstruction,
         });
+        const faucetRecipientsInit = buildProgramUpdateField({
+            field: 'data',
+            value: JSON.stringify({
+                programs: JSON.stringify({
+                    [programId]: JSON.stringify({ recipients: JSON.stringify({}) }),
+                }),
+            }),
+            action: 'extend',
+        });
+        if (faucetRecipientsInit instanceof Error) {
+            throw faucetRecipientsInit;
+        }
+        const createSupportedProgramsAndRecipientsUpdateInstruction = buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), [
+                faucetRecipientsInit,
+            ])),
+        });
         return new Outputs(computeInputs, [
             createAndDistributeInstruction,
             programMetadataUpdateInstruction,
+            createSupportedProgramsAndRecipientsUpdateInstruction,
         ]).toJson();
     }
     faucet(computeInputs) {
         const { transaction, accountInfo } = computeInputs;
         const { transactionInputs, from } = transaction;
         const parsedInputMetadata = JSON.parse(transactionInputs);
-        const amountToFaucet = BigInt('100');
+        const amountToFaucet = BigInt(formatVerse('1'));
         const to = parsedInputMetadata?.to;
+        const programAddressToFaucet = parsedInputMetadata?.programAddressToFaucet ?? transaction.programId;
         const transferToCaller = buildTransferInstruction({
             from: 'this',
             to: to,
-            tokenAddress: transaction.programId,
+            tokenAddress: programAddressToFaucet,
             amount: amountToFaucet,
         });
-        const recipientsStr = accountInfo?.programAccountData.recipients;
-        if (!recipientsStr) {
-            throw new Error('No recipients found');
+        const supportedProgramsStr = accountInfo?.programAccountData.programs;
+        if (!supportedProgramsStr) {
+            throw new Error('No programs found');
         }
-        const recipients = JSON.parse(recipientsStr);
+        const programsMap = JSON.parse(supportedProgramsStr);
+        if (!programsMap) {
+            throw new Error('Requested program not found');
+        }
+        const desiredProgramMap = JSON.parse(programsMap[programAddressToFaucet]);
+        if (!desiredProgramMap) {
+            throw new Error('Desired program not found');
+        }
+        const recipients = desiredProgramMap.recipients;
         const faucetRecipientCanClaim = canClaimTokens(to, recipients);
         if (!faucetRecipientCanClaim) {
             throw new Error('Too soon to claim tokens.');
@@ -106,12 +134,12 @@ export class FaucetProgram extends Program {
             throw faucetRecipientsUpdate;
         }
         const programUpdates = [faucetRecipientsUpdate];
-        const programMetadataUpdateInstruction = buildUpdateInstruction({
+        const programDataUpdateInstruction = buildUpdateInstruction({
             update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
         });
         return new Outputs(computeInputs, [
             transferToCaller,
-            programMetadataUpdateInstruction,
+            programDataUpdateInstruction,
         ]).toJson();
     }
 }

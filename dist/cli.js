@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
-import { runCommand, runSpawn } from './lib/utils.js';
+import { runCommand, runSpawn } from './lib/shell.js';
 import { buildNode, checkWallet, copyDirectory, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, registerProgram, runTestProcess, } from './lib/cli-helpers.js';
 import { VIPFS_ADDRESS } from './lib/consts.js';
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));

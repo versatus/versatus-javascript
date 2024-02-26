@@ -4,7 +4,7 @@ import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
 import Address from '../Address.js';
 import { Outputs } from '../Outputs.js';
 import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../Token.js';
-import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../helpers.js';
+import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../builders.js';
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
 import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts.js';
 import { ProgramUpdate } from '../Program.js';

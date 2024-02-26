@@ -1,7 +1,7 @@
 import fs, { promises as fsp } from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
-import { runCommand } from './utils.js';
+import { runCommand } from './shell.js';
 import { LASR_RPC_URL, VIPFS_ADDRESS } from './consts.js';
 export const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
 export const isTypeScriptProject = () => {

@@ -168,10 +168,10 @@ export interface InitTransaction {
   to: string
   from: string
   transactionInputs: string
-  nonce: string
+  nonce?: string
   op: string
   programId: string
-  transactionType: TransactionType
+  transactionType?: TransactionType
   value: string
   [k: string]: unknown
 }

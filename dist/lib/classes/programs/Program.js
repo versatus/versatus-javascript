@@ -1,4 +1,4 @@
-import { buildProgramUpdateField, buildUpdateInstruction, } from '../../helpers.js';
+import { buildProgramUpdateField, buildUpdateInstruction } from '../../builders.js';
 import { THIS } from '../../consts.js';
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
 import { ProgramUpdate } from '../Program.js';

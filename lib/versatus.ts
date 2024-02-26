@@ -2,6 +2,7 @@ import { Account, InitTransaction, Transaction, TransactionType } from './types'
 import { Wallet, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
 import { RPC_URL } from './consts'
+import { formatVerse } from './utils'
 
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
@@ -38,7 +39,9 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
 
     const newNonce = getNewNonce(account.nonce)
     callTx.nonce = newNonce
-    callTx.transactionType[broadcastType] = newNonce
+    callTx.transactionType = {
+      [broadcastType]: newNonce,
+    }
     const orderedTx = reorderTransactionKeys(callTx)
     const orderedTxString = JSON.stringify(orderedTx)
     const bytes = toUtf8Bytes(orderedTxString)
@@ -165,28 +168,6 @@ export async function getAccount(address: string): Promise<Account | Error> {
       console.error('An unexpected error occurred:', error)
     }
     throw new Error('An unexpected error occurred')
-  }
-}
-
-/**
- * Formats a given number string into a hexadecimal string representation, ensuring it starts with '0x' and is 64 characters long.
- *
- * @param {string} numberString - The number string to format.
- * @returns {string} The formatted hexadecimal string with '0x' prefix and a total length of 66 characters, or an empty string if formatting fails.
- */
-export function formatVerse(numberString: string): string {
-  try {
-    const numberBigInt = BigInt(numberString)
-    let hexString = numberBigInt.toString(16)
-    hexString = hexString.padStart(64, '0')
-    const hexStringWithPrefix = '0x' + hexString
-    if (hexStringWithPrefix.length !== 66) {
-      return ''
-    }
-
-    return hexStringWithPrefix
-  } catch (error: unknown) {
-    return ''
   }
 }
 
