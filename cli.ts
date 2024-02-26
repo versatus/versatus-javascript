@@ -24,7 +24,8 @@ import {
   runTestProcess,
   TestCommandArgs,
 } from './lib/cli-helpers'
-import { VIPFS_ADDRESS } from './lib/consts'
+import { VIPFS_ADDRESS } from './lib/env'
+import log from './lib/log'
 
 export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -94,7 +95,7 @@ yargs(process.argv.slice(2))
     'Initialize a project with an example contract',
     initCommand,
     (argv: Arguments<InitCommandArgs>) => {
-      console.log(
+      log.info(
         `\x1b[0;33mInitializing example contract: ${
           argv.example || 'fungible-token' || 'faucet'
         }...\x1b[0m`
@@ -196,18 +197,18 @@ yargs(process.argv.slice(2))
         copyDirectory(filesDir, targetFilesDir)
       }
 
-      console.log(
+      log.info(
         '\x1b[0;37mExample contract and inputs initialized successfully.\x1b[0m'
       )
-      console.log()
-      console.log(`\x1b[0;35mReady to run:\x1b[0m`)
-      console.log(
+      log.info()
+      log.info(`\x1b[0;35mReady to run:\x1b[0m`)
+      log.info(
         `\x1b[0;33mvsjs build example-contract${
           isTsProject ? '.ts' : '.js'
         }\x1b[0m`
       )
-      console.log()
-      console.log()
+      log.info()
+      log.info()
     }
   )
   .command(
@@ -236,7 +237,7 @@ yargs(process.argv.slice(2))
         )
       }
 
-      console.log(
+      log.info(
         `\x1b[0;37mRunning system check script: ${sysCheckScriptPath}\x1b[0m`
       )
 
@@ -248,22 +249,22 @@ yargs(process.argv.slice(2))
             return
           }
 
-          console.log(sysCheckStdout) // Output from sys_check.sh
+          log.info(sysCheckStdout) // Output from sys_check.sh
           if (sysCheckError) {
             console.error(`Error during system check: ${sysCheckError}`)
             return
           }
-          console.log(
+          log.info(
             '\x1b[0;37mSystem check passed. Proceeding with build...\x1b[0m'
           )
 
           // Proceed with build process if system check is successful
           if (argv.file) {
-            console.log('\x1b[0;37mStarting build...\x1b[0m')
+            log.info('\x1b[0;37mStarting build...\x1b[0m')
             const filePath = path.resolve(process.cwd(), argv.file)
 
             if (filePath.endsWith('.ts')) {
-              console.log(
+              log.info(
                 '\x1b[0;37mTypeScript file detected. Transpiling...\x1b[0m'
               )
 
@@ -281,7 +282,7 @@ yargs(process.argv.slice(2))
                   return
                 }
 
-                console.log(
+                log.info(
                   '\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m'
                 )
                 injectFileInWrapper(filePath, argv.target)
@@ -357,7 +358,7 @@ yargs(process.argv.slice(2))
             new Error('No build artifacts found.')
           }
 
-          console.log('\x1b[0;37mStarting test...\x1b[0m')
+          log.info('\x1b[0;37mStarting test...\x1b[0m')
 
           if (stats.isDirectory()) {
             const files = await fsp.readdir(inputPath)
@@ -393,18 +394,18 @@ yargs(process.argv.slice(2))
     async (argv: Arguments<DeployCommandArgs>) => {
       try {
         if (!argv.secretKey) {
-          console.log('NO SECRET KEY!')
+          log.info('NO SECRET KEY!')
           if (
             !argv.keypairPath &&
             fs.existsSync('./lasr/wallet/keypair.json')
           ) {
-            console.log('\x1b[0;33mInitializing wallet...\x1b[0m')
+            log.info('\x1b[0;33mInitializing wallet...\x1b[0m')
             await initializeWallet()
           } else {
-            console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
+            log.info('\x1b[0;33mUsing existing keypair...\x1b[0m')
           }
         } else if (argv.keypairPath) {
-          console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
+          log.info('\x1b[0;33mUsing existing keypair...\x1b[0m')
           await checkWallet(String(argv.keypairPath))
         }
 
@@ -416,7 +417,7 @@ yargs(process.argv.slice(2))
           secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath))
         }
 
-        console.log('\x1b[0;33mPublishing program...\x1b[0m')
+        log.info('\x1b[0;33mPublishing program...\x1b[0m')
         const isWasm = argv.target === 'wasm'
 
         process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292'
@@ -435,7 +436,7 @@ yargs(process.argv.slice(2))
           } --content-type program --from-secret-key --secret-key "${secretKey}"`
         }
 
-        console.log(command)
+        log.info(command)
 
         const output = await runCommand(command)
 
@@ -443,17 +444,17 @@ yargs(process.argv.slice(2))
         const ipfsHashMatch = output.match(cidPattern)
         if (!ipfsHashMatch)
           throw new Error('Failed to extract CID from publish output.')
-        console.log(`MATCHES: ${ipfsHashMatch.map((m) => m)}`)
-        console.log(
+        log.info(`MATCHES: ${ipfsHashMatch.map((m) => m)}`)
+        log.info(
           `Contract published with CID: ${
             ipfsHashMatch[ipfsHashMatch.length - 1]
           }`
         )
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
 
-        console.log('\x1b[0;33mRegistering program...\x1b[0m')
+        log.info('\x1b[0;33mRegistering program...\x1b[0m')
         const response = await registerProgram(cid, secretKey)
-        console.log(response)
+        log.info(response)
       } catch (error) {
         console.error(`Deployment error: ${error}`)
       }
@@ -467,20 +468,20 @@ export async function runBuildProcess(target: string = 'node') {
   const buildPath = path.join(projectRoot, 'build')
 
   if (!fs.existsSync(distPath) && !isInstalledPackage) {
-    console.log("\x1b[0;37mCreating the 'dist' directory...\x1b[0m")
+    log.info("\x1b[0;37mCreating the 'dist' directory...\x1b[0m")
     fs.mkdirSync(distPath, { recursive: true })
   }
 
   if (!fs.existsSync(buildPath)) {
-    console.log("\x1b[0;37mCreating the 'build' directory...\x1b[0m")
+    log.info("\x1b[0;37mCreating the 'build' directory...\x1b[0m")
     fs.mkdirSync(buildPath, { recursive: true })
   }
 
   if (target === 'node') {
-    console.log('BUILDING NODE!')
+    log.info('BUILDING NODE!')
     await buildNode(buildPath)
   } else if (target === 'wasm') {
-    console.log('BUILDING WASM!')
+    log.info('BUILDING WASM!')
     await buildWasm(buildPath)
   }
 }
@@ -500,9 +501,9 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
       } else {
         contractFilePath = './dist/example-contract.js'
         if (fs.existsSync(contractFilePath)) {
-          console.log('The contract file exists.')
+          log.info('The contract file exists.')
         } else {
-          console.log('The contract file does not exist. You must build first.')
+          log.info('The contract file does not exist. You must build first.')
         }
       }
     }
@@ -515,7 +516,7 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
         throw error
       }
     } else {
-      console.log('IN DEVELOPMENT ENVIRONMENT')
+      log.info('IN DEVELOPMENT ENVIRONMENT')
       wrapperFilePath = path.resolve(__dirname, './lib/node-wrapper.js')
     }
     const distWrapperFilePath = path.join(buildPath, 'lib', 'node-wrapper.js')
@@ -539,7 +540,7 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
         throw error
       }
     } else {
-      console.log('IN DEVELOPMENT ENVIRONMENT')
+      log.info('IN DEVELOPMENT ENVIRONMENT')
       // In the development environment
       wrapperFilePath = path.resolve(__dirname, './lib/wasm-wrapper.js')
       versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js')
@@ -592,21 +593,21 @@ export async function buildWasm(buildPath: string) {
       console.error(`Webpack exec error: ${webpackError}`)
       return
     }
-    console.log(`\x1b[0;37mWebpack stdout: ${webpackStdout}\x1b[0m`)
+    log.info(`\x1b[0;37mWebpack stdout: ${webpackStdout}\x1b[0m`)
     if (webpackStderr) {
       console.error(`Webpack stderr: ${webpackStderr}`)
     }
 
     const bundleBuildPath = path.join(buildPath, 'bundle.js')
 
-    console.log(`\x1b[0;37mBuilding wasm...\x1b[0m`)
+    log.info(`\x1b[0;37mBuilding wasm...\x1b[0m`)
     const javyCommand = `javy compile ${bundleBuildPath} -o ${path.join(
       buildPath,
       'build.wasm'
     )}`
     exec(javyCommand, (javyError, javyStdout, javyStderr) => {
       if (javyStdout) {
-        console.log(`\x1b[0;37m${javyStdout}\x1b[0m`)
+        log.info(`\x1b[0;37m${javyStdout}\x1b[0m`)
         return
       }
       if (javyError) {
@@ -617,12 +618,12 @@ export async function buildWasm(buildPath: string) {
         console.error(`Javy stderr: ${javyStderr}`)
         return
       }
-      console.log(`\x1b[0;37mWasm built...\x1b[0m`)
-      console.log()
-      console.log(`\x1b[0;35mReady to run:\x1b[0m`)
-      console.log(`\x1b[0;33mvsjs test inputs\x1b[0m`)
-      console.log()
-      console.log()
+      log.info(`\x1b[0;37mWasm built...\x1b[0m`)
+      log.info()
+      log.info(`\x1b[0;35mReady to run:\x1b[0m`)
+      log.info(`\x1b[0;33mvsjs test inputs\x1b[0m`)
+      log.info()
+      log.info()
     })
   })
 }

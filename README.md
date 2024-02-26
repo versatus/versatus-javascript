@@ -56,3 +56,10 @@ npx vsjs test inputs/sample-contract-input.json
 ```
 By following these steps, you can set up the development environment, initialize examples, build, and test smart contracts on the Versatus network using the provided commands.
 Please note that the specific details of smart contract development may vary based on the Versatus network's documentation and requirements. It's important to refer to the official Versatus documentation for the most accurate and up-to-date information.
+
+
+./build/lasr_cli publish --author mhostetler --name mike-token --package-path build/lib --entrypoint bin/node-wrapper.js --remote 167.99.20.121:5001 --runtime node --content-type program --from-secret-key --secret-key "5504e18922357b4f9d92333582886e17d86bf9ee1726147303adc41095f6c50a" --api-version 1
+
+bafyreifcce3ef5cbvjmslkmugccwdizkoyute4qxigmybexhgzk72tyo54
+
+build/lasr_cli wallet call --from-secret-key --secret-key "5504e18922357b4f9d92333582886e17d86bf9ee1726147303adc41095f6c50a" --op createAndDistribute --inputs '{"name":"Mike Token","symbol":"MIKE","totalSupply":"0x3B9ACA00","initializedSupply":"0xF4240"}' --to 0x2c966df78785164930938ba89def43f959f174c2 --content-namespace 0x2c966df78785164930938ba89def43f959f174c2

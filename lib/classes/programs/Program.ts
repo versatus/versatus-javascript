@@ -6,7 +6,7 @@ import {
   buildTokenUpdateField,
   buildUpdateInstruction,
 } from '../../helpers'
-import { THIS } from '../../consts'
+import { THIS } from '../../env'
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils'
 import { ProgramUpdate } from '../Program'
 import { Outputs } from '../Outputs'

@@ -2,7 +2,7 @@ import { Account, InitTransaction, Transaction, TransactionType } from './types'
 import { keccak256, toUtf8Bytes } from 'ethers/lib.esm'
 import { ethers } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
-import { RPC_URL } from './consts'
+import { RPC_URL } from './env'
 
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
