@@ -40,23 +40,23 @@ build:
 reset: clean build
 	$(Q)npx vsjs init
 	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs/lasr-fungible-token-mint.json
+	$(Q)npx vsjs test inputs
 	$(Q)echo "--- reset"
 
 reset-faucet: clean build
 	$(Q)npx vsjs init faucet
 	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs/lasr-faucet.json
+	$(Q)npx vsjs test inputs
 	$(Q)echo "--- reset with faucet"
 
 reset-snake: clean build
 	$(Q)npx vsjs init snake
 	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs/snake-mint.json
+	$(Q)npx vsjs test inputs
 	$(Q)echo "--- reset with snake"
 
 reset-fungible-token: clean build
 	$(Q)npx vsjs init fungible-token
 	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs/lasr-fungible-token-mint.json
+	$(Q)npx vsjs test inputs
 	$(Q)echo "--- reset with fungible-token"

@@ -10,7 +10,7 @@ export declare class FaucetProgram extends Program {
      * Constructs a new instance of the FungibleTokenProgram class.
      */
     constructor();
+    addProgram(computeInputs: ComputeInputs): object;
     create(computeInputs: ComputeInputs): object;
-    createAndDistribute(computeInputs: ComputeInputs): object;
     faucet(computeInputs: ComputeInputs): object;
 }

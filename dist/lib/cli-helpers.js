@@ -175,25 +175,28 @@ export async function injectFileInWrapper(filePath, target = 'node') {
         }
     }
 }
-export async function runTestProcess(inputJsonPath, target = 'node') {
-    let scriptDir;
-    if (isInstalledPackage) {
-        scriptDir = installedPackagePath;
-    }
-    else {
-        scriptDir = process.cwd();
-    }
-    const testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', target === 'node' ? 'test-node.sh' : 'test-wasm.sh');
-    const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
-        stdio: 'inherit',
-    });
-    testProcess.on('error', (error) => {
-        console.error(`test-wasm.sh spawn error: ${error}`);
-    });
-    testProcess.on('exit', (code) => {
-        if (code !== 0) {
-            console.error(`test-wasm.sh exited with code ${code}`);
-        }
+export function runTestProcess(inputJsonPath, target = 'node') {
+    return new Promise((resolve, reject) => {
+        let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd();
+        const testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', target === 'node' ? 'test-node.sh' : 'test-wasm.sh');
+        const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
+            stdio: ['inherit', 'inherit', 'pipe'], // Capture stderr to use in the promise
+        });
+        let errorOutput = '';
+        testProcess.stderr.on('data', (data) => {
+            errorOutput += data.toString();
+        });
+        testProcess.on('error', (error) => {
+            reject(`Spawn error: ${error}`);
+        });
+        testProcess.on('exit', (code) => {
+            if (code !== 0) {
+                reject(`Exited with code ${code}: ${errorOutput}`);
+            }
+            else {
+                resolve(`Test for ${inputJsonPath} passed`);
+            }
+        });
     });
 }
 export async function initializeWallet() {

@@ -28,10 +28,68 @@ export class FaucetProgram extends Program {
   constructor() {
     super()
     Object.assign(this.methodStrategies, {
+      addProgram: this.addProgram.bind(this),
       create: this.create.bind(this),
-      createAndDistribute: this.createAndDistribute.bind(this),
       faucet: this.faucet.bind(this),
     })
+  }
+
+  addProgram(computeInputs: ComputeInputs) {
+    const { transaction, accountInfo } = computeInputs
+    const { transactionInputs, from } = transaction
+    const parsedTransactionInput = JSON.parse(transactionInputs)
+    const programAddressToFaucet =
+      parsedTransactionInput?.programAddressToFaucet
+    const depositAmount = BigInt(transaction.value)
+
+    const transferToProgram = buildTransferInstruction({
+      from: from,
+      to: 'this',
+      tokenAddress: programAddressToFaucet,
+      amount: depositAmount,
+    })
+
+    const supportedProgramsStr = accountInfo?.programAccountData.programs
+    if (!supportedProgramsStr) {
+      throw new Error('Faucet not created yet')
+    }
+
+    const programsMap = JSON.parse(supportedProgramsStr)
+    if (!programsMap) {
+      throw new Error(
+        'Programs Object not found. Have you created the Faucet yet?'
+      )
+    }
+
+    const faucetRecipientsUpdate = buildProgramUpdateField({
+      field: 'data',
+      value: JSON.stringify({
+        programs: JSON.stringify({
+          [programAddressToFaucet]: JSON.stringify({
+            recipients: JSON.stringify({}),
+          }),
+        }),
+      }),
+      action: 'extend',
+    })
+
+    if (faucetRecipientsUpdate instanceof Error) {
+      throw faucetRecipientsUpdate
+    }
+
+    const programUpdates = [faucetRecipientsUpdate]
+
+    const programDataUpdateInstruction = buildUpdateInstruction({
+      update: new TokenOrProgramUpdate(
+        'programUpdate',
+        new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
+      ),
+    })
+
+    return new Outputs(computeInputs, [
+      transferToProgram,
+      programDataUpdateInstruction,
+    ]).toJson()
   }
 
   create(computeInputs: ComputeInputs) {
@@ -50,54 +108,10 @@ export class FaucetProgram extends Program {
       programNamespace: THIS,
     })
 
-    return new Outputs(computeInputs, [createInstruction]).toJson()
-  }
-
-  createAndDistribute(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const { transactionInputs, from, programId } = transaction
-    const parsedInputMetadata = JSON.parse(transactionInputs)
-    const totalSupply = parsedInputMetadata?.totalSupply ?? '0'
-    const initializedSupply = parsedInputMetadata?.initializedSupply ?? '0'
-    const to = parsedInputMetadata?.to ?? from
-
-    const tokenUpdateField = buildTokenUpdateField({
-      field: 'metadata',
-      value: transactionInputs,
-      action: 'extend',
-    })
-    if (tokenUpdateField instanceof Error) {
-      throw tokenUpdateField
-    }
-
-    const tokenUpdates = [tokenUpdateField]
-
-    const programMetadataUpdateInstruction =
-      buildProgramMetadataUpdateInstruction({ transactionInputs })
-
-    const distributionInstruction = buildTokenDistributionInstruction({
-      programId: THIS,
-      initializedSupply,
-      to,
-      tokenUpdates,
-    })
-
-    const createAndDistributeInstruction = buildCreateInstruction({
-      from,
-      initializedSupply,
-      totalSupply,
-      programId: THIS,
-      programOwner: from,
-      programNamespace: THIS,
-      distributionInstruction,
-    })
-
     const faucetRecipientsInit = buildProgramUpdateField({
       field: 'data',
       value: JSON.stringify({
-        programs: JSON.stringify({
-          [programId]: JSON.stringify({ recipients: JSON.stringify({}) }),
-        }),
+        programs: JSON.stringify({}),
       }),
       action: 'extend',
     })
@@ -117,8 +131,7 @@ export class FaucetProgram extends Program {
       })
 
     return new Outputs(computeInputs, [
-      createAndDistributeInstruction,
-      programMetadataUpdateInstruction,
+      createInstruction,
       createSupportedProgramsAndRecipientsUpdateInstruction,
     ]).toJson()
   }
@@ -166,7 +179,11 @@ export class FaucetProgram extends Program {
     const faucetRecipientsUpdate = buildProgramUpdateField({
       field: 'data',
       value: JSON.stringify({
-        recipients: JSON.stringify({ [to]: currentTime }),
+        programs: JSON.stringify({
+          [programAddressToFaucet]: JSON.stringify({
+            recipients: JSON.stringify({ [to]: currentTime }),
+          }),
+        }),
       }),
       action: 'extend',
     })

@@ -192,21 +192,15 @@ yargs(process.argv.slice(2))
     });
 })
     .command('test [inputJson]', 'Run the test suite for the project', testCommand, async (argv) => {
-    // Make this function async
     if (argv.inputJson) {
         const inputPath = path.resolve(process.cwd(), argv.inputJson);
         try {
             const stats = await fsp.stat(inputPath);
-            let scriptDir;
-            if (isInstalledPackage) {
-                scriptDir = installedPackagePath;
-            }
-            else {
-                scriptDir = process.cwd();
-            }
+            let scriptDir = isInstalledPackage
+                ? installedPackagePath
+                : process.cwd();
             let target;
             const checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_cli.sh');
-            // Assuming spawn is wrapped in a function that returns a Promise
             await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' });
             if (fs.existsSync('./build/lib/node-wrapper.js')) {
                 target = 'node';
@@ -214,25 +208,32 @@ yargs(process.argv.slice(2))
             else if (fs.existsSync('./build/build.wasm')) {
                 target = 'wasm';
                 const checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_wasm.sh');
-                // Assuming spawn is wrapped in a function that returns a Promise
                 await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' });
             }
             else {
-                new Error('No build artifacts found.');
+                throw new Error('No build artifacts found.');
             }
             console.log('\x1b[0;37mStarting test...\x1b[0m');
             if (stats.isDirectory()) {
                 const files = await fsp.readdir(inputPath);
-                for (let file of files) {
-                    if (path.extname(file) === '.json') {
-                        const filePath = path.join(inputPath, file);
-                        // Ensure runTestProcess is an async function or returns a Promise
-                        await runTestProcess(filePath, target);
+                const jsonFiles = files.filter((file) => path.extname(file) === '.json');
+                const testPromises = jsonFiles.map((file) => {
+                    const filePath = path.join(inputPath, file);
+                    return runTestProcess(filePath, target);
+                });
+                const results = await Promise.allSettled(testPromises);
+                // Print a summary of all test outcomes
+                console.log('\x1b[0;37mAll tests completed. Summary of results:\x1b[0m');
+                results.forEach((result, index) => {
+                    if (result.status === 'fulfilled') {
+                        console.log(`\x1b[0;37mTest ${index + 1}\x1b[0m (${jsonFiles[index]}):\x1b[0;32m Passed\x1b[0m`);
                     }
-                }
+                    else {
+                        console.error(`\x1b[0;37mTest ${index + 1}\x1b[0m (${jsonFiles[index]}):\x1b[0;31m Failed\x1b[0m`);
+                    }
+                });
             }
             else if (stats.isFile()) {
-                // Ensure runTestProcess is an async function or returns a Promise
                 await runTestProcess(inputPath, target);
             }
             else {
