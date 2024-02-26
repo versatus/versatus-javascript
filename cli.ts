@@ -203,7 +203,7 @@ yargs(process.argv.slice(2))
       log.info()
       log.info(`\x1b[0;35mReady to run:\x1b[0m`)
       log.info(
-        `\x1b[0;33mvsjs build example-contract${
+        `\x1b[0;33mlasrctl build example-contract${
           isTsProject ? '.ts' : '.js'
         }\x1b[0m`
       )
@@ -621,7 +621,7 @@ export async function buildWasm(buildPath: string) {
       log.info(`\x1b[0;37mWasm built...\x1b[0m`)
       log.info()
       log.info(`\x1b[0;35mReady to run:\x1b[0m`)
-      log.info(`\x1b[0;33mvsjs test inputs\x1b[0m`)
+      log.info(`\x1b[0;33mlasrctl test inputs\x1b[0m`)
       log.info()
       log.info()
     })

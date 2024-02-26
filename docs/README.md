@@ -36,25 +36,25 @@ yarn install @versatus/versatus-javascript
 ### Initialize Basic Example
 Initialize a basic example to start building a smart contract.
 ```bash
-npx vsjs init
+npx lasrctl init
 ```
 
 ### Initialize Erc-20 Example
 If you want to build an ERC-20 smart contract, you can initialize an ERC-20 example using the following command.
 ```bash
-npx vsjs init erc-20
+npx lasrctl init erc-20
 ```
 
 ### Build Contract
-Once you have written your smart contract code, you can build the contract using the vsjs build command. Replace example-contract.js with the actual filename of your smart contract.
+Once you have written your smart contract code, you can build the contract using the `lasrctl` build command. Replace example-contract.js with the actual filename of your smart contract.
 ```bash
-npx vsjs build example-contract.js
+npx lasrctl build example-contract.js
 ```
 
 ### Test Contract
-You can test your smart contract using the vsjs test command. Provide the path to the sample contract input JSON file.
+You can test your smart contract using the `lasrctl` test command. Provide the path to the sample contract input JSON file.
 ```bash
-npx vsjs test inputs/sample-contract-input.json
+npx lasrctl test inputs/sample-contract-input.json
 ```
 By following these steps, you can set up the development environment, initialize examples, build, and test smart contracts on the Versatus network using the provided commands.
 Please note that the specific details of smart contract development may vary based on the Versatus network's documentation and requirements. It's important to refer to the official Versatus documentation for the most accurate and up-to-date information.
