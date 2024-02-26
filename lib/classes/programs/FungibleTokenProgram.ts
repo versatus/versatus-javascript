@@ -21,7 +21,7 @@ import {
   buildUpdateInstruction,
 } from '../../helpers'
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals'
-import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts'
+import { ETH_PROGRAM_ADDRESS, THIS } from '../../env'
 import { ProgramUpdate } from '../Program'
 
 /**

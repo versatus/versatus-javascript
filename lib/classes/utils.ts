@@ -8,7 +8,7 @@ export class AddressOrNamespace {
   private static readonly THIS = 'this'
   private value: Address | Namespace | string
 
-  constructor(value: Address | Namespace | 'this') {
+  constructor(value: Address | Namespace | string | 'this') {
     this.value = value
   }
 

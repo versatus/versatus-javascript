@@ -40,7 +40,7 @@ import {
   ProgramUpdate,
   ProgramUpdateField,
 } from './classes/Program'
-import { THIS } from './consts'
+import { THIS } from './env'
 
 export function bigIntToHexString(bigintValue: BigInt): string {
   let hexString = bigintValue.toString(16)

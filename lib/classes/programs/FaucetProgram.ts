@@ -9,7 +9,7 @@ import {
   buildTransferInstruction,
   buildProgramMetadataUpdateInstruction,
 } from '../../helpers'
-import { THIS } from '../../consts'
+import { THIS } from '../../env'
 
 /**
  * Class representing a fungible token program, extending the base `Program` class.

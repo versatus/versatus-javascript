@@ -3,8 +3,9 @@ import path from 'path'
 import { exec, spawn } from 'child_process'
 import { KeyPairArray } from './types'
 import { runCommand, runSpawn } from './utils'
-import { LASR_RPC_URL, VIPFS_ADDRESS } from './consts'
+import { LASR_RPC_URL, VIPFS_ADDRESS } from './env'
 import { Arguments } from 'yargs'
+import log from './log'
 
 export interface InitCommandArgs {
   example: string
@@ -63,23 +64,23 @@ export function copyDirectory(src: string, dest: string) {
 }
 
 export async function buildNode(buildPath: string) {
-  console.log('BUILDING NODE!')
+  log.info('BUILDING NODE!')
   const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js')
   const nodeMapWrapperPath = path.join('./build/lib', 'node-wrapper.js.map')
   const parcelCache = './parcel-cache'
 
   if (fs.existsSync(parcelCache)) {
     fs.unlinkSync(parcelCache)
-    console.log('Existing .parcel-cache deleted.')
+    log.info('Existing .parcel-cache deleted.')
   }
 
   if (fs.existsSync(nodeWrapperPath)) {
     fs.unlinkSync(nodeWrapperPath)
-    console.log('Existing node-wrapper.js deleted.')
+    log.info('Existing node-wrapper.js deleted.')
   }
   if (fs.existsSync(nodeMapWrapperPath)) {
     fs.unlinkSync(nodeMapWrapperPath)
-    console.log('Existing node-wrapper.js.map deleted.')
+    log.info('Existing node-wrapper.js.map deleted.')
   }
   const parcelCommand = `npx parcel build  --target node ./lib/node-wrapper.ts --no-cache`
   exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
@@ -88,7 +89,7 @@ export async function buildNode(buildPath: string) {
       return
     }
 
-    console.log(
+    log.info(
       '\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m'
     )
   })
@@ -98,7 +99,7 @@ export async function getSecretKeyFromKeyPairFile(
   keypairFilePath: string
 ): Promise<string> {
   try {
-    console.log('Getting secret key from keypair file')
+    log.info('Getting secret key from keypair file')
     const absolutePath = path.resolve(keypairFilePath) // Ensure the path is absolute
     const fileContent = await fsp.readFile(absolutePath, 'utf8')
     const keyPairs: KeyPairArray = JSON.parse(fileContent)
@@ -117,7 +118,7 @@ export async function getSecretKeyFromKeyPairFile(
 
 export async function registerProgram(cid: string, secretKey: string) {
   const command = `export LASR_RPC_URL=${LASR_RPC_URL} && export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/lasr_cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`
-  console.log(command)
+  log.info(command)
   return await runCommand(command)
 }
 
@@ -131,9 +132,9 @@ export async function publishProgram(
     throw new Error('Author and name are required to publish a contract.')
   }
 
-  console.log('NAME NAME NAME NAME NAME')
-  console.log(`NAME NAME ${name} NAME NAME`)
-  console.log('NAME NAME NAME NAME NAME')
+  log.info('NAME NAME NAME NAME NAME')
+  log.info(`NAME NAME ${name} NAME NAME`)
+  log.info('NAME NAME NAME NAME NAME')
 
   const isWasm = target === 'wasm'
 
@@ -149,14 +150,14 @@ export async function publishProgram(
     } --entrypoint build/lib/node-wrapper.js -r --remote ${VIPFS_ADDRESS} --runtime ${target} --content-type program --from-secret-key --secret-key "${secretKey}"`
   }
 
-  console.log(command)
+  log.info(command)
 
   const output = await runCommand(command)
 
   const ipfsHashMatch = output.match(/(bafy[a-zA-Z0-9]{44,59})/)
   if (!ipfsHashMatch)
     throw new Error('Failed to extract CID from publish output.')
-  console.log(`Contract published with CID: ${ipfsHashMatch[1]}`)
+  log.info(`Contract published with CID: ${ipfsHashMatch[1]}`)
   return ipfsHashMatch[1]
 }
 
@@ -181,9 +182,9 @@ export async function injectFileInWrapper(
       } else {
         contractFilePath = './dist/example-contract.js'
         if (fs.existsSync(contractFilePath)) {
-          console.log('The contract file exists.')
+          log.info('The contract file exists.')
         } else {
-          console.log('The contract file does not exist. You must build first.')
+          log.info('The contract file does not exist. You must build first.')
         }
       }
     }
@@ -197,7 +198,7 @@ export async function injectFileInWrapper(
         throw error
       }
     } else {
-      console.log('IN DEVELOPMENT ENVIRONMENT')
+      log.info('IN DEVELOPMENT ENVIRONMENT')
       wrapperFilePath = path.resolve(__dirname, './lib/node-wrapper.js')
     }
     const distWrapperFilePath = path.join(buildPath, 'lib', 'node-wrapper.js')
@@ -223,7 +224,7 @@ export async function injectFileInWrapper(
         throw error
       }
     } else {
-      console.log('IN DEVELOPMENT ENVIRONMENT')
+      log.info('IN DEVELOPMENT ENVIRONMENT')
       // In the development environment
       wrapperFilePath = path.resolve(__dirname, './lib/wasm-wrapper.js')
       versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js')
@@ -292,17 +293,17 @@ export async function runTestProcess(
 
 export async function initializeWallet() {
   await runCommand('./build/lasr_cli wallet new --save')
-  console.log(
+  log.info(
     'Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json'
   )
 }
 
 export async function checkWallet(keypairPath: string) {
   try {
-    console.log('Checking wallet...')
+    log.info('Checking wallet...')
     const command = `./build/lasr_cli wallet get-account --from-file --path ${keypairPath}`
     const output = await runCommand(command)
-    console.log('Wallet check successful')
+    log.info('Wallet check successful')
   } catch (error) {
     // Handle specific error messages or take actions based on the error
     console.error('Failed to validate keypair file:', error)
