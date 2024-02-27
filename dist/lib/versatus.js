@@ -18,7 +18,7 @@ export async function broadcast(callTx, privateKey) {
         const wallet = new Wallet(privateKey);
         let account = null;
         const broadcastType = callTx.op === 'send' ? 'send' : 'call';
-        console.log({ callTx });
+        console.log('callTx: ', callTx);
         try {
             const accountResult = await getAccount(wallet.address);
             if (accountResult && 'nonce' in accountResult) {
@@ -46,6 +46,7 @@ export async function broadcast(callTx, privateKey) {
         console.log({ orderedTx });
         const orderedTxString = JSON.stringify(orderedTx);
         const bytes = toUtf8Bytes(orderedTxString);
+        console.log('orderdTxString: ', orderedTxString);
         const keccak256Hash = keccak256(bytes);
         const signature = await secp256k1.signAsync(keccak256Hash.replace('0x', ''), privateKey);
         const r = bigIntToHexString(signature.r);
