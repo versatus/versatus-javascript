@@ -5,4 +5,5 @@
  * @returns {string} The formatted hexadecimal string with '0x' prefix and a total length of 66 characters, or an empty string if formatting fails.
  */
 export declare function formatVerse(numberString: string): string;
+export declare function parseVerse(numberString: string): BigInt;
 export declare function bigIntToHexString(bigintValue: BigInt): string;

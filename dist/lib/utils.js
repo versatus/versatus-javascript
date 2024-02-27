@@ -15,6 +15,17 @@ export function formatVerse(numberString) {
         return '';
     }
 }
+export function parseVerse(numberString) {
+    try {
+        const scaledNumberBigInt = BigInt(numberString) * BigInt('1000000000000000000');
+        let hexString = scaledNumberBigInt.toString(16);
+        hexString = hexString.padStart(64, '0');
+        return BigInt('0x' + hexString);
+    }
+    catch (error) {
+        return BigInt(0);
+    }
+}
 export function bigIntToHexString(bigintValue) {
     let hexString = bigintValue.toString(16);
     hexString = hexString.padStart(64, '0');

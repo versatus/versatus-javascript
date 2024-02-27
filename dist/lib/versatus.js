@@ -98,6 +98,7 @@ export async function callLasrRpc(method, params, rpc) {
             cache: 'no-store',
             body,
         };
+        console.log({ params });
         const response = await fetch(RPC_URL, requestOptions).then((response) => response.json());
         if (response.error) {
             throw new Error(response.error.message);

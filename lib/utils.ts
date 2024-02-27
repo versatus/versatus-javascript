@@ -16,6 +16,18 @@ export function formatVerse(numberString: string): string {
   }
 }
 
+export function parseVerse(numberString: string): BigInt {
+  try {
+    const scaledNumberBigInt =
+      BigInt(numberString) * BigInt('1000000000000000000')
+    let hexString = scaledNumberBigInt.toString(16)
+    hexString = hexString.padStart(64, '0')
+    return BigInt('0x' + hexString)
+  } catch (error: unknown) {
+    return BigInt(0)
+  }
+}
+
 export function bigIntToHexString(bigintValue: BigInt): string {
   let hexString = bigintValue.toString(16)
   hexString = hexString.padStart(64, '0')
