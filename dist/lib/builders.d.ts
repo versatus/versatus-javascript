@@ -12,8 +12,8 @@ export declare function buildBurnInstruction({ from, caller, programId, tokenAdd
 export declare function buildCreateInstruction({ programId, initializedSupply, totalSupply, programOwner, programNamespace, distributionInstruction, }: {
     programId: string;
     from: string;
-    initializedSupply: string;
-    totalSupply: string;
+    initializedSupply?: string;
+    totalSupply?: string;
     programOwner: string;
     programNamespace: string;
     distributionInstruction?: TokenDistribution;

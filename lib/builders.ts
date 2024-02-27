@@ -75,31 +75,32 @@ export function buildCreateInstruction({
 }: {
   programId: string
   from: string
-  initializedSupply: string
-  totalSupply: string
+  initializedSupply?: string
+  totalSupply?: string
   programOwner: string
   programNamespace: string
   distributionInstruction?: TokenDistribution
 }) {
-  if (distributionInstruction) {
-    return new CreateInstructionBuilder()
-      .setProgramId(new AddressOrNamespace(new Address(programId)))
-      .setTotalSupply(bigIntToHexString(BigInt(totalSupply)))
-      .setInitializedSupply(bigIntToHexString(BigInt(initializedSupply)))
-      .addTokenDistribution(distributionInstruction)
-      .setProgramOwner(new Address(programOwner))
-      .setProgramNamespace(
-        new AddressOrNamespace(new Address(programNamespace))
-      )
-      .build()
-  }
-  return new CreateInstructionBuilder()
+  const instructionBuilder = new CreateInstructionBuilder()
     .setProgramId(new AddressOrNamespace(new Address(programId)))
-    .setTotalSupply(bigIntToHexString(BigInt(totalSupply)))
-    .setInitializedSupply(bigIntToHexString(BigInt(initializedSupply)))
     .setProgramOwner(new Address(programOwner))
     .setProgramNamespace(new AddressOrNamespace(new Address(programNamespace)))
-    .build()
+
+  if (initializedSupply !== undefined) {
+    instructionBuilder.setInitializedSupply(
+      bigIntToHexString(BigInt(initializedSupply))
+    )
+  }
+
+  if (totalSupply !== undefined) {
+    instructionBuilder.setTotalSupply(bigIntToHexString(BigInt(totalSupply)))
+  }
+
+  if (distributionInstruction !== undefined) {
+    instructionBuilder.addTokenDistribution(distributionInstruction)
+  }
+
+  return instructionBuilder.build()
 }
 
 export function buildUpdateInstruction({
