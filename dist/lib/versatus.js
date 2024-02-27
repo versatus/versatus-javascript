@@ -42,14 +42,12 @@ export async function broadcast(callTx, privateKey) {
         callTx.transactionType = {
             [broadcastType]: newNonce,
         };
-        callTx.from = wallet.address.toLowerCase();
+        callTx.from = callTx.from.toLowerCase();
+        callTx.to = callTx.to.toLowerCase();
         const orderedTx = reorderTransactionKeys(callTx);
-        console.log({ orderedTx });
         const orderedTxString = JSON.stringify(orderedTx);
         const bytes = toUtf8Bytes(orderedTxString);
-        console.log('orderdTxString: ', orderedTxString);
         const keccak256Hash = keccak256(bytes);
-        console.log('keccak256Hash: ', keccak256Hash);
         const signature = await secp256k1.signAsync(keccak256Hash.replace('0x', ''), privateKey);
         // console.log('signature', signature.)
         const r = bigIntToHexString(signature.r);
