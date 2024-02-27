@@ -1,6 +1,6 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.1.64",
+  "version": "0.1.65",
   "type": "module",
   "module": "./dist/lib/index.js",
   "bin": {
