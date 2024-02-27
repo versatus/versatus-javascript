@@ -54,6 +54,9 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
       keccak256Hash.replace('0x', ''),
       privateKey
     )
+
+    console.log('signature', signature.toCompactHex())
+
     const r = bigIntToHexString(signature.r)
     const s = bigIntToHexString(signature.s)
     const recover = signature.recovery as number
