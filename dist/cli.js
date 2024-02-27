@@ -65,19 +65,24 @@ const deployCommand = (yargs) => {
     });
 };
 yargs(process.argv.slice(2))
-    .command('init [example]', 'Initialize a project with an example contract', initCommand, (argv) => {
-    console.log(`\x1b[0;33mInitializing example contract: ${argv.example || 'fungible-token' || 'faucet'}...\x1b[0m`);
+    .command('init [example]', 'Initialize a project with an example program', initCommand, (argv) => {
+    console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'fungible-token' || 'faucet'}...\x1b[0m`);
+    const existingInputsDirectory = './inputs';
+    if (fs.existsSync(existingInputsDirectory)) {
+        fs.rmSync(existingInputsDirectory, { recursive: true });
+        console.log('Existing inputs deleted.');
+    }
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
         ? path.resolve(installedPackagePath, isTsProject ? '' : 'dist', 'examples', argv.example || 'fungible-token')
         : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'fungible-token');
     const targetDir = process.cwd();
-    const targetFilePath = path.join(targetDir, isTsProject ? 'example-contract.ts' : 'example-contract.js');
-    fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-contract.ts' : 'example-contract.js'), targetFilePath);
-    let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
+    const targetFilePath = path.join(targetDir, isTsProject ? 'example-program.ts' : 'example-program.js');
+    fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);
+    let exampleProgramContent = fs.readFileSync(targetFilePath, 'utf8');
     // Update the import path for any contract class based on the environment
-    const contractClassRegEx = /^import \{ (.*) \} from '.*\/lib\/classes\/programs\/.*'*$/gm;
-    exampleContractContent = exampleContractContent.replace(contractClassRegEx, (match, className) => {
+    const programClassRegEx = /^import \{ (.*) \} from '.*\/lib\/classes\/programs\/.*'*$/gm;
+    exampleProgramContent = exampleProgramContent.replace(programClassRegEx, (match, className) => {
         const importPath = isInstalledPackage
             ? `'@versatus/versatus-javascript'`
             : `'./lib/classes/programs/${className}'`;
@@ -85,7 +90,7 @@ yargs(process.argv.slice(2))
     });
     if (isTsProject) {
         const typesRegex = /^import \{ (.*) \} from '.*\/lib'$/gm;
-        exampleContractContent = exampleContractContent.replace(typesRegex, (match, className) => {
+        exampleProgramContent = exampleProgramContent.replace(typesRegex, (match, className) => {
             const importPath = isInstalledPackage
                 ? `'@versatus/versatus-javascript'`
                 : `'./lib'`;
@@ -93,7 +98,7 @@ yargs(process.argv.slice(2))
         });
     }
     // Write the updated content back to the example file
-    fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
+    fs.writeFileSync(targetFilePath, exampleProgramContent, 'utf8');
     const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'fungible-token', 'inputs');
     const targetInputsDir = path.join(targetDir, 'inputs');
     if (fs.existsSync(inputsDir)) {
@@ -119,14 +124,14 @@ yargs(process.argv.slice(2))
         }
         copyDirectory(filesDir, targetFilesDir);
     }
-    console.log('\x1b[0;37mExample contract and inputs initialized successfully.\x1b[0m');
+    console.log('\x1b[0;37mExample program and inputs initialized successfully.\x1b[0m');
     console.log();
     console.log(`\x1b[0;35mReady to run:\x1b[0m`);
-    console.log(`\x1b[0;33mvsjs build example-contract${isTsProject ? '.ts' : '.js'}\x1b[0m`);
+    console.log(`\x1b[0;33mvsjs build example-program${isTsProject ? '.ts' : '.js'}\x1b[0m`);
     console.log();
     console.log();
 })
-    .command('build [file]', 'Build the project with the specified contract', buildCommand, (argv) => {
+    .command('build [file]', 'Build the project with the specified program', buildCommand, (argv) => {
     let scriptDir, sysCheckScriptPath;
     if (isInstalledPackage) {
         scriptDir = installedPackagePath;
@@ -160,19 +165,19 @@ yargs(process.argv.slice(2))
                     ? `tsc --outDir ${outDir} ${filePath}`
                     : 'tsc && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js';
                 // Run tsc to transpile the TypeScript file
-                exec(command, (tscError, tscStdout, tscStderr) => {
+                exec(command, async (tscError, tscStdout, tscStderr) => {
                     if (tscError) {
                         console.error(`Error during TypeScript transpilation: ${tscError}`);
                         return;
                     }
                     console.log('\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m');
-                    injectFileInWrapper(filePath, argv.target)
-                        .then(() => {
-                        runBuildProcess(argv.target);
-                    })
-                        .catch((error) => {
-                        console.error('Error during the build process:', error);
-                    });
+                    // injectFileInWrapper(filePath, argv.target)
+                    //   .then(() => {
+                    await runBuildProcess(String(argv.file), argv.target);
+                    // })
+                    // .catch((error) => {
+                    //   console.error('Error during the build process:', error)
+                    // })
                 });
             }
             else {
@@ -186,7 +191,7 @@ yargs(process.argv.slice(2))
             }
         }
         else {
-            console.error('You must specify a contract file to build.');
+            console.error('You must specify a program file to build.');
             process.exit(1);
         }
     });
@@ -202,7 +207,7 @@ yargs(process.argv.slice(2))
             let target;
             const checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_cli.sh');
             await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' });
-            if (fs.existsSync('./build/lib/node-wrapper.js')) {
+            if (fs.existsSync('./build/lib/example-program.js')) {
                 target = 'node';
             }
             else if (fs.existsSync('./build/build.wasm')) {
@@ -243,7 +248,7 @@ yargs(process.argv.slice(2))
         }
         catch (err) {
             // @ts-ignore
-            console.error(`Error: ${err.message}`);
+            console.error(`Error: ${err}`);
             process.exit(1);
         }
     }
@@ -252,7 +257,7 @@ yargs(process.argv.slice(2))
         process.exit(1);
     }
 })
-    .command('deploy [author] [name] [keypairPath] [secretKey] [target]', 'Deploy a contract', deployCommand, async (argv) => {
+    .command('deploy [author] [name] [keypairPath] [secretKey] [target]', 'Deploy a program', deployCommand, async (argv) => {
     try {
         if (!argv.secretKey) {
             console.log('NO SECRET KEY!');
@@ -295,7 +300,7 @@ yargs(process.argv.slice(2))
         if (!ipfsHashMatch)
             throw new Error('Failed to extract CID from publish output.');
         console.log(`MATCHES: ${ipfsHashMatch.map((m) => m)}`);
-        console.log(`Contract published with CID: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
+        console.log(`Program published with CID: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         const response = await registerProgram(cid, secretKey);
@@ -306,7 +311,7 @@ yargs(process.argv.slice(2))
     }
 })
     .help().argv;
-export async function runBuildProcess(target = 'node') {
+export async function runBuildProcess(pathToProgram, target = 'node') {
     const projectRoot = process.cwd();
     const distPath = path.join(projectRoot, 'dist');
     const buildPath = path.join(projectRoot, 'build');
@@ -319,11 +324,9 @@ export async function runBuildProcess(target = 'node') {
         fs.mkdirSync(buildPath, { recursive: true });
     }
     if (target === 'node') {
-        console.log('BUILDING NODE!');
-        await buildNode(buildPath);
+        await buildNode(pathToProgram, buildPath);
     }
     else if (target === 'wasm') {
-        console.log('BUILDING WASM!');
         await buildWasm(buildPath);
     }
 }
@@ -336,17 +339,17 @@ export async function injectFileInWrapper(filePath, target = 'node') {
     }
     let wrapperFilePath;
     if (target === 'node') {
-        let contractFilePath;
+        let programFilePath;
         if (isTypeScriptProject()) {
             if (isInstalledPackage) {
             }
             else {
-                contractFilePath = './dist/example-contract.js';
-                if (fs.existsSync(contractFilePath)) {
-                    console.log('The contract file exists.');
+                programFilePath = './dist/example-program.js';
+                if (fs.existsSync(programFilePath)) {
+                    console.log('The program file exists.');
                 }
                 else {
-                    console.log('The contract file does not exist. You must build first.');
+                    console.log('The program file does not exist. You must build first.');
                 }
             }
         }
@@ -367,7 +370,7 @@ export async function injectFileInWrapper(filePath, target = 'node') {
         const distWrapperFilePath = path.join(buildPath, 'lib', 'node-wrapper.js');
         fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
         let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
-        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-contract.js.js';`);
+        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-program.js.js';`);
         return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
     }
     else if (target === 'wasm') {
@@ -408,6 +411,7 @@ export async function injectFileInWrapper(filePath, target = 'node') {
     }
 }
 export async function buildWasm(buildPath) {
+    console.log('BUILDING WASM PROGRAM!');
     let webpackConfigPath;
     if (isInstalledPackage) {
         // In an installed package environment

@@ -8,6 +8,7 @@ import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, bu
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
 import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts.js';
 import { ProgramUpdate } from '../Program.js';
+import { formatVerse } from '../../utils.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
@@ -32,7 +33,14 @@ export class FungibleTokenProgram extends Program {
         const { transactionInputs, programId } = transaction;
         const tokenId = new AddressOrNamespace(new Address(programId));
         const caller = new Address(transaction.from);
-        const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('insert', new ApprovalsValue(new ApprovalsExtend([JSON.parse(transactionInputs)]))));
+        // const jsonInput =
+        //   '{"spender":"0x1a2b3c4d5e6f70819293a4b5c6d7e8f9","value":"0x1"}'
+        const parsedInput = JSON.parse(transactionInputs);
+        const itemsArray = [
+            new Address(parsedInput.spender),
+            parsedInput.value,
+        ];
+        const update = new TokenUpdateField(new TokenField('approvals'), new TokenFieldValue('extend', new ApprovalsValue(new ApprovalsExtend([itemsArray]))));
         const tokenUpdate = new TokenUpdate(new AddressOrNamespace(caller), tokenId, [update]);
         const tokenOrProgramUpdate = new TokenOrProgramUpdate('tokenUpdate', tokenUpdate);
         const updateInstruction = new TokenUpdateBuilder()
@@ -71,8 +79,8 @@ export class FungibleTokenProgram extends Program {
         const { transaction } = computeInputs;
         const { transactionInputs, from } = transaction;
         const parsedInputMetadata = JSON.parse(transactionInputs);
-        const totalSupply = parsedInputMetadata?.totalSupply ?? '0';
-        const initializedSupply = parsedInputMetadata?.initializedSupply ?? '0';
+        const totalSupply = formatVerse(parsedInputMetadata?.totalSupply) ?? '0';
+        const initializedSupply = formatVerse(parsedInputMetadata?.initializedSupply) ?? '0';
         const to = parsedInputMetadata?.to ?? from;
         const tokenUpdateField = buildTokenUpdateField({
             field: 'metadata',

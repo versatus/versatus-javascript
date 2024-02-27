@@ -37,9 +37,11 @@ export class FaucetProgram extends Program {
     const parsedTransactionInput = JSON.parse(transactionInputs)
     const programAddressToFaucet =
       parsedTransactionInput?.programAddressToFaucet
-    const tankAmount = parseVerse(transaction.value)
+    const tankAmount = parseVerse(parsedTransactionInput?.tankAmount)
     const flowAmount = parsedTransactionInput?.flowAmount ?? '1'
     const flowAmountFormatted = formatVerse(flowAmount)
+
+    const faucetAccountData = accountInfo?.programAccountData
 
     const transferToProgram = buildTransferInstruction({
       from: from,
@@ -48,7 +50,7 @@ export class FaucetProgram extends Program {
       amount: tankAmount,
     })
 
-    const supportedProgramsStr = accountInfo?.programAccountData?.programs
+    const supportedProgramsStr = faucetAccountData?.programs
     if (!supportedProgramsStr) {
       throw new Error('Faucet not created yet')
     }
@@ -64,6 +66,7 @@ export class FaucetProgram extends Program {
       field: 'data',
       value: JSON.stringify({
         programs: JSON.stringify({
+          ...programsMap,
           [programAddressToFaucet]: JSON.stringify({
             pipeData: JSON.stringify({
               flowAmount: flowAmountFormatted,
@@ -133,8 +136,28 @@ export class FaucetProgram extends Program {
         ),
       })
 
+    const programUpdateField = buildProgramUpdateField({
+      field: 'metadata',
+      value: transactionInputs,
+      action: 'extend',
+    })
+
+    if (programUpdateField instanceof Error) {
+      throw programUpdateField
+    }
+
+    const programUpdates = [programUpdateField]
+
+    const programMetadataUpdateInstruction = buildUpdateInstruction({
+      update: new TokenOrProgramUpdate(
+        'programUpdate',
+        new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
+      ),
+    })
+
     return new Outputs(computeInputs, [
       createInstruction,
+      programMetadataUpdateInstruction,
       createSupportedProgramsAndRecipientsUpdateInstruction,
     ]).toJson()
   }
@@ -143,10 +166,11 @@ export class FaucetProgram extends Program {
     const { transaction, accountInfo } = computeInputs
     const { transactionInputs, from } = transaction
     const parsedInputMetadata = JSON.parse(transactionInputs)
-    const faucetAccountData = accountInfo?.programAccountData
     const to = parsedInputMetadata?.to
     const programAddressToFaucet =
       parsedInputMetadata?.programAddressToFaucet ?? transaction.programId
+
+    const faucetAccountData = accountInfo?.programAccountData
 
     if (!faucetAccountData) {
       throw new Error('Faucet not initialized')
@@ -172,7 +196,7 @@ export class FaucetProgram extends Program {
       throw new Error('Faucet pipeData not found')
     }
 
-    const amountToFaucet = faucetProgramData.flowAmount ?? '1'
+    const amountToFaucet = parseVerse(faucetProgramData.flowAmount ?? '1')
     const cycleTimeMin = faucetProgramData.cycleTimeMin ?? '1'
     const recipients = faucetProgramMap.recipients
     const faucetRecipientCanClaim = canClaimTokens(to, recipients, cycleTimeMin)

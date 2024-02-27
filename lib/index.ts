@@ -4,7 +4,7 @@ import * as utils from './utils'
 
 export * from './classes/index'
 export * from './classes/programs/index'
-export * from './wasm-wrapper'
+// export * from './wasm-wrapper'
 export * from './types'
 
 export { builders }

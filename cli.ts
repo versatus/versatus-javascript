@@ -90,14 +90,21 @@ const deployCommand: CommandBuilder<{}, DeployCommandArgs> = (yargs: Argv) => {
 yargs(process.argv.slice(2))
   .command(
     'init [example]',
-    'Initialize a project with an example contract',
+    'Initialize a project with an example program',
     initCommand,
     (argv: Arguments<InitCommandArgs>) => {
       console.log(
-        `\x1b[0;33mInitializing example contract: ${
+        `\x1b[0;33mInitializing example program: ${
           argv.example || 'fungible-token' || 'faucet'
         }...\x1b[0m`
       )
+      const existingInputsDirectory = './inputs'
+
+      if (fs.existsSync(existingInputsDirectory)) {
+        fs.rmSync(existingInputsDirectory, { recursive: true })
+        console.log('Existing inputs deleted.')
+      }
+
       const isTsProject = isTypeScriptProject()
       const exampleDir = isInstalledPackage
         ? path.resolve(
@@ -115,25 +122,25 @@ yargs(process.argv.slice(2))
       const targetDir = process.cwd()
       const targetFilePath = path.join(
         targetDir,
-        isTsProject ? 'example-contract.ts' : 'example-contract.js'
+        isTsProject ? 'example-program.ts' : 'example-program.js'
       )
 
       fs.copyFileSync(
         path.join(
           exampleDir,
-          isTsProject ? 'example-contract.ts' : 'example-contract.js'
+          isTsProject ? 'example-program.ts' : 'example-program.js'
         ),
         targetFilePath
       )
 
-      let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8')
+      let exampleProgramContent = fs.readFileSync(targetFilePath, 'utf8')
 
       // Update the import path for any contract class based on the environment
-      const contractClassRegEx =
+      const programClassRegEx =
         /^import \{ (.*) \} from '.*\/lib\/classes\/programs\/.*'*$/gm
 
-      exampleContractContent = exampleContractContent.replace(
-        contractClassRegEx,
+      exampleProgramContent = exampleProgramContent.replace(
+        programClassRegEx,
         (match: any, className: any) => {
           const importPath = isInstalledPackage
             ? `'@versatus/versatus-javascript'`
@@ -144,7 +151,7 @@ yargs(process.argv.slice(2))
 
       if (isTsProject) {
         const typesRegex = /^import \{ (.*) \} from '.*\/lib'$/gm
-        exampleContractContent = exampleContractContent.replace(
+        exampleProgramContent = exampleProgramContent.replace(
           typesRegex,
           (match: any, className: any) => {
             const importPath = isInstalledPackage
@@ -156,7 +163,7 @@ yargs(process.argv.slice(2))
       }
 
       // Write the updated content back to the example file
-      fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8')
+      fs.writeFileSync(targetFilePath, exampleProgramContent, 'utf8')
 
       const inputsDir = path.join(
         isInstalledPackage ? installedPackagePath : process.cwd(),
@@ -196,12 +203,12 @@ yargs(process.argv.slice(2))
       }
 
       console.log(
-        '\x1b[0;37mExample contract and inputs initialized successfully.\x1b[0m'
+        '\x1b[0;37mExample program and inputs initialized successfully.\x1b[0m'
       )
       console.log()
       console.log(`\x1b[0;35mReady to run:\x1b[0m`)
       console.log(
-        `\x1b[0;33mvsjs build example-contract${
+        `\x1b[0;33mvsjs build example-program${
           isTsProject ? '.ts' : '.js'
         }\x1b[0m`
       )
@@ -211,7 +218,7 @@ yargs(process.argv.slice(2))
   )
   .command(
     'build [file]',
-    'Build the project with the specified contract',
+    'Build the project with the specified program',
     buildCommand,
     (argv: Arguments<BuildCommandArgs>) => {
       let scriptDir: string, sysCheckScriptPath
@@ -272,7 +279,7 @@ yargs(process.argv.slice(2))
                 ? `tsc --outDir ${outDir} ${filePath}`
                 : 'tsc && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js'
               // Run tsc to transpile the TypeScript file
-              exec(command, (tscError, tscStdout, tscStderr) => {
+              exec(command, async (tscError, tscStdout, tscStderr) => {
                 if (tscError) {
                   console.error(
                     `Error during TypeScript transpilation: ${tscError}`
@@ -283,13 +290,13 @@ yargs(process.argv.slice(2))
                 console.log(
                   '\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m'
                 )
-                injectFileInWrapper(filePath, argv.target)
-                  .then(() => {
-                    runBuildProcess(argv.target)
-                  })
-                  .catch((error) => {
-                    console.error('Error during the build process:', error)
-                  })
+                // injectFileInWrapper(filePath, argv.target)
+                //   .then(() => {
+                await runBuildProcess(String(argv.file), argv.target)
+                // })
+                // .catch((error) => {
+                //   console.error('Error during the build process:', error)
+                // })
               })
             } else {
               injectFileInWrapper(filePath, argv.target)
@@ -301,7 +308,7 @@ yargs(process.argv.slice(2))
                 })
             }
           } else {
-            console.error('You must specify a contract file to build.')
+            console.error('You must specify a program file to build.')
             process.exit(1)
           }
         }
@@ -331,7 +338,7 @@ yargs(process.argv.slice(2))
           )
           await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' })
 
-          if (fs.existsSync('./build/lib/node-wrapper.js')) {
+          if (fs.existsSync('./build/lib/example-program.js')) {
             target = 'node'
           } else if (fs.existsSync('./build/build.wasm')) {
             target = 'wasm'
@@ -387,7 +394,7 @@ yargs(process.argv.slice(2))
           }
         } catch (err) {
           // @ts-ignore
-          console.error(`Error: ${err.message}`)
+          console.error(`Error: ${err}`)
           process.exit(1)
         }
       } else {
@@ -398,7 +405,7 @@ yargs(process.argv.slice(2))
   )
   .command(
     'deploy [author] [name] [keypairPath] [secretKey] [target]',
-    'Deploy a contract',
+    'Deploy a program',
     deployCommand,
     async (argv: Arguments<DeployCommandArgs>) => {
       try {
@@ -455,7 +462,7 @@ yargs(process.argv.slice(2))
           throw new Error('Failed to extract CID from publish output.')
         console.log(`MATCHES: ${ipfsHashMatch.map((m) => m)}`)
         console.log(
-          `Contract published with CID: ${
+          `Program published with CID: ${
             ipfsHashMatch[ipfsHashMatch.length - 1]
           }`
         )
@@ -471,7 +478,10 @@ yargs(process.argv.slice(2))
   )
   .help().argv
 
-export async function runBuildProcess(target: string = 'node') {
+export async function runBuildProcess(
+  pathToProgram: string,
+  target: string = 'node'
+) {
   const projectRoot = process.cwd()
   const distPath = path.join(projectRoot, 'dist')
   const buildPath = path.join(projectRoot, 'build')
@@ -487,10 +497,8 @@ export async function runBuildProcess(target: string = 'node') {
   }
 
   if (target === 'node') {
-    console.log('BUILDING NODE!')
-    await buildNode(buildPath)
+    await buildNode(pathToProgram, buildPath)
   } else if (target === 'wasm') {
-    console.log('BUILDING WASM!')
     await buildWasm(buildPath)
   }
 }
@@ -504,15 +512,15 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
   }
   let wrapperFilePath
   if (target === 'node') {
-    let contractFilePath
+    let programFilePath
     if (isTypeScriptProject()) {
       if (isInstalledPackage) {
       } else {
-        contractFilePath = './dist/example-contract.js'
-        if (fs.existsSync(contractFilePath)) {
-          console.log('The contract file exists.')
+        programFilePath = './dist/example-program.js'
+        if (fs.existsSync(programFilePath)) {
+          console.log('The program file exists.')
         } else {
-          console.log('The contract file does not exist. You must build first.')
+          console.log('The program file does not exist. You must build first.')
         }
       }
     }
@@ -533,7 +541,7 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
     let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8')
     wrapperContent = wrapperContent.replace(
       /^import start from '.*';?$/m,
-      `import start from './dist/example-contract.js';`
+      `import start from './dist/example-program.js';`
     )
     return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8')
   } else if (target === 'wasm') {
@@ -578,6 +586,7 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
 }
 
 export async function buildWasm(buildPath: string) {
+  console.log('BUILDING WASM PROGRAM!')
   let webpackConfigPath
   if (isInstalledPackage) {
     // In an installed package environment

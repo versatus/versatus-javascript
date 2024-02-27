@@ -130,10 +130,10 @@ build
 .pnp.*
 
 .idea
-/example-contract.js
-/example-contract.ts
-/dist/example-contract.js
-/dist/example-contract.d.ts
+/example-program.js
+/example-program.ts
+/dist/example-program.js
+/dist/example-program.d.ts
 inputs
 .DS_Store
 .lasr

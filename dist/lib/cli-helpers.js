@@ -20,13 +20,13 @@ export function copyDirectory(src, dest) {
             : fs.copyFileSync(srcPath, destPath);
     }
 }
-export async function buildNode(buildPath) {
-    console.log('BUILDING NODE!');
-    const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js');
-    const nodeMapWrapperPath = path.join('./build/lib', 'node-wrapper.js.map');
+export async function buildNode(pathToProgram, buildPath) {
+    console.log('BUILDING NODE PROGRAM!');
+    const nodeWrapperPath = path.join('./build/lib', pathToProgram);
+    const nodeMapWrapperPath = path.join('./build/lib', `${pathToProgram}.map`);
     const parcelCache = './parcel-cache';
     if (fs.existsSync(parcelCache)) {
-        fs.unlinkSync(parcelCache);
+        fs.rmSync(parcelCache, { recursive: true });
         console.log('Existing .parcel-cache deleted.');
     }
     if (fs.existsSync(nodeWrapperPath)) {
@@ -37,7 +37,7 @@ export async function buildNode(buildPath) {
         fs.unlinkSync(nodeMapWrapperPath);
         console.log('Existing node-wrapper.js.map deleted.');
     }
-    const parcelCommand = `npx parcel build  --target node ./lib/node-wrapper.ts --no-cache`;
+    const parcelCommand = `npx parcel build  --target node ${pathToProgram} --no-cache`;
     exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
         if (tscError) {
             console.error(`Error during TypeScript transpilation: ${tscError}`);
@@ -72,7 +72,7 @@ export async function registerProgram(cid, secretKey) {
 }
 export async function publishProgram(author, name, target = 'node', secretKey) {
     if (!author || !name) {
-        throw new Error('Author and name are required to publish a contract.');
+        throw new Error('Author and name are required to publish a program.');
     }
     console.log('NAME NAME NAME NAME NAME');
     console.log(`NAME NAME ${name} NAME NAME`);
@@ -92,88 +92,8 @@ export async function publishProgram(author, name, target = 'node', secretKey) {
     const ipfsHashMatch = output.match(/(bafy[a-zA-Z0-9]{44,59})/);
     if (!ipfsHashMatch)
         throw new Error('Failed to extract CID from publish output.');
-    console.log(`Contract published with CID: ${ipfsHashMatch[1]}`);
+    console.log(`Program published with CID: ${ipfsHashMatch[1]}`);
     return ipfsHashMatch[1];
-}
-export async function injectFileInWrapper(filePath, target = 'node') {
-    const projectRoot = process.cwd();
-    const buildPath = path.join(projectRoot, 'build');
-    const buildLibPath = path.join(projectRoot, 'build', 'lib');
-    if (!fs.existsSync(buildLibPath)) {
-        fs.mkdirSync(buildLibPath, { recursive: true });
-    }
-    let wrapperFilePath;
-    if (target === 'node') {
-        let contractFilePath;
-        if (isTypeScriptProject()) {
-            if (isInstalledPackage) {
-            }
-            else {
-                contractFilePath = './dist/example-contract.js';
-                if (fs.existsSync(contractFilePath)) {
-                    console.log('The contract file exists.');
-                }
-                else {
-                    console.log('The contract file does not exist. You must build first.');
-                }
-            }
-        }
-        if (isInstalledPackage) {
-            try {
-                wrapperFilePath =
-                    'node_modules/@versatus/versatus-javascript/dist/lib/node-wrapper.js';
-            }
-            catch (error) {
-                console.error('Error locating node-wrapper.js in node_modules:', error);
-                throw error;
-            }
-        }
-        else {
-            console.log('IN DEVELOPMENT ENVIRONMENT');
-            wrapperFilePath = path.resolve(__dirname, './lib/node-wrapper.js');
-        }
-        const distWrapperFilePath = path.join(buildPath, 'lib', 'node-wrapper.js');
-        fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
-        let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
-        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-contract.js.js';`);
-        return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
-    }
-    else if (target === 'wasm') {
-        let versatusHelpersFilepath = path.resolve(process.cwd(), './lib/versatus');
-        if (isInstalledPackage) {
-            try {
-                wrapperFilePath =
-                    'node_modules/@versatus/versatus-javascript/dist/lib/wasm-wrapper.js';
-                versatusHelpersFilepath =
-                    'node_modules/@versatus/versatus-javascript/dist/lib/versatus.js';
-            }
-            catch (error) {
-                console.error('Error locating wasm-wrapper.js in node_modules:', error);
-                throw error;
-            }
-        }
-        else {
-            console.log('IN DEVELOPMENT ENVIRONMENT');
-            // In the development environment
-            wrapperFilePath = path.resolve(__dirname, './lib/wasm-wrapper.js');
-            versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js');
-        }
-        // Copy the wrapper file to the build directory
-        const distWrapperFilePath = path.join(buildPath, 'lib', 'wasm-wrapper.js');
-        fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
-        const versatusWrapperFilePath = path.join(buildPath, 'lib', 'versatus.js');
-        fs.copyFileSync(versatusHelpersFilepath, versatusWrapperFilePath);
-        try {
-            let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
-            wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from '${filePath}';`);
-            wrapperContent = wrapperContent.replace(/from '.*versatus';?$/m, `from '${versatusWrapperFilePath}.js'`);
-            return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
-        }
-        catch (error) {
-            console.error('Error updating wrapper.js in dist:', error);
-            throw error;
-        }
-    }
 }
 export function runTestProcess(inputJsonPath, target = 'node') {
     return new Promise((resolve, reject) => {

@@ -1,4 +1,4 @@
-import start from '../examples/faucet/example-contract'
+import { FungibleTokenProgram } from '../../lib/classes/programs/FungibleTokenProgram'
 
 process.stdin.setEncoding('utf8')
 
@@ -14,7 +14,8 @@ process.stdin.on('readable', () => {
 process.stdin.on('end', () => {
   try {
     const parsedData = JSON.parse(data)
-    const result = start(parsedData)
+    const program = new FungibleTokenProgram()
+    const result = program.start(parsedData)
     process.stdout.write(JSON.stringify(result))
   } catch (err) {
     console.error('Failed to parse JSON input:', err)

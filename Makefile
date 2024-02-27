@@ -12,7 +12,7 @@ endif
 all: $(DEFAULT)
 
 clean:
-	$(Q)rm -rf dist build example-contract* inputs node_modules .parcel-cache
+	$(Q)rm -rf dist build example-program* inputs node_modules .parcel-cache
 	$(Q)echo "--- clean"
 
 help:
@@ -39,24 +39,20 @@ build:
 
 reset: clean build
 	$(Q)npx vsjs init
-	$(Q)npx vsjs build example-contract.ts
+	$(Q)npx vsjs build example-program.ts
 	$(Q)npx vsjs test inputs
-	$(Q)echo "--- reset"
 
 reset-faucet: clean build
 	$(Q)npx vsjs init faucet
-	$(Q)npx vsjs build example-contract.ts
+	$(Q)npx vsjs build example-program.ts
 	$(Q)npx vsjs test inputs
-	$(Q)echo "--- reset with faucet"
 
 reset-snake: clean build
 	$(Q)npx vsjs init snake
-	$(Q)npx vsjs build example-contract.ts
+	$(Q)npx vsjs build example-program.ts
 	$(Q)npx vsjs test inputs
-	$(Q)echo "--- reset with snake"
 
 reset-fungible-token: clean build
 	$(Q)npx vsjs init fungible-token
-	$(Q)npx vsjs build example-contract.ts
+	$(Q)npx vsjs build example-program.ts
 	$(Q)npx vsjs test inputs
-	$(Q)echo "--- reset with fungible-token"

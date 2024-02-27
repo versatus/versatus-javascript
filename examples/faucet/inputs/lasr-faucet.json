@@ -26,7 +26,7 @@
     "programs":{},
     "nonce":"0x000000000000000000000000000000000000000000000000000000000000001c",
     "programAccountData":{
-      "programs": "{\"0x482830d7655fb8465a43844fc1530a7713781b49\":\"{\\\"pipeData\\\":{\\\"flowAmount\\\":\\\"100\\\",\\\"cycleTimeMin\\\":\\\"1\\\"},\\\"recipients\\\":{\\\"0x100444c7D04A842D19bc3eE63cB7b96682FF3f43\\\":1708903522775}}\"}"
+      "programs": "{\"0x482830d7655fb8465a43844fc1530a7713781b49\":\"{\\\"pipeData\\\":{\\\"flowAmount\\\":\\\"100\\\",\\\"cycleTimeMin\\\":\\\"1\\\"},\\\"recipients\\\":{}}\"}"
     },
     "programAccountMetadata":{},
     "programAccountLinkedPrograms":[

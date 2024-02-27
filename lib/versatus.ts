@@ -5,7 +5,7 @@ import { RPC_URL } from './consts'
 import { bigIntToHexString, formatVerse } from './utils'
 
 /**
- * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
+ * Asynchronously sends a transaction using the specified call transaction data and a private key.
  * The function initializes a wallet with the provided private key, retrieves the account information,
  * updates the transaction nonce, signs the transaction, and finally sends it to a blockchain network
  * via an RPC call.

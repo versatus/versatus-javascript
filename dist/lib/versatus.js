@@ -3,7 +3,7 @@ import * as secp256k1 from '@noble/secp256k1';
 import { RPC_URL } from './consts.js';
 import { bigIntToHexString, formatVerse } from './utils.js';
 /**
- * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
+ * Asynchronously sends a transaction using the specified call transaction data and a private key.
  * The function initializes a wallet with the provided private key, retrieves the account information,
  * updates the transaction nonce, signs the transaction, and finally sends it to a blockchain network
  * via an RPC call.

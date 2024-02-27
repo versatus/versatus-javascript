@@ -5,14 +5,21 @@ source "$DIR/colored_echo.sh"
 
 # Use the current working directory as the root directory
 ROOT_DIR=$(pwd)
-BUILD_NODE_PATH="$ROOT_DIR/build/lib/node-wrapper.js"
+BUILD_NODE_PATH="$ROOT_DIR/build/lib/example-program.js"
 LASR_CLI_PATH="$ROOT_DIR/build/lasr_cli"
+
+# Check if the program file exists
+if [ ! -f "$BUILD_NODE_PATH" ]; then
+    print_error "Program '$BUILD_NODE_PATH' does not exist."
+    exit 1
+fi
 
 # Check if the JSON input file path is provided as an argument
 if [ -z "$1" ]; then
     print_error "No JSON input file path provided."
     exit 1
 fi
+
 INPUT_JSON_PATH="$1"
 
 # Check if the provided JSON input file exists
@@ -25,19 +32,26 @@ print_light_gray "Running the test with NODE..."
 
 #cat "$INPUT_JSON_PATH" | jq
 
+
 EXECUTE_RESPONSE=$(JSON_PAYLOAD=$(cat "$INPUT_JSON_PATH") && echo "$JSON_PAYLOAD" | node "$BUILD_NODE_PATH")
 EXECUTE_STATUS=$?
 
 if [ $EXECUTE_STATUS -eq 0 ]; then
-    print_light_gray "\nOutput:"
-    print_light_gray "*******************************"
-    print_magenta "$EXECUTE_RESPONSE"
-    print_light_gray "*******************************"
-    echo
-    print_light_green "Contract method was successful ✅ "
-    echo
+    if [ -z "$EXECUTE_RESPONSE" ]; then
+        print_error "Execution response is empty! ❌ "
+        print_light_gray "The program method did not return any output. Please check your contract method. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
+        exit 1
+    else
+        print_light_gray "\nOutput:"
+        print_light_gray "*******************************"
+        print_magenta "$EXECUTE_RESPONSE"
+        print_light_gray "*******************************"
+        echo
+        print_light_green "Contract method was successful ✅ "
+        echo
+    fi
 else
-    print_error "Contract method failed! ❌ "
+    print_error "Program method failed! ❌ "
     print_light_gray "Your contract method was unsuccessful. Please update your contract method and try again. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
     exit 1
 fi
@@ -45,22 +59,22 @@ fi
 filename=$(basename "$INPUT_JSON_PATH")
 print_info  "Tested input: \033[0;33m$filename\033[0m"
 echo
-print_light_gray "Validating the PROGRAM OUTPUT..."
+print_light_gray "Validating the program output..."
 VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE" 2>&1)
 VALIDATION_STATUS=$?
 
 if [ "$VALIDATION_STATUS" -eq 0 ]; then
     print_light_gray "*******************************"
-    print_light_green "Output is valid ✅ "
+    print_light_green "Program output is valid ✅ "
     print_light_gray "*******************************"
     print_light_gray "Test complete."
     exit 0
 else
 
     print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
-    print_error "Output is invalid  ❌ "
+    print_error "Program output is invalid  ❌ "
     print_cyan "$VALIDATION_RESPONSE"
-    print_light_gray "Your contract method was successful but the output was incorrect. Please check the structure of your built instructions and try again. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
+    print_light_gray "Your program method was successful but the output was incorrect. Please check the structure of your built instructions and try again. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
     print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
     print_light_gray "Test complete."
     echo
