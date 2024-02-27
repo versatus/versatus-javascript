@@ -2,7 +2,7 @@ import { Account, InitTransaction, Transaction, TransactionType } from './types'
 import { Wallet, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
 import { RPC_URL } from './consts'
-import { formatVerse } from './utils'
+import { bigIntToHexString, formatVerse } from './utils'
 
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
@@ -53,8 +53,8 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
       keccak256Hash.replace('0x', ''),
       privateKey
     )
-    const r = formatVerse(signature.r.toString())
-    const s = formatVerse(signature.s.toString())
+    const r = bigIntToHexString(signature.r)
+    const s = bigIntToHexString(signature.s)
     const recover = signature.recovery as number
     // if (!recover) {
     //   throw new Error('Invalid signature')
