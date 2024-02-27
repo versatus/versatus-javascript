@@ -49,20 +49,15 @@ export async function broadcast(callTx, privateKey) {
         const bytes = toUtf8Bytes(orderedTxString);
         const keccak256Hash = keccak256(bytes);
         const signature = await secp256k1.signAsync(keccak256Hash.replace('0x', ''), privateKey);
-        // console.log('signature', signature.)
         const r = bigIntToHexString(signature.r);
         const s = bigIntToHexString(signature.s);
         const recover = signature.recovery;
-        // if (!recover) {
-        //   throw new Error('Invalid signature')
-        // }
         const transactionWithSignature = {
             ...orderedTx,
             r,
             s,
             v: recover,
         };
-        console.log({ transactionWithSignature });
         return await callLasrRpc(`lasr_${broadcastType}`, [transactionWithSignature], RPC_URL);
     }
     catch (error) {
