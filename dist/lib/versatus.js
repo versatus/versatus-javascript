@@ -18,6 +18,7 @@ export async function broadcast(callTx, privateKey) {
         const wallet = new Wallet(privateKey);
         let account = null;
         const broadcastType = callTx.op === 'send' ? 'send' : 'call';
+        console.log({ callTx });
         try {
             const accountResult = await getAccount(wallet.address);
             if (accountResult && 'nonce' in accountResult) {
@@ -42,6 +43,7 @@ export async function broadcast(callTx, privateKey) {
             [broadcastType]: newNonce,
         };
         const orderedTx = reorderTransactionKeys(callTx);
+        console.log({ orderedTx });
         const orderedTxString = JSON.stringify(orderedTx);
         const bytes = toUtf8Bytes(orderedTxString);
         const keccak256Hash = keccak256(bytes);
@@ -58,6 +60,7 @@ export async function broadcast(callTx, privateKey) {
             s,
             v: recover,
         };
+        console.log({ transactionWithSignature });
         return await callLasrRpc(`lasr_${broadcastType}`, [transactionWithSignature], RPC_URL);
     }
     catch (error) {
