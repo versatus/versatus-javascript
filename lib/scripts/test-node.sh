@@ -29,13 +29,19 @@ EXECUTE_RESPONSE=$(JSON_PAYLOAD=$(cat "$INPUT_JSON_PATH") && echo "$JSON_PAYLOAD
 EXECUTE_STATUS=$?
 
 if [ $EXECUTE_STATUS -eq 0 ]; then
-    print_light_gray "\nOutput:"
-    print_light_gray "*******************************"
-    print_magenta "$EXECUTE_RESPONSE"
-    print_light_gray "*******************************"
-    echo
-    print_light_green "Contract method was successful ✅ "
-    echo
+    if [ -z "$EXECUTE_RESPONSE" ]; then
+        print_error "Execution response is empty! ❌ "
+        print_light_gray "The contract method did not return any output. Please check your contract method. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
+        exit 1
+    else
+        print_light_gray "\nOutput:"
+        print_light_gray "*******************************"
+        print_magenta "$EXECUTE_RESPONSE"
+        print_light_gray "*******************************"
+        echo
+        print_light_green "Contract method was successful ✅ "
+        echo
+    fi
 else
     print_error "Contract method failed! ❌ "
     print_light_gray "Your contract method was unsuccessful. Please update your contract method and try again. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."

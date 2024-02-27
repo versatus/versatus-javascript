@@ -120,14 +120,18 @@ export function buildTokenDistributionInstruction({
   programId: string
   initializedSupply: string
   to: string
-  tokenUpdates: TokenUpdateField[]
+  tokenUpdates?: TokenUpdateField[]
 }) {
-  return new TokenDistributionBuilder()
+  const tokenDistributionBuilder = new TokenDistributionBuilder()
     .setProgramId(new AddressOrNamespace(new Address(programId)))
     .setAmount(bigIntToHexString(BigInt(initializedSupply)))
     .setReceiver(new AddressOrNamespace(new Address(to)))
-    .extendUpdateFields(tokenUpdates)
-    .build()
+
+  if (tokenUpdates) {
+    tokenDistributionBuilder.extendUpdateFields(tokenUpdates)
+  }
+
+  return tokenDistributionBuilder.build()
 }
 
 export function buildMintInstructions({

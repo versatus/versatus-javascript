@@ -242,8 +242,13 @@ yargs(process.argv.slice(2))
             }
         }
         catch (err) {
+            //@ts-ignore
+            if (err.indexOf('Error: ') > -1) {
+                //@ts-ignore
+                err = err.split('Error: ')[1];
+            }
             // @ts-ignore
-            console.error(`Error: ${err.message}`);
+            console.error(`${err}`);
             process.exit(1);
         }
     }

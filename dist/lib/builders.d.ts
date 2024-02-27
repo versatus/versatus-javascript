@@ -25,7 +25,7 @@ export declare function buildTokenDistributionInstruction({ programId, initializ
     programId: string;
     initializedSupply: string;
     to: string;
-    tokenUpdates: TokenUpdateField[];
+    tokenUpdates?: TokenUpdateField[];
 }): TokenDistribution;
 export declare function buildMintInstructions({ from, programId, paymentTokenAddress, paymentValue, returnedValue, }: {
     from: string;

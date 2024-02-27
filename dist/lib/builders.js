@@ -34,12 +34,14 @@ export function buildUpdateInstruction({ update, }) {
     return new UpdateInstructionBuilder().addUpdate(update).build();
 }
 export function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, }) {
-    return new TokenDistributionBuilder()
+    const tokenDistributionBuilder = new TokenDistributionBuilder()
         .setProgramId(new AddressOrNamespace(new Address(programId)))
         .setAmount(bigIntToHexString(BigInt(initializedSupply)))
-        .setReceiver(new AddressOrNamespace(new Address(to)))
-        .extendUpdateFields(tokenUpdates)
-        .build();
+        .setReceiver(new AddressOrNamespace(new Address(to)));
+    if (tokenUpdates) {
+        tokenDistributionBuilder.extendUpdateFields(tokenUpdates);
+    }
+    return tokenDistributionBuilder.build();
 }
 export function buildMintInstructions({ from, programId, paymentTokenAddress, paymentValue, returnedValue, }) {
     const transferToProgram = buildTransferInstruction({
