@@ -32,7 +32,7 @@ export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const initCommand: CommandBuilder<{}, InitCommandArgs> = (yargs: Argv) => {
   return yargs.positional('example', {
-    describe: 'The example contract to initialize',
+    describe: 'The example program to initialize',
     type: 'string',
     choices: ['fungible-token', 'snake', 'faucet'],
     demandOption: true,
@@ -146,11 +146,11 @@ const sendCommand: CommandBuilder<{}, SendCommandArgs> = (yargs: Argv) => {
 yargs(process.argv.slice(2))
   .command(
     'init [example]',
-    'Initialize a project with an example contract',
+    'Initialize a project with an example program',
     initCommand,
     (argv: Arguments<InitCommandArgs>) => {
       console.log(
-        `\x1b[0;33mInitializing example contract: ${
+        `\x1b[0;33mInitializing example program: ${
           argv.example || 'fungible-token' || 'faucet'
         }...\x1b[0m`
       )
@@ -182,7 +182,7 @@ yargs(process.argv.slice(2))
         targetFilePath
       )
 
-      // After copying the example contract file
+      // After copying the example program file
       let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8')
 
       // Add this line to replace '../../' with '@/'
@@ -473,7 +473,7 @@ yargs(process.argv.slice(2))
           throw new Error('Failed to extract CID from publish output.')
         console.log(
           `\x1b[0;32mProgram published.\x1b[0m
-==> cid:${ipfsHashMatch[ipfsHashMatch.length - 1]}`
+==> cid: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`
         )
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
 

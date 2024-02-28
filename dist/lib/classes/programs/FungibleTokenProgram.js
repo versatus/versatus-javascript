@@ -1,14 +1,12 @@
-import { Program } from './Program.js';
-import { TokenUpdateBuilder } from '../builders.js';
-import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
-import Address from '../Address.js';
-import { Outputs } from '../Outputs.js';
-import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../Token.js';
-import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../builders.js';
-import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
-import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts.js';
-import { ProgramUpdate } from '../Program.js';
-import { formatVerse } from '../../utils.js';
+import { Program } from '../../../lib/classes/programs/Program.js';
+import { TokenUpdateBuilder } from '../../../lib/classes/builders.js';
+import { AddressOrNamespace, TokenOrProgramUpdate } from '../../../lib/classes/utils.js';
+import Address from '../../../lib/classes/Address.js';
+import { Outputs } from '../../../lib/classes/Outputs.js';
+import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../../../lib/classes/Token.js';
+import { buildBurnInstruction, buildMintInstructions } from '../../../lib/builders.js';
+import { ApprovalsExtend, ApprovalsValue } from '../../../lib/classes/Approvals.js';
+import { ETH_PROGRAM_ADDRESS, THIS } from '../../../lib/consts.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
@@ -51,62 +49,6 @@ export class FungibleTokenProgram extends Program {
             amount: transaction.value,
         });
         return new Outputs(computeInputs, [burnInstruction]).toJson();
-    }
-    create(computeInputs) {
-        const { transaction } = computeInputs;
-        const { transactionInputs, from } = transaction;
-        const txInputs = JSON.parse(transactionInputs);
-        const totalSupply = formatVerse(txInputs?.totalSupply);
-        const initializedSupply = formatVerse(txInputs?.initializedSupply);
-        const to = txInputs?.to ?? from;
-        const symbol = txInputs?.symbol;
-        const name = txInputs?.name;
-        if (!totalSupply || !initializedSupply) {
-            throw new Error('Invalid totalSupply or initializedSupply');
-        }
-        if (!symbol || !name) {
-            throw new Error('Invalid symbol or name');
-        }
-        const tokenUpdateField = buildTokenUpdateField({
-            field: 'metadata',
-            value: JSON.stringify({ symbol, name, totalSupply }),
-            action: 'extend',
-        });
-        if (tokenUpdateField instanceof Error) {
-            throw tokenUpdateField;
-        }
-        const tokenUpdates = [tokenUpdateField];
-        const programUpdateField = buildProgramUpdateField({
-            field: 'metadata',
-            value: JSON.stringify({ symbol, name, totalSupply }),
-            action: 'extend',
-        });
-        if (programUpdateField instanceof Error) {
-            throw programUpdateField;
-        }
-        const programUpdates = [programUpdateField];
-        const programMetadataUpdateInstruction = buildUpdateInstruction({
-            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
-        });
-        const distributionInstruction = buildTokenDistributionInstruction({
-            programId: THIS,
-            initializedSupply,
-            to,
-            tokenUpdates,
-        });
-        const createAndDistributeInstruction = buildCreateInstruction({
-            from,
-            initializedSupply,
-            totalSupply,
-            programId: THIS,
-            programOwner: from,
-            programNamespace: THIS,
-            distributionInstruction,
-        });
-        return new Outputs(computeInputs, [
-            createAndDistributeInstruction,
-            programMetadataUpdateInstruction,
-        ]).toJson();
     }
     mint(computeInputs) {
         const { transaction } = computeInputs;

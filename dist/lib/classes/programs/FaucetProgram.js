@@ -1,6 +1,6 @@
 import { Program } from '../../../lib/classes/programs/Program.js';
 import { Outputs } from '../../../lib/classes/Outputs.js';
-import { buildCreateInstruction, buildTransferInstruction, buildProgramUpdateField, buildUpdateInstruction, buildTokenUpdateField, buildTokenDistributionInstruction, } from '../../../lib/builders.js';
+import { buildTransferInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../../lib/builders.js';
 import { THIS } from '../../../lib/consts.js';
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../../../lib/classes/utils.js';
 import { ProgramUpdate } from '../../../lib/classes/Program.js';
@@ -74,65 +74,6 @@ export class FaucetProgram extends Program {
         return new Outputs(computeInputs, [
             transferToFaucetInstruction,
             faucetDataUpdateInstruction,
-        ]).toJson();
-    }
-    create(computeInputs) {
-        const { transaction } = computeInputs;
-        const { transactionInputs } = transaction;
-        const updateTokenMetadata = buildTokenUpdateField({
-            field: 'metadata',
-            value: transactionInputs,
-            action: 'extend',
-        });
-        if (updateTokenMetadata instanceof Error) {
-            throw updateTokenMetadata;
-        }
-        const faucetInitInstruction = buildTokenDistributionInstruction({
-            programId: THIS,
-            to: transaction.from,
-            initializedSupply: formatVerse('1'),
-            tokenUpdates: [updateTokenMetadata],
-        });
-        const createInstruction = buildCreateInstruction({
-            from: transaction.from,
-            programId: THIS,
-            programOwner: transaction.from,
-            totalSupply: formatVerse('1'),
-            initializedSupply: formatVerse('1'),
-            programNamespace: THIS,
-            distributionInstruction: faucetInitInstruction,
-        });
-        const faucetRecipientsInit = buildProgramUpdateField({
-            field: 'data',
-            value: JSON.stringify({
-                programs: JSON.stringify({}),
-            }),
-            action: 'extend',
-        });
-        if (faucetRecipientsInit instanceof Error) {
-            throw faucetRecipientsInit;
-        }
-        const createSupportedProgramsAndRecipientsUpdateInstruction = buildUpdateInstruction({
-            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), [
-                faucetRecipientsInit,
-            ])),
-        });
-        const programUpdateField = buildProgramUpdateField({
-            field: 'metadata',
-            value: transactionInputs,
-            action: 'extend',
-        });
-        if (programUpdateField instanceof Error) {
-            throw programUpdateField;
-        }
-        const programUpdates = [programUpdateField];
-        const programMetadataUpdateInstruction = buildUpdateInstruction({
-            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
-        });
-        return new Outputs(computeInputs, [
-            createInstruction,
-            programMetadataUpdateInstruction,
-            createSupportedProgramsAndRecipientsUpdateInstruction,
         ]).toJson();
     }
     faucet(computeInputs) {

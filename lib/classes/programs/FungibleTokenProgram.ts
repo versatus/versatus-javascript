@@ -1,29 +1,19 @@
-import { Program } from './Program'
-import { ComputeInputs } from '../../types'
-import { TokenUpdateBuilder } from '../builders'
-import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils'
-import Address from '../Address'
-import { Outputs } from '../Outputs'
+import { Program } from '@/lib/classes/programs/Program'
+import { ComputeInputs } from '@/lib/types'
+import { TokenUpdateBuilder } from '@/lib/classes/builders'
+import { AddressOrNamespace, TokenOrProgramUpdate } from '@/lib/classes/utils'
+import Address from '@/lib/classes/Address'
+import { Outputs } from '@/lib/classes/Outputs'
 
 import {
   TokenField,
   TokenFieldValue,
   TokenUpdate,
   TokenUpdateField,
-} from '../Token'
-import {
-  buildBurnInstruction,
-  buildCreateInstruction,
-  buildMintInstructions,
-  buildTokenUpdateField,
-  buildTokenDistributionInstruction,
-  buildProgramUpdateField,
-  buildUpdateInstruction,
-} from '../../builders'
-import { ApprovalsExtend, ApprovalsValue } from '../Approvals'
-import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts'
-import { ProgramUpdate } from '../Program'
-import { formatVerse } from '../../utils'
+} from '@/lib/classes/Token'
+import { buildBurnInstruction, buildMintInstructions } from '@/lib/builders'
+import { ApprovalsExtend, ApprovalsValue } from '@/lib/classes/Approvals'
+import { ETH_PROGRAM_ADDRESS, THIS } from '@/lib/consts'
 
 /**
  * Class representing a fungible token program, extending the base `Program` class.
@@ -85,76 +75,6 @@ export class FungibleTokenProgram extends Program {
     })
 
     return new Outputs(computeInputs, [burnInstruction]).toJson()
-  }
-
-  create(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const { transactionInputs, from } = transaction
-    const txInputs = JSON.parse(transactionInputs)
-    const totalSupply = formatVerse(txInputs?.totalSupply)
-    const initializedSupply = formatVerse(txInputs?.initializedSupply)
-    const to = txInputs?.to ?? from
-    const symbol = txInputs?.symbol
-    const name = txInputs?.name
-
-    if (!totalSupply || !initializedSupply) {
-      throw new Error('Invalid totalSupply or initializedSupply')
-    }
-
-    if (!symbol || !name) {
-      throw new Error('Invalid symbol or name')
-    }
-
-    const tokenUpdateField = buildTokenUpdateField({
-      field: 'metadata',
-      value: JSON.stringify({ symbol, name, totalSupply }),
-      action: 'extend',
-    })
-    if (tokenUpdateField instanceof Error) {
-      throw tokenUpdateField
-    }
-    const tokenUpdates = [tokenUpdateField]
-
-    const programUpdateField = buildProgramUpdateField({
-      field: 'metadata',
-      value: JSON.stringify({ symbol, name, totalSupply }),
-      action: 'extend',
-    })
-
-    if (programUpdateField instanceof Error) {
-      throw programUpdateField
-    }
-
-    const programUpdates = [programUpdateField]
-
-    const programMetadataUpdateInstruction = buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
-      ),
-    })
-
-    const distributionInstruction = buildTokenDistributionInstruction({
-      programId: THIS,
-      initializedSupply,
-      to,
-      tokenUpdates,
-    })
-
-    const createAndDistributeInstruction = buildCreateInstruction({
-      from,
-      initializedSupply,
-      totalSupply,
-      programId: THIS,
-      programOwner: from,
-      programNamespace: THIS,
-      distributionInstruction,
-    })
-
-    return new Outputs(computeInputs, [
-      createAndDistributeInstruction,
-      programMetadataUpdateInstruction,
-    ]).toJson()
   }
 
   mint(computeInputs: ComputeInputs) {

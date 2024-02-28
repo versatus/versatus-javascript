@@ -1,4 +1,4 @@
-import { ComputeInputs } from '../../types';
+import { ComputeInputs } from '../../../lib/types';
 /**
  * Class representing a Program with methods to manage and execute program strategies.
  */
@@ -14,6 +14,7 @@ export declare class Program {
      * Constructs a new Program instance.
      */
     constructor();
+    create(computeInputs: ComputeInputs): object;
     /**
      * Executes a program method strategy based on the given input.
      * @throws Will throw an error if the method name specified in `input` is not found in `methodStrategies`.

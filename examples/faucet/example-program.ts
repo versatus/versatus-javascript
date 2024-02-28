@@ -1,6 +1,6 @@
-import { Program } from '../../lib/classes/programs/Program'
-import { ComputeInputs } from '../../lib/types'
-import { Outputs } from '../../lib/classes/Outputs'
+import { Program } from '@/lib/classes/programs/Program'
+import { ComputeInputs } from '@/lib/types'
+import { Outputs } from '@/lib/classes/Outputs'
 
 import {
   buildCreateInstruction,
@@ -9,14 +9,11 @@ import {
   buildUpdateInstruction,
   buildTokenUpdateField,
   buildTokenDistributionInstruction,
-} from '../../lib/builders'
-import { THIS } from '../../lib/consts'
-import {
-  AddressOrNamespace,
-  TokenOrProgramUpdate,
-} from '../../lib/classes/utils'
-import { ProgramUpdate } from '../../lib/classes/Program'
-import { formatVerse, parseVerse } from '../../lib/utils'
+} from '@/lib/builders'
+import { THIS } from '@/lib/consts'
+import { AddressOrNamespace, TokenOrProgramUpdate } from '@/lib/classes/utils'
+import { ProgramUpdate } from '@/lib/classes/Program'
+import { formatVerse, parseVerse } from '@/lib/utils'
 
 /**
  * Class representing a faucet program, extending the base `Program` class.
