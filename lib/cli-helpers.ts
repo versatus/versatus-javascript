@@ -205,7 +205,7 @@ export async function sendTokens(
 
   process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
   process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`
-  const command = `./build/lasr_cli wallet send --to ${recipientAddress} -c ${programAddress} --value ${amount} -u melody --from-secret-key --secret-key "${secretKey}"`
+  const command = `./build/lasr_cli wallet send --to ${recipientAddress} -c ${programAddress} --value ${amount} -u verse --from-secret-key --secret-key "${secretKey}"`
   return await runCommand(command)
 }
 
