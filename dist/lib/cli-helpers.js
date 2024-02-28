@@ -37,7 +37,8 @@ export async function buildNode(buildPath) {
         fs.unlinkSync(nodeMapWrapperPath);
         console.log('Existing node-wrapper.js.map deleted.');
     }
-    const parcelCommand = `npx parcel build  --target node ./lib/node-wrapper.ts --no-cache`;
+    const parcelCommand = `
+  npx parcel build --target node ./lib/node-wrapper.ts --no-cache`;
     exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
         if (tscError) {
             console.error(`Error during TypeScript transpilation: ${tscError}`);
@@ -66,17 +67,30 @@ export async function getSecretKeyFromKeyPairFile(keypairFilePath) {
     }
 }
 export async function registerProgram(cid, secretKey) {
-    const command = `export LASR_RPC_URL=${LASR_RPC_URL} && export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/lasr_cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`;
-    console.log(command);
+    process.env.LASR_RPC_URL = `${LASR_RPC_URL}`;
+    process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`;
+    const command = `
+  ./build/lasr_cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`;
+    return await runCommand(command);
+}
+export async function callCreate(programAddress, symbol, name, initializedSupply, totalSupply, secretKey, recipientAccount) {
+    if (!programAddress ||
+        !symbol ||
+        !name ||
+        !initializedSupply ||
+        !totalSupply ||
+        !secretKey) {
+        throw new Error(`programAddress (${programAddress}), symbol (${symbol}), name (${name}), initializedSupply (${initializedSupply}), totalSupply(${totalSupply}), and secretKey are required to call create.`);
+    }
+    process.env.LASR_RPC_URL = `${LASR_RPC_URL}`;
+    process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`;
+    const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op "create" --inputs '{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"}' --to "${programAddress}" --content-namespace "${programAddress}"`;
     return await runCommand(command);
 }
 export async function publishProgram(author, name, target = 'node', secretKey) {
     if (!author || !name) {
         throw new Error('Author and name are required to publish a contract.');
     }
-    console.log('NAME NAME NAME NAME NAME');
-    console.log(`NAME NAME ${name} NAME NAME`);
-    console.log('NAME NAME NAME NAME NAME');
     const isWasm = target === 'wasm';
     process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292';
     process.env.VIPFS_ADDRESS = '167.99.20.121:5001';
@@ -92,7 +106,8 @@ export async function publishProgram(author, name, target = 'node', secretKey) {
     const ipfsHashMatch = output.match(/(bafy[a-zA-Z0-9]{44,59})/);
     if (!ipfsHashMatch)
         throw new Error('Failed to extract CID from publish output.');
-    console.log(`Contract published with CID: ${ipfsHashMatch[1]}`);
+    console.log(`Contract published with CID.\n
+==> ${ipfsHashMatch[1]}`);
     return ipfsHashMatch[1];
 }
 export async function injectFileInWrapper(filePath, target = 'node') {
@@ -180,7 +195,7 @@ export function runTestProcess(inputJsonPath, target = 'node') {
         let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd();
         const testScriptPath = path.resolve(scriptDir, 'lib', 'scripts', target === 'node' ? 'test-node.sh' : 'test-wasm.sh');
         const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
-            stdio: ['inherit', 'inherit', 'pipe'], // Capture stderr to use in the promise
+            stdio: ['inherit', 'inherit', 'pipe'],
         });
         let errorOutput = '';
         testProcess.stderr.on('data', (data) => {
@@ -200,14 +215,18 @@ export function runTestProcess(inputJsonPath, target = 'node') {
     });
 }
 export async function initializeWallet() {
-    await runCommand('./build/lasr_cli wallet new --save');
+    await runCommand(`./build/lasr_cli wallet new 
+    --save`);
     console.log('Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json');
 }
 export async function checkWallet(keypairPath) {
     try {
         console.log('Checking wallet...');
-        const command = `./build/lasr_cli wallet get-account --from-file --path ${keypairPath}`;
-        const output = await runCommand(command);
+        const command = `
+    ./build/lasr_cli wallet get-account 
+      --from-file 
+      --path ${keypairPath}`;
+        await runCommand(command);
         console.log('Wallet check successful');
     }
     catch (error) {

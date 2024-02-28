@@ -13,6 +13,5 @@ export declare class FungibleTokenProgram extends Program {
     approve(computeInputs: ComputeInputs): object;
     burn(computeInputs: ComputeInputs): object;
     create(computeInputs: ComputeInputs): object;
-    createAndDistribute(computeInputs: ComputeInputs): object;
     mint(computeInputs: ComputeInputs): object;
 }

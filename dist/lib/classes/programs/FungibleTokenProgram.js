@@ -8,6 +8,7 @@ import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, bu
 import { ApprovalsExtend, ApprovalsValue } from '../Approvals.js';
 import { ETH_PROGRAM_ADDRESS, THIS } from '../../consts.js';
 import { ProgramUpdate } from '../Program.js';
+import { formatVerse } from '../../utils.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
@@ -23,7 +24,6 @@ export class FungibleTokenProgram extends Program {
             approve: this.approve.bind(this),
             burn: this.burn.bind(this),
             create: this.create.bind(this),
-            createAndDistribute: this.createAndDistribute.bind(this),
             mint: this.mint.bind(this),
         });
     }
@@ -54,29 +54,22 @@ export class FungibleTokenProgram extends Program {
     }
     create(computeInputs) {
         const { transaction } = computeInputs;
-        const { transactionInputs } = transaction;
-        const initializedSupply = JSON.parse(transactionInputs)?.initializedSupply ?? '0';
-        const totalSupply = JSON.parse(transactionInputs)?.totalSupply ?? '0';
-        const createInstruction = buildCreateInstruction({
-            from: transaction.from,
-            initializedSupply: initializedSupply,
-            totalSupply: totalSupply,
-            programId: THIS,
-            programOwner: transaction.from,
-            programNamespace: THIS,
-        });
-        return new Outputs(computeInputs, [createInstruction]).toJson();
-    }
-    createAndDistribute(computeInputs) {
-        const { transaction } = computeInputs;
         const { transactionInputs, from } = transaction;
-        const parsedInputMetadata = JSON.parse(transactionInputs);
-        const totalSupply = parsedInputMetadata?.totalSupply ?? '0';
-        const initializedSupply = parsedInputMetadata?.initializedSupply ?? '0';
-        const to = parsedInputMetadata?.to ?? from;
+        const txInputs = JSON.parse(transactionInputs);
+        const totalSupply = formatVerse(txInputs?.totalSupply);
+        const initializedSupply = formatVerse(txInputs?.initializedSupply);
+        const to = txInputs?.to ?? from;
+        const symbol = txInputs?.symbol;
+        const name = txInputs?.name;
+        if (!totalSupply || !initializedSupply) {
+            throw new Error('Invalid totalSupply or initializedSupply');
+        }
+        if (!symbol || !name) {
+            throw new Error('Invalid symbol or name');
+        }
         const tokenUpdateField = buildTokenUpdateField({
             field: 'metadata',
-            value: transactionInputs,
+            value: JSON.stringify({ symbol, name, totalSupply }),
             action: 'extend',
         });
         if (tokenUpdateField instanceof Error) {
@@ -84,7 +77,7 @@ export class FungibleTokenProgram extends Program {
         }
         const programUpdateField = buildProgramUpdateField({
             field: 'metadata',
-            value: transactionInputs,
+            value: JSON.stringify({ symbol, name, totalSupply }),
             action: 'extend',
         });
         if (programUpdateField instanceof Error) {

@@ -6,7 +6,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { runCommand, runSpawn } from './lib/shell.js';
-import { buildNode, checkWallet, copyDirectory, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, registerProgram, runTestProcess, } from './lib/cli-helpers.js';
+import { buildNode, callCreate, checkWallet, copyDirectory, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, registerProgram, runTestProcess, } from './lib/cli-helpers.js';
 import { VIPFS_ADDRESS } from './lib/consts.js';
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const initCommand = (yargs) => {
@@ -46,6 +46,26 @@ const deployCommand = (yargs) => {
     })
         .option('name', {
         describe: 'Name of the contract',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('symbol', {
+        describe: 'Symbol for the program',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('tokenName', {
+        describe: 'Name for the program',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('initializedSupply', {
+        describe: 'Supply of the token to be sent to either the caller or the program',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('totalSupply', {
+        describe: 'Total supply of the token to be created',
         type: 'string',
         demandOption: true,
     })
@@ -242,13 +262,14 @@ yargs(process.argv.slice(2))
             }
         }
         catch (err) {
+            console.log(typeof err);
             //@ts-ignore
-            if (err.indexOf('Error: ') > -1) {
+            if (typeof err === 'string' && err.indexOf('Error: ') > -1) {
                 //@ts-ignore
-                err = err.split('Error: ')[1];
+                err = err.split('Error: ')[1].split('\n')[0];
             }
             // @ts-ignore
-            console.error(`${err}`);
+            console.log(`\x1b[0;31m${err}\x1b[0m`);
             process.exit(1);
         }
     }
@@ -257,12 +278,10 @@ yargs(process.argv.slice(2))
         process.exit(1);
     }
 })
-    .command('deploy [author] [name] [keypairPath] [secretKey] [target]', 'Deploy a contract', deployCommand, async (argv) => {
+    .command('deploy [author] [name] [symbol] [tokenName] [keypairPath] [secretKey] [target]', 'Deploy a contract', deployCommand, async (argv) => {
     try {
         if (!argv.secretKey) {
-            console.log('NO SECRET KEY!');
-            if (!argv.keypairPath &&
-                fs.existsSync('./lasr/wallet/keypair.json')) {
+            if (!fs.existsSync('.lasr/wallet/keypair.json')) {
                 console.log('\x1b[0;33mInitializing wallet...\x1b[0m');
                 await initializeWallet();
             }
@@ -279,7 +298,7 @@ yargs(process.argv.slice(2))
             secretKey = String(argv.secretKey);
         }
         else {
-            const keypairPath = './.lasr/wallet/keypair.json';
+            const keypairPath = '.lasr/wallet/keypair.json';
             secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath));
         }
         console.log('\x1b[0;33mPublishing program...\x1b[0m');
@@ -288,23 +307,46 @@ yargs(process.argv.slice(2))
         process.env.VIPFS_ADDRESS = '167.99.20.121:5001';
         let command;
         if (isWasm) {
-            command = `build/versatus-wasm publish -a ${argv.author} -n ${argv.name} -v 0 -w build/build.wasm -r --is-srv true`;
+            command = `
+          build/versatus-wasm publish \n
+            -a ${argv.author} \n
+             -n ${argv.name} \n
+             -v 0 \n
+             -w build/build.wasm \n 
+             -r \n
+             --is-srv true`;
         }
         else {
-            command = `build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/${isWasm ? '' : 'lib'} --entrypoint build/lib/node-wrapper.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
+            command = `
+          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/node-wrapper.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
         }
-        console.log(command);
         const output = await runCommand(command);
         const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g;
         const ipfsHashMatch = output.match(cidPattern);
         if (!ipfsHashMatch)
             throw new Error('Failed to extract CID from publish output.');
-        console.log(`MATCHES: ${ipfsHashMatch.map((m) => m)}`);
-        console.log(`Contract published with CID: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
+        console.log(`\x1b[0;32mProgram published.\x1b[0m
+==> cid:${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
-        const response = await registerProgram(cid, secretKey);
-        console.log(response);
+        const registerResponse = await registerProgram(cid, secretKey);
+        const programAddressMatch = registerResponse.match(/"program_address":\s*"(0x[a-fA-F0-9]{40})"/);
+        if (!programAddressMatch)
+            throw new Error('Failed to extract program address from the output.');
+        const programAddress = programAddressMatch[1];
+        console.log(`\x1b[0;32mProgram registered.\x1b[0m
+==> programAddress: ${programAddress}`);
+        console.log('\x1b[0;33mCreating program...\x1b[0m');
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.tokenName), String(argv.initializedSupply), String(argv.totalSupply), secretKey);
+        if (createResponse) {
+            console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
+==> programAddress: ${programAddress}
+==> symbol: ${argv.symbol}
+==> tokenName: ${argv.tokenName}
+==> initializedSupply: ${argv.initializedSupply}
+==> totalSupply: ${argv.totalSupply}
+          `);
+        }
     }
     catch (error) {
         console.error(`Deployment error: ${error}`);

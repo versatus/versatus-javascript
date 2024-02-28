@@ -4,7 +4,7 @@
   "transaction": {
     "from": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
     "to": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
-    "transactionInputs": "{\"name\":\"HelloToken\",\"symbol\":\"HLLO\",\"totalSupply\":\"0x000000000000000001\"}",
+    "transactionInputs": "{\"name\":\"HelloToken\",\"symbol\":\"HLLO\",\"totalSupply\":\"1000000\",\"initializedSupply\":\"10000\"}",
     "nonce": "0x0000000000000000000000000000000000000000000000000000000000000001",
     "op": "create",
     "programId": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",

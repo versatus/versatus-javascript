@@ -12,7 +12,7 @@ endif
 all: $(DEFAULT)
 
 clean:
-	$(Q)rm -rf dist build/lib example-contract* inputs node_modules .parcel-cache
+	$(Q)rm -rf dist build example-contract* inputs node_modules .parcel-cache
 	$(Q)echo "--- clean"
 
 help:
@@ -46,7 +46,7 @@ reset: clean build
 reset-faucet: clean build
 	$(Q)npx vsjs init faucet
 	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs/lasr-faucet-2.json
+	$(Q)npx vsjs test inputs
 	$(Q)echo "--- reset with faucet"
 
 reset-snake: clean build

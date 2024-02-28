@@ -62,20 +62,17 @@ export function buildTransferInstruction({ from, to, tokenAddress, amount, token
     const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
     const fromAddressOrNamespace = new AddressOrNamespace(new Address(from));
     const tokenAddressOrNamespace = new Address(tokenAddress);
-    if (tokenIds) {
-        return new TransferInstructionBuilder()
-            .setTransferFrom(fromAddressOrNamespace)
-            .setTransferTo(toAddressOrNamespace)
-            .setTokenAddress(tokenAddressOrNamespace)
-            .addTokenIds(tokenIds)
-            .build();
-    }
-    return new TransferInstructionBuilder()
+    const instructionBuilder = new TransferInstructionBuilder()
         .setTransferFrom(fromAddressOrNamespace)
         .setTransferTo(toAddressOrNamespace)
-        .setAmount(bigIntToHexString(amount))
-        .setTokenAddress(tokenAddressOrNamespace)
-        .build();
+        .setTokenAddress(tokenAddressOrNamespace);
+    if (tokenIds) {
+        instructionBuilder.addTokenIds(tokenIds);
+    }
+    if (amount) {
+        instructionBuilder.setAmount(bigIntToHexString(amount));
+    }
+    return instructionBuilder.build();
 }
 export function buildTokenUpdateField({ field, value, action, }) {
     let tokenFieldAction;
