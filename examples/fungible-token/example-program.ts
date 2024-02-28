@@ -11,9 +11,9 @@ import {
   TokenUpdate,
   TokenUpdateBuilder,
   TokenUpdateField,
-} from '@/lib/classes'
+} from '../../lib/classes'
 
-import { ComputeInputs } from '@/lib'
+import { ComputeInputs } from '../../lib'
 
 import {
   buildBurnInstruction,
@@ -23,10 +23,10 @@ import {
   buildTokenDistributionInstruction,
   buildProgramUpdateField,
   buildUpdateInstruction,
-} from '@/lib/builders'
-import { ETH_PROGRAM_ADDRESS, THIS } from '@/lib/consts'
-import { formatVerse } from '@/lib/utils'
-import Address from '@/lib/classes/Address'
+} from '../../lib/builders'
+import { ETH_PROGRAM_ADDRESS, THIS } from '../../lib/consts'
+import { formatVerse } from '../../lib/utils'
+import Address from '../../lib/classes/Address'
 
 /**
  * Class representing a fungible token program, extending the base `Program` class.

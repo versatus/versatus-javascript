@@ -13,7 +13,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "tsc && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js",
+    "build": "tsc && tsc-alias && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js",
     "docs": "typedoc",
     "test": "node dist/test/FungibleTokenTest.js"
   },
@@ -41,6 +41,7 @@
     "core-js": "^3.35.1",
     "ethers": "^6.11.1",
     "fs": "^0.0.1-security",
+    "tsc-alias": "^1.8.8",
     "uuid": "^9.0.1",
     "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4",

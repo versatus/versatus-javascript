@@ -38,7 +38,7 @@ export async function buildNode(buildPath) {
         console.log('Existing node-wrapper.js.map deleted.');
     }
     const parcelCommand = `
-  npx parcel build --target node ./lib/node-wrapper.ts --no-cache`;
+  npx parcel build --target node ./example-program.ts --no-cache`;
     exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
         if (tscError) {
             console.error(`Error during TypeScript transpilation: ${tscError}`);
@@ -169,7 +169,7 @@ export async function injectFileInWrapper(filePath, target = 'node') {
             if (isInstalledPackage) {
             }
             else {
-                contractFilePath = './dist/example-contract.js';
+                contractFilePath = './dist/example-program.js';
                 if (fs.existsSync(contractFilePath)) {
                     console.log('The contract file exists.');
                 }
@@ -195,7 +195,7 @@ export async function injectFileInWrapper(filePath, target = 'node') {
         const distWrapperFilePath = path.join(buildPath, 'lib', 'node-wrapper.js');
         fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
         let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
-        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-contract.js.js';`);
+        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-program.js.js';`);
         return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
     }
     else if (target === 'wasm') {

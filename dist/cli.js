@@ -123,27 +123,13 @@ yargs(process.argv.slice(2))
         ? path.resolve(installedPackagePath, isTsProject ? '' : 'dist', 'examples', argv.example || 'fungible-token')
         : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'fungible-token');
     const targetDir = process.cwd();
-    const targetFilePath = path.join(targetDir, isTsProject ? 'example-contract.ts' : 'example-contract.js');
-    fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-contract.ts' : 'example-contract.js'), targetFilePath);
+    const targetFilePath = path.join(targetDir, isTsProject ? 'example-program.ts' : 'example-program.js');
+    fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);
+    // After copying the example contract file
     let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
-    // Update the import path for any contract class based on the environment
-    const contractClassRegEx = /^import \{ (.*) \} from '.*\/lib\/classes\/programs\/.*'*$/gm;
-    exampleContractContent = exampleContractContent.replace(contractClassRegEx, (match, className) => {
-        const importPath = isInstalledPackage
-            ? `'@versatus/versatus-javascript'`
-            : `'./lib/classes/programs/${className}'`;
-        return `import { ${className} } from ${importPath};`;
-    });
-    if (isTsProject) {
-        const typesRegex = /^import \{ (.*) \} from '.*\/lib'$/gm;
-        exampleContractContent = exampleContractContent.replace(typesRegex, (match, className) => {
-            const importPath = isInstalledPackage
-                ? `'@versatus/versatus-javascript'`
-                : `'./lib'`;
-            return `import { ${className} } from ${importPath};`;
-        });
-    }
-    // Write the updated content back to the example file
+    // Add this line to replace '../../' with '@/'
+    exampleContractContent = exampleContractContent.replace(/\.\.\/\.\.\//g, '@/');
+    // Write the modified content back to the file
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
     const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'fungible-token', 'inputs');
     const targetInputsDir = path.join(targetDir, 'inputs');
@@ -173,7 +159,7 @@ yargs(process.argv.slice(2))
     console.log('\x1b[0;37mExample contract and inputs initialized successfully.\x1b[0m');
     console.log();
     console.log(`\x1b[0;35mReady to run:\x1b[0m`);
-    console.log(`\x1b[0;33mvsjs build example-contract${isTsProject ? '.ts' : '.js'}\x1b[0m`);
+    console.log(`\x1b[0;33mvsjs build example-program${isTsProject ? '.ts' : '.js'}\x1b[0m`);
     console.log();
     console.log();
 })
@@ -209,7 +195,7 @@ yargs(process.argv.slice(2))
                 const outDir = path.resolve(process.cwd(), 'build');
                 const command = isInstalledPackage
                     ? `tsc --outDir ${outDir} ${filePath}`
-                    : 'tsc && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js';
+                    : 'tsc && tsc-alias && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js';
                 // Run tsc to transpile the TypeScript file
                 exec(command, (tscError, tscStdout, tscStderr) => {
                     if (tscError) {
@@ -253,7 +239,7 @@ yargs(process.argv.slice(2))
             let target;
             const checkWasmScriptPath = path.resolve(scriptDir, 'lib', 'scripts', 'check_cli.sh');
             await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' });
-            if (fs.existsSync('./build/lib/node-wrapper.js')) {
+            if (fs.existsSync('./build/lib/example-program.js')) {
                 target = 'node';
             }
             else if (fs.existsSync('./build/build.wasm')) {
@@ -329,7 +315,7 @@ yargs(process.argv.slice(2))
         }
         else {
             command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/node-wrapper.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
+          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
         }
         const output = await runCommand(command);
         const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g;
@@ -439,7 +425,7 @@ export async function injectFileInWrapper(filePath, target = 'node') {
             if (isInstalledPackage) {
             }
             else {
-                contractFilePath = './dist/example-contract.js';
+                contractFilePath = './dist/example-program.js';
                 if (fs.existsSync(contractFilePath)) {
                     console.log('The contract file exists.');
                 }
@@ -465,7 +451,7 @@ export async function injectFileInWrapper(filePath, target = 'node') {
         const distWrapperFilePath = path.join(buildPath, 'lib', 'node-wrapper.js');
         fs.copyFileSync(wrapperFilePath, distWrapperFilePath);
         let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8');
-        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-contract.js.js';`);
+        wrapperContent = wrapperContent.replace(/^import start from '.*';?$/m, `import start from './dist/example-program.js.js';`);
         return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8');
     }
     else if (target === 'wasm') {

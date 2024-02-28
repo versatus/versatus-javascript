@@ -11,7 +11,7 @@
     "declaration": true,
     "moduleResolution": "node",
     "paths": {
-      "*": ["node_modules/*", "src/types/*"]
+      "@/*": ["./*"]
     }
   },
   "include": ["*.ts", "lib/**/*.ts", "test/**/*.ts", "examples/**/*.ts", "cli.cts"],

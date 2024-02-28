@@ -1,8 +1,8 @@
-import { AddressOrNamespace, ApprovalsExtend, ApprovalsValue, Outputs, Program, ProgramUpdate, TokenField, TokenFieldValue, TokenOrProgramUpdate, TokenUpdate, TokenUpdateBuilder, TokenUpdateField, } from './lib/classes.js';
-import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from './lib/builders.js';
-import { ETH_PROGRAM_ADDRESS, THIS } from './lib/consts.js';
-import { formatVerse } from './lib/utils.js';
-import Address from './lib/classes/Address.js';
+import { AddressOrNamespace, ApprovalsExtend, ApprovalsValue, Outputs, Program, ProgramUpdate, TokenField, TokenFieldValue, TokenOrProgramUpdate, TokenUpdate, TokenUpdateBuilder, TokenUpdateField, } from '../../lib/classes.js';
+import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../lib/builders.js';
+import { ETH_PROGRAM_ADDRESS, THIS } from '../../lib/consts.js';
+import { formatVerse } from '../../lib/utils.js';
+import Address from '../../lib/classes/Address.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write

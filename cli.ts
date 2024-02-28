@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-
 import yargs, { Arguments, Argv, CommandBuilder } from 'yargs'
 import { promises as fsp } from 'fs'
 import fs from 'fs'
 import path from 'path'
-import { exec, spawn } from 'child_process'
+import { exec } from 'child_process'
 import { fileURLToPath } from 'url'
-import { runCommand, runSpawn } from './lib/shell'
+import { runCommand, runSpawn } from '@/lib/shell'
 import {
   BuildCommandArgs,
   buildNode,
@@ -26,9 +25,8 @@ import {
   SendCommandArgs,
   sendTokens,
   TestCommandArgs,
-} from './lib/cli-helpers'
-import { LASR_RPC_URL, VIPFS_ADDRESS } from './lib/consts'
-import { program } from 'commander'
+} from '@/lib/cli-helpers'
+import { LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
 
 export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -173,49 +171,28 @@ yargs(process.argv.slice(2))
       const targetDir = process.cwd()
       const targetFilePath = path.join(
         targetDir,
-        isTsProject ? 'example-contract.ts' : 'example-contract.js'
+        isTsProject ? 'example-program.ts' : 'example-program.js'
       )
 
       fs.copyFileSync(
         path.join(
           exampleDir,
-          isTsProject ? 'example-contract.ts' : 'example-contract.js'
+          isTsProject ? 'example-program.ts' : 'example-program.js'
         ),
         targetFilePath
       )
 
+      // After copying the example contract file
       let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8')
 
-      // Update the import path for any contract class based on the environment
-      const contractClassRegEx =
-        /^import \{ (.*) \} from '.*\/lib\/classes\/programs\/.*'*$/gm
-
+      // Add this line to replace '../../' with '@/'
       exampleContractContent = exampleContractContent.replace(
-        contractClassRegEx,
-        (match: any, className: any) => {
-          const importPath = isInstalledPackage
-            ? `'@versatus/versatus-javascript'`
-            : `'./lib/classes/programs/${className}'`
-          return `import { ${className} } from ${importPath};`
-        }
+        /\.\.\/\.\.\//g,
+        '@/'
       )
 
-      if (isTsProject) {
-        const typesRegex = /^import \{ (.*) \} from '.*\/lib'$/gm
-        exampleContractContent = exampleContractContent.replace(
-          typesRegex,
-          (match: any, className: any) => {
-            const importPath = isInstalledPackage
-              ? `'@versatus/versatus-javascript'`
-              : `'./lib'`
-            return `import { ${className} } from ${importPath};`
-          }
-        )
-      }
-
-      // Write the updated content back to the example file
+      // Write the modified content back to the file
       fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8')
-
       const inputsDir = path.join(
         isInstalledPackage ? installedPackagePath : process.cwd(),
         'examples',
@@ -259,7 +236,7 @@ yargs(process.argv.slice(2))
       console.log()
       console.log(`\x1b[0;35mReady to run:\x1b[0m`)
       console.log(
-        `\x1b[0;33mvsjs build example-contract${
+        `\x1b[0;33mvsjs build example-program${
           isTsProject ? '.ts' : '.js'
         }\x1b[0m`
       )
@@ -328,7 +305,7 @@ yargs(process.argv.slice(2))
 
               const command = isInstalledPackage
                 ? `tsc --outDir ${outDir} ${filePath}`
-                : 'tsc && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js'
+                : 'tsc && tsc-alias && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js'
               // Run tsc to transpile the TypeScript file
               exec(command, (tscError, tscStdout, tscStderr) => {
                 if (tscError) {
@@ -389,7 +366,7 @@ yargs(process.argv.slice(2))
           )
           await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' })
 
-          if (fs.existsSync('./build/lib/node-wrapper.js')) {
+          if (fs.existsSync('./build/lib/example-program.js')) {
             target = 'node'
           } else if (fs.existsSync('./build/build.wasm')) {
             target = 'wasm'
@@ -485,7 +462,7 @@ yargs(process.argv.slice(2))
              --is-srv true`
         } else {
           command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/node-wrapper.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`
+          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`
         }
 
         const output = await runCommand(command)
@@ -627,7 +604,7 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
     if (isTypeScriptProject()) {
       if (isInstalledPackage) {
       } else {
-        contractFilePath = './dist/example-contract.js'
+        contractFilePath = './dist/example-program.js'
         if (fs.existsSync(contractFilePath)) {
           console.log('The contract file exists.')
         } else {
@@ -652,7 +629,7 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
     let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8')
     wrapperContent = wrapperContent.replace(
       /^import start from '.*';?$/m,
-      `import start from './dist/example-contract.js';`
+      `import start from './dist/example-program.js';`
     )
     return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8')
   } else if (target === 'wasm') {
