@@ -113,6 +113,7 @@ export class FungibleTokenProgram extends Program {
     if (tokenUpdateField instanceof Error) {
       throw tokenUpdateField
     }
+    const tokenUpdates = [tokenUpdateField]
 
     const programUpdateField = buildProgramUpdateField({
       field: 'metadata',
@@ -132,8 +133,6 @@ export class FungibleTokenProgram extends Program {
         new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
       ),
     })
-
-    const tokenUpdates = [tokenUpdateField]
 
     const distributionInstruction = buildTokenDistributionInstruction({
       programId: THIS,

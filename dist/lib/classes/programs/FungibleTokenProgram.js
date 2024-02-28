@@ -75,6 +75,7 @@ export class FungibleTokenProgram extends Program {
         if (tokenUpdateField instanceof Error) {
             throw tokenUpdateField;
         }
+        const tokenUpdates = [tokenUpdateField];
         const programUpdateField = buildProgramUpdateField({
             field: 'metadata',
             value: JSON.stringify({ symbol, name, totalSupply }),
@@ -87,7 +88,6 @@ export class FungibleTokenProgram extends Program {
         const programMetadataUpdateInstruction = buildUpdateInstruction({
             update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
         });
-        const tokenUpdates = [tokenUpdateField];
         const distributionInstruction = buildTokenDistributionInstruction({
             programId: THIS,
             initializedSupply,

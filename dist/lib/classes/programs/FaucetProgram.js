@@ -1,6 +1,6 @@
 import { Program } from './Program.js';
 import { Outputs } from '../Outputs.js';
-import { buildCreateInstruction, buildTransferInstruction, buildProgramUpdateField, buildUpdateInstruction, buildTokenDistributionInstruction, } from '../../builders.js';
+import { buildCreateInstruction, buildTransferInstruction, buildProgramUpdateField, buildUpdateInstruction, buildTokenUpdateField, buildTokenDistributionInstruction, } from '../../builders.js';
 import { THIS } from '../../consts.js';
 import { AddressOrNamespace, TokenOrProgramUpdate } from '../utils.js';
 import { ProgramUpdate } from '../Program.js';
@@ -79,10 +79,19 @@ export class FaucetProgram extends Program {
     create(computeInputs) {
         const { transaction } = computeInputs;
         const { transactionInputs } = transaction;
+        const updateTokenMetadata = buildTokenUpdateField({
+            field: 'metadata',
+            value: transactionInputs,
+            action: 'extend',
+        });
+        if (updateTokenMetadata instanceof Error) {
+            throw updateTokenMetadata;
+        }
         const faucetInitInstruction = buildTokenDistributionInstruction({
             programId: THIS,
             to: transaction.from,
             initializedSupply: formatVerse('1'),
+            tokenUpdates: [updateTokenMetadata],
         });
         const createInstruction = buildCreateInstruction({
             from: transaction.from,

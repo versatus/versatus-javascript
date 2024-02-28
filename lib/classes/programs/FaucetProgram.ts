@@ -101,10 +101,20 @@ export class FaucetProgram extends Program {
     const { transaction } = computeInputs
     const { transactionInputs } = transaction
 
+    const updateTokenMetadata = buildTokenUpdateField({
+      field: 'metadata',
+      value: transactionInputs,
+      action: 'extend',
+    })
+    if (updateTokenMetadata instanceof Error) {
+      throw updateTokenMetadata
+    }
+
     const faucetInitInstruction = buildTokenDistributionInstruction({
       programId: THIS,
       to: transaction.from,
       initializedSupply: formatVerse('1'),
+      tokenUpdates: [updateTokenMetadata],
     })
 
     const createInstruction = buildCreateInstruction({
