@@ -1,4 +1,4 @@
-import start from '../examples/fungible-token/example-contract'
+import start from '../examples/faucet/example-contract'
 
 process.stdin.setEncoding('utf8')
 

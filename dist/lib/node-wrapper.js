@@ -1,4 +1,4 @@
-import start from '../examples/fungible-token/example-contract.js';
+import start from '../examples/faucet/example-contract.js';
 process.stdin.setEncoding('utf8');
 let data = '';
 process.stdin.on('readable', () => {

@@ -41,12 +41,14 @@
     "core-js": "^3.35.1",
     "ethers": "^6.11.1",
     "fs": "^0.0.1-security",
+    "uuid": "^9.0.1",
     "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@parcel/transformer-typescript-types": "2.11.0",
+    "@types/uuid": "^9.0.8",
     "jsdoc": "^4.0.2",
     "prettier": "^3.1.0",
     "ts-loader": "^9.5.1",

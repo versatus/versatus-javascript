@@ -27,7 +27,7 @@ import {
   sendTokens,
   TestCommandArgs,
 } from './lib/cli-helpers'
-import { VIPFS_ADDRESS } from './lib/consts'
+import { LASR_RPC_URL, VIPFS_ADDRESS } from './lib/consts'
 import { program } from 'commander'
 
 export const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -461,38 +461,17 @@ yargs(process.argv.slice(2))
     }
   )
   .command(
-    'deploy [author] [name] [symbol] [tokenName] [totalSupply] [initializedSupply] [recipientAddress] [keypairPath] [secretKey] [target]',
+    'deploy [flags]',
     'Deploy a contract',
     deployCommand,
     async (argv: Arguments<DeployCommandArgs>) => {
       try {
-        // if (!argv.secretKey) {
-        //   if (!fs.existsSync('.lasr/wallet/keypair.json')) {
-        //     console.log('\x1b[0;33mInitializing wallet...\x1b[0m')
-        //     await initializeWallet()
-        //   } else {
-        //     console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
-        //   }
-        // } else if (argv.keypairPath) {
-        //   console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
-        //   await checkWallet(String(argv.keypairPath))
-        // }
-        //
-        // let secretKey: string
-        // if (argv.secretKey) {
-        //   secretKey = String(argv.secretKey)
-        // } else {
-        //   const keypairPath = '.lasr/wallet/keypair.json'
-        //   secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath))
-        // }
-        //
         const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey)
-
         console.log('\x1b[0;33mPublishing program...\x1b[0m')
         const isWasm = argv.target === 'wasm'
 
-        process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292'
-        process.env.VIPFS_ADDRESS = '167.99.20.121:5001'
+        process.env.LASR_RPC_URL = LASR_RPC_URL
+        process.env.VIPFS_ADDRESS = VIPFS_ADDRESS
 
         let command
         if (isWasm) {
@@ -560,7 +539,7 @@ yargs(process.argv.slice(2))
     }
   )
   .command(
-    'send [programAddress] [recipientAddress] [keypairPath] [secretKey] [target]',
+    'send [flags]',
     'Send a specified amount of tokens to a recipient',
     sendCommand,
     async (argv: Arguments<SendCommandArgs>) => {
@@ -585,8 +564,8 @@ yargs(process.argv.slice(2))
           secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath))
         }
 
-        process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292'
-        process.env.VIPFS_ADDRESS = '167.99.20.121:5001'
+        process.env.LASR_RPC_URL = LASR_RPC_URL
+        process.env.VIPFS_ADDRESS = VIPFS_ADDRESS
 
         const sendResponse = await sendTokens(
           String(argv.programAddress),
