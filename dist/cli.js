@@ -6,7 +6,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { runCommand, runSpawn } from './lib/shell.js';
-import { buildNode, callCreate, checkWallet, copyDirectory, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, registerProgram, runTestProcess, } from './lib/cli-helpers.js';
+import { buildNode, callCreate, checkWallet, copyDirectory, getSecretKey, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, registerProgram, runTestProcess, sendTokens, } from './lib/cli-helpers.js';
 import { VIPFS_ADDRESS } from './lib/consts.js';
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const initCommand = (yargs) => {
@@ -69,6 +69,11 @@ const deployCommand = (yargs) => {
         type: 'string',
         demandOption: true,
     })
+        .option('recipientAddress', {
+        describe: 'Address for the initialized supply',
+        type: 'string',
+        demandOption: true,
+    })
         .option('keypairPath', {
         describe: 'Path to the keypair file',
         type: 'string',
@@ -82,6 +87,32 @@ const deployCommand = (yargs) => {
         type: 'string',
         choices: ['node', 'wasm'],
         default: 'node',
+    });
+};
+const sendCommand = (yargs) => {
+    return yargs
+        .option('programAddress', {
+        describe: 'Program address to be send',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('amount', {
+        describe: 'Amount to be send (in verse)',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('recipientAddress', {
+        describe: 'Address for the initialized supply',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('keypairPath', {
+        describe: 'Path to the keypair file',
+        type: 'string',
+    })
+        .option('secretKey', {
+        describe: 'Secret key for the wallet',
+        type: 'string',
     });
 };
 yargs(process.argv.slice(2))
@@ -278,29 +309,29 @@ yargs(process.argv.slice(2))
         process.exit(1);
     }
 })
-    .command('deploy [author] [name] [symbol] [tokenName] [keypairPath] [secretKey] [target]', 'Deploy a contract', deployCommand, async (argv) => {
+    .command('deploy [author] [name] [symbol] [tokenName] [totalSupply] [initializedSupply] [recipientAddress] [keypairPath] [secretKey] [target]', 'Deploy a contract', deployCommand, async (argv) => {
     try {
-        if (!argv.secretKey) {
-            if (!fs.existsSync('.lasr/wallet/keypair.json')) {
-                console.log('\x1b[0;33mInitializing wallet...\x1b[0m');
-                await initializeWallet();
-            }
-            else {
-                console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
-            }
-        }
-        else if (argv.keypairPath) {
-            console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
-            await checkWallet(String(argv.keypairPath));
-        }
-        let secretKey;
-        if (argv.secretKey) {
-            secretKey = String(argv.secretKey);
-        }
-        else {
-            const keypairPath = '.lasr/wallet/keypair.json';
-            secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath));
-        }
+        // if (!argv.secretKey) {
+        //   if (!fs.existsSync('.lasr/wallet/keypair.json')) {
+        //     console.log('\x1b[0;33mInitializing wallet...\x1b[0m')
+        //     await initializeWallet()
+        //   } else {
+        //     console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
+        //   }
+        // } else if (argv.keypairPath) {
+        //   console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
+        //   await checkWallet(String(argv.keypairPath))
+        // }
+        //
+        // let secretKey: string
+        // if (argv.secretKey) {
+        //   secretKey = String(argv.secretKey)
+        // } else {
+        //   const keypairPath = '.lasr/wallet/keypair.json'
+        //   secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath))
+        // }
+        //
+        const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
         console.log('\x1b[0;33mPublishing program...\x1b[0m');
         const isWasm = argv.target === 'wasm';
         process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292';
@@ -337,7 +368,7 @@ yargs(process.argv.slice(2))
         console.log(`\x1b[0;32mProgram registered.\x1b[0m
 ==> programAddress: ${programAddress}`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.tokenName), String(argv.initializedSupply), String(argv.totalSupply), secretKey);
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.tokenName), String(argv.initializedSupply), String(argv.totalSupply), secretKey, String(argv.recipientAddress));
         if (createResponse) {
             console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
 ==> programAddress: ${programAddress}
@@ -345,8 +376,50 @@ yargs(process.argv.slice(2))
 ==> tokenName: ${argv.tokenName}
 ==> initializedSupply: ${argv.initializedSupply}
 ==> totalSupply: ${argv.totalSupply}
+==> recipientAddress: ${argv.recipientAddress}
           `);
         }
+    }
+    catch (error) {
+        console.error(`Deployment error: ${error}`);
+    }
+})
+    .command('send [programAddress] [recipientAddress] [keypairPath] [secretKey] [target]', 'Send a specified amount of tokens to a recipient', sendCommand, async (argv) => {
+    try {
+        if (!argv.secretKey) {
+            if (!fs.existsSync('.lasr/wallet/keypair.json')) {
+                console.log('\x1b[0;33mInitializing wallet...\x1b[0m');
+                await initializeWallet();
+            }
+            else {
+                console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
+            }
+        }
+        else if (argv.keypairPath) {
+            console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
+            await checkWallet(String(argv.keypairPath));
+        }
+        let secretKey;
+        if (argv.secretKey) {
+            secretKey = String(argv.secretKey);
+        }
+        else {
+            const keypairPath = '.lasr/wallet/keypair.json';
+            secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath));
+        }
+        process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292';
+        process.env.VIPFS_ADDRESS = '167.99.20.121:5001';
+        const sendResponse = await sendTokens(String(argv.programAddress), String(argv.recipientAddress), String(argv.amount), secretKey);
+        console.log('sendResponse', sendResponse);
+        //         if (createResponse) {
+        //           console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
+        // ==> programAddress: ${programAddress}
+        // ==> symbol: ${argv.symbol}
+        // ==> tokenName: ${argv.tokenName}
+        // ==> initializedSupply: ${argv.initializedSupply}
+        // ==> totalSupply: ${argv.totalSupply}
+        //           `)
+        //         }
     }
     catch (error) {
         console.error(`Deployment error: ${error}`);
@@ -366,11 +439,9 @@ export async function runBuildProcess(target = 'node') {
         fs.mkdirSync(buildPath, { recursive: true });
     }
     if (target === 'node') {
-        console.log('BUILDING NODE!');
         await buildNode(buildPath);
     }
     else if (target === 'wasm') {
-        console.log('BUILDING WASM!');
         await buildWasm(buildPath);
     }
 }
@@ -455,6 +526,7 @@ export async function injectFileInWrapper(filePath, target = 'node') {
     }
 }
 export async function buildWasm(buildPath) {
+    console.log('BUILDING WASM!');
     let webpackConfigPath;
     if (isInstalledPackage) {
         // In an installed package environment

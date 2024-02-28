@@ -20,8 +20,19 @@ export interface TestCommandArgs {
 }
 
 export interface DeployCommandArgs {
-  author: string
-  name: string
+  author: string // Author of the contract
+  name: string // Name of the contract
+  symbol: string // Symbol for the program
+  tokenName: string // Name for the program
+  initializedSupply: string // Supply of the token to be sent to either the caller or the program
+  totalSupply: string // Total supply of the token to be created
+  recipientAddress: string // Address for the initialized supply
+  keypairPath?: string // Optional: Path to the keypair file
+  secretKey?: string // Optional: Secret key for the wallet
+  target?: string // Optional: Build target with default value 'node'
+}
+
+export interface SendCommandArgs {
   keypairPath?: string
   secretKey?: string
   target?: string
@@ -123,6 +134,34 @@ export async function registerProgram(cid: string, secretKey: string) {
   return await runCommand(command)
 }
 
+export const getSecretKey = async (
+  secretKeyPath?: string,
+  secretKey?: string
+) => {
+  if (secretKey) return secretKey
+
+  if (!secretKeyPath) {
+    if (!fs.existsSync('.lasr/wallet/keypair.json')) {
+      console.log('\x1b[0;33mInitializing wallet...\x1b[0m')
+      await initializeWallet()
+    } else {
+      console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
+    }
+  } else if (secretKeyPath) {
+    console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
+    await checkWallet(String(secretKeyPath))
+  }
+
+  let retrievedSecretKey: string
+  if (secretKeyPath) {
+    retrievedSecretKey = String(secretKeyPath)
+  } else {
+    const keypairPath = '.lasr/wallet/keypair.json'
+    retrievedSecretKey = await getSecretKeyFromKeyPairFile(String(keypairPath))
+  }
+  return retrievedSecretKey
+}
+
 export async function callCreate(
   programAddress: string,
   symbol: string,
@@ -130,13 +169,14 @@ export async function callCreate(
   initializedSupply: string,
   totalSupply: string,
   secretKey: string,
-  recipientAccount?: string
+  recipientAddress: string
 ) {
   if (
     !programAddress ||
     !symbol ||
     !name ||
     !initializedSupply ||
+    !recipientAddress ||
     !totalSupply ||
     !secretKey
   ) {
@@ -147,7 +187,43 @@ export async function callCreate(
 
   process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
   process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`
-  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op "create" --inputs '{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"}' --to "${programAddress}" --content-namespace "${programAddress}"`
+  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op "create" --inputs '{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"${`,"to":"${recipientAddress}"`}}' --to "${programAddress}" --content-namespace "${programAddress}"`
+  return await runCommand(command)
+}
+
+export async function sendTokens(
+  programAddress: string,
+  recipientAddress: string,
+  amount: string,
+  secretKey: string
+) {
+  if (!programAddress || !recipientAddress || !amount || !secretKey) {
+    throw new Error(
+      `programAddress (${programAddress}), recipientAddress (${recipientAddress}), amount (${amount}), and secretKey are required to call create.`
+    )
+  }
+
+  process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
+  process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`
+  const command = `./build/lasr_cli wallet send --to ${recipientAddress} -c ${programAddress} --value ${amount} -u melody --from-secret-key --secret-key "${secretKey}"`
+  return await runCommand(command)
+}
+
+export async function callProgram(
+  programAddress: string,
+  operation: string,
+  txInputs: string,
+  secretKey: string
+) {
+  if (!programAddress || !operation || !txInputs || !secretKey) {
+    throw new Error(
+      `programAddress (${programAddress}), operation (${operation}), txInputs (${txInputs}), and secretKey are required to call create.`
+    )
+  }
+
+  process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
+  process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`
+  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${operation} --inputs '{"programAddress":"0x945a6b4f03d6b184b2e5edce953c963f11b724e1","amountToAdd":"100","flowAmount":"10","cycleTimeMin":"1"}' --to ${programAddress} --content-namespace ${programAddress}`
   return await runCommand(command)
 }
 
