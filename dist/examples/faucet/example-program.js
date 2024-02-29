@@ -181,6 +181,7 @@ export class FaucetProgram extends Program {
             value: JSON.stringify({
                 programs: JSON.stringify({
                     [programToSend]: JSON.stringify({
+                        pipeData: JSON.stringify(faucetProgramData),
                         recipients: JSON.stringify({ [to]: currentTime }),
                     }),
                 }),
