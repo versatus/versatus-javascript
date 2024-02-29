@@ -138,20 +138,20 @@ export function buildMintInstructions({
   from,
   programId,
   paymentTokenAddress,
-  paymentValue,
+  inputValue,
   returnedValue,
 }: {
   from: string
   programId: string
   paymentTokenAddress: string
-  paymentValue: BigInt
+  inputValue: BigInt
   returnedValue: BigInt
 }) {
   const transferToProgram = buildTransferInstruction({
     from: from,
     to: 'this',
     tokenAddress: paymentTokenAddress,
-    amount: paymentValue,
+    amount: inputValue,
   })
 
   const transferToCaller = buildTransferInstruction({

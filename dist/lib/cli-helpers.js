@@ -99,7 +99,7 @@ export const getSecretKey = async (secretKeyPath, secretKey) => {
     }
     return retrievedSecretKey;
 };
-export async function callCreate(programAddress, symbol, name, initializedSupply, totalSupply, secretKey, recipientAddress) {
+export async function callCreate(programAddress, symbol, name, initializedSupply, totalSupply, recipientAddress, secretKey, inputs) {
     if (!programAddress ||
         !symbol ||
         !name ||
@@ -260,7 +260,7 @@ export function runTestProcess(inputJsonPath, target = 'node') {
     });
 }
 export async function initializeWallet() {
-    await runCommand(`./build/lasr_cli wallet new 
+    await runCommand(`./build/lasr_cli wallet new
     --save`);
     console.log('Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json');
 }
@@ -268,8 +268,8 @@ export async function checkWallet(keypairPath) {
     try {
         console.log('Checking wallet...');
         const command = `
-    ./build/lasr_cli wallet get-account 
-      --from-file 
+    ./build/lasr_cli wallet get-account
+      --from-file
       --path ${keypairPath}`;
         await runCommand(command);
         console.log('Wallet check successful');

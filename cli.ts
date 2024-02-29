@@ -102,6 +102,10 @@ const deployCommand: CommandBuilder<{}, DeployCommandArgs> = (yargs: Argv) => {
       type: 'string',
       demandOption: true,
     })
+    .option('inputs', {
+      describe: 'Additional inputs for the program',
+      type: 'string',
+    })
     .option('keypairPath', {
       describe: 'Path to the keypair file',
       type: 'string',
@@ -180,7 +184,7 @@ yargs(process.argv.slice(2))
     (argv: Arguments<InitCommandArgs>) => {
       console.log(
         `\x1b[0;33mInitializing example program: ${
-          argv.example || 'fungible-token' || 'faucet'
+          argv.example || 'hello-lasr' || 'fungible-token' || 'faucet'
         }...\x1b[0m`
       )
       const isTsProject = isTypeScriptProject()
@@ -211,21 +215,13 @@ yargs(process.argv.slice(2))
         targetFilePath
       )
 
-      // After copying the example program file
       let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8')
 
-      // Add this line to replace '../../' with '@/'
-      exampleContractContent = exampleContractContent.replace(
-        /\.\.\/\.\.\//g,
-        '@/'
-      )
-
-      // Write the modified content back to the file
       fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8')
       const inputsDir = path.join(
         isInstalledPackage ? installedPackagePath : process.cwd(),
         'examples',
-        argv.example || 'fungible-token',
+        argv.example || 'hello-lasr',
         'inputs'
       )
 
@@ -525,15 +521,16 @@ yargs(process.argv.slice(2))
           String(argv.programName),
           String(argv.initializedSupply),
           String(argv.totalSupply),
+          String(argv.recipientAddress),
           secretKey,
-          String(argv.recipientAddress)
+          String(argv.inputs)
         )
 
         if (createResponse) {
           console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
 ==> programAddress: ${programAddress}
 ==> symbol: ${argv.symbol}
-==> tokenName: ${argv.tokenName}
+==> tokenName: ${argv.programName}
 ==> initializedSupply: ${argv.initializedSupply}
 ==> totalSupply: ${argv.totalSupply}
 ==> recipientAddress: ${argv.recipientAddress}
@@ -563,16 +560,6 @@ yargs(process.argv.slice(2))
         )
 
         console.log('sendResponse', sendResponse)
-
-        //         if (createResponse) {
-        //           console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
-        // ==> programAddress: ${programAddress}
-        // ==> symbol: ${argv.symbol}
-        // ==> tokenName: ${argv.tokenName}
-        // ==> initializedSupply: ${argv.initializedSupply}
-        // ==> totalSupply: ${argv.totalSupply}
-        //           `)
-        //         }
       } catch (error) {
         console.error(`Deployment error: ${error}`)
       }

@@ -92,14 +92,14 @@ class SnakeProgram extends Program {
     mint(computeInputs) {
         const { transaction } = computeInputs;
         const inputTokenAddress = ETH_PROGRAM_ADDRESS;
-        const paymentValue = BigInt(transaction?.value);
+        const inputValue = BigInt(transaction?.value);
         const conversionRate = BigInt(2);
-        const returnedValue = paymentValue / conversionRate;
+        const returnedValue = inputValue / conversionRate;
         const mintInstructions = buildMintInstructions({
             from: transaction.from,
             programId: transaction.programId,
             paymentTokenAddress: inputTokenAddress,
-            paymentValue: paymentValue,
+            inputValue: inputValue,
             returnedValue: returnedValue,
         });
         return new Outputs(computeInputs, mintInstructions).toJson();

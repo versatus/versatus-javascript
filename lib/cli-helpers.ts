@@ -20,16 +20,17 @@ export interface TestCommandArgs {
 }
 
 export interface DeployCommandArgs {
-  author: string // Author of the contract
-  name: string // Name of the contract
-  symbol: string // Symbol for the program
-  programName: string // Name for the program
-  initializedSupply: string // Supply of the token to be sent to either the caller or the program
-  totalSupply: string // Total supply of the token to be created
-  recipientAddress: string // Address for the initialized supply
-  keypairPath?: string // Optional: Path to the keypair file
-  secretKey?: string // Optional: Secret key for the wallet
-  target?: string // Optional: Build target with default value 'node'
+  author: string
+  name: string
+  symbol: string
+  programName: string
+  initializedSupply: string
+  totalSupply: string
+  recipientAddress: string
+  inputs?: string
+  keypairPath?: string
+  secretKey?: string
+  target?: string
 }
 
 export interface SendCommandArgs {
@@ -178,8 +179,9 @@ export async function callCreate(
   name: string,
   initializedSupply: string,
   totalSupply: string,
+  recipientAddress: string,
   secretKey: string,
-  recipientAddress: string
+  inputs?: string
 ) {
   if (
     !programAddress ||
@@ -405,7 +407,7 @@ export function runTestProcess(inputJsonPath: string, target = 'node') {
 }
 
 export async function initializeWallet() {
-  await runCommand(`./build/lasr_cli wallet new 
+  await runCommand(`./build/lasr_cli wallet new
     --save`)
   console.log(
     'Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json'
@@ -416,8 +418,8 @@ export async function checkWallet(keypairPath: string) {
   try {
     console.log('Checking wallet...')
     const command = `
-    ./build/lasr_cli wallet get-account 
-      --from-file 
+    ./build/lasr_cli wallet get-account
+      --from-file
       --path ${keypairPath}`
 
     await runCommand(command)

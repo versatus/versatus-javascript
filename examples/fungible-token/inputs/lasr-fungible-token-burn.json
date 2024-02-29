@@ -17,5 +17,16 @@
     "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
   },
   "version": 1,
-  "accountInfo":{"accountType":{"program":"0x57234c52617e7ca8edc5577ebe3eb38d53a77607"},"programNamespace":null,"ownerAddress":"0x482830d7655fb8465a43844fc1530a7713781b49","programs":{"0x0000000000000000000000000000000000000000":{"programId":"0x0000000000000000000000000000000000000000","ownerId":"0x482830d7655fb8465a43844fc1530a7713781b49","balance":"0x000000000000000000000000000000000000000000000cb49b44ba602d800000","metadata":{},"tokenIds":[],"allowance":{},"approvals":{},"data":{},"status":"free"},"0x57234c52617e7ca8edc5577ebe3eb38d53a77607":{"programId":"0x57234c52617e7ca8edc5577ebe3eb38d53a77607","ownerId":"0x57234c52617e7ca8edc5577ebe3eb38d53a77607","balance":"0x00000000000000000000000000000000000000000000cd67ce2c6fbd8a400000","metadata":{"content_id":"bafyreidhfvw4jiqom72332brsln3micsa4b7grur4rixkwvyrh6u4i3ecy","initializedSupply":"1000000000000000000000000","name":"Anotha One","symbol":"LOVE","to":"0x57234c52617e7ca8edc5577ebe3eb38d53a77607","totalSupply":"1000000000000000000000000"},"tokenIds":[],"allowance":{},"approvals":{},"data":{},"status":"free"}},"nonce":"0x000000000000000000000000000000000000000000000000000000000000001c","programAccountData":{},"programAccountMetadata":{"content_id":"bafyreidhfvw4jiqom72332brsln3micsa4b7grur4rixkwvyrh6u4i3ecy","initializedSupply":"1000000000000000000000000","name":"Anotha One","symbol":"LOVE","to":"0x57234c52617e7ca8edc5577ebe3eb38d53a77607","totalSupply":"1000000000000000000000000"},"programAccountLinkedPrograms":[]}
+  "accountInfo": {
+    "accountType": {
+      "program": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607"
+    },
+    "programNamespace": null,
+    "ownerAddress": "0x482830d7655fb8465a43844fc1530a7713781b49",
+    "programs": {},
+    "nonce": "0x000000000000000000000000000000000000000000000000000000000000001c",
+    "programAccountData": {},
+    "programAccountMetadata": {},
+    "programAccountLinkedPrograms": []
+  }
 }

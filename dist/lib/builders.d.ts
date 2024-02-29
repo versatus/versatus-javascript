@@ -27,11 +27,11 @@ export declare function buildTokenDistributionInstruction({ programId, initializ
     to: string;
     tokenUpdates?: TokenUpdateField[];
 }): TokenDistribution;
-export declare function buildMintInstructions({ from, programId, paymentTokenAddress, paymentValue, returnedValue, }: {
+export declare function buildMintInstructions({ from, programId, paymentTokenAddress, inputValue, returnedValue, }: {
     from: string;
     programId: string;
     paymentTokenAddress: string;
-    paymentValue: BigInt;
+    inputValue: BigInt;
     returnedValue: BigInt;
 }): import("./classes").Instruction[];
 export declare function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }: {

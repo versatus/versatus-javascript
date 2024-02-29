@@ -43,12 +43,12 @@ export function buildTokenDistributionInstruction({ programId, initializedSupply
     }
     return tokenDistributionBuilder.build();
 }
-export function buildMintInstructions({ from, programId, paymentTokenAddress, paymentValue, returnedValue, }) {
+export function buildMintInstructions({ from, programId, paymentTokenAddress, inputValue, returnedValue, }) {
     const transferToProgram = buildTransferInstruction({
         from: from,
         to: 'this',
         tokenAddress: paymentTokenAddress,
-        amount: paymentValue,
+        amount: inputValue,
     });
     const transferToCaller = buildTransferInstruction({
         from: 'this',

@@ -74,6 +74,10 @@ const deployCommand = (yargs) => {
         type: 'string',
         demandOption: true,
     })
+        .option('inputs', {
+        describe: 'Additional inputs for the program',
+        type: 'string',
+    })
         .option('keypairPath', {
         describe: 'Path to the keypair file',
         type: 'string',
@@ -143,7 +147,7 @@ const callCommand = (yargs) => {
 };
 yargs(process.argv.slice(2))
     .command('init [example]', 'Initialize a project with an example program', initCommand, (argv) => {
-    console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'fungible-token' || 'faucet'}...\x1b[0m`);
+    console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'hello-lasr' || 'fungible-token' || 'faucet'}...\x1b[0m`);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
         ? path.resolve(installedPackagePath, isTsProject ? '' : 'dist', 'examples', argv.example || 'hello-lasr')
@@ -151,13 +155,9 @@ yargs(process.argv.slice(2))
     const targetDir = process.cwd();
     const targetFilePath = path.join(targetDir, isTsProject ? 'example-program.ts' : 'example-program.js');
     fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);
-    // After copying the example program file
     let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
-    // Add this line to replace '../../' with '@/'
-    exampleContractContent = exampleContractContent.replace(/\.\.\/\.\.\//g, '@/');
-    // Write the modified content back to the file
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
-    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'fungible-token', 'inputs');
+    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'hello-lasr', 'inputs');
     const targetInputsDir = path.join(targetDir, 'inputs');
     if (fs.existsSync(inputsDir)) {
         if (!fs.existsSync(targetInputsDir)) {
@@ -360,12 +360,12 @@ yargs(process.argv.slice(2))
         console.log(`\x1b[0;32mProgram registered.\x1b[0m
 ==> programAddress: ${programAddress}`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), secretKey, String(argv.recipientAddress));
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress), secretKey, String(argv.inputs));
         if (createResponse) {
             console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
 ==> programAddress: ${programAddress}
 ==> symbol: ${argv.symbol}
-==> tokenName: ${argv.tokenName}
+==> tokenName: ${argv.programName}
 ==> initializedSupply: ${argv.initializedSupply}
 ==> totalSupply: ${argv.totalSupply}
 ==> recipientAddress: ${argv.recipientAddress}
@@ -383,15 +383,6 @@ yargs(process.argv.slice(2))
         process.env.VIPFS_ADDRESS = VIPFS_ADDRESS;
         const sendResponse = await sendTokens(String(argv.programAddress), String(argv.recipientAddress), String(argv.amount), secretKey);
         console.log('sendResponse', sendResponse);
-        //         if (createResponse) {
-        //           console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
-        // ==> programAddress: ${programAddress}
-        // ==> symbol: ${argv.symbol}
-        // ==> tokenName: ${argv.tokenName}
-        // ==> initializedSupply: ${argv.initializedSupply}
-        // ==> totalSupply: ${argv.totalSupply}
-        //           `)
-        //         }
     }
     catch (error) {
         console.error(`Deployment error: ${error}`);
