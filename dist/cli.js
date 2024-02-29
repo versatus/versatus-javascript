@@ -6,7 +6,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { runCommand, runSpawn } from './lib/shell.js';
-import { buildNode, callCreate, checkWallet, copyDirectory, getSecretKey, getSecretKeyFromKeyPairFile, initializeWallet, installedPackagePath, isInstalledPackage, isTypeScriptProject, registerProgram, runTestProcess, sendTokens, } from './lib/cli-helpers.js';
+import { buildNode, callCreate, callProgram, copyDirectory, getSecretKey, installedPackagePath, isInstalledPackage, isTypeScriptProject, registerProgram, runTestProcess, sendTokens, } from './lib/cli-helpers.js';
 import { LASR_RPC_URL, VIPFS_ADDRESS } from './lib/consts.js';
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const initCommand = (yargs) => {
@@ -54,7 +54,7 @@ const deployCommand = (yargs) => {
         type: 'string',
         demandOption: true,
     })
-        .option('tokenName', {
+        .option('programName', {
         describe: 'Name for the program',
         type: 'string',
         demandOption: true,
@@ -115,13 +115,39 @@ const sendCommand = (yargs) => {
         type: 'string',
     });
 };
+const callCommand = (yargs) => {
+    return yargs
+        .option('programAddress', {
+        describe: 'Program address to be send',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('op', {
+        describe: 'Operation to be performed by the program',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('inputs', {
+        describe: 'Input json required by the operation',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('keypairPath', {
+        describe: 'Path to the keypair file',
+        type: 'string',
+    })
+        .option('secretKey', {
+        describe: 'Secret key for the wallet',
+        type: 'string',
+    });
+};
 yargs(process.argv.slice(2))
     .command('init [example]', 'Initialize a project with an example program', initCommand, (argv) => {
     console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'fungible-token' || 'faucet'}...\x1b[0m`);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
-        ? path.resolve(installedPackagePath, isTsProject ? '' : 'dist', 'examples', argv.example || 'fungible-token')
-        : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'fungible-token');
+        ? path.resolve(installedPackagePath, isTsProject ? '' : 'dist', 'examples', argv.example || 'hello-lasr')
+        : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'hello-lasr');
     const targetDir = process.cwd();
     const targetFilePath = path.join(targetDir, isTsProject ? 'example-program.ts' : 'example-program.js');
     fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);
@@ -334,7 +360,7 @@ yargs(process.argv.slice(2))
         console.log(`\x1b[0;32mProgram registered.\x1b[0m
 ==> programAddress: ${programAddress}`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.tokenName), String(argv.initializedSupply), String(argv.totalSupply), secretKey, String(argv.recipientAddress));
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), secretKey, String(argv.recipientAddress));
         if (createResponse) {
             console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
 ==> programAddress: ${programAddress}
@@ -352,27 +378,7 @@ yargs(process.argv.slice(2))
 })
     .command('send [flags]', 'Send a specified amount of tokens to a recipient', sendCommand, async (argv) => {
     try {
-        if (!argv.secretKey) {
-            if (!fs.existsSync('.lasr/wallet/keypair.json')) {
-                console.log('\x1b[0;33mInitializing wallet...\x1b[0m');
-                await initializeWallet();
-            }
-            else {
-                console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
-            }
-        }
-        else if (argv.keypairPath) {
-            console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
-            await checkWallet(String(argv.keypairPath));
-        }
-        let secretKey;
-        if (argv.secretKey) {
-            secretKey = String(argv.secretKey);
-        }
-        else {
-            const keypairPath = '.lasr/wallet/keypair.json';
-            secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath));
-        }
+        const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
         process.env.LASR_RPC_URL = LASR_RPC_URL;
         process.env.VIPFS_ADDRESS = VIPFS_ADDRESS;
         const sendResponse = await sendTokens(String(argv.programAddress), String(argv.recipientAddress), String(argv.amount), secretKey);
@@ -386,6 +392,18 @@ yargs(process.argv.slice(2))
         // ==> totalSupply: ${argv.totalSupply}
         //           `)
         //         }
+    }
+    catch (error) {
+        console.error(`Deployment error: ${error}`);
+    }
+})
+    .command('call [flags]', 'Call a program method with the specified arguments', callCommand, async (argv) => {
+    try {
+        const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
+        process.env.LASR_RPC_URL = LASR_RPC_URL;
+        process.env.VIPFS_ADDRESS = VIPFS_ADDRESS;
+        const sendResponse = await callProgram(String(argv.programAddress), String(argv.op), String(argv.inputs), secretKey);
+        console.log('sendResponse', sendResponse);
     }
     catch (error) {
         console.error(`Deployment error: ${error}`);

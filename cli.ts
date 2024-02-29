@@ -9,7 +9,9 @@ import { runCommand, runSpawn } from '@/lib/shell'
 import {
   BuildCommandArgs,
   buildNode,
+  CallCommandArgs,
   callCreate,
+  callProgram,
   checkWallet,
   copyDirectory,
   DeployCommandArgs,
@@ -79,7 +81,7 @@ const deployCommand: CommandBuilder<{}, DeployCommandArgs> = (yargs: Argv) => {
       type: 'string',
       demandOption: true,
     })
-    .option('tokenName', {
+    .option('programName', {
       describe: 'Name for the program',
       type: 'string',
       demandOption: true,
@@ -143,6 +145,33 @@ const sendCommand: CommandBuilder<{}, SendCommandArgs> = (yargs: Argv) => {
     })
 }
 
+const callCommand: CommandBuilder<{}, CallCommandArgs> = (yargs: Argv) => {
+  return yargs
+    .option('programAddress', {
+      describe: 'Program address to be send',
+      type: 'string',
+      demandOption: true,
+    })
+    .option('op', {
+      describe: 'Operation to be performed by the program',
+      type: 'string',
+      demandOption: true,
+    })
+    .option('inputs', {
+      describe: 'Input json required by the operation',
+      type: 'string',
+      demandOption: true,
+    })
+    .option('keypairPath', {
+      describe: 'Path to the keypair file',
+      type: 'string',
+    })
+    .option('secretKey', {
+      describe: 'Secret key for the wallet',
+      type: 'string',
+    })
+}
+
 yargs(process.argv.slice(2))
   .command(
     'init [example]',
@@ -160,12 +189,12 @@ yargs(process.argv.slice(2))
             installedPackagePath,
             isTsProject ? '' : 'dist',
             'examples',
-            argv.example || 'fungible-token'
+            argv.example || 'hello-lasr'
           )
         : path.resolve(
             isTsProject ? process.cwd() : __dirname,
             'examples',
-            argv.example || 'fungible-token'
+            argv.example || 'hello-lasr'
           )
 
       const targetDir = process.cwd()
@@ -493,7 +522,7 @@ yargs(process.argv.slice(2))
         const createResponse = await callCreate(
           programAddress,
           String(argv.symbol),
-          String(argv.tokenName),
+          String(argv.programName),
           String(argv.initializedSupply),
           String(argv.totalSupply),
           secretKey,
@@ -521,25 +550,7 @@ yargs(process.argv.slice(2))
     sendCommand,
     async (argv: Arguments<SendCommandArgs>) => {
       try {
-        if (!argv.secretKey) {
-          if (!fs.existsSync('.lasr/wallet/keypair.json')) {
-            console.log('\x1b[0;33mInitializing wallet...\x1b[0m')
-            await initializeWallet()
-          } else {
-            console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
-          }
-        } else if (argv.keypairPath) {
-          console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
-          await checkWallet(String(argv.keypairPath))
-        }
-
-        let secretKey: string
-        if (argv.secretKey) {
-          secretKey = String(argv.secretKey)
-        } else {
-          const keypairPath = '.lasr/wallet/keypair.json'
-          secretKey = await getSecretKeyFromKeyPairFile(String(keypairPath))
-        }
+        const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey)
 
         process.env.LASR_RPC_URL = LASR_RPC_URL
         process.env.VIPFS_ADDRESS = VIPFS_ADDRESS
@@ -562,6 +573,30 @@ yargs(process.argv.slice(2))
         // ==> totalSupply: ${argv.totalSupply}
         //           `)
         //         }
+      } catch (error) {
+        console.error(`Deployment error: ${error}`)
+      }
+    }
+  )
+  .command(
+    'call [flags]',
+    'Call a program method with the specified arguments',
+    callCommand,
+    async (argv: Arguments<CallCommandArgs>) => {
+      try {
+        const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey)
+
+        process.env.LASR_RPC_URL = LASR_RPC_URL
+        process.env.VIPFS_ADDRESS = VIPFS_ADDRESS
+
+        const sendResponse = await callProgram(
+          String(argv.programAddress),
+          String(argv.op),
+          String(argv.inputs),
+          secretKey
+        )
+
+        console.log('sendResponse', sendResponse)
       } catch (error) {
         console.error(`Deployment error: ${error}`)
       }

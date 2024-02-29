@@ -1,3 +1,2 @@
-import { Program } from './Program';
-import { FungibleTokenProgram } from './FungibleTokenProgram';
-export { Program, FungibleTokenProgram };
+import { Program } from '../../../lib/classes/programs/Program';
+export { Program };

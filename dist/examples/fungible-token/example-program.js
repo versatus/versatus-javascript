@@ -16,7 +16,6 @@ class FungibleTokenProgram extends Program {
         Object.assign(this.methodStrategies, {
             approve: this.approve.bind(this),
             burn: this.burn.bind(this),
-            create: this.create.bind(this),
             mint: this.mint.bind(this),
         });
     }

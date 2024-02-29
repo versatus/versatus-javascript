@@ -12,7 +12,7 @@ export interface DeployCommandArgs {
     author: string;
     name: string;
     symbol: string;
-    tokenName: string;
+    programName: string;
     initializedSupply: string;
     totalSupply: string;
     recipientAddress: string;
@@ -21,9 +21,18 @@ export interface DeployCommandArgs {
     target?: string;
 }
 export interface SendCommandArgs {
+    programAddress: string;
+    recipientAddress: string;
+    amount: string;
     keypairPath?: string;
     secretKey?: string;
-    target?: string;
+}
+export interface CallCommandArgs {
+    programAddress: string;
+    op: string;
+    inputs: string;
+    keypairPath?: string;
+    secretKey?: string;
 }
 export declare const isInstalledPackage: boolean;
 export declare const isTypeScriptProject: () => boolean;
@@ -35,7 +44,7 @@ export declare function registerProgram(cid: string, secretKey: string): Promise
 export declare const getSecretKey: (secretKeyPath?: string, secretKey?: string) => Promise<string>;
 export declare function callCreate(programAddress: string, symbol: string, name: string, initializedSupply: string, totalSupply: string, secretKey: string, recipientAddress: string): Promise<string>;
 export declare function sendTokens(programAddress: string, recipientAddress: string, amount: string, secretKey: string): Promise<string>;
-export declare function callProgram(programAddress: string, operation: string, txInputs: string, secretKey: string): Promise<string>;
+export declare function callProgram(programAddress: string, op: string, inputs: string, secretKey: string): Promise<string>;
 export declare function publishProgram(author: string, name: string, target: string | undefined, secretKey: string): Promise<string>;
 export declare function injectFileInWrapper(filePath: string, target?: string): Promise<void>;
 export declare function runTestProcess(inputJsonPath: string, target?: string): Promise<unknown>;

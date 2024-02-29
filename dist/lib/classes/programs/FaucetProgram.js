@@ -1,10 +1,10 @@
-import { Program } from '../../../lib/classes/programs/Program.js';
-import { Outputs } from '../../../lib/classes/Outputs.js';
-import { buildTransferInstruction, buildProgramUpdateField, buildUpdateInstruction, buildCreateInstruction, buildTokenDistributionInstruction, buildTokenUpdateField, } from '../../../lib/builders.js';
-import { THIS } from '../../../lib/consts.js';
-import { AddressOrNamespace, TokenOrProgramUpdate } from '../../../lib/classes/utils.js';
-import { ProgramUpdate } from '../../../lib/classes/Program.js';
-import { formatVerse, parseVerse } from '../../../lib/utils.js';
+import { Program } from '../../../lib/classes/programs/Program.js.js.js.js';
+import { Outputs } from '../../../lib/classes/Outputs.js.js.js.js';
+import { buildTransferInstruction, buildProgramUpdateField, buildUpdateInstruction, buildCreateInstruction, buildTokenDistributionInstruction, buildTokenUpdateField, } from '../../../lib/builders.js.js.js.js';
+import { THIS } from '../../../lib/consts.js.js.js.js';
+import { AddressOrNamespace, TokenOrProgramUpdate } from '../../../lib/classes/utils.js.js.js.js';
+import { ProgramUpdate } from '../../../lib/classes/Program.js.js.js.js';
+import { formatVerse, parseVerse } from '../../../lib/utils.js.js.js.js';
 /**
  * Class representing a faucet program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write

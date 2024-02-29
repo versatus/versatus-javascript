@@ -23,7 +23,7 @@ export interface DeployCommandArgs {
   author: string // Author of the contract
   name: string // Name of the contract
   symbol: string // Symbol for the program
-  tokenName: string // Name for the program
+  programName: string // Name for the program
   initializedSupply: string // Supply of the token to be sent to either the caller or the program
   totalSupply: string // Total supply of the token to be created
   recipientAddress: string // Address for the initialized supply
@@ -33,9 +33,19 @@ export interface DeployCommandArgs {
 }
 
 export interface SendCommandArgs {
+  programAddress: string
+  recipientAddress: string
+  amount: string
   keypairPath?: string
   secretKey?: string
-  target?: string
+}
+
+export interface CallCommandArgs {
+  programAddress: string
+  op: string
+  inputs: string
+  keypairPath?: string
+  secretKey?: string
 }
 
 export const isInstalledPackage = fs.existsSync(
@@ -211,19 +221,19 @@ export async function sendTokens(
 
 export async function callProgram(
   programAddress: string,
-  operation: string,
-  txInputs: string,
+  op: string,
+  inputs: string,
   secretKey: string
 ) {
-  if (!programAddress || !operation || !txInputs || !secretKey) {
+  if (!programAddress || !op || !inputs || !secretKey) {
     throw new Error(
-      `programAddress (${programAddress}), operation (${operation}), txInputs (${txInputs}), and secretKey are required to call create.`
+      `programAddress (${programAddress}), op (${op}), inputs (${inputs}), and secretKey are required to call create.`
     )
   }
 
   process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
   process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`
-  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${operation} --inputs '{"programAddress":"0x945a6b4f03d6b184b2e5edce953c963f11b724e1","amountToAdd":"100","flowAmount":"10","cycleTimeMin":"1"}' --to ${programAddress} --content-namespace ${programAddress}`
+  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress}`
   return await runCommand(command)
 }
 

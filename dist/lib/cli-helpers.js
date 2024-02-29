@@ -123,13 +123,13 @@ export async function sendTokens(programAddress, recipientAddress, amount, secre
     const command = `./build/lasr_cli wallet send --to ${recipientAddress} -c ${programAddress} --value ${amount} -u verse --from-secret-key --secret-key "${secretKey}"`;
     return await runCommand(command);
 }
-export async function callProgram(programAddress, operation, txInputs, secretKey) {
-    if (!programAddress || !operation || !txInputs || !secretKey) {
-        throw new Error(`programAddress (${programAddress}), operation (${operation}), txInputs (${txInputs}), and secretKey are required to call create.`);
+export async function callProgram(programAddress, op, inputs, secretKey) {
+    if (!programAddress || !op || !inputs || !secretKey) {
+        throw new Error(`programAddress (${programAddress}), op (${op}), inputs (${inputs}), and secretKey are required to call create.`);
     }
     process.env.LASR_RPC_URL = `${LASR_RPC_URL}`;
     process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`;
-    const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${operation} --inputs '{"programAddress":"0x945a6b4f03d6b184b2e5edce953c963f11b724e1","amountToAdd":"100","flowAmount":"10","cycleTimeMin":"1"}' --to ${programAddress} --content-namespace ${programAddress}`;
+    const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress}`;
     return await runCommand(command);
 }
 export async function publishProgram(author, name, target = 'node', secretKey) {

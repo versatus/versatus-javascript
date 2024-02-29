@@ -1,12 +1,12 @@
-import { Program } from '../../../lib/classes/programs/Program.js';
-import { TokenUpdateBuilder } from '../../../lib/classes/builders.js';
-import { AddressOrNamespace, TokenOrProgramUpdate } from '../../../lib/classes/utils.js';
-import Address from '../../../lib/classes/Address.js';
-import { Outputs } from '../../../lib/classes/Outputs.js';
-import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../../../lib/classes/Token.js';
-import { buildBurnInstruction, buildMintInstructions } from '../../../lib/builders.js';
-import { ApprovalsExtend, ApprovalsValue } from '../../../lib/classes/Approvals.js';
-import { ETH_PROGRAM_ADDRESS, THIS } from '../../../lib/consts.js';
+import { Program } from '../../../lib/classes/programs/Program.js.js.js.js';
+import { TokenUpdateBuilder } from '../../../lib/classes/builders.js.js.js.js';
+import { AddressOrNamespace, TokenOrProgramUpdate } from '../../../lib/classes/utils.js.js.js.js';
+import Address from '../../../lib/classes/Address.js.js.js.js';
+import { Outputs } from '../../../lib/classes/Outputs.js.js.js.js';
+import { TokenField, TokenFieldValue, TokenUpdate, TokenUpdateField, } from '../../../lib/classes/Token.js.js.js.js';
+import { buildBurnInstruction, buildMintInstructions } from '../../../lib/builders.js.js.js.js';
+import { ApprovalsExtend, ApprovalsValue } from '../../../lib/classes/Approvals.js.js.js.js';
+import { ETH_PROGRAM_ADDRESS, THIS } from '../../../lib/consts.js.js.js.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write

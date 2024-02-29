@@ -1,7 +1,7 @@
-import { Program } from '../../../lib/classes/programs/Program.js';
-import { Outputs } from '../../../lib/classes/Outputs.js';
-import { buildBurnInstruction, buildMintInstructions } from '../../../lib/builders.js';
-import { ETH_PROGRAM_ADDRESS, THIS } from '../../../lib/consts.js';
+import { Program } from '../../../lib/classes/programs/Program.js.js.js.js';
+import { Outputs } from '../../../lib/classes/Outputs.js.js.js.js';
+import { buildBurnInstruction, buildMintInstructions } from '../../../lib/builders.js.js.js.js';
+import { ETH_PROGRAM_ADDRESS, THIS } from '../../../lib/consts.js.js.js.js';
 /**
  * Class representing a snake program, extending the base `Program` class.
  * It encapsulates the core functionality and properties of the write
