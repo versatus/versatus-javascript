@@ -96,7 +96,6 @@ export class FaucetProgram extends Program {
       faucetDataUpdateInstruction,
     ]).toJson()
   }
-
   create(computeInputs: ComputeInputs) {
     const { transaction } = computeInputs
     const { transactionInputs } = transaction
@@ -174,7 +173,6 @@ export class FaucetProgram extends Program {
       createSupportedProgramsAndRecipientsUpdateInstruction,
     ]).toJson()
   }
-
   faucet(computeInputs: ComputeInputs) {
     const { transaction, accountInfo } = computeInputs
     const { transactionInputs, from } = transaction

@@ -1,7 +1,6 @@
-import { AddressOrNamespace, ApprovalsExtend, ApprovalsValue, Outputs, Program, ProgramUpdate, TokenField, TokenFieldValue, TokenOrProgramUpdate, TokenUpdate, TokenUpdateBuilder, TokenUpdateField, } from '../../lib/classes.js';
-import { buildBurnInstruction, buildCreateInstruction, buildMintInstructions, buildTokenUpdateField, buildTokenDistributionInstruction, buildProgramUpdateField, buildUpdateInstruction, } from '../../lib/builders.js';
+import { AddressOrNamespace, ApprovalsExtend, ApprovalsValue, Outputs, Program, TokenField, TokenFieldValue, TokenOrProgramUpdate, TokenUpdate, TokenUpdateBuilder, TokenUpdateField, } from '../../lib/classes.js';
+import { buildBurnInstruction, buildMintInstructions, } from '../../lib/builders.js';
 import { ETH_PROGRAM_ADDRESS, THIS } from '../../lib/consts.js';
-import { formatVerse } from '../../lib/utils.js';
 import Address from '../../lib/classes/Address.js';
 /**
  * Class representing a fungible token program, extending the base `Program` class.
@@ -45,62 +44,6 @@ class FungibleTokenProgram extends Program {
             amount: transaction.value,
         });
         return new Outputs(computeInputs, [burnInstruction]).toJson();
-    }
-    create(computeInputs) {
-        const { transaction } = computeInputs;
-        const { transactionInputs, from } = transaction;
-        const txInputs = JSON.parse(transactionInputs);
-        const totalSupply = formatVerse(txInputs?.totalSupply);
-        const initializedSupply = formatVerse(txInputs?.initializedSupply);
-        const to = txInputs?.to ?? from;
-        const symbol = txInputs?.symbol;
-        const name = txInputs?.name;
-        if (!totalSupply || !initializedSupply) {
-            throw new Error('Invalid totalSupply or initializedSupply');
-        }
-        if (!symbol || !name) {
-            throw new Error('Invalid symbol or name');
-        }
-        const tokenUpdateField = buildTokenUpdateField({
-            field: 'metadata',
-            value: JSON.stringify({ symbol, name, totalSupply }),
-            action: 'extend',
-        });
-        if (tokenUpdateField instanceof Error) {
-            throw tokenUpdateField;
-        }
-        const tokenUpdates = [tokenUpdateField];
-        const programUpdateField = buildProgramUpdateField({
-            field: 'metadata',
-            value: JSON.stringify({ symbol, name, totalSupply }),
-            action: 'extend',
-        });
-        if (programUpdateField instanceof Error) {
-            throw programUpdateField;
-        }
-        const programUpdates = [programUpdateField];
-        const programMetadataUpdateInstruction = buildUpdateInstruction({
-            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
-        });
-        const distributionInstruction = buildTokenDistributionInstruction({
-            programId: THIS,
-            initializedSupply,
-            to,
-            tokenUpdates,
-        });
-        const createAndDistributeInstruction = buildCreateInstruction({
-            from,
-            initializedSupply,
-            totalSupply,
-            programId: THIS,
-            programOwner: from,
-            programNamespace: THIS,
-            distributionInstruction,
-        });
-        return new Outputs(computeInputs, [
-            createAndDistributeInstruction,
-            programMetadataUpdateInstruction,
-        ]).toJson();
     }
     mint(computeInputs) {
         const { transaction } = computeInputs;

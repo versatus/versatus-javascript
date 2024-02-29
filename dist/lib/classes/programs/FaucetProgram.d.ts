@@ -11,5 +11,6 @@ export declare class FaucetProgram extends Program {
      */
     constructor();
     addProgram(computeInputs: ComputeInputs): object;
+    create(computeInputs: ComputeInputs): object;
     faucet(computeInputs: ComputeInputs): object;
 }
