@@ -43,40 +43,48 @@ const deployCommand = (yargs) => {
         describe: 'Author of the contract',
         type: 'string',
         demandOption: true,
+        alias: 'a',
     })
         .option('name', {
         describe: 'Name of the contract',
         type: 'string',
         demandOption: true,
+        alias: 'n',
     })
         .option('symbol', {
         describe: 'Symbol for the program',
         type: 'string',
         demandOption: true,
+        alias: 's',
     })
         .option('programName', {
         describe: 'Name for the program',
         type: 'string',
         demandOption: true,
+        alias: 'pn',
     })
         .option('initializedSupply', {
         describe: 'Supply of the token to be sent to either the caller or the program',
         type: 'string',
         demandOption: true,
+        alias: 'is',
     })
         .option('totalSupply', {
         describe: 'Total supply of the token to be created',
         type: 'string',
         demandOption: true,
+        alias: 'ts',
     })
         .option('recipientAddress', {
         describe: 'Address for the initialized supply',
         type: 'string',
         demandOption: true,
+        alias: 'ra',
     })
         .option('inputs', {
         describe: 'Additional inputs for the program',
         type: 'string',
+        alias: 'i',
     })
         .option('keypairPath', {
         describe: 'Path to the keypair file',
@@ -91,6 +99,7 @@ const deployCommand = (yargs) => {
         type: 'string',
         choices: ['node', 'wasm'],
         default: 'node',
+        alias: 't',
     });
 };
 const sendCommand = (yargs) => {
