@@ -38,22 +38,22 @@ build:
 	$(Q)yarn build
 
 reset: clean build
-	$(Q)npx vsjs init
-	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs
+	$(Q)npx lasrctl init
+	$(Q)npx lasrctl build example-contract.ts
+	$(Q)npx lasrctl test inputs
 	$(Q)echo "--- reset"
 
 reset-faucet: clean build
-	$(Q)npx vsjs init faucet
-	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs
+	$(Q)npx lasrctl init faucet
+	$(Q)npx lasrctl build example-contract.ts
+	$(Q)npx lasrctl test inputs
 
 reset-snake: clean build
-	$(Q)npx vsjs init snake
-	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs
+	$(Q)npx lasrctl init snake
+	$(Q)npx lasrctl build example-contract.ts
+	$(Q)npx lasrctl test inputs
 
 reset-fungible-token: clean build
-	$(Q)npx vsjs init fungible-token
-	$(Q)npx vsjs build example-contract.ts
-	$(Q)npx vsjs test inputs
+	$(Q)npx lasrctl init fungible-token
+	$(Q)npx lasrctl build example-contract.ts
+	$(Q)npx lasrctl test inputs

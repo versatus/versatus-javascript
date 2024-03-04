@@ -4,7 +4,7 @@
   "type": "module",
   "module": "./dist/lib/index.js",
   "bin": {
-    "vsjs": "./dist/cli.js"
+    "lasrctl": "./dist/cli.js"
   },
   "types": "./dist/lib/index.d.ts",
   "files": [
