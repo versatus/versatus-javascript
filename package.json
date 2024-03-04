@@ -6,10 +6,8 @@
   "bin": {
     "vsjs": "./dist/cli.js"
   },
-  "types": "./dist/lib/index.d.ts",
+  "types": "./dist/lib/types.d.ts",
   "files": [
-    "lib/",
-    "examples/",
     "dist/"
   ],
   "scripts": {
