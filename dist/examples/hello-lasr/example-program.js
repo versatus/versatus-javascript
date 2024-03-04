@@ -1,8 +1,34 @@
-import { Program } from '../../lib/classes.js';
+import { AddressOrNamespace, Outputs, Program, ProgramUpdate, TokenOrProgramUpdate } from '../../lib/classes.js';
+import { buildProgramUpdateField, buildUpdateInstruction } from '../../lib/builders.js';
+import { THIS } from '../../lib/consts.js';
 class HelloLasrProgram extends Program {
     constructor() {
         super();
-        Object.assign(this.methodStrategies, {});
+        Object.assign(this.methodStrategies, {
+            hello: this.hello.bind(this),
+        });
+    }
+    hello(computeInputs) {
+        const { transaction } = computeInputs;
+        const { transactionInputs: txInputStr } = transaction;
+        const txInputs = JSON.parse(txInputStr);
+        const name = txInputs?.name ?? 'World';
+        const currentTime = new Date().getTime();
+        const helloWorldUpdate = buildProgramUpdateField({
+            field: 'data',
+            value: JSON.stringify({
+                hello: `Hello, ${name}! The time is ${currentTime}!`,
+            }),
+            action: 'extend',
+        });
+        if (helloWorldUpdate instanceof Error) {
+            throw helloWorldUpdate;
+        }
+        const programUpdates = [helloWorldUpdate];
+        const helloWorldUpdateInstruction = buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)),
+        });
+        return new Outputs(computeInputs, [helloWorldUpdateInstruction]).toJson();
     }
 }
 const start = (input) => {

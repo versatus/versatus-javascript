@@ -8,10 +8,11 @@ import { Arguments } from 'yargs'
 
 export interface InitCommandArgs {
   example: string
+  target?: string
 }
 
 export interface BuildCommandArgs {
-  file?: string // Marking `file` as optional, since it can be undefined
+  file?: string
   target: string
 }
 

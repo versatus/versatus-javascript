@@ -10,11 +10,19 @@ import { buildNode, callCreate, callProgram, copyDirectory, getSecretKey, instal
 import { LASR_RPC_URL, VIPFS_ADDRESS } from './lib/consts.js';
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const initCommand = (yargs) => {
-    return yargs.positional('example', {
+    return yargs
+        .positional('example', {
         describe: 'The example program to initialize',
         type: 'string',
         choices: ['fungible-token', 'snake', 'faucet'],
         demandOption: true,
+    })
+        .option('target', {
+        describe: 'Build target',
+        type: 'string',
+        choices: ['node', 'wasm'],
+        default: 'node',
+        alias: 't',
     });
 };
 const buildCommand = (yargs) => {
@@ -155,7 +163,7 @@ const callCommand = (yargs) => {
     });
 };
 yargs(process.argv.slice(2))
-    .command('init [example]', 'Initialize a project with an example program', initCommand, (argv) => {
+    .command('init [example] [flags]', 'Initialize a project with an example program', initCommand, (argv) => {
     console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'hello-lasr' || 'fungible-token' || 'faucet'}...\x1b[0m`);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
@@ -231,7 +239,6 @@ yargs(process.argv.slice(2))
                 const command = isInstalledPackage
                     ? `tsc --outDir ${outDir} ${filePath}`
                     : 'tsc && tsc-alias && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js';
-                // Run tsc to transpile the TypeScript file
                 exec(command, (tscError, tscStdout, tscStderr) => {
                     if (tscError) {
                         console.error(`Error during TypeScript transpilation: ${tscError}`);

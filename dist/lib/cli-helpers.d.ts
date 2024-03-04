@@ -1,5 +1,6 @@
 export interface InitCommandArgs {
     example: string;
+    target?: string;
 }
 export interface BuildCommandArgs {
     file?: string;

@@ -33,12 +33,20 @@ import { LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
 export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const initCommand: CommandBuilder<{}, InitCommandArgs> = (yargs: Argv) => {
-  return yargs.positional('example', {
-    describe: 'The example program to initialize',
-    type: 'string',
-    choices: ['fungible-token', 'snake', 'faucet'],
-    demandOption: true,
-  })
+  return yargs
+    .positional('example', {
+      describe: 'The example program to initialize',
+      type: 'string',
+      choices: ['fungible-token', 'snake', 'faucet'],
+      demandOption: true,
+    })
+    .option('target', {
+      describe: 'Build target',
+      type: 'string',
+      choices: ['node', 'wasm'],
+      default: 'node',
+      alias: 't',
+    })
 }
 
 const buildCommand: CommandBuilder<{}, BuildCommandArgs> = (yargs: Argv) => {
@@ -187,7 +195,7 @@ const callCommand: CommandBuilder<{}, CallCommandArgs> = (yargs: Argv) => {
 
 yargs(process.argv.slice(2))
   .command(
-    'init [example]',
+    'init [example] [flags]',
     'Initialize a project with an example program',
     initCommand,
     (argv: Arguments<InitCommandArgs>) => {
@@ -340,7 +348,6 @@ yargs(process.argv.slice(2))
               const command = isInstalledPackage
                 ? `tsc --outDir ${outDir} ${filePath}`
                 : 'tsc && tsc-alias && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js'
-              // Run tsc to transpile the TypeScript file
               exec(command, (tscError, tscStdout, tscStderr) => {
                 if (tscError) {
                   console.error(
@@ -643,6 +650,7 @@ export async function injectFileInWrapper(filePath: string, target = 'node') {
         }
       }
     }
+
     if (isInstalledPackage) {
       try {
         wrapperFilePath =
