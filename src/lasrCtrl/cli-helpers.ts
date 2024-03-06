@@ -54,10 +54,7 @@ export async function runBuildProcess(target: string = 'node') {
     console.log("\x1b[0;37mCreating the 'build' directory...\x1b[0m")
     fs.mkdirSync(buildPath, { recursive: true })
   }
-
-  if (target === 'node') {
-    await buildNode(buildPath)
-  }
+  await buildNode(buildPath)
 }
 
 export async function buildNode(buildPath: string) {
@@ -70,6 +67,7 @@ export async function buildNode(buildPath: string) {
   }
   const parcelCommand = `
   npx parcel build --target node ./example-program.ts --no-cache`
+  console.log('EXECUTING PARCEL COMMAND:', parcelCommand)
   exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
     if (tscError) {
       console.error(`Error during TypeScript transpilation: ${tscError}`)
