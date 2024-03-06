@@ -20,7 +20,7 @@ We are current support:
 * C ⏳
 * C++ ⏳
 
-But that list isn't prescriptive. We're a small team and more than welcome
+But that list isn't prescriptive. We're a small team and welcome
 anyone who wants to create an SDK for LASR in any language they should so choose
 which leads me to the next part.
 
@@ -29,18 +29,8 @@ Programs in **LASR** take in JSON and return JSON. A programs sole job is to
 take in the JSON passed to it by the protocol, execute whatever logic the 
 developer might want to execute, and then return an array of instructions.
 
-The protocol has a limited but _POWERFUL_ set of actions it can act on that are
-akin to the tried and true methods that power web2: **Create/Read/Update/Destroy**.
-
-In LASR, we have: **CUTB**
-
-* **Create**
-* **Update**
-* **Transfer**
-* **Burn**
-
-The returned instructions from your program will instruct the protocol to  
-
+[CLICK HERE TO LEARN MORE ABOUT LASR PROGRAMS
+](/src/lib/programs/README.md)
 ## Getting started
 
 ### Dependencies
