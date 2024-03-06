@@ -1,7 +1,7 @@
 import * as versatus from './versatus'
-import * as builders from '@/lib/programs/instruction-builders/builders'
-import * as builderHelpers from '@/lib/programs/instruction-builders/builder-helpers'
+import * as programs from './programs'
 import * as utils from './utils'
+import * as types from './types'
 export {
   LASR_RPC_URL,
   RPC_URL,
@@ -12,9 +12,5 @@ export {
   ZERO_VALUE,
 } from './consts'
 
-import * as types from './types'
-
-export { builders, builderHelpers }
+export { programs, utils, types }
 export { versatus }
-export { utils }
-export { types }

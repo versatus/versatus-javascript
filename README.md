@@ -31,13 +31,15 @@ developer might want to execute, and then return an array of instructions.
 
 [CLICK HERE TO LEARN MORE ABOUT LASR PROGRAMS
 ](/src/lib/programs/README.md)
+
+
+
 ## Getting started
 
 ### Dependencies
 * Node _(>= v18)_
 * NPM / Yarn
 * Typescript
-
 
 
 ### Install LASRCTL as a global package.
@@ -53,23 +55,3 @@ Initialize a basic example to start building a smart contract. It will initializ
 ```bash
 npx lasrctl init
 ```
-
-### Initialize Fungible Token Example
-If you want to build an ERC-20 smart contract, you can initialize an ERC-20 example using the following command.
-```bash
-npx lasrctl init fungible-token 
-```
-
-### Build Contract
-Once you have written your smart contract code, you can build the contract using the lasrctl build command. Replace example-contract.js with the actual filename of your smart contract.
-```bash
-npx lasrctl build example-contract.ts
-```
-
-### Test Contract
-You can test your smart contract using the lasrctl test command. Provide the path to the sample contract input JSON file.
-```bash
-npx lasrctl test inputs
-```
-By following these steps, you can set up the development environment, initialize examples, build, and test smart contracts on the Versatus network using the provided commands.
-Please note that the specific details of smart contract development may vary based on the Versatus network's documentation and requirements. It's important to refer to the official Versatus documentation for the most accurate and up-to-date information.

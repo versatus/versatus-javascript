@@ -9,6 +9,7 @@
   },
   "files": [
     "examples/**",
+    "scripts/**",
     "dist/**"
   ],
   "scripts": {

@@ -23,8 +23,7 @@ export const installedPackagePath = path.resolve(
   process.cwd(),
   'node_modules',
   '@versatus',
-  'versatus-javascript',
-  'dist'
+  'versatus-javascript'
 )
 
 export function copyDirectory(src: string, dest: string) {
@@ -63,21 +62,11 @@ export async function runBuildProcess(target: string = 'node') {
 
 export async function buildNode(buildPath: string) {
   console.log('BUILDING NODE!')
-  const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js')
-  const nodeMapWrapperPath = path.join('./build/lib', 'node-wrapper.js.map')
   const parcelCache = './parcel-cache'
 
   if (fs.existsSync(parcelCache)) {
     fs.unlinkSync(parcelCache)
     console.log('Existing .parcel-cache deleted.')
-  }
-  if (fs.existsSync(nodeWrapperPath)) {
-    fs.unlinkSync(nodeWrapperPath)
-    console.log('Existing node-wrapper.js deleted.')
-  }
-  if (fs.existsSync(nodeMapWrapperPath)) {
-    fs.unlinkSync(nodeMapWrapperPath)
-    console.log('Existing node-wrapper.js.map deleted.')
   }
   const parcelCommand = `
   npx parcel build --target node ./example-program.ts --no-cache`

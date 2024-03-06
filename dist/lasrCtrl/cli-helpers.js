@@ -8,7 +8,7 @@ export const isTypeScriptProject = () => {
     const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
     return fs.existsSync(tsConfigPath);
 };
-export const installedPackagePath = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript', 'dist');
+export const installedPackagePath = path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript');
 export function copyDirectory(src, dest) {
     fs.mkdirSync(dest, { recursive: true });
     let entries = fs.readdirSync(src, { withFileTypes: true });
@@ -38,20 +38,10 @@ export async function runBuildProcess(target = 'node') {
 }
 export async function buildNode(buildPath) {
     console.log('BUILDING NODE!');
-    const nodeWrapperPath = path.join('./build/lib', 'node-wrapper.js');
-    const nodeMapWrapperPath = path.join('./build/lib', 'node-wrapper.js.map');
     const parcelCache = './parcel-cache';
     if (fs.existsSync(parcelCache)) {
         fs.unlinkSync(parcelCache);
         console.log('Existing .parcel-cache deleted.');
-    }
-    if (fs.existsSync(nodeWrapperPath)) {
-        fs.unlinkSync(nodeWrapperPath);
-        console.log('Existing node-wrapper.js deleted.');
-    }
-    if (fs.existsSync(nodeMapWrapperPath)) {
-        fs.unlinkSync(nodeMapWrapperPath);
-        console.log('Existing node-wrapper.js.map deleted.');
     }
     const parcelCommand = `
   npx parcel build --target node ./example-program.ts --no-cache`;

@@ -33,10 +33,8 @@ const build = (argv: Arguments<BuildCommandArgs>) => {
   let scriptDir: string, sysCheckScriptPath
 
   if (isInstalledPackage) {
-    scriptDir = installedPackagePath
     sysCheckScriptPath = path.resolve(
-      scriptDir,
-      '../',
+      installedPackagePath,
       'scripts',
       'sys_check.sh'
     )
@@ -97,12 +95,12 @@ const build = (argv: Arguments<BuildCommandArgs>) => {
             console.log(
               '\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m'
             )
-            runBuildProcess(argv.target).catch((error: any) => {
+            runBuildProcess(argv.file).catch((error: any) => {
               console.error('Error during the build process:', error)
             })
           })
         } else {
-          runBuildProcess(argv.target).catch((error: any) => {
+          runBuildProcess(argv.file).catch((error: any) => {
             console.error('Error during the build process:', error)
           })
         }

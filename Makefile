@@ -12,7 +12,9 @@ endif
 all: $(DEFAULT)
 
 clean:
-	$(Q)rm -rf dist build example-contract* inputs node_modules .parcel-cache
+	$(Q)rm -rf dist build example-program* inputs node_modules .parcel-cache
+	$(Q)yarn install
+	$(Q)yarn build
 	$(Q)echo "--- clean"
 
 help:

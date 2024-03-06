@@ -18,8 +18,7 @@ export const buildCommandFlags = (yargs) => {
 const build = (argv) => {
     let scriptDir, sysCheckScriptPath;
     if (isInstalledPackage) {
-        scriptDir = installedPackagePath;
-        sysCheckScriptPath = path.resolve(scriptDir, '../', 'scripts', 'sys_check.sh');
+        sysCheckScriptPath = path.resolve(installedPackagePath, 'scripts', 'sys_check.sh');
     }
     else {
         // In the development environment
@@ -53,13 +52,13 @@ const build = (argv) => {
                         return;
                     }
                     console.log('\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m');
-                    runBuildProcess(argv.target).catch((error) => {
+                    runBuildProcess(argv.file).catch((error) => {
                         console.error('Error during the build process:', error);
                     });
                 });
             }
             else {
-                runBuildProcess(argv.target).catch((error) => {
+                runBuildProcess(argv.file).catch((error) => {
                     console.error('Error during the build process:', error);
                 });
             }

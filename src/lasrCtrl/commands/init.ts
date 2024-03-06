@@ -43,7 +43,6 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   const exampleDir = isInstalledPackage
     ? path.resolve(
         installedPackagePath,
-        isTsProject ? '' : 'dist',
         'examples',
         argv.example || 'hello-lasr'
       )
@@ -52,6 +51,8 @@ const init = (argv: Arguments<InitCommandArgs>) => {
         'examples',
         argv.example || 'hello-lasr'
       )
+
+  console.log({ exampleDir })
 
   const targetDir = process.cwd()
   const targetFilePath = path.join(
@@ -110,7 +111,9 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   console.log()
   console.log(`\x1b[0;35mReady to run:\x1b[0m`)
   console.log(
-    `\x1b[0;33mvsjs build example-program${isTsProject ? '.ts' : '.js'}\x1b[0m`
+    `\x1b[0;33mlasrctl build example-program${
+      isTsProject ? '.ts' : '.js'
+    }\x1b[0m`
   )
   console.log()
   console.log()
