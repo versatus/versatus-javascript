@@ -10,21 +10,12 @@
   "files": [
     "examples/**",
     "scripts/**",
-    "dist/**"
+    "dist/**",
+    "webpack.config.js"
   ],
   "scripts": {
     "build": "tsc && tsc-alias && chmod +x dist/lasrctrl/cli.js && node dist/lib/scripts/add-extensions.js",
     "docs": "typedoc"
-  },
-  "targets": {
-    "node": {
-      "context": "node",
-      "includeNodeModules": true,
-      "engines": {
-        "node": ">=18"
-      },
-      "distDir": "build/lib"
-    }
   },
   "dependencies": {
     "@babel/core": "^7.23.9",
