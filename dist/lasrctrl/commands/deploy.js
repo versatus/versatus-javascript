@@ -109,7 +109,20 @@ const deploy = async (argv) => {
         console.log(`\x1b[0;32mProgram registered.\x1b[0m
 ==> programAddress: ${programAddress}`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, String(argv.inputs));
+        let createResponse;
+        try {
+            createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, String(argv.inputs));
+        }
+        catch (error) {
+            console.log('First attempt failed, trying again:', error);
+            try {
+                createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, String(argv.inputs));
+            }
+            catch (error) {
+                console.error('Second attempt failed, bailing:', error);
+                throw new Error('Failed to create response after two attempts');
+            }
+        }
         if (createResponse) {
             console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
 ==> programAddress: ${programAddress}
