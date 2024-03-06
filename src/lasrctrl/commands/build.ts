@@ -92,10 +92,6 @@ const build = (argv: Arguments<BuildCommandArgs>) => {
               )
               return
             }
-
-            console.log(
-              '\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m'
-            )
             runBuildProcess(argv.file).catch((error: any) => {
               console.error('Error during the build process:', error)
             })

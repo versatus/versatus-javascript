@@ -52,7 +52,6 @@ const build = (argv) => {
                         console.error(`Error during TypeScript transpilation: ${tscError}`);
                         return;
                     }
-                    console.log('\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m');
                     runBuildProcess(argv.file).catch((error) => {
                         console.error('Error during the build process:', error);
                     });

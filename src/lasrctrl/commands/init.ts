@@ -55,6 +55,7 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   const targetDir = process.cwd()
   const targetFilePath = path.join(
     targetDir,
+    isInstalledPackage ? '' : 'src',
     isTsProject ? 'example-program.ts' : 'example-program.js'
   )
 
@@ -121,11 +122,10 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   console.log()
   console.log(`\x1b[0;35mReady to run:\x1b[0m`)
   console.log(
-    `\x1b[0;33mlasrctl build example-program${
-      isTsProject ? '.ts' : '.js'
-    }\x1b[0m`
+    `\x1b[0;33mlasrctl build ${
+      isInstalledPackage ? '' : 'src/'
+    }example-program${isTsProject ? '.ts' : '.js'}\x1b[0m`
   )
-  console.log()
   console.log()
 }
 

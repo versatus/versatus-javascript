@@ -1,6 +1,7 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   callCreate,
+  checkWallet,
   getSecretKey,
   registerProgram,
 } from '@/lasrctrl/cli-helpers'
@@ -124,6 +125,8 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 ==> cid: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`
     )
     const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
+
+    // await checkWallet(String(secretKey))
 
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
     const registerResponse = await registerProgram(cid, secretKey)

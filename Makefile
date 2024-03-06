@@ -37,21 +37,21 @@ build:
 
 reset: clean build
 	$(Q)npx lasrctl init
-	$(Q)npx lasrctl build example-contract.ts
+	$(Q)npx lasrctl build src/example-program.ts
 	$(Q)npx lasrctl test inputs
 	$(Q)echo "--- reset"
 
 reset-faucet: clean build
 	$(Q)npx lasrctl init faucet
-	$(Q)npx lasrctl build example-contract.ts
+	$(Q)npx lasrctl build src/example-program.ts
 	$(Q)npx lasrctl test inputs
 
 reset-snake: clean build
 	$(Q)npx lasrctl init snake
-	$(Q)npx lasrctl build example-contract.ts
+	$(Q)npx lasrctl build src/example-program.ts
 	$(Q)npx lasrctl test inputs
 
 reset-fungible-token: clean build
 	$(Q)npx lasrctl init fungible-token
-	$(Q)npx lasrctl build example-contract.ts
+	$(Q)npx lasrctl build src/example-program.ts
 	$(Q)npx lasrctl test inputs

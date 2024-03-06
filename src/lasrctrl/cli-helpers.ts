@@ -45,7 +45,6 @@ export async function runBuildProcess(programFilePath: string) {
 }
 
 export async function buildNode(buildPath: string) {
-  console.log('BUILDING NODE!')
   const configPath = isInstalledPackage
     ? `${installedPackagePath}/webpack.config.js`
     : './webpack.config.js'
@@ -56,9 +55,11 @@ export async function buildNode(buildPath: string) {
       return
     }
 
-    console.log(
-      '\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m'
-    )
+    console.log('\x1b[0;37mBuild complete...\x1b[0m')
+    console.log()
+    console.log(`\x1b[0;35mReady to run:\x1b[0m`)
+    console.log(`\x1b[0;33mlasrctl test inputs\x1b[0m`)
+    console.log()
   })
 }
 
@@ -106,7 +107,6 @@ export const getSecretKey = async (
     }
   } else if (secretKeyPath) {
     console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
-    await checkWallet(String(secretKeyPath))
   }
 
   let retrievedSecretKey: string
@@ -361,10 +361,7 @@ export async function initializeWallet() {
 export async function checkWallet(keypairPath: string) {
   try {
     console.log('Checking wallet...')
-    const command = `
-    ./build/lasr_cli wallet get-account
-      --from-file
-      --path ${keypairPath}`
+    const command = `./build/lasr_cli wallet get-account --from-secret-key --secret-key ${keypairPath}`
 
     await runCommand(command)
     console.log('Wallet check successful')

@@ -25,7 +25,7 @@ const init = (argv) => {
         ? path.resolve(installedPackagePath, 'examples', argv.example || 'hello-lasr')
         : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'hello-lasr');
     const targetDir = process.cwd();
-    const targetFilePath = path.join(targetDir, isTsProject ? 'example-program.ts' : 'example-program.js');
+    const targetFilePath = path.join(targetDir, isInstalledPackage ? '' : 'src', isTsProject ? 'example-program.ts' : 'example-program.js');
     fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);
     let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
     // Check if the package is installed, then update import paths
@@ -64,8 +64,7 @@ const init = (argv) => {
     console.log('\x1b[0;37mExample contract and inputs initialized successfully.\x1b[0m');
     console.log();
     console.log(`\x1b[0;35mReady to run:\x1b[0m`);
-    console.log(`\x1b[0;33mlasrctl build example-program${isTsProject ? '.ts' : '.js'}\x1b[0m`);
-    console.log();
+    console.log(`\x1b[0;33mlasrctl build ${isInstalledPackage ? '' : 'src/'}example-program${isTsProject ? '.ts' : '.js'}\x1b[0m`);
     console.log();
 };
 export default init;

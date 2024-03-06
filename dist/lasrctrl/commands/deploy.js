@@ -96,6 +96,7 @@ const deploy = async (argv) => {
         console.log(`\x1b[0;32mProgram published.\x1b[0m
 ==> cid: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
+        // await checkWallet(String(secretKey))
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         const registerResponse = await registerProgram(cid, secretKey);
         const programAddressMatch = registerResponse.match(/"program_address":\s*"(0x[a-fA-F0-9]{40})"/);

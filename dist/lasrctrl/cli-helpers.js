@@ -24,7 +24,6 @@ export async function runBuildProcess(programFilePath) {
     await buildNode(programFilePath);
 }
 export async function buildNode(buildPath) {
-    console.log('BUILDING NODE!');
     const configPath = isInstalledPackage
         ? `${installedPackagePath}/webpack.config.js`
         : './webpack.config.js';
@@ -34,7 +33,11 @@ export async function buildNode(buildPath) {
             console.error(`Error during TypeScript transpilation: ${tscError}`);
             return;
         }
-        console.log('\x1b[0;37mTranspilation complete. Proceeding with build...\x1b[0m');
+        console.log('\x1b[0;37mBuild complete...\x1b[0m');
+        console.log();
+        console.log(`\x1b[0;35mReady to run:\x1b[0m`);
+        console.log(`\x1b[0;33mlasrctl test inputs\x1b[0m`);
+        console.log();
     });
 }
 export async function getSecretKeyFromKeyPairFile(keypairFilePath) {
@@ -77,7 +80,6 @@ export const getSecretKey = async (secretKeyPath, secretKey) => {
     }
     else if (secretKeyPath) {
         console.log('\x1b[0;33mUsing existing keypair...\x1b[0m');
-        await checkWallet(String(secretKeyPath));
     }
     let retrievedSecretKey;
     if (secretKeyPath) {
@@ -256,10 +258,7 @@ export async function initializeWallet() {
 export async function checkWallet(keypairPath) {
     try {
         console.log('Checking wallet...');
-        const command = `
-    ./build/lasr_cli wallet get-account
-      --from-file
-      --path ${keypairPath}`;
+        const command = `./build/lasr_cli wallet get-account --from-secret-key --secret-key ${keypairPath}`;
         await runCommand(command);
         console.log('Wallet check successful');
     }
