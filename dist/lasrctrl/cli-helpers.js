@@ -250,8 +250,7 @@ export function runTestProcess(inputJsonPath, target = 'node') {
     });
 }
 export async function initializeWallet() {
-    await runCommand(`./build/lasr_cli wallet new
-    --save`);
+    await runCommand(`./build/lasr_cli wallet new --save`);
     console.log('Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json');
 }
 export async function checkWallet(keypairPath) {
