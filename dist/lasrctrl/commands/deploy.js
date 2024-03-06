@@ -42,7 +42,6 @@ export const deployCommandFlags = (yargs) => {
         .option('recipientAddress', {
         describe: 'Address for the initialized supply',
         type: 'string',
-        demandOption: true,
         alias: 'ra',
     })
         .option('inputs', {

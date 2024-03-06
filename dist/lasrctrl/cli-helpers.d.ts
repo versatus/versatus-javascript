@@ -11,8 +11,6 @@ export declare const getSecretKey: (secretKeyPath?: string, secretKey?: string) 
 export declare function callCreate(programAddress: string, symbol: string, name: string, initializedSupply: string, totalSupply: string, recipientAddress: string, secretKey: string, inputs?: string): Promise<string>;
 export declare function sendTokens(programAddress: string, recipientAddress: string, amount: string, secretKey: string): Promise<string>;
 export declare function callProgram(programAddress: string, op: string, inputs: string, secretKey: string): Promise<string>;
-export declare function publishProgram(author: string, name: string, target: string | undefined, secretKey: string): Promise<string>;
-export declare function injectFileInWrapper(filePath: string, target?: string): Promise<void>;
 export declare function runTestProcess(inputJsonPath: string, target?: string): Promise<unknown>;
 export declare function initializeWallet(): Promise<void>;
 export declare function checkWallet(address: string): Promise<void>;

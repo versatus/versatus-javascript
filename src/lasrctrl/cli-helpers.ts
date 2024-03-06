@@ -67,10 +67,18 @@ export async function getSecretKeyFromKeyPairFile(
   keypairFilePath: string
 ): Promise<string> {
   try {
-    console.log('Getting secret key from keypair file')
-    const absolutePath = path.resolve(keypairFilePath) // Ensure the path is absolute
-    const fileContent = await fsp.readFile(absolutePath, 'utf8')
-    const keyPairs: KeyPairArray = JSON.parse(fileContent)
+    let keyPairs: KeyPairArray = []
+    try {
+      console.log('Getting secret key from keypair file')
+      const absolutePath = path.resolve(keypairFilePath) // Ensure the path is absolute
+      const fileContent = await fsp.readFile(absolutePath, 'utf8')
+      keyPairs = JSON.parse(fileContent) as KeyPairArray
+    } catch (error) {
+      await initializeWallet()
+      const absolutePath = path.resolve(keypairFilePath) // Ensure the path is absolute
+      const fileContent = await fsp.readFile(absolutePath, 'utf8')
+      keyPairs = JSON.parse(fileContent) as KeyPairArray
+    }
 
     if (keyPairs.length > 0) {
       return keyPairs[0].secret_key
@@ -88,7 +96,7 @@ export async function getAddressFromKeyPairFile(
   keypairFilePath: string
 ): Promise<string> {
   try {
-    console.log('Getting secret key from keypair file')
+    console.log('Getting address from keypair file')
     const absolutePath = path.resolve(keypairFilePath) // Ensure the path is absolute
     const fileContent = await fsp.readFile(absolutePath, 'utf8')
     const keyPairs: KeyPairArray = JSON.parse(fileContent)
@@ -119,24 +127,17 @@ export const getSecretKey = async (
 ) => {
   if (secretKey) return secretKey
 
-  if (!secretKeyPath) {
-    if (!fs.existsSync('.lasr/wallet/keypair.json')) {
-      console.log('\x1b[0;33mInitializing wallet...\x1b[0m')
-      await initializeWallet()
-    } else {
-      console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
-    }
-  } else if (secretKeyPath) {
+  if (!fs.existsSync('.lasr/wallet/keypair.json')) {
+    console.log('\x1b[0;33mInitializing wallet...\x1b[0m')
+    await initializeWallet()
+  } else {
     console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
   }
 
   let retrievedSecretKey: string
-  if (secretKeyPath) {
-    retrievedSecretKey = String(secretKeyPath)
-  } else {
-    const keypairPath = '.lasr/wallet/keypair.json'
-    retrievedSecretKey = await getSecretKeyFromKeyPairFile(String(keypairPath))
-  }
+
+  const keypairPath = '.lasr/wallet/keypair.json'
+  retrievedSecretKey = await getSecretKeyFromKeyPairFile(String(keypairPath))
   return retrievedSecretKey
 }
 
@@ -206,139 +207,6 @@ export async function callProgram(
   return await runCommand(command)
 }
 
-export async function publishProgram(
-  author: string,
-  name: string,
-  target: string = 'node',
-  secretKey: string
-): Promise<string> {
-  if (!author || !name) {
-    throw new Error('Author and name are required to publish a contract.')
-  }
-
-  const isWasm = target === 'wasm'
-
-  process.env.LASR_RPC_URL = 'http://lasr-sharks.versatus.io:9292'
-  process.env.VIPFS_ADDRESS = '167.99.20.121:5001'
-
-  let command
-  if (isWasm) {
-    command = `export VIPFS_ADDRESS=${VIPFS_ADDRESS} && ./build/versatus-wasm publish -a ${author} -n ${name} -v 0 -w build/build.wasm -r --is-srv true`
-  } else {
-    command = `build/lasr_cli publish --author ${author} --name ${name} --verbose --package-path build/${
-      isWasm ? '' : 'lib'
-    } --entrypoint build/lib/node-wrapper.js -r --remote ${VIPFS_ADDRESS} --runtime ${target} --content-type program --from-secret-key --secret-key "${secretKey}"`
-  }
-
-  console.log(command)
-
-  const output = await runCommand(command)
-
-  const ipfsHashMatch = output.match(/(bafy[a-zA-Z0-9]{44,59})/)
-  if (!ipfsHashMatch)
-    throw new Error('Failed to extract CID from publish output.')
-  console.log(`Contract published with CID.\n
-==> ${ipfsHashMatch[1]}`)
-  return ipfsHashMatch[1]
-}
-
-export async function injectFileInWrapper(
-  filePath: string,
-  target: string = 'node'
-) {
-  const projectRoot = process.cwd()
-  const buildPath = path.join(projectRoot, 'build')
-  const buildLibPath = path.join(projectRoot, 'build', 'lib')
-
-  if (!fs.existsSync(buildLibPath)) {
-    fs.mkdirSync(buildLibPath, { recursive: true })
-  }
-
-  let wrapperFilePath
-
-  if (target === 'node') {
-    let contractFilePath
-    if (isTypeScriptProject()) {
-      if (isInstalledPackage) {
-      } else {
-        contractFilePath = './dist/example-program.js'
-        if (fs.existsSync(contractFilePath)) {
-          console.log('The contract file exists.')
-        } else {
-          console.log('The contract file does not exist. You must build first.')
-        }
-      }
-    }
-
-    if (isInstalledPackage) {
-      try {
-        wrapperFilePath =
-          'node_modules/@versatus/versatus-javascript/dist/lib/node-wrapper.js'
-      } catch (error) {
-        console.error('Error locating node-wrapper.js in node_modules:', error)
-        throw error
-      }
-    } else {
-      console.log('IN DEVELOPMENT ENVIRONMENT')
-      wrapperFilePath = path.resolve(__dirname, './lib/node-wrapper.js')
-    }
-    const distWrapperFilePath = path.join(buildPath, 'lib', 'node-wrapper.js')
-    fs.copyFileSync(wrapperFilePath, distWrapperFilePath)
-
-    let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8')
-
-    wrapperContent = wrapperContent.replace(
-      /^import start from '.*';?$/m,
-      `import start from './dist/example-program.js';`
-    )
-    return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8')
-  } else if (target === 'wasm') {
-    let versatusHelpersFilepath = path.resolve(process.cwd(), './lib/versatus')
-    if (isInstalledPackage) {
-      try {
-        wrapperFilePath =
-          'node_modules/@versatus/versatus-javascript/dist/lib/wasm-wrapper.js'
-        versatusHelpersFilepath =
-          'node_modules/@versatus/versatus-javascript/dist/lib/versatus.js'
-      } catch (error) {
-        console.error('Error locating wasm-wrapper.js in node_modules:', error)
-        throw error
-      }
-    } else {
-      console.log('IN DEVELOPMENT ENVIRONMENT')
-      // In the development environment
-      wrapperFilePath = path.resolve(__dirname, './lib/wasm-wrapper.js')
-      versatusHelpersFilepath = path.resolve(__dirname, './lib/versatus.js')
-    }
-
-    // Copy the wrapper file to the build directory
-    const distWrapperFilePath = path.join(buildPath, 'lib', 'wasm-wrapper.js')
-    fs.copyFileSync(wrapperFilePath, distWrapperFilePath)
-
-    const versatusWrapperFilePath = path.join(buildPath, 'lib', 'versatus.js')
-    fs.copyFileSync(versatusHelpersFilepath, versatusWrapperFilePath)
-
-    try {
-      let wrapperContent = fs.readFileSync(wrapperFilePath, 'utf8')
-
-      wrapperContent = wrapperContent.replace(
-        /^import start from '.*';?$/m,
-        `import start from '${filePath}';`
-      )
-
-      wrapperContent = wrapperContent.replace(
-        /from '.*versatus';?$/m,
-        `from '${versatusWrapperFilePath}.js'`
-      )
-
-      return fs.promises.writeFile(distWrapperFilePath, wrapperContent, 'utf8')
-    } catch (error) {
-      console.error('Error updating wrapper.js in dist:', error)
-      throw error
-    }
-  }
-}
-
 export function runTestProcess(inputJsonPath: string, target = 'node') {
   return new Promise((resolve, reject) => {
     let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd()
@@ -403,7 +271,7 @@ export async function checkWallet(address: string) {
     const resp = await fetch(`${FAUCET_URL}/api/faucet/eth`, requestOptions)
       .then((response) => response.text())
       .catch((error) => console.error(error))
-    console.log('Wallet check successful: ', resp)
+    console.log('Wallet check successful')
   } catch (error) {
     // Handle specific error messages or take actions based on the error
     console.error('Failed to validate keypair file:', error)

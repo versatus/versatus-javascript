@@ -67,7 +67,6 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
     .option('recipientAddress', {
       describe: 'Address for the initialized supply',
       type: 'string',
-      demandOption: true,
       alias: 'ra',
     })
     .option('inputs', {
