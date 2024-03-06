@@ -4,7 +4,10 @@ import {
   buildBurnInstruction,
   buildMintInstructions,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
-import { ETH_PROGRAM_ADDRESS, THIS } from '@/lib/consts'
+import {
+  ETH_PROGRAM_ADDRESS,
+  THIS,
+} from '@versatus/versatus-javascript/lib/consts'
 import { Program } from '@versatus/versatus-javascript/lib/programs/Program'
 import {
   Address,
