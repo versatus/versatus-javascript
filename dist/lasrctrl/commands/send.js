@@ -1,4 +1,4 @@
-import { getSecretKey, sendTokens } from '../../lasrCtrl/cli-helpers.js';
+import { getSecretKey, sendTokens } from '../../lasrctrl/cli-helpers.js';
 import { LASR_RPC_URL, VIPFS_ADDRESS } from '../../lib/consts.js';
 export const sendCommandFlags = (yargs) => {
     return yargs

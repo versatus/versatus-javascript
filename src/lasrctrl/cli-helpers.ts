@@ -2,7 +2,7 @@ import fs, { promises as fsp } from 'fs'
 import path from 'path'
 import { exec, spawn } from 'child_process'
 import { KeyPairArray } from '@/lib/types'
-import { runCommand } from '@/lasrCtrl/shell'
+import { runCommand } from '@/lasrctrl/shell'
 import { LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
 
 export const isInstalledPackage = fs.existsSync(
@@ -40,35 +40,17 @@ export function copyDirectory(src: string, dest: string) {
   }
 }
 
-export async function runBuildProcess(target: string = 'node') {
-  const projectRoot = process.cwd()
-  const distPath = path.join(projectRoot, 'dist')
-  const buildPath = path.join(projectRoot, 'build')
-
-  if (!fs.existsSync(distPath) && !isInstalledPackage) {
-    console.log("\x1b[0;37mCreating the 'dist' directory...\x1b[0m")
-    fs.mkdirSync(distPath, { recursive: true })
-  }
-
-  if (!fs.existsSync(buildPath)) {
-    console.log("\x1b[0;37mCreating the 'build' directory...\x1b[0m")
-    fs.mkdirSync(buildPath, { recursive: true })
-  }
-  await buildNode(buildPath)
+export async function runBuildProcess(programFilePath: string) {
+  await buildNode(programFilePath)
 }
 
 export async function buildNode(buildPath: string) {
   console.log('BUILDING NODE!')
-  const parcelCache = './parcel-cache'
-
-  if (fs.existsSync(parcelCache)) {
-    fs.unlinkSync(parcelCache)
-    console.log('Existing .parcel-cache deleted.')
-  }
-  const parcelCommand = `
-  npx parcel build --target node ./example-program.ts --no-cache`
-  console.log('EXECUTING PARCEL COMMAND:', parcelCommand)
-  exec(parcelCommand, (tscError, tscStdout, tscStderr) => {
+  const configPath = isInstalledPackage
+    ? `${installedPackagePath}/webpack.config.js`
+    : './webpack.config.js'
+  const webpackCommand = `npx webpack --config ${configPath} --entry ${buildPath}`
+  exec(webpackCommand, (tscError, tscStdout, tscStderr) => {
     if (tscError) {
       console.error(`Error during TypeScript transpilation: ${tscError}`)
       return

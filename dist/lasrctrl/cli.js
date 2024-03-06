@@ -2,15 +2,15 @@
 import yargs from 'yargs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import init, { initCommandFlags } from '../lasrCtrl/commands/init.js';
-import build, { buildCommandFlags } from '../lasrCtrl/commands/build.js';
-import test, { testCommandFlags } from '../lasrCtrl/commands/test.js';
-import deploy, { deployCommandFlags } from '../lasrCtrl/commands/deploy.js';
-import call, { callCommandFlags } from '../lasrCtrl/commands/call.js';
-import send, { sendCommandFlags } from '../lasrCtrl/commands/send.js';
+import init, { initCommandFlags } from '../lasrctrl/commands/init.js';
+import build, { buildCommandFlags } from '../lasrctrl/commands/build.js';
+import test, { testCommandFlags } from '../lasrctrl/commands/test.js';
+import deploy, { deployCommandFlags } from '../lasrctrl/commands/deploy.js';
+import call, { callCommandFlags } from '../lasrctrl/commands/call.js';
+import send, { sendCommandFlags } from '../lasrctrl/commands/send.js';
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 yargs(process.argv.slice(2))
-    .command('$0', 'The lasrCtrl tool', () => { }, (argv) => {
+    .command('$0', 'The lasrctrl tool', () => { }, (argv) => {
     console.log(`Welcome to \x1b[0;35mLASR\x1b[0m CONTROL!
 =======================================
 This is your one-stop-shop to 

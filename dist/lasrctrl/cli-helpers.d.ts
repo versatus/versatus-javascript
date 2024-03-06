@@ -2,7 +2,7 @@ export declare const isInstalledPackage: boolean;
 export declare const isTypeScriptProject: () => boolean;
 export declare const installedPackagePath: string;
 export declare function copyDirectory(src: string, dest: string): void;
-export declare function runBuildProcess(target?: string): Promise<void>;
+export declare function runBuildProcess(programFilePath: string): Promise<void>;
 export declare function buildNode(buildPath: string): Promise<void>;
 export declare function getSecretKeyFromKeyPairFile(keypairFilePath: string): Promise<string>;
 export declare function registerProgram(cid: string, secretKey: string): Promise<string>;

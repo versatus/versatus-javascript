@@ -1,8 +1,8 @@
-import { installedPackagePath, isInstalledPackage, runTestProcess, } from '../../lasrCtrl/cli-helpers.js';
+import { installedPackagePath, isInstalledPackage, runTestProcess, } from '../../lasrctrl/cli-helpers.js';
 import path from 'path';
 import { promises as fsp } from 'fs';
 import fs from 'fs';
-import { runSpawn } from '../../lasrCtrl/shell.js';
+import { runSpawn } from '../../lasrctrl/shell.js';
 export const testCommandFlags = (yargs) => {
     return yargs.option('inputJson', {
         describe: 'Path to the JSON input file or directory containing JSON files for testing',

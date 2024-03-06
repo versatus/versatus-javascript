@@ -1,16 +1,16 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
-import { getSecretKey, sendTokens } from '@/lasrCtrl/cli-helpers'
+import { callProgram, getSecretKey } from '@/lasrctrl/cli-helpers'
 import { LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
 
-export interface SendCommandArgs {
+export interface CallCommandArgs {
   programAddress: string
-  recipientAddress: string
-  amount: string
+  op: string
+  inputs: string
   keypairPath?: string
   secretKey?: string
 }
 
-export const sendCommandFlags: CommandBuilder<{}, SendCommandArgs> = (
+export const callCommandFlags: CommandBuilder<{}, CallCommandArgs> = (
   yargs: Argv
 ) => {
   return yargs
@@ -19,13 +19,13 @@ export const sendCommandFlags: CommandBuilder<{}, SendCommandArgs> = (
       type: 'string',
       demandOption: true,
     })
-    .option('amount', {
-      describe: 'Amount to be send (in verse)',
+    .option('op', {
+      describe: 'Operation to be performed by the program',
       type: 'string',
       demandOption: true,
     })
-    .option('recipientAddress', {
-      describe: 'Address for the initialized supply',
+    .option('inputs', {
+      describe: 'Input json required by the operation',
       type: 'string',
       demandOption: true,
     })
@@ -39,17 +39,17 @@ export const sendCommandFlags: CommandBuilder<{}, SendCommandArgs> = (
     })
 }
 
-const send = async (argv: Arguments<SendCommandArgs>) => {
+const call = async (argv: Arguments<CallCommandArgs>) => {
   try {
     const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey)
 
     process.env.LASR_RPC_URL = LASR_RPC_URL
     process.env.VIPFS_ADDRESS = VIPFS_ADDRESS
 
-    const sendResponse = await sendTokens(
+    const sendResponse = await callProgram(
       String(argv.programAddress),
-      String(argv.recipientAddress),
-      String(argv.amount),
+      String(argv.op),
+      String(argv.inputs),
       secretKey
     )
 
@@ -59,4 +59,4 @@ const send = async (argv: Arguments<SendCommandArgs>) => {
   }
 }
 
-export default send
+export default call

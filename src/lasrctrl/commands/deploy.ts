@@ -3,9 +3,9 @@ import {
   callCreate,
   getSecretKey,
   registerProgram,
-} from '@/lasrCtrl/cli-helpers'
+} from '@/lasrctrl/cli-helpers'
 import { LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
-import { runCommand } from '@/lasrCtrl/shell'
+import { runCommand } from '@/lasrctrl/shell'
 
 export interface DeployCommandArgs {
   author: string

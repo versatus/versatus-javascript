@@ -1,12 +1,13 @@
-import { installedPackagePath, isInstalledPackage, runBuildProcess, } from '../../lasrCtrl/cli-helpers.js';
+import { installedPackagePath, isInstalledPackage, runBuildProcess, } from '../../lasrctrl/cli-helpers.js';
 import path from 'path';
 import { exec } from 'child_process';
-import { __dirname } from '../../lasrCtrl/cli.js';
+import { __dirname } from '../../lasrctrl/cli.js';
 export const buildCommandFlags = (yargs) => {
     return yargs
         .positional('file', {
         describe: 'Contract file to include in the build',
         type: 'string',
+        demandOption: true,
     })
         .positional('target', {
         describe: 'Build target',
@@ -45,7 +46,7 @@ const build = (argv) => {
                 const outDir = path.resolve(process.cwd(), 'build');
                 const command = isInstalledPackage
                     ? `tsc --outDir ${outDir} ${filePath}`
-                    : 'tsc && tsc-alias && chmod +x dist/lasrCtrl/cli.js && node ./dist/lib/scripts/add-extensions.js';
+                    : 'tsc && tsc-alias && chmod +x dist/lasrctrl/cli.js && node ./dist/lib/scripts/add-extensions.js';
                 exec(command, (tscError, tscStdout, tscStderr) => {
                     if (tscError) {
                         console.error(`Error during TypeScript transpilation: ${tscError}`);

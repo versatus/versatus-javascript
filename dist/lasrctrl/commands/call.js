@@ -1,4 +1,4 @@
-import { callProgram, getSecretKey } from '../../lasrCtrl/cli-helpers.js';
+import { callProgram, getSecretKey } from '../../lasrctrl/cli-helpers.js';
 import { LASR_RPC_URL, VIPFS_ADDRESS } from '../../lib/consts.js';
 export const callCommandFlags = (yargs) => {
     return yargs

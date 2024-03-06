@@ -1,6 +1,6 @@
-import { callCreate, getSecretKey, registerProgram, } from '../../lasrCtrl/cli-helpers.js';
+import { callCreate, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
 import { LASR_RPC_URL, VIPFS_ADDRESS } from '../../lib/consts.js';
-import { runCommand } from '../../lasrCtrl/shell.js';
+import { runCommand } from '../../lasrctrl/shell.js';
 export const deployCommandFlags = (yargs) => {
     return yargs
         .option('author', {

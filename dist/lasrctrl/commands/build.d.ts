@@ -1,6 +1,6 @@
 import { Arguments, CommandBuilder } from 'yargs';
 export interface BuildCommandArgs {
-    file?: string;
+    file: string;
     target: string;
 }
 export declare const buildCommandFlags: CommandBuilder<{}, BuildCommandArgs>;

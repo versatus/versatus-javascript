@@ -1,7 +1,7 @@
-import { copyDirectory, installedPackagePath, isInstalledPackage, isTypeScriptProject, } from '../../lasrCtrl/cli-helpers.js';
+import { copyDirectory, installedPackagePath, isInstalledPackage, isTypeScriptProject, } from '../../lasrctrl/cli-helpers.js';
 import path from 'path';
 import fs from 'fs';
-import { __dirname } from '../../lasrCtrl/cli.js';
+import { __dirname } from '../../lasrctrl/cli.js';
 export const initCommandFlags = (yargs) => {
     return yargs
         .positional('example', {
@@ -24,7 +24,6 @@ const init = (argv) => {
     const exampleDir = isInstalledPackage
         ? path.resolve(installedPackagePath, 'examples', argv.example || 'hello-lasr')
         : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'hello-lasr');
-    console.log({ exampleDir });
     const targetDir = process.cwd();
     const targetFilePath = path.join(targetDir, isTsProject ? 'example-program.ts' : 'example-program.js');
     fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);

@@ -4,10 +4,10 @@ import {
   installedPackagePath,
   isInstalledPackage,
   isTypeScriptProject,
-} from '@/lasrCtrl/cli-helpers'
+} from '@/lasrctrl/cli-helpers'
 import path from 'path'
 import fs from 'fs'
-import { __dirname } from '@/lasrCtrl/cli'
+import { __dirname } from '@/lasrctrl/cli'
 
 export interface InitCommandArgs {
   example: string
@@ -51,8 +51,6 @@ const init = (argv: Arguments<InitCommandArgs>) => {
         'examples',
         argv.example || 'hello-lasr'
       )
-
-  console.log({ exampleDir })
 
   const targetDir = process.cwd()
   const targetFilePath = path.join(

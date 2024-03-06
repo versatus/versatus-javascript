@@ -2,19 +2,19 @@
 import yargs from 'yargs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import init, { initCommandFlags } from '@/lasrCtrl/commands/init'
-import build, { buildCommandFlags } from '@/lasrCtrl/commands/build'
-import test, { testCommandFlags } from '@/lasrCtrl/commands/test'
-import deploy, { deployCommandFlags } from '@/lasrCtrl/commands/deploy'
-import call, { callCommandFlags } from '@/lasrCtrl/commands/call'
-import send, { sendCommandFlags } from '@/lasrCtrl/commands/send'
+import init, { initCommandFlags } from '@/lasrctrl/commands/init'
+import build, { buildCommandFlags } from '@/lasrctrl/commands/build'
+import test, { testCommandFlags } from '@/lasrctrl/commands/test'
+import deploy, { deployCommandFlags } from '@/lasrctrl/commands/deploy'
+import call, { callCommandFlags } from '@/lasrctrl/commands/call'
+import send, { sendCommandFlags } from '@/lasrctrl/commands/send'
 
 export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 yargs(process.argv.slice(2))
   .command(
     '$0',
-    'The lasrCtrl tool',
+    'The lasrctrl tool',
     () => {},
     (argv) => {
       console.log(

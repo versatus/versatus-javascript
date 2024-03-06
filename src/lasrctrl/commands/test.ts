@@ -3,11 +3,11 @@ import {
   installedPackagePath,
   isInstalledPackage,
   runTestProcess,
-} from '@/lasrCtrl/cli-helpers'
+} from '@/lasrctrl/cli-helpers'
 import path from 'path'
 import { promises as fsp } from 'fs'
 import fs from 'fs'
-import { runSpawn } from '@/lasrCtrl/shell'
+import { runSpawn } from '@/lasrctrl/shell'
 
 export interface TestCommandArgs {
   inputJson: string
