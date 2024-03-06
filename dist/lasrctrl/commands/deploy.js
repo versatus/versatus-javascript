@@ -1,4 +1,4 @@
-import { callCreate, checkWallet, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
+import { callCreate, checkWallet, getAddressFromKeyPairFile, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
 import { LASR_RPC_URL, VIPFS_ADDRESS } from '../../lib/consts.js';
 import { runCommand } from '../../lasrctrl/shell.js';
 export const deployCommandFlags = (yargs) => {
@@ -53,6 +53,7 @@ export const deployCommandFlags = (yargs) => {
         .option('keypairPath', {
         describe: 'Path to the keypair file',
         type: 'string',
+        default: './.lasr/wallet/keypair.json',
     })
         .option('secretKey', {
         describe: 'Secret key for the wallet',
@@ -69,6 +70,7 @@ export const deployCommandFlags = (yargs) => {
 const deploy = async (argv) => {
     try {
         const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
+        const addressFromKeypair = await getAddressFromKeyPairFile(String(argv.keypairPath));
         console.log('\x1b[0;33mPublishing program...\x1b[0m');
         const isWasm = argv.target === 'wasm';
         process.env.LASR_RPC_URL = LASR_RPC_URL;
@@ -97,8 +99,8 @@ const deploy = async (argv) => {
 ==> cid: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
         console.log('\x1b[0;33mChecking wallet...\x1b[0m');
-        await checkWallet(String(argv.recipientAddress));
-        console.log('\x1b[0;32mWallet checked.\x1b[0m');
+        await checkWallet(String(argv.recipientAddress ?? addressFromKeypair));
+        console.log(`\x1b[0;32mFauceted funds to ${argv.recipientAddress ?? addressFromKeypair}.\x1b[0m`);
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         const registerResponse = await registerProgram(cid, secretKey);
         const programAddressMatch = registerResponse.match(/"program_address":\s*"(0x[a-fA-F0-9]{40})"/);
@@ -108,7 +110,7 @@ const deploy = async (argv) => {
         console.log(`\x1b[0;32mProgram registered.\x1b[0m
 ==> programAddress: ${programAddress}`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress), secretKey, String(argv.inputs));
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, String(argv.inputs));
         if (createResponse) {
             console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
 ==> programAddress: ${programAddress}
@@ -116,7 +118,7 @@ const deploy = async (argv) => {
 ==> tokenName: ${argv.programName}
 ==> initializedSupply: ${argv.initializedSupply}
 ==> totalSupply: ${argv.totalSupply}
-==> recipientAddress: ${argv.recipientAddress}
+==> recipientAddress: ${argv.recipientAddress ?? addressFromKeypair}
           `);
         }
     }

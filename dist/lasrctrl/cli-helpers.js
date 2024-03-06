@@ -59,6 +59,25 @@ export async function getSecretKeyFromKeyPairFile(keypairFilePath) {
         throw error;
     }
 }
+export async function getAddressFromKeyPairFile(keypairFilePath) {
+    try {
+        console.log('Getting secret key from keypair file');
+        const absolutePath = path.resolve(keypairFilePath); // Ensure the path is absolute
+        const fileContent = await fsp.readFile(absolutePath, 'utf8');
+        const keyPairs = JSON.parse(fileContent);
+        if (keyPairs.length > 0) {
+            return keyPairs[0].address;
+        }
+        else {
+            new Error('No keypairs found in the specified file.');
+            return '';
+        }
+    }
+    catch (error) {
+        console.error(`Failed to retrieve the secret key: ${error}`);
+        throw error;
+    }
+}
 export async function registerProgram(cid, secretKey) {
     process.env.LASR_RPC_URL = `${LASR_RPC_URL}`;
     process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`;

@@ -6,7 +6,7 @@ export interface DeployCommandArgs {
     programName: string;
     initializedSupply: string;
     totalSupply: string;
-    recipientAddress: string;
+    recipientAddress?: string;
     inputs?: string;
     keypairPath?: string;
     secretKey?: string;

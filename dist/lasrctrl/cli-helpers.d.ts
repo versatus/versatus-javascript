@@ -5,6 +5,7 @@ export declare function copyDirectory(src: string, dest: string): void;
 export declare function runBuildProcess(programFilePath: string): Promise<void>;
 export declare function buildNode(buildPath: string): Promise<void>;
 export declare function getSecretKeyFromKeyPairFile(keypairFilePath: string): Promise<string>;
+export declare function getAddressFromKeyPairFile(keypairFilePath: string): Promise<string>;
 export declare function registerProgram(cid: string, secretKey: string): Promise<string>;
 export declare const getSecretKey: (secretKeyPath?: string, secretKey?: string) => Promise<string>;
 export declare function callCreate(programAddress: string, symbol: string, name: string, initializedSupply: string, totalSupply: string, recipientAddress: string, secretKey: string, inputs?: string): Promise<string>;

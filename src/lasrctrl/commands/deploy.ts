@@ -2,6 +2,7 @@ import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   callCreate,
   checkWallet,
+  getAddressFromKeyPairFile,
   getSecretKey,
   registerProgram,
 } from '@/lasrctrl/cli-helpers'
@@ -15,7 +16,7 @@ export interface DeployCommandArgs {
   programName: string
   initializedSupply: string
   totalSupply: string
-  recipientAddress: string
+  recipientAddress?: string
   inputs?: string
   keypairPath?: string
   secretKey?: string
@@ -77,6 +78,7 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
     .option('keypairPath', {
       describe: 'Path to the keypair file',
       type: 'string',
+      default: './.lasr/wallet/keypair.json',
     })
     .option('secretKey', {
       describe: 'Secret key for the wallet',
@@ -94,6 +96,10 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
 const deploy = async (argv: Arguments<DeployCommandArgs>) => {
   try {
     const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey)
+    const addressFromKeypair = await getAddressFromKeyPairFile(
+      String(argv.keypairPath)
+    )
+
     console.log('\x1b[0;33mPublishing program...\x1b[0m')
     const isWasm = argv.target === 'wasm'
     process.env.LASR_RPC_URL = LASR_RPC_URL
@@ -127,8 +133,12 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
 
     console.log('\x1b[0;33mChecking wallet...\x1b[0m')
-    await checkWallet(String(argv.recipientAddress))
-    console.log('\x1b[0;32mWallet checked.\x1b[0m')
+    await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
+    console.log(
+      `\x1b[0;32mFauceted funds to ${
+        argv.recipientAddress ?? addressFromKeypair
+      }.\x1b[0m`
+    )
 
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
     const registerResponse = await registerProgram(cid, secretKey)
@@ -149,7 +159,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       String(argv.programName),
       String(argv.initializedSupply),
       String(argv.totalSupply),
-      String(argv.recipientAddress),
+      String(argv.recipientAddress ?? addressFromKeypair),
       secretKey,
       String(argv.inputs)
     )
@@ -161,7 +171,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 ==> tokenName: ${argv.programName}
 ==> initializedSupply: ${argv.initializedSupply}
 ==> totalSupply: ${argv.totalSupply}
-==> recipientAddress: ${argv.recipientAddress}
+==> recipientAddress: ${argv.recipientAddress ?? addressFromKeypair}
           `)
     }
   } catch (error) {
