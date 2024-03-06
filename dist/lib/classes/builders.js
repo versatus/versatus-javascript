@@ -1,7 +1,7 @@
-import { AddressOrNamespace } from './utils.js';
-import { TokenDistribution } from './Token.js';
-import { BurnInstruction, CreateInstruction, Instruction, TransferInstruction, UpdateInstruction, } from './Instruction.js';
-import { Outputs } from './Outputs.js';
+import { AddressOrNamespace } from '../../lib/classes/utils.js.js.js.js.js.js.js.js.js.js.js';
+import { TokenDistribution, } from '../../lib/classes/Token.js.js.js.js.js.js.js.js.js.js.js';
+import { BurnInstruction, CreateInstruction, Instruction, TransferInstruction, UpdateInstruction, } from '../../lib/classes/instructions/Instruction.js.js.js.js.js.js.js.js.js.js.js';
+import { Outputs } from '../../lib/classes/Outputs.js.js.js.js.js.js.js.js.js.js.js';
 export class TokenUpdateBuilder {
     constructor() {
         this.account = null;

@@ -2,6 +2,7 @@ import { Wallet, keccak256, toUtf8Bytes } from 'ethers';
 import * as secp256k1 from '@noble/secp256k1';
 import { RPC_URL } from './consts.js';
 import { bigIntToHexString, formatVerse } from './utils.js';
+import { Address } from '../lib/programs/Address-Namespace.js';
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
  * The function initializes a wallet with the provided private key, retrieves the account information,
@@ -135,7 +136,7 @@ export async function getAccount(address) {
                 accountType: 'user',
                 programAccountData: {},
                 programs: {},
-                ownerAddress: address,
+                ownerAddress: new Address(address),
                 programAccountLinkedPrograms: [],
                 programAccountMetadata: {},
                 programNamespace: undefined,

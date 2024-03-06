@@ -1,20 +1,19 @@
 import Address from './Address';
-import { U256 } from './U256';
 export declare class AllowanceInsert {
     private key;
     private value;
-    constructor(key: Address, value: U256);
+    constructor(key: Address, value: string);
     toJson(): object;
 }
 export declare class AllowanceExtend {
     private items;
-    constructor(items: Array<[Address, U256]>);
+    constructor(items: Array<[Address, string]>);
     toJson(): object;
 }
 export declare class AllowanceRemove {
     private key;
     private items;
-    constructor(key: Address, items: U256[]);
+    constructor(key: Address, items: string[]);
     toJson(): object;
 }
 export declare class AllowanceRevoke {

@@ -1,7 +1,14 @@
-import { Program } from '@/lib/classes/programs/Program'
-import { ComputeInputs } from '@/lib/types'
-import { Outputs } from '@/lib/classes/Outputs'
+import {
+  Program,
+  ProgramUpdate,
+} from '@versatus/versatus-javascript/lib/programs/Program'
+import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
+import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 
+import {
+  ETH_PROGRAM_ADDRESS,
+  THIS,
+} from '@versatus/versatus-javascript/lib/consts'
 import {
   buildBurnInstruction,
   buildCreateInstruction,
@@ -10,9 +17,9 @@ import {
   buildTokenDistributionInstruction,
   buildTokenUpdateField,
   buildUpdateInstruction,
-} from '@/lib/builders'
-import { ETH_PROGRAM_ADDRESS, THIS } from '@/lib/consts'
-import { AddressOrNamespace, ProgramUpdate, TokenOrProgramUpdate } from '@/lib'
+} from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
+import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
+import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
 
 /**
  * Class representing a snake program, extending the base `Program` class.

@@ -133,15 +133,19 @@ export class ProgramUpdateField {
         };
     }
 }
-export class ProgramUpdate {
-    constructor(account, updates) {
-        this.account = account;
-        this.updates = updates;
-    }
-    toJson() {
-        return {
-            account: this.account.toJson(),
-            updates: this.updates.map((update) => update.toJson()),
-        };
-    }
-}
+// export class ProgramUpdate {
+//   private account: AddressOrNamespace
+//   private updates: ProgramUpdateField[]
+//
+//   constructor(account: AddressOrNamespace, updates: ProgramUpdateField[]) {
+//     this.account = account
+//     this.updates = updates
+//   }
+//
+//   toJson(): object {
+//     return {
+//       account: this.account.toJson(),
+//       updates: this.updates.map((update) => update.toJson()),
+//     }
+//   }
+// }

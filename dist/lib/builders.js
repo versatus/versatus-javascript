@@ -1,10 +1,11 @@
-import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, UpdateInstructionBuilder, } from './classes/builders.js';
-import { AddressOrNamespace, StatusValue, TokenOrProgramUpdate, } from './classes/utils.js';
-import Address from './classes/Address.js';
-import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenUpdateField, } from './classes/Token.js';
-import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramField, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramUpdate, ProgramUpdateField, } from './classes/Program.js';
-import { THIS } from './consts.js';
-import { bigIntToHexString } from './utils.js';
+import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, UpdateInstructionBuilder, } from './programs/instructions/builders.js.js.js.js.js.js.js.js.js';
+import { AddressOrNamespace, StatusValue, TokenOrProgramUpdate, } from './classes/utils.js.js.js.js.js.js.js.js.js';
+import Address from './classes/Address.js.js.js.js.js.js.js.js.js';
+import { TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenUpdateField, } from './classes/Token.js.js.js.js.js.js.js.js.js';
+import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramField, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramUpdateField, } from './classes/Program.js.js.js.js.js.js.js.js.js';
+import { THIS } from './consts.js.js.js.js.js.js.js.js.js';
+import { bigIntToHexString } from './utils.js.js.js.js.js.js.js.js.js';
+import { ProgramUpdate } from '../lib/programs/Program.js.js.js.js.js.js.js.js.js';
 export function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }) {
     return new BurnInstructionBuilder()
         .setProgramId(new AddressOrNamespace(new Address(programId)))

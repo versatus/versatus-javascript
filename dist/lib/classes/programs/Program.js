@@ -1,9 +1,8 @@
-import { buildCreateInstruction, buildProgramUpdateField, buildTokenDistributionInstruction, buildTokenUpdateField, buildUpdateInstruction, } from '../../../lib/builders.js';
-import { THIS } from '../../../lib/consts.js';
-import { AddressOrNamespace, TokenOrProgramUpdate } from '../../../lib/classes/utils.js';
-import { ProgramUpdate } from '../../../lib/classes/Program.js';
-import { Outputs } from '../../../lib/classes/Outputs.js';
-import { formatVerse } from '../../../lib/utils.js';
+import { buildCreateInstruction, buildProgramUpdateField, buildTokenDistributionInstruction, buildTokenUpdateField, buildUpdateInstruction, } from '../../../lib/builders.js.js.js.js.js.js.js.js.js.js.js';
+import { THIS } from '../../../lib/consts.js.js.js.js.js.js.js.js.js.js.js';
+import { AddressOrNamespace, TokenOrProgramUpdate } from '../../../lib/classes/utils.js.js.js.js.js.js.js.js.js.js.js';
+import { Outputs } from '../../../lib/classes/Outputs.js.js.js.js.js.js.js.js.js.js.js';
+import { formatVerse } from '../../../lib/utils.js.js.js.js.js.js.js.js.js.js.js';
 /**
  * Class representing a Program with methods to manage and execute program strategies.
  */
@@ -136,5 +135,17 @@ export class Program {
         return new Outputs(computeInputs, [
             programMetadataUpdateInstruction,
         ]).toJson();
+    }
+}
+export class ProgramUpdate {
+    constructor(account, updates) {
+        this.account = account;
+        this.updates = updates;
+    }
+    toJson() {
+        return {
+            account: this.account.toJson(),
+            updates: this.updates.map((update) => update.toJson()),
+        };
     }
 }

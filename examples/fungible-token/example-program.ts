@@ -1,42 +1,28 @@
+import { ComputeInputs } from '@/lib/types'
+
 import {
+  buildBurnInstruction,
+  buildMintInstructions,
+} from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
+import { ETH_PROGRAM_ADDRESS, THIS } from '@/lib/consts'
+import { Program } from '@versatus/versatus-javascript/lib/programs/Program'
+import {
+  Address,
   AddressOrNamespace,
+} from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
+import {
   ApprovalsExtend,
   ApprovalsValue,
-  Outputs,
-  Program,
-  ProgramUpdate,
   TokenField,
   TokenFieldValue,
   TokenOrProgramUpdate,
   TokenUpdate,
-  TokenUpdateBuilder,
   TokenUpdateField,
-} from '@/lib/classes'
+} from '@versatus/versatus-javascript/lib/programs/Token'
+import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
+import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 
-import { ComputeInputs } from '@/lib'
-
-import {
-  buildBurnInstruction,
-  buildCreateInstruction,
-  buildMintInstructions,
-  buildTokenUpdateField,
-  buildTokenDistributionInstruction,
-  buildProgramUpdateField,
-  buildUpdateInstruction,
-} from '@/lib/builders'
-import { ETH_PROGRAM_ADDRESS, THIS } from '@/lib/consts'
-import { formatVerse } from '@/lib/utils'
-import Address from '@/lib/classes/Address'
-
-/**
- * Class representing a fungible token program, extending the base `Program` class.
- * It encapsulates the core functionality and properties of the write
- * functionality of a fungible token.
- */
 class FungibleTokenProgram extends Program {
-  /**
-   * Constructs a new instance of the FungibleTokenProgram class.
-   */
   constructor() {
     super()
     Object.assign(this.methodStrategies, {

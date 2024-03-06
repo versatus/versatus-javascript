@@ -1,5 +1,4 @@
-import Address from './Address';
-import { U256 } from './U256';
+import { Address } from '../../lib/programs/Address-Namespace';
 export declare class ApprovalsInsert {
     private key;
     private value;
@@ -14,7 +13,7 @@ export declare class ApprovalsExtend {
 export declare class ApprovalsRemove {
     private key;
     private items;
-    constructor(key: Address, items: U256[]);
+    constructor(key: Address, items: string[]);
     toJson(): object;
 }
 export declare class ApprovalsRevoke {

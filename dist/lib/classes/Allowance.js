@@ -4,7 +4,7 @@ export class AllowanceInsert {
         this.value = value;
     }
     toJson() {
-        return { insert: [this.key.toJson(), this.value.toJson()] };
+        return { insert: [this.key.toJson(), this.value] };
     }
 }
 export class AllowanceExtend {
@@ -13,7 +13,7 @@ export class AllowanceExtend {
     }
     toJson() {
         return {
-            extend: this.items.map((item) => [item[0].toJson(), item[1].toJson()]),
+            extend: this.items.map((item) => [item[0].toJson(), item[1]]),
         };
     }
 }
@@ -24,7 +24,7 @@ export class AllowanceRemove {
     }
     toJson() {
         return {
-            remove: [this.key.toJson(), this.items.map((inner) => inner.toJson())],
+            remove: [this.key.toJson(), this.items.map((inner) => inner)],
         };
     }
 }

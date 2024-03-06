@@ -1,8 +1,8 @@
-import { AddressOrNamespace, TokenOrProgramUpdate } from './utils';
-import { TokenDistribution, TokenUpdateField } from './Token';
+import { AddressOrNamespace, TokenOrProgramUpdate } from '../../lib/classes/utils';
+import { TokenDistribution, TokenUpdateField } from '../../lib/classes/Token';
 import Address from './Address';
-import { Instruction } from './Instruction';
-import { Outputs } from './Outputs';
+import { Instruction } from '../../lib/classes/instructions/Instruction';
+import { Outputs } from '../../lib/classes/Outputs';
 export declare class TokenUpdateBuilder {
     private account;
     private token;

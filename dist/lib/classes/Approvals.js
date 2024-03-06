@@ -27,7 +27,7 @@ export class ApprovalsRemove {
     }
     toJson() {
         return {
-            remove: [this.key.toJson(), this.items.map((inner) => inner.toJson())],
+            remove: [this.key.toJson(), this.items.map((inner) => inner)],
         };
     }
 }

@@ -1,4 +1,6 @@
 import { ComputeInputs } from '../../../lib/types';
+import { AddressOrNamespace } from '../../../lib/classes/utils';
+import { ProgramUpdateField } from '../../../lib/classes/Program';
 /**
  * Class representing a Program with methods to manage and execute program strategies.
  */
@@ -34,4 +36,10 @@ export declare class Program {
      * @param computeInputs
      */
     update(computeInputs: ComputeInputs): object;
+}
+export declare class ProgramUpdate {
+    private account;
+    private updates;
+    constructor(account: AddressOrNamespace, updates: ProgramUpdateField[]);
+    toJson(): object;
 }

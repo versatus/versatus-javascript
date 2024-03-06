@@ -8,7 +8,7 @@ export declare function buildBurnInstruction({ from, caller, programId, tokenAdd
     programId: string;
     tokenAddress: string;
     amount: string;
-}): import("./classes").Instruction;
+}): import("./programs/instructions/Instruction").Instruction;
 export declare function buildCreateInstruction({ programId, initializedSupply, totalSupply, programOwner, programNamespace, distributionInstruction, }: {
     programId: string;
     from: string;
@@ -17,10 +17,10 @@ export declare function buildCreateInstruction({ programId, initializedSupply, t
     programOwner: string;
     programNamespace: string;
     distributionInstruction?: TokenDistribution;
-}): import("./classes").Instruction;
+}): import("./programs/instructions/Instruction").Instruction;
 export declare function buildUpdateInstruction({ update, }: {
     update: TokenOrProgramUpdate;
-}): import("./classes").Instruction;
+}): import("./programs/instructions/Instruction").Instruction;
 export declare function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, }: {
     programId: string;
     initializedSupply: string;
@@ -33,14 +33,14 @@ export declare function buildMintInstructions({ from, programId, paymentTokenAdd
     paymentTokenAddress: string;
     inputValue: BigInt;
     returnedValue: BigInt;
-}): import("./classes").Instruction[];
+}): import("./programs/instructions/Instruction").Instruction[];
 export declare function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }: {
     from: string;
     to: string;
     tokenAddress: string;
     amount: BigInt;
     tokenIds?: string[];
-}): import("./classes").Instruction;
+}): import("./programs/instructions/Instruction").Instruction;
 export declare function buildTokenUpdateField({ field, value, action, }: {
     field: TokenFieldValues;
     value: string;
@@ -56,4 +56,4 @@ export declare function buildTokenMetadataUpdateInstruction({ transactionInputs,
 }): TokenUpdateField[];
 export declare function buildProgramMetadataUpdateInstruction({ transactionInputs, }: {
     transactionInputs: string;
-}): import("./classes").Instruction;
+}): import("./programs/instructions/Instruction").Instruction;

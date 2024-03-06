@@ -1,6 +1,9 @@
-import { Program } from '@/lib/classes/programs/Program'
-import { ComputeInputs } from '@/lib/types'
-import { Outputs } from '@/lib/classes/Outputs'
+import {
+  Program,
+  ProgramUpdate,
+} from '@versatus/versatus-javascript/lib/programs/Program'
+import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
+import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 
 import {
   buildCreateInstruction,
@@ -9,21 +12,16 @@ import {
   buildUpdateInstruction,
   buildTokenUpdateField,
   buildTokenDistributionInstruction,
-} from '@/lib/builders'
-import { THIS } from '@/lib/consts'
-import { AddressOrNamespace, TokenOrProgramUpdate } from '@/lib/classes/utils'
-import { ProgramUpdate } from '@/lib/classes/Program'
-import { formatVerse, parseVerse } from '@/lib/utils'
+} from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
+import { THIS } from '@versatus/versatus-javascript/lib/consts'
+import {
+  formatVerse,
+  parseVerse,
+} from '@versatus/versatus-javascript/lib/utils'
+import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
+import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
 
-/**
- * Class representing a faucet program, extending the base `Program` class.
- * It encapsulates the core functionality and properties of the write
- * functionality of a fungible token.
- */
 export class FaucetProgram extends Program {
-  /**
-   * Constructs a new instance of the FungibleTokenProgram class.
-   */
   constructor() {
     super()
     Object.assign(this.methodStrategies, {

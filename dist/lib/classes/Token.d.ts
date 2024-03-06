@@ -1,5 +1,5 @@
-import { AddressOrNamespace } from './utils';
 import { TokenFieldValues, TokenUpdateValueTypes } from '../types';
+import { AddressOrNamespace } from '../../lib/programs/Address-Namespace';
 export declare class TokenMetadataInsert {
     private key;
     private value;

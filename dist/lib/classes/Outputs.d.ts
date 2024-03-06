@@ -1,5 +1,5 @@
-import { Instruction } from './Instruction';
-import { ComputeInputs } from '../types';
+import { Instruction } from '../../lib/programs/instructions/Instruction';
+import { ComputeInputs } from '../../lib/types';
 export declare class Outputs {
     private inputs;
     private instructions;
