@@ -1,4 +1,4 @@
-import { callCreate, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
+import { callCreate, checkWallet, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
 import { LASR_RPC_URL, VIPFS_ADDRESS } from '../../lib/consts.js';
 import { runCommand } from '../../lasrctrl/shell.js';
 export const deployCommandFlags = (yargs) => {
@@ -96,7 +96,9 @@ const deploy = async (argv) => {
         console.log(`\x1b[0;32mProgram published.\x1b[0m
 ==> cid: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
-        // await checkWallet(String(secretKey))
+        console.log('\x1b[0;33mChecking wallet...\x1b[0m');
+        await checkWallet(String(argv.recipientAddress));
+        console.log('\x1b[0;32mWallet checked.\x1b[0m');
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         const registerResponse = await registerProgram(cid, secretKey);
         const programAddressMatch = registerResponse.match(/"program_address":\s*"(0x[a-fA-F0-9]{40})"/);

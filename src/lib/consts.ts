@@ -7,3 +7,5 @@ export const ETH_PROGRAM_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const VERSE_PROGRAM_ADDRESS =
   '0x0000000000000000000000000000000000000001'
 export const RPC_URL = 'http://lasr-sharks.versatus.io:9292'
+
+export const FAUCET_URL = 'http://localhost:3000'

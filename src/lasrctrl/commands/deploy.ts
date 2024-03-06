@@ -126,7 +126,9 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     )
     const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
 
-    // await checkWallet(String(secretKey))
+    console.log('\x1b[0;33mChecking wallet...\x1b[0m')
+    await checkWallet(String(argv.recipientAddress))
+    console.log('\x1b[0;32mWallet checked.\x1b[0m')
 
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
     const registerResponse = await registerProgram(cid, secretKey)

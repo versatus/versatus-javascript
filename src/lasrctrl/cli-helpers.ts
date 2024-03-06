@@ -3,7 +3,7 @@ import path from 'path'
 import { exec, spawn } from 'child_process'
 import { KeyPairArray } from '@/lib/types'
 import { runCommand } from '@/lasrctrl/shell'
-import { LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
+import { FAUCET_URL, LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
 
 export const isInstalledPackage = fs.existsSync(
   path.resolve(
@@ -358,13 +358,31 @@ export async function initializeWallet() {
   )
 }
 
-export async function checkWallet(keypairPath: string) {
+export async function checkWallet(address: string) {
   try {
-    console.log('Checking wallet...')
-    const command = `./build/lasr_cli wallet get-account --from-secret-key --secret-key ${keypairPath}`
+    // TODO: reenable to check wallet w secret-key flag as opposed to address
+    // console.log('Checking wallet...')
+    // const command = `./build/lasr_cli wallet get-account --from-secret-key --secret-key ${keypairPath}`
+    //
+    // await runCommand(command)
 
-    await runCommand(command)
-    console.log('Wallet check successful')
+    const myHeaders = new Headers()
+    myHeaders.append('Content-Type', 'application/json')
+
+    const raw = JSON.stringify({
+      address,
+    })
+
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+    }
+
+    const resp = await fetch(`${FAUCET_URL}/api/faucet/eth`, requestOptions)
+      .then((response) => response.text())
+      .catch((error) => console.error(error))
+    console.log('Wallet check successful: ', resp)
   } catch (error) {
     // Handle specific error messages or take actions based on the error
     console.error('Failed to validate keypair file:', error)

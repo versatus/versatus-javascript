@@ -2,7 +2,7 @@ import fs, { promises as fsp } from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
 import { runCommand } from '../lasrctrl/shell.js';
-import { LASR_RPC_URL, VIPFS_ADDRESS } from '../lib/consts.js';
+import { FAUCET_URL, LASR_RPC_URL, VIPFS_ADDRESS } from '../lib/consts.js';
 export const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
 export const isTypeScriptProject = () => {
     const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
@@ -255,12 +255,27 @@ export async function initializeWallet() {
     await runCommand(`./build/lasr_cli wallet new --save`);
     console.log('Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json');
 }
-export async function checkWallet(keypairPath) {
+export async function checkWallet(address) {
     try {
-        console.log('Checking wallet...');
-        const command = `./build/lasr_cli wallet get-account --from-secret-key --secret-key ${keypairPath}`;
-        await runCommand(command);
-        console.log('Wallet check successful');
+        // TODO: reenable to check wallet w secret-key flag as opposed to address
+        // console.log('Checking wallet...')
+        // const command = `./build/lasr_cli wallet get-account --from-secret-key --secret-key ${keypairPath}`
+        //
+        // await runCommand(command)
+        const myHeaders = new Headers();
+        myHeaders.append('Content-Type', 'application/json');
+        const raw = JSON.stringify({
+            address,
+        });
+        const requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+        };
+        const resp = await fetch(`${FAUCET_URL}/api/faucet/eth`, requestOptions)
+            .then((response) => response.text())
+            .catch((error) => console.error(error));
+        console.log('Wallet check successful: ', resp);
     }
     catch (error) {
         // Handle specific error messages or take actions based on the error

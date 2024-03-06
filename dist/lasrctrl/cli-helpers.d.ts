@@ -14,4 +14,4 @@ export declare function publishProgram(author: string, name: string, target: str
 export declare function injectFileInWrapper(filePath: string, target?: string): Promise<void>;
 export declare function runTestProcess(inputJsonPath: string, target?: string): Promise<unknown>;
 export declare function initializeWallet(): Promise<void>;
-export declare function checkWallet(keypairPath: string): Promise<void>;
+export declare function checkWallet(address: string): Promise<void>;
