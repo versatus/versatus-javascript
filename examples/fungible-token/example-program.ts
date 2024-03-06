@@ -1,4 +1,4 @@
-import { ComputeInputs } from '@/lib/types'
+import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
 
 import {
   buildBurnInstruction,
