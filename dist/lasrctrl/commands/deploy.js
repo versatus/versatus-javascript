@@ -107,6 +107,7 @@ const deploy = async (argv) => {
         }
         catch (error) {
             registerResponse = await registerProgram(cid, secretKey);
+            throw new Error(`Failed to register program: ${error}`);
         }
         const programAddressMatch = registerResponse.match(/"program_address":\s*"(0x[a-fA-F0-9]{40})"/);
         if (!programAddressMatch)

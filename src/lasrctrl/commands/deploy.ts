@@ -145,6 +145,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       registerResponse = await registerProgram(cid, secretKey)
     } catch (error) {
       registerResponse = await registerProgram(cid, secretKey)
+      throw new Error(`Failed to register program: ${error}`)
     }
 
     const programAddressMatch = registerResponse.match(
