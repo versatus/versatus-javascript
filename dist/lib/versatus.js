@@ -1,6 +1,6 @@
 import { Wallet, keccak256, toUtf8Bytes } from 'ethers';
 import * as secp256k1 from '@noble/secp256k1';
-import { RPC_URL } from './consts.js';
+import { LASR_RPC_URL } from './consts.js';
 import { bigIntToHexString, formatVerse } from './utils.js';
 import { Address } from '../lib/programs/Address-Namespace.js';
 /**
@@ -59,7 +59,7 @@ export async function broadcast(callTx, privateKey) {
             s,
             v: recover,
         };
-        return await callLasrRpc(`lasr_${broadcastType}`, [transactionWithSignature], RPC_URL);
+        return await callLasrRpc(`lasr_${broadcastType}`, [transactionWithSignature], LASR_RPC_URL);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -100,7 +100,7 @@ export async function callLasrRpc(method, params, rpc) {
             body,
         };
         console.log({ params });
-        const response = await fetch(RPC_URL, requestOptions).then((response) => response.json());
+        const response = await fetch(LASR_RPC_URL, requestOptions).then((response) => response.json());
         if (response.error) {
             throw new Error(response.error.message);
         }
@@ -128,7 +128,7 @@ export async function getAccount(address) {
     try {
         let account = new Error('An unexpected error occurred');
         const params = [address];
-        const result = await callLasrRpc('lasr_getAccount', params, RPC_URL);
+        const result = await callLasrRpc('lasr_getAccount', params, LASR_RPC_URL);
         if (result instanceof Error) {
             console.error(result.message);
             account = {

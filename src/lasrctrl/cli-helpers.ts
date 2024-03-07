@@ -253,28 +253,30 @@ export async function initializeWallet() {
 
 export async function checkWallet(address: string) {
   try {
-    // TODO: reenable to check wallet w secret-key flag as opposed to address
-    // console.log('Checking wallet...')
-    // const command = `./build/lasr_cli wallet get-account --from-secret-key --secret-key ${keypairPath}`
-    //
-    // await runCommand(command)
+    try {
+      console.log('Checking wallet...')
+      const command = `./build/lasr_cli wallet get-account --address ${address}`
 
-    const myHeaders = new Headers()
-    myHeaders.append('Content-Type', 'application/json')
+      await runCommand(command)
+    } catch (e) {
+      const myHeaders = new Headers()
+      myHeaders.append('Content-Type', 'application/json')
 
-    const raw = JSON.stringify({
-      address,
-    })
+      const raw = JSON.stringify({
+        address,
+      })
 
-    const requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+      }
+
+      await fetch(`${FAUCET_URL}/api/faucet/verse`, requestOptions)
+        .then((response) => response.text())
+        .catch((error) => console.error(error))
     }
 
-    const resp = await fetch(`${FAUCET_URL}/api/faucet/eth`, requestOptions)
-      .then((response) => response.text())
-      .catch((error) => console.error(error))
     console.log('Wallet check successful')
   } catch (error) {
     // Handle specific error messages or take actions based on the error

@@ -1,7 +1,7 @@
 import { Account, InitTransaction, Transaction, TransactionType } from './types'
 import { Wallet, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
-import { RPC_URL } from './consts'
+import { LASR_RPC_URL } from './consts'
 import { bigIntToHexString, formatVerse } from './utils'
 import { Address } from '@/lib/programs/Address-Namespace'
 
@@ -69,7 +69,7 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
     return await callLasrRpc(
       `lasr_${broadcastType}`,
       [transactionWithSignature],
-      RPC_URL
+      LASR_RPC_URL
     )
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -117,8 +117,8 @@ export async function callLasrRpc(
 
     console.log({ params })
 
-    const response = await fetch(RPC_URL, requestOptions).then((response) =>
-      response.json()
+    const response = await fetch(LASR_RPC_URL, requestOptions).then(
+      (response) => response.json()
     )
 
     if (response.error) {
@@ -147,7 +147,7 @@ export async function getAccount(address: string): Promise<Account | Error> {
   try {
     let account: Account | Error = new Error('An unexpected error occurred')
     const params = [address]
-    const result = await callLasrRpc('lasr_getAccount', params, RPC_URL)
+    const result = await callLasrRpc('lasr_getAccount', params, LASR_RPC_URL)
     if (result instanceof Error) {
       console.error(result.message)
       account = {

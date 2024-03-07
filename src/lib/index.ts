@@ -4,7 +4,6 @@ import * as utils from './utils'
 import * as types from './types'
 export {
   LASR_RPC_URL,
-  RPC_URL,
   ETH_PROGRAM_ADDRESS,
   VIPFS_ADDRESS,
   VERSE_PROGRAM_ADDRESS,

@@ -50,7 +50,7 @@ programs on the **LASR** network.
 yarn add @versatus/versatus-javascript
 ```
 
-### Initialize Basic Example
+### Initialize Basic Fungible Example
 Initialize a basic example to start building a smart contract. It will initialize with a hello method.
 ```bash
 npx lasrctl init
