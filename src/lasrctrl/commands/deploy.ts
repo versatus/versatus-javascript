@@ -134,19 +134,38 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     console.log('\x1b[0;33mChecking wallet...\x1b[0m')
     await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
     console.log(
-      `\x1b[0;32mFauceted funds to ${
+      `Fauceted funds to \x1b[0;32m${
         argv.recipientAddress ?? addressFromKeypair
-      }.\x1b[0m`
+      }\x1b[0m`
     )
 
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
     let registerResponse
-    try {
-      registerResponse = await registerProgram(cid, secretKey)
-    } catch (error) {
-      registerResponse = await registerProgram(cid, secretKey)
-      throw new Error(`Failed to register program: ${error}`)
+    let attempts = 0
+    const maxAttempts = 5 // Maximum number of attempts
+
+    while (!registerResponse && attempts < maxAttempts) {
+      try {
+        registerResponse = await registerProgram(cid, secretKey)
+        if (registerResponse) {
+          console.log('\x1b[0;32mRegistration successful.\x1b[0m')
+        }
+      } catch (error) {
+        console.log('\x1b[0;33mRegistration failed. Retrying...\x1b[0m')
+        attempts++
+        if (attempts >= maxAttempts) {
+          console.log(
+            '\x1b[0;31mMax registration attempts reached. Aborting.\x1b[0m'
+          )
+          throw new Error('Failed to register the program.')
+        } else {
+          // Optional: implement a delay between retries if desired
+          await new Promise((resolve) => setTimeout(resolve, 1000)) // waits 1 second
+        }
+      }
     }
+
+    if (!registerResponse) throw new Error('Failed to register the program.')
 
     const programAddressMatch = registerResponse.match(
       /"program_address":\s*"(0x[a-fA-F0-9]{40})"/
