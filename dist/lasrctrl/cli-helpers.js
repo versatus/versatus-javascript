@@ -88,11 +88,16 @@ export async function getAddressFromKeyPairFile(keypairFilePath) {
     }
 }
 export async function registerProgram(cid, secretKey) {
-    process.env.LASR_RPC_URL = `${LASR_RPC_URL}`;
-    process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`;
-    const command = `
+    try {
+        process.env.LASR_RPC_URL = `${LASR_RPC_URL}`;
+        process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`;
+        const command = `
   ./build/lasr_cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`;
-    return await runCommand(command);
+        return await runCommand(command);
+    }
+    catch (e) {
+        throw new Error(`Failed to register program: ${e}`);
+    }
 }
 export const getSecretKey = async (secretKeyPath, secretKey) => {
     if (secretKey)

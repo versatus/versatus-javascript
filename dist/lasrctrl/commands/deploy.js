@@ -101,7 +101,13 @@ const deploy = async (argv) => {
         await checkWallet(String(argv.recipientAddress ?? addressFromKeypair));
         console.log(`\x1b[0;32mFauceted funds to ${argv.recipientAddress ?? addressFromKeypair}.\x1b[0m`);
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
-        const registerResponse = await registerProgram(cid, secretKey);
+        let registerResponse;
+        try {
+            registerResponse = await registerProgram(cid, secretKey);
+        }
+        catch (error) {
+            registerResponse = await registerProgram(cid, secretKey);
+        }
         const programAddressMatch = registerResponse.match(/"program_address":\s*"(0x[a-fA-F0-9]{40})"/);
         if (!programAddressMatch)
             throw new Error('Failed to extract program address from the output.');
@@ -109,20 +115,7 @@ const deploy = async (argv) => {
         console.log(`\x1b[0;32mProgram registered.\x1b[0m
 ==> programAddress: ${programAddress}`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        let createResponse;
-        try {
-            createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, String(argv.inputs));
-        }
-        catch (error) {
-            console.log('First attempt failed, trying again:', error);
-            try {
-                createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, String(argv.inputs));
-            }
-            catch (error) {
-                console.error('Second attempt failed, bailing:', error);
-                throw new Error('Failed to create response after two attempts');
-            }
-        }
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, String(argv.inputs));
         if (createResponse) {
             console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
 ==> programAddress: ${programAddress}
