@@ -108,7 +108,7 @@ const deploy = async (argv) => {
             try {
                 registerResponse = await registerProgram(cid, secretKey);
                 if (registerResponse) {
-                    console.log('\x1b[0;32mRegistration successful.\x1b[0m');
+                    console.log('Registration successful');
                 }
             }
             catch (error) {
@@ -130,18 +130,18 @@ const deploy = async (argv) => {
         if (!programAddressMatch)
             throw new Error('Failed to extract program address from the output.');
         const programAddress = programAddressMatch[1];
-        console.log(`\x1b[0;32mProgram registered.\x1b[0m
-==> programAddress: ${programAddress}`);
+        console.log(`Program registered.
+==> programAddress: \x1b[0;32m${programAddress}\x1b[0m`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
         const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, String(argv.inputs));
         if (createResponse) {
-            console.log(`\x1b[0;32mProgram created successfully.\x1b[0m
-==> programAddress: ${programAddress}
-==> symbol: ${argv.symbol}
-==> tokenName: ${argv.programName}
-==> initializedSupply: ${argv.initializedSupply}
-==> totalSupply: ${argv.totalSupply}
-==> recipientAddress: ${argv.recipientAddress ?? addressFromKeypair}
+            console.log(`Program created successfully.
+==> programAddress:\x1b[0;32m${programAddress}\x1b[0m
+==> symbol: \x1b[0;32m${argv.symbol}\x1b[0m
+==> tokenName: \x1b[0;32m${argv.programName}\x1b[0m
+==> initializedSupply: \x1b[0;32m${argv.initializedSupply}\x1b[0m
+==> totalSupply: \x1b[0;32m${argv.totalSupply}\x1b[0m
+==> recipientAddress: \x1b[0;32m${argv.recipientAddress ?? addressFromKeypair}\x1b[0m
           `);
         }
     }
