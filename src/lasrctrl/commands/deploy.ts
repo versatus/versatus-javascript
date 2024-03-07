@@ -151,6 +151,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
           console.log('Registration successful')
         }
       } catch (error) {
+        console.error(error)
         console.log('\x1b[0;33mRegistration failed. Retrying...\x1b[0m')
         attempts++
         if (attempts >= maxAttempts) {

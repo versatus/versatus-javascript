@@ -44,12 +44,12 @@ const init = (argv: Arguments<InitCommandArgs>) => {
     ? path.resolve(
         installedPackagePath,
         'examples',
-        argv.example || 'hello-lasr'
+        argv.example || 'fungible-token'
       )
     : path.resolve(
         isTsProject ? process.cwd() : __dirname,
         'examples',
-        argv.example || 'hello-lasr'
+        argv.example || 'fungible-token'
       )
 
   const targetDir = process.cwd()

@@ -22,8 +22,8 @@ const init = (argv) => {
     console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'hello-lasr' || 'fungible-token' || 'faucet'}...\x1b[0m`);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
-        ? path.resolve(installedPackagePath, 'examples', argv.example || 'hello-lasr')
-        : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'hello-lasr');
+        ? path.resolve(installedPackagePath, 'examples', argv.example || 'fungible-token')
+        : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'fungible-token');
     const targetDir = process.cwd();
     const targetFilePath = path.join(targetDir, isInstalledPackage ? '' : 'src', isTsProject ? 'example-program.ts' : 'example-program.js');
     fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);
