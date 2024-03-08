@@ -71,6 +71,7 @@ const init = (argv: Arguments<InitCommandArgs>) => {
 
   if (isInstalledPackage) {
     const importPathRegex = /@versatus\/versatus-javascript\/lib\//g
+
     exampleContractContent = exampleContractContent.replace(
       importPathRegex,
       '@versatus/versatus-javascript'
