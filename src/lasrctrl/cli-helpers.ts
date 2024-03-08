@@ -269,8 +269,10 @@ export async function checkWallet(address: string) {
 
       await axios
         .post(`${FAUCET_URL}/api/faucet/verse`, data)
-        .then((response) => console.log(response.data))
-        .catch((error) => console.error(error))
+        .catch((error) => {
+          console.error('error fauceting funds')
+          throw error
+        })
     }
 
     console.log('Wallet check successful')
