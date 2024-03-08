@@ -81,7 +81,7 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   const inputsDir = path.join(
     isInstalledPackage ? installedPackagePath : process.cwd(),
     'examples',
-    argv.example || 'hello-lasr',
+    argv.example || 'fungible-token',
     'inputs'
   )
 
