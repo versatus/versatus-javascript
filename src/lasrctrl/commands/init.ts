@@ -70,8 +70,7 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8')
 
   if (isInstalledPackage) {
-    const importPathRegex = /@versatus\/versatus-javascript\/lib\//g
-
+    const importPathRegex = /@versatus\/versatus-javascript\/lib\/[^']+/g
     exampleContractContent = exampleContractContent.replace(
       importPathRegex,
       '@versatus/versatus-javascript'

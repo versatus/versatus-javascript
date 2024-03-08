@@ -29,7 +29,7 @@ const init = (argv) => {
     fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);
     let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
     if (isInstalledPackage) {
-        const importPathRegex = /@versatus\/versatus-javascript\/lib\//g;
+        const importPathRegex = /@versatus\/versatus-javascript\/lib\/[^']+/g;
         exampleContractContent = exampleContractContent.replace(importPathRegex, '@versatus/versatus-javascript');
     }
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
