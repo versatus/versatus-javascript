@@ -15,3 +15,15 @@ In LASR, we have: **CUTB**
 
 The returned instructions from your program will instruct the protocol to execute on
 the instructions you're returning using your program.
+
+## Getting Started With Writing a Program
+A good place to start would be to use one of the example programs provided in the
+`examples` directory.  These programs are written in TypeScript and are a good starting
+point for understanding how to write a program.
+
+You can also initialize a new project with the `lasrctl` command line tool.  This will
+create an example program and input JSON files for testing at the root of the project.
+
+```bash
+npx lasrctl init
+```

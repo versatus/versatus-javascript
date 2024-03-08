@@ -7,29 +7,17 @@ examples, and functions to aid in the building of LASR programs.
 Along with some helper functions The CLI is used to 
 initialize, build, deploy, and call programs in the network from the terminal.
 
-**LASR** stands for a Language Agnostic Stateless Rollup. The protocol
-enables developers with the ability to write Programs that run on the network
-in some of today's most popular programing languages. 
+### Links To More In-Depth Information
+[CLICK HERE TO LEARN MORE ABOUT LASR
+](/LASR.md)
 
-We are current support:
-* Typescript ✅
-* Javascript ⏳
-* Python ⏳
-* Rust ⏳
-* Golang ⏳
-* C ⏳
-* C++ ⏳
+[CLICK HERE FOR A MORE IN-DEPTH GETTING STARTED GUIDE
+](/GETTING_STARTED.md)
 
-But that list isn't prescriptive. We're a small team and welcome
-anyone who wants to create an SDK for LASR in any language they should so choose
-which leads me to the next part.
+[CLICK HERE TO LEARN MORE ABOUT LASRCTL CLI
+](/src/lasrctl/README.md)
 
-### _A quick note about Programs in LASR._ 
-Programs in **LASR** take in JSON and return JSON. A programs sole job is to 
-take in the JSON passed to it by the protocol, execute whatever logic the 
-developer might want to execute, and then return an array of instructions.
-
-[CLICK HERE TO LEARN MORE ABOUT LASR PROGRAMS
+[CLICK HERE TO LEARN MORE ABOUT PROGRAMS ON LASR
 ](/src/lib/programs/README.md)
 
 
@@ -42,16 +30,56 @@ developer might want to execute, and then return an array of instructions.
 * Typescript
 
 
-### Install LASRCTL as a global package.
-Install the @versatus/versatus-javascript package using Yarn. 
-This package provides the necessary tools and libraries for building 
-programs on the **LASR** network.
+## Set up Project
+
+### New TypeScript Project
+
+First, ensure you have Node.js installed. Then, initialize a new TypeScript project:
+
 ```bash
-yarn add @versatus/versatus-javascript
+mkdir your-project-name
+cd your-project-name
+npm init -y
+npm install typescript --save-dev
+npx tsc --init
 ```
 
-### Initialize Basic Fungible Example
-Initialize a basic example to start building a smart contract. It will initialize with a hello method.
+### Install @versatus/versatus-javascript
+
+To interact with LASR, you'll need the @versatus/versatus-javascript package:
+
 ```bash
-npx lasrctl init
+npm install @versatus/versatus-javascript
 ```
+
+## Initialize Project with lasrctl
+```bash
+npx lasrctl init # Choose blank, fungible-token, or faucet
+```
+
+## Build Your Program
+```bash
+npx lasrctl build example-program.ts
+```
+
+## Test Your Program
+```bash
+npx lasrctl test inputs
+```
+## Create Account and Deploy Program
+
+#### Deploy Command Example
+
+```bash
+npx lasrctl deploy --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 100 --totalSupply 100
+```
+
+# Work with the Faucet
+
+To interact with the Faucet and manage your programs:
+
+Visit the Faucet: Go to https://faucet.versatus.io.
+Download the Wallet: Download and install the wallet provided on the Faucet site.
+Import Your Program's Key: Follow the instructions on the wallet to import your local program's key.
+View and Interact: Once imported, you can see your programs listed in the wallet and interact with them through the provided UI.
+Congratulations! You've successfully set up and deployed your TypeScript project. Explore the capabilities of your program and how you can enhance its functionality further.
