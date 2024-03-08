@@ -68,18 +68,15 @@ npx lasrctl test inputs
 ```
 ## Create Account and Deploy Program
 
-#### Deploy Command Example
-
 ```bash
 npx lasrctl deploy --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 100 --totalSupply 100
 ```
 
-# Work with the Faucet
-
-To interact with the Faucet and manage your programs:
-
-Visit the Faucet: Go to https://faucet.versatus.io.
-Download the Wallet: Download and install the wallet provided on the Faucet site.
-Import Your Program's Key: Follow the instructions on the wallet to import your local program's key.
-View and Interact: Once imported, you can see your programs listed in the wallet and interact with them through the provided UI.
-Congratulations! You've successfully set up and deployed your TypeScript project. Explore the capabilities of your program and how you can enhance its functionality further.
+## Interact with LASR Online 
+1) Complete steps above. 
+2) Go to https://faucet.versatus.io 
+3) Import Secret Key into the wallet from the initialized `secret_key` in the `.lasr` folder.
+```bash
+cat .lasr/wallet/keypair.json | jq -r '.[0].secret_key' 
+```
+4) Reload the faucet and start interacting with the network.
