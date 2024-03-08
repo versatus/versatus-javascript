@@ -22,20 +22,17 @@ initialize, build, deploy, and call programs in the network from the terminal.
 
 
 
-## Getting started
+# Getting started
 
-### Dependencies
+<hr />
+
+#### Dependencies
 * Node _(>= v18)_
 * NPM / Yarn
-* Typescript
 
+<hr/>
 
-## Set up Project
-
-### New TypeScript Project
-
-First, ensure you have Node.js installed. Then, initialize a new TypeScript project:
-
+#### 1) Create New TypeScript Project
 ```bash
 mkdir your-project-name
 cd your-project-name
@@ -44,35 +41,32 @@ npm install typescript --save-dev
 npx tsc --init
 ```
 
-### Install @versatus/versatus-javascript
-
-To interact with LASR, you'll need the @versatus/versatus-javascript package:
-
+#### 2) Install @versatus/versatus-javascript
 ```bash
 npm install @versatus/versatus-javascript
 ```
 
-## Initialize Project with lasrctl
+#### 3) Initialize Project with lasrctl
 ```bash
 npx lasrctl init # Choose blank, fungible-token, or faucet
 ```
 
-## Build Your Program
+#### 4) Build Your Program
 ```bash
 npx lasrctl build example-program.ts
 ```
 
-## Test Your Program
+#### 5) Test Your Program
 ```bash
 npx lasrctl test inputs
 ```
-## Create Account and Deploy Program
-
+#### 6) Create Account and Deploy Program
 ```bash
 npx lasrctl deploy --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 100 --totalSupply 100
 ```
+_Note: the program deploy may fail on it's first attempt. If so, try it once more_
 
-## Interact with LASR Online 
+### Interact with LASR Online 
 1) Complete steps above. 
 2) Go to https://faucet.versatus.io 
 3) Import Secret Key into the wallet from the initialized `secret_key` in the `.lasr` folder.
