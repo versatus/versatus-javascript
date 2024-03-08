@@ -6,4 +6,4 @@ export const VIPFS_ADDRESS = '167.99.20.121:5001'
 export const ETH_PROGRAM_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const VERSE_PROGRAM_ADDRESS =
   '0x0000000000000000000000000000000000000001'
-export const FAUCET_URL = 'http://localhost:3000'
+export const FAUCET_URL = 'https://faucet.versatus.io/'
