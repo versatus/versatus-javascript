@@ -3,6 +3,7 @@ import path from 'path';
 import { exec, spawn } from 'child_process';
 import { runCommand } from '../lasrctrl/shell.js';
 import { FAUCET_URL, LASR_RPC_URL, VIPFS_ADDRESS } from '../lib/consts.js';
+import axios from 'axios';
 export const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
 export const isTypeScriptProject = () => {
     const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
@@ -183,18 +184,13 @@ export async function checkWallet(address) {
             await runCommand(command);
         }
         catch (e) {
-            const myHeaders = new Headers();
-            myHeaders.append('Content-Type', 'application/json');
-            const raw = JSON.stringify({
+            console.log('Wallet not initialized. Fauceting funds to initialize wallet...');
+            const data = {
                 address,
-            });
-            const requestOptions = {
-                method: 'POST',
-                headers: myHeaders,
-                body: raw,
             };
-            await fetch(`${FAUCET_URL}/api/faucet/verse`, requestOptions)
-                .then((response) => response.text())
+            await axios
+                .post(`${FAUCET_URL}/api/faucet/verse`, data)
+                .then((response) => console.log(response.data))
                 .catch((error) => console.error(error));
         }
         console.log('Wallet check successful');

@@ -19,7 +19,7 @@ export const initCommandFlags = (yargs) => {
     });
 };
 const init = (argv) => {
-    console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'hello-lasr' || 'fungible-token' || 'faucet'}...\x1b[0m`);
+    console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'fungible-token' || 'hello-lasr' || 'faucet'}...\x1b[0m`);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
         ? path.resolve(installedPackagePath, 'examples', argv.example || 'fungible-token')

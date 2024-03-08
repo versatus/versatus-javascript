@@ -7,51 +7,70 @@ examples, and functions to aid in the building of LASR programs.
 Along with some helper functions The CLI is used to 
 initialize, build, deploy, and call programs in the network from the terminal.
 
-**LASR** stands for a Language Agnostic Stateless Rollup. The protocol
-enables developers with the ability to write Programs that run on the network
-in some of today's most popular programing languages. 
+### Links To More In-Depth Information
+[CLICK HERE TO LEARN MORE ABOUT LASR
+](/LASR.md)
 
-We are current support:
-* Typescript ✅
-* Javascript ⏳
-* Python ⏳
-* Rust ⏳
-* Golang ⏳
-* C ⏳
-* C++ ⏳
+[CLICK HERE FOR A MORE IN-DEPTH GETTING STARTED GUIDE
+](/GETTING_STARTED.md)
 
-But that list isn't prescriptive. We're a small team and welcome
-anyone who wants to create an SDK for LASR in any language they should so choose
-which leads me to the next part.
+[CLICK HERE TO LEARN MORE ABOUT LASRCTL CLI
+](/src/lasrctl/README.md)
 
-### _A quick note about Programs in LASR._ 
-Programs in **LASR** take in JSON and return JSON. A programs sole job is to 
-take in the JSON passed to it by the protocol, execute whatever logic the 
-developer might want to execute, and then return an array of instructions.
-
-[CLICK HERE TO LEARN MORE ABOUT LASR PROGRAMS
+[CLICK HERE TO LEARN MORE ABOUT PROGRAMS ON LASR
 ](/src/lib/programs/README.md)
 
 
 
-## Getting started
+# Getting started
 
-### Dependencies
+<hr />
+
+#### Dependencies
 * Node _(>= v18)_
 * NPM / Yarn
-* Typescript
 
+<hr/>
 
-### Install LASRCTL as a global package.
-Install the @versatus/versatus-javascript package using Yarn. 
-This package provides the necessary tools and libraries for building 
-programs on the **LASR** network.
+#### 1) Create New TypeScript Project
 ```bash
-yarn add @versatus/versatus-javascript
+mkdir your-project-name
+cd your-project-name
+npm init -y
+npm install typescript --save-dev
+npx tsc --init
 ```
 
-### Initialize Basic Fungible Example
-Initialize a basic example to start building a smart contract. It will initialize with a hello method.
+#### 2) Install @versatus/versatus-javascript
 ```bash
-npx lasrctl init
+npm install @versatus/versatus-javascript
 ```
+
+#### 3) Initialize Project with lasrctl
+```bash
+npx lasrctl init # Choose blank, fungible-token, or faucet
+```
+
+#### 4) Build Your Program
+```bash
+npx lasrctl build example-program.ts
+```
+
+#### 5) Test Your Program
+```bash
+npx lasrctl test inputs
+```
+#### 6) Create Account and Deploy Program
+```bash
+npx lasrctl deploy --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 100 --totalSupply 100
+```
+_Note: the program deploy may fail on it's first attempt. If so, try it once more_
+
+### Interact with LASR Online 
+1) Complete steps above. 
+2) Go to https://faucet.versatus.io 
+3) Import Secret Key into the wallet from the initialized `secret_key` in the `.lasr` folder.
+```bash
+cat .lasr/wallet/keypair.json | jq -r '.[0].secret_key' 
+```
+4) Reload the faucet and start interacting with the network.
