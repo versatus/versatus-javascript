@@ -2,8 +2,13 @@
   "name": "@versatus/versatus-javascript",
   "version": "0.1.84",
   "type": "module",
-  "module": "./dist/lib/index.js",
-  "types": "./dist/lib/index.d.ts",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./consts": "./dist/lib/consts.js",
+    "./types": "./dist/lib/types.d.ts"
+  },
   "bin": {
     "lasrctl": "./dist/lasrctrl/cli.js"
   },
