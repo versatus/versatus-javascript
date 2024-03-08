@@ -10,7 +10,7 @@ initialize, build, deploy, and call programs in the network from the terminal.
 enables developers with the ability to write Programs that run on the network
 in some of today's most popular programing languages.
 
-We are current support:
+We currently support:
 * Typescript ✅
 * Javascript ⏳
 * Python ⏳
@@ -19,6 +19,5 @@ We are current support:
 * C ⏳
 * C++ ⏳
 
-But that list isn't prescriptive. We're a small team and welcome
-anyone who wants to create an SDK for LASR in any language they should so choose
-which leads me to the next part.
+But that list isn't prescriptive. We're a small and mighty team that welcomes
+anyone who wants to create an SDK for LASR in any language.
