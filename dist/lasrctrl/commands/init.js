@@ -28,15 +28,12 @@ const init = (argv) => {
     const targetFilePath = path.join(targetDir, isInstalledPackage ? '' : 'src', isTsProject ? 'example-program.ts' : 'example-program.js');
     fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);
     let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8');
-    // Check if the package is installed, then update import paths
     if (isInstalledPackage) {
-        // Regular expression to match the import paths that need to be updated
-        const importPathRegex = /@versatus\/versatus-javascript\/lib/g;
-        // Replace matched paths with the updated path, including '/dist/'
-        exampleContractContent = exampleContractContent.replace(importPathRegex, '@versatus/versatus-javascript/dist/lib');
+        const importPathRegex = /@versatus\/versatus-javascript\/lib\/[^']+/g;
+        exampleContractContent = exampleContractContent.replace(importPathRegex, '@versatus/versatus-javascript');
     }
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
-    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'hello-lasr', 'inputs');
+    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'fungible-token', 'inputs');
     const targetInputsDir = path.join(targetDir, 'inputs');
     if (fs.existsSync(inputsDir)) {
         if (!fs.existsSync(targetInputsDir)) {

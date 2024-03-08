@@ -69,15 +69,11 @@ const init = (argv: Arguments<InitCommandArgs>) => {
 
   let exampleContractContent = fs.readFileSync(targetFilePath, 'utf8')
 
-  // Check if the package is installed, then update import paths
   if (isInstalledPackage) {
-    // Regular expression to match the import paths that need to be updated
-    const importPathRegex = /@versatus\/versatus-javascript\/lib/g
-
-    // Replace matched paths with the updated path, including '/dist/'
+    const importPathRegex = /@versatus\/versatus-javascript\/lib\/[^']+/g
     exampleContractContent = exampleContractContent.replace(
       importPathRegex,
-      '@versatus/versatus-javascript/dist/lib'
+      '@versatus/versatus-javascript'
     )
   }
 
@@ -85,7 +81,7 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   const inputsDir = path.join(
     isInstalledPackage ? installedPackagePath : process.cwd(),
     'examples',
-    argv.example || 'hello-lasr',
+    argv.example || 'fungible-token',
     'inputs'
   )
 
