@@ -24,6 +24,8 @@ initialize, build, deploy, and call programs in the network from the terminal.
 
 # Getting started
 
+For a more detailed guide on getting started with your LASR project, including setting up your environment, initializing your project with `lasrctl`, building, testing, and deploying your program, please refer to our [Getting Started Guide](/GETTING_STARTED.md).
+
 <hr />
 
 #### Dependencies
