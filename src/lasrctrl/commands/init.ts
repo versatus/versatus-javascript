@@ -36,7 +36,7 @@ export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
 const init = (argv: Arguments<InitCommandArgs>) => {
   console.log(
     `\x1b[0;33mInitializing example program: ${
-      argv.example || 'hello-lasr' || 'fungible-token' || 'faucet'
+      argv.example || 'fungible-token' || 'hello-lasr' || 'faucet'
     }...\x1b[0m`
   )
   const isTsProject = isTypeScriptProject()

@@ -4,6 +4,7 @@ import { exec, spawn } from 'child_process'
 import { KeyPairArray } from '@/lib/types'
 import { runCommand } from '@/lasrctrl/shell'
 import { FAUCET_URL, LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
+import axios from 'axios'
 
 export const isInstalledPackage = fs.existsSync(
   path.resolve(
@@ -259,21 +260,16 @@ export async function checkWallet(address: string) {
 
       await runCommand(command)
     } catch (e) {
-      const myHeaders = new Headers()
-      myHeaders.append('Content-Type', 'application/json')
-
-      const raw = JSON.stringify({
+      console.log(
+        'Wallet not initialized. Fauceting funds to initialize wallet...'
+      )
+      const data = {
         address,
-      })
-
-      const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: raw,
       }
 
-      await fetch(`${FAUCET_URL}/api/faucet/verse`, requestOptions)
-        .then((response) => response.text())
+      await axios
+        .post(`${FAUCET_URL}/api/faucet/verse`, data)
+        .then((response) => console.log(response.data))
         .catch((error) => console.error(error))
     }
 
