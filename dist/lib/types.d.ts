@@ -1,7 +1,7 @@
-import { AddressOrNamespace, StatusValue } from './classes/utils';
-import { ApprovalsExtend, ApprovalsInsert, ApprovalsRemove, ApprovalsRevoke, ApprovalsValue } from './classes/Approvals';
-import { TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenDataValue, TokenIdExtend, TokenIdInsert, TokenIdPop, TokenIdPush, TokenIdValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenMetadataValue } from './classes/Token';
-import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramDataValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramMetadataValue } from './classes';
+import { ApprovalsExtend, ApprovalsInsert, ApprovalsRemove, ApprovalsRevoke, ApprovalsValue, StatusValue } from '../lib/programs/Token';
+import { TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenDataValue, TokenIdExtend, TokenIdInsert, TokenIdPop, TokenIdPush, TokenIdValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenMetadataValue } from '../lib/programs/Token';
+import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramDataValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramMetadataValue } from '../lib/programs/Program';
+import { Address, AddressOrNamespace } from '../lib/programs/Address-Namespace';
 export type AccountType = 'user' | {
     Program: string;
 };
@@ -10,7 +10,6 @@ export type AccountType = 'user' | {
  *
  * This structure is used to store Ethereum Compatible addresses, which are derived from the public key. It implements traits like Clone, Copy, Debug, Serialize, Deserialize, etc., for ease of use across various contexts.
  */
-export type Address = string;
 export type Status = 'locked' | 'free';
 export type TransactionType = {
     [k: string]: unknown;

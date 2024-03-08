@@ -1,8 +1,16 @@
-import { AddressOrNamespace, Outputs, Program, ProgramUpdate, TokenOrProgramUpdate } from '@/lib/classes'
-
-import { ComputeInputs } from '@/lib'
-import { buildProgramUpdateField, buildUpdateInstruction } from '@/lib/builders'
-import { THIS } from '@/lib/consts'
+import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
+import { THIS } from '@versatus/versatus-javascript/lib/consts'
+import {
+  Program,
+  ProgramUpdate,
+} from '@versatus/versatus-javascript/lib/programs/Program'
+import {
+  buildProgramUpdateField,
+  buildUpdateInstruction,
+} from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
+import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
+import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
+import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 
 class HelloLasrProgram extends Program {
   constructor() {
@@ -28,7 +36,7 @@ class HelloLasrProgram extends Program {
     })
 
     if (helloWorldUpdate instanceof Error) {
-      throw helloWorldUpdate 
+      throw helloWorldUpdate
     }
 
     const programUpdates = [helloWorldUpdate]

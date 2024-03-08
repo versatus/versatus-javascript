@@ -1,9 +1,8 @@
 import * as versatus from './versatus';
-import * as builders from './builders';
+import * as programs from './programs/index';
 import * as utils from './utils';
-export * from './classes/index';
-export * from './classes/programs/index';
-export * from './types';
-export { builders };
+import * as types from './types';
+import * as consts from './consts';
+export { programs, utils, types };
 export { versatus };
-export { utils };
+export { consts };

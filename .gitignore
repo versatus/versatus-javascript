@@ -131,7 +131,7 @@ build
 
 .idea
 /example-program.js
-/example-program.ts
+/src/example-program.ts
 /dist/example-program.js
 /dist/example-program.d.ts
 inputs

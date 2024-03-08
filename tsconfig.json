@@ -10,10 +10,12 @@
     "resolveJsonModule": true,
     "declaration": true,
     "moduleResolution": "node",
+    "rootDir": "./src",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"],
+      "@versatus/versatus-javascript/*": ["./src/*"]
     }
   },
-  "include": ["*.ts", "lib/**/*.ts", "test/**/*.ts", "examples/**/*.ts", "cli.cts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }

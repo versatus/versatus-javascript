@@ -1,31 +1,26 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.1.65",
+  "version": "0.1.85",
   "type": "module",
-  "module": "./dist/lib/index.js",
-  "bin": {
-    "vsjs": "./dist/cli.js"
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./consts": "./dist/lib/consts.js",
+    "./types": "./dist/lib/types.d.ts"
   },
-  "types": "./dist/lib/index.d.ts",
+  "bin": {
+    "lasrctl": "./dist/lasrctrl/cli.js"
+  },
   "files": [
-    "lib/",
-    "examples/",
-    "dist/"
+    "examples/**",
+    "scripts/**",
+    "dist/**",
+    "webpack.config.js"
   ],
   "scripts": {
-    "build": "tsc && tsc-alias && chmod +x dist/cli.js && node dist/lib/scripts/add-extensions.js",
-    "docs": "typedoc",
-    "test": "node dist/test/FungibleTokenTest.js"
-  },
-  "targets": {
-    "node": {
-      "context": "node",
-      "includeNodeModules": true,
-      "engines": {
-        "node": ">=18"
-      },
-      "distDir": "build/lib"
-    }
+    "build": "tsc && tsc-alias && chmod +x dist/lasrctrl/cli.js && node dist/lib/scripts/add-extensions.js",
+    "docs": "typedoc"
   },
   "dependencies": {
     "@babel/core": "^7.23.9",
@@ -42,17 +37,17 @@
     "ethers": "^6.11.1",
     "fs": "^0.0.1-security",
     "tsc-alias": "^1.8.8",
+    "ts-loader": "^9.5.1",
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
     "uuid": "^9.0.1",
     "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@parcel/transformer-typescript-types": "2.11.0",
     "@types/uuid": "^9.0.8",
     "jsdoc": "^4.0.2",
     "prettier": "^3.1.0",
-    "ts-loader": "^9.5.1",
     "typedoc": "^0.25.7",
     "typedoc-plugin-markdown": "^3.17.1",
     "typescript": "^5.3.3"
