@@ -6,6 +6,7 @@ import {
   UpdateInstructionBuilder,
 } from '@/lib/programs/instruction-builders/builders'
 import {
+  ApprovalsExtend,
   StatusValue,
   TokenDistribution,
   TokenField,
@@ -200,25 +201,33 @@ export function buildTokenUpdateField({
   action,
 }: {
   field: TokenFieldValues
-  value: string
+  value: string | Array<[Address, string]>
   action: 'insert' | 'extend' | 'remove'
 }): TokenUpdateField | Error {
   let tokenFieldAction: TokenUpdateValueTypes
-  if (field === 'metadata') {
-    if (action === 'extend') {
-      tokenFieldAction = new TokenMetadataExtend(JSON.parse(value))
-    } else if (action === 'insert') {
-      const [key, insertValue] = JSON.parse(value).split(':')
-      tokenFieldAction = new TokenMetadataInsert(key, insertValue)
-    } else if (action === 'remove') {
-      tokenFieldAction = new TokenMetadataRemove(value)
+  if (value instanceof Array) {
+    if (field === 'approvals') {
+      tokenFieldAction = new ApprovalsExtend(value)
     } else {
-      return new Error('Invalid action')
+      return new Error('Invalid field')
     }
-  } else if (field === 'status') {
-    tokenFieldAction = new StatusValue(value)
   } else {
-    return new Error('Invalid field')
+    if (field === 'metadata') {
+      if (action === 'extend') {
+        tokenFieldAction = new TokenMetadataExtend(JSON.parse(value))
+      } else if (action === 'insert') {
+        const [key, insertValue] = JSON.parse(value).split(':')
+        tokenFieldAction = new TokenMetadataInsert(key, insertValue)
+      } else if (action === 'remove') {
+        tokenFieldAction = new TokenMetadataRemove(value)
+      } else {
+        return new Error('Invalid action')
+      }
+    } else if (field === 'status') {
+      tokenFieldAction = new StatusValue(value)
+    } else {
+      return new Error('Invalid field')
+    }
   }
 
   return new TokenUpdateField(

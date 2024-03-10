@@ -22,11 +22,7 @@ export class TokenUpdateBuilder {
         return this;
     }
     build() {
-        const account = this.account instanceof AddressOrNamespace
-            ? this.account.toJson()
-            : this.account ?? null;
-        const token = this.token ?? null;
-        return new Instruction('update', new UpdateInstruction(this.updates.map((update) => update.toJson())));
+        return new Instruction('update', new UpdateInstruction(this.updates.map((update) => update)));
     }
 }
 export class TokenDistributionBuilder {

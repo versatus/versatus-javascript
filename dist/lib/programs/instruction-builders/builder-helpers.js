@@ -1,5 +1,5 @@
 import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, UpdateInstructionBuilder, } from '../../../lib/programs/instruction-builders/builders.js';
-import { StatusValue, TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenOrProgramUpdate, TokenUpdateField, } from '../../../lib/programs/Token.js';
+import { ApprovalsExtend, StatusValue, TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenOrProgramUpdate, TokenUpdateField, } from '../../../lib/programs/Token.js';
 import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, } from '../../../lib/programs/Program.js';
 import { THIS } from '../../../lib/consts.js';
 import { bigIntToHexString } from '../../../lib/utils.js';
@@ -76,26 +76,36 @@ export function buildTransferInstruction({ from, to, tokenAddress, amount, token
 }
 export function buildTokenUpdateField({ field, value, action, }) {
     let tokenFieldAction;
-    if (field === 'metadata') {
-        if (action === 'extend') {
-            tokenFieldAction = new TokenMetadataExtend(JSON.parse(value));
-        }
-        else if (action === 'insert') {
-            const [key, insertValue] = JSON.parse(value).split(':');
-            tokenFieldAction = new TokenMetadataInsert(key, insertValue);
-        }
-        else if (action === 'remove') {
-            tokenFieldAction = new TokenMetadataRemove(value);
+    if (value instanceof Array) {
+        if (field === 'approvals') {
+            tokenFieldAction = new ApprovalsExtend(value);
         }
         else {
-            return new Error('Invalid action');
+            return new Error('Invalid field');
         }
     }
-    else if (field === 'status') {
-        tokenFieldAction = new StatusValue(value);
-    }
     else {
-        return new Error('Invalid field');
+        if (field === 'metadata') {
+            if (action === 'extend') {
+                tokenFieldAction = new TokenMetadataExtend(JSON.parse(value));
+            }
+            else if (action === 'insert') {
+                const [key, insertValue] = JSON.parse(value).split(':');
+                tokenFieldAction = new TokenMetadataInsert(key, insertValue);
+            }
+            else if (action === 'remove') {
+                tokenFieldAction = new TokenMetadataRemove(value);
+            }
+            else {
+                return new Error('Invalid action');
+            }
+        }
+        else if (field === 'status') {
+            tokenFieldAction = new StatusValue(value);
+        }
+        else {
+            return new Error('Invalid field');
+        }
     }
     return new TokenUpdateField(new TokenField(field), new TokenFieldValue(field, tokenFieldAction));
 }

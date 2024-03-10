@@ -1,6 +1,7 @@
-import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '../../../lib/programs/Token';
-import { ProgramFieldValues, TokenFieldValues } from '../../../lib/types';
-import { ProgramUpdateField } from '../../../lib/programs/Program';
+import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '@/lib/programs/Token';
+import { ProgramFieldValues, TokenFieldValues } from '@/lib/types';
+import { ProgramUpdateField } from '@/lib/programs/Program';
+import { Address } from '@/lib/programs/Address-Namespace';
 export declare function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }: {
     from: string;
     caller: string;
@@ -42,7 +43,7 @@ export declare function buildTransferInstruction({ from, to, tokenAddress, amoun
 }): import("..").Instruction;
 export declare function buildTokenUpdateField({ field, value, action, }: {
     field: TokenFieldValues;
-    value: string;
+    value: string | Array<[Address, string]>;
     action: 'insert' | 'extend' | 'remove';
 }): TokenUpdateField | Error;
 export declare function buildProgramUpdateField({ field, value, action, }: {

@@ -1,6 +1,7 @@
 import {
   TokenDistribution,
   TokenOrProgramUpdate,
+  TokenUpdate,
   TokenUpdateField,
 } from '@/lib/programs/Token'
 import {
@@ -12,6 +13,7 @@ import {
 } from '@/lib/programs/Instruction'
 import { Outputs } from '@/lib/programs/Outputs'
 import { AddressOrNamespace, Address } from '@/lib/programs/Address-Namespace'
+import { Token } from '@/lib/types'
 // import { Address } from '@/lib/types'
 
 export class TokenUpdateBuilder {
@@ -41,16 +43,9 @@ export class TokenUpdateBuilder {
   }
 
   build(): Instruction {
-    const account =
-      this.account instanceof AddressOrNamespace
-        ? (this.account.toJson() as AddressOrNamespace)
-        : this.account ?? null
-    const token = this.token ?? null
     return new Instruction(
       'update',
-      new UpdateInstruction(
-        this.updates.map((update) => update.toJson()) as TokenOrProgramUpdate[]
-      )
+      new UpdateInstruction(this.updates.map((update) => update))
     )
   }
 }
