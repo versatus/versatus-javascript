@@ -8,6 +8,9 @@ import {
 import {
   ApprovalsExtend,
   StatusValue,
+  TokenDataExtend,
+  TokenDataInsert,
+  TokenDataRemove,
   TokenDistribution,
   TokenField,
   TokenFieldValue,
@@ -34,7 +37,7 @@ import {
   ProgramMetadataRemove,
 } from '@/lib/programs/Program'
 import { THIS } from '@/lib/consts'
-import { bigIntToHexString } from '@/lib/utils'
+import { bigIntToHexString, formatVerse } from '@/lib/utils'
 import {
   ProgramField,
   ProgramUpdate,
@@ -115,16 +118,29 @@ export function buildTokenDistributionInstruction({
   initializedSupply,
   to,
   tokenUpdates,
+  nonFungible,
 }: {
   programId: string
   initializedSupply: string
   to: string
   tokenUpdates?: TokenUpdateField[]
+  nonFungible?: boolean
 }) {
   const tokenDistributionBuilder = new TokenDistributionBuilder()
     .setProgramId(new AddressOrNamespace(new Address(programId)))
-    .setAmount(bigIntToHexString(BigInt(initializedSupply)))
     .setReceiver(new AddressOrNamespace(new Address(to)))
+
+  if (!nonFungible) {
+    tokenDistributionBuilder.setAmount(
+      bigIntToHexString(BigInt(initializedSupply))
+    )
+  } else {
+    const tokenIds = []
+    for (let i = 1; i <= parseInt(initializedSupply); i++) {
+      tokenIds.push(formatVerse(i.toString()))
+    }
+    tokenDistributionBuilder.extendTokenIds(tokenIds)
+  }
 
   if (tokenUpdates) {
     tokenDistributionBuilder.extendUpdateFields(tokenUpdates)
@@ -137,12 +153,14 @@ export function buildMintInstructions({
   from,
   programId,
   paymentTokenAddress,
+  tokenIds,
   inputValue,
   returnedValue,
 }: {
   from: string
   programId: string
   paymentTokenAddress: string
+  tokenIds?: string[]
   inputValue: BigInt
   returnedValue: BigInt
 }) {
@@ -173,7 +191,7 @@ export function buildTransferInstruction({
   from: string
   to: string
   tokenAddress: string
-  amount: BigInt
+  amount?: BigInt
   tokenIds?: string[]
 }) {
   const toAddressOrNamespace = new AddressOrNamespace(new Address(to))
@@ -192,6 +210,7 @@ export function buildTransferInstruction({
   if (amount) {
     instructionBuilder.setAmount(bigIntToHexString(amount))
   }
+
   return instructionBuilder.build()
 }
 
@@ -222,6 +241,17 @@ export function buildTokenUpdateField({
         tokenFieldAction = new TokenMetadataRemove(value)
       } else {
         return new Error('Invalid action')
+      }
+    } else if (field === 'data') {
+      if (action === 'extend') {
+        tokenFieldAction = new TokenDataExtend(JSON.parse(value))
+      } else if (action === 'insert') {
+        const [key, insertValue] = JSON.parse(value).split(':')
+        tokenFieldAction = new TokenDataInsert(key, insertValue)
+      } else if (action === 'remove') {
+        tokenFieldAction = new TokenDataRemove(value)
+      } else {
+        return new Error('Invalid data action')
       }
     } else if (field === 'status') {
       tokenFieldAction = new StatusValue(value)

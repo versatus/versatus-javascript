@@ -49,12 +49,12 @@ export class TokenDistributionBuilder {
         this.tokenIds.push(tokenId);
         return this;
     }
-    addUpdateField(updateField) {
-        this.updateFields.push(updateField);
-        return this;
-    }
     extendTokenIds(items) {
         this.tokenIds.push(...items);
+        return this;
+    }
+    addUpdateField(updateField) {
+        this.updateFields.push(updateField);
         return this;
     }
     extendUpdateFields(items) {

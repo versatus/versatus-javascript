@@ -85,13 +85,13 @@ export class TokenDistributionBuilder {
     return this
   }
 
-  addUpdateField(updateField: TokenUpdateField): TokenDistributionBuilder {
-    this.updateFields.push(updateField)
+  extendTokenIds(items: string[]): TokenDistributionBuilder {
+    this.tokenIds.push(...items)
     return this
   }
 
-  extendTokenIds(items: string[]): TokenDistributionBuilder {
-    this.tokenIds.push(...items)
+  addUpdateField(updateField: TokenUpdateField): TokenDistributionBuilder {
+    this.updateFields.push(updateField)
     return this
   }
 

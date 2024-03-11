@@ -7,7 +7,7 @@ export const initCommandFlags = (yargs) => {
         .positional('example', {
         describe: 'The example program to initialize',
         type: 'string',
-        choices: ['fungible-token', 'snake', 'faucet'],
+        choices: ['fungible', 'non-fungible', 'snake', 'faucet'],
         demandOption: true,
     })
         .option('target', {
@@ -19,7 +19,7 @@ export const initCommandFlags = (yargs) => {
     });
 };
 const init = (argv) => {
-    console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'fungible-token' || 'hello-lasr' || 'faucet'}...\x1b[0m`);
+    console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'fungible' || 'non-fungible' || 'hello-lasr' || 'faucet'}...\x1b[0m`);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
         ? path.resolve(installedPackagePath, 'examples', argv.example || 'fungible-token')

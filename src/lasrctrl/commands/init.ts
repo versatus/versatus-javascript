@@ -21,7 +21,7 @@ export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
     .positional('example', {
       describe: 'The example program to initialize',
       type: 'string',
-      choices: ['fungible-token', 'snake', 'faucet'],
+      choices: ['fungible', 'non-fungible', 'snake', 'faucet'],
       demandOption: true,
     })
     .option('target', {
@@ -36,7 +36,7 @@ export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
 const init = (argv: Arguments<InitCommandArgs>) => {
   console.log(
     `\x1b[0;33mInitializing example program: ${
-      argv.example || 'fungible-token' || 'hello-lasr' || 'faucet'
+      argv.example || 'fungible' || 'non-fungible' || 'hello-lasr' || 'faucet'
     }...\x1b[0m`
   )
   const isTsProject = isTypeScriptProject()
