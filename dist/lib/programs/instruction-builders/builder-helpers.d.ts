@@ -47,12 +47,12 @@ export declare function buildTokenUpdateField({ field, value, action, }: {
     field: TokenFieldValues;
     value: string | Array<[Address, string]>;
     action: 'insert' | 'extend' | 'remove';
-}): TokenUpdateField | Error;
+}): TokenUpdateField;
 export declare function buildProgramUpdateField({ field, value, action, }: {
     field: ProgramFieldValues;
     value: string;
     action: 'insert' | 'extend' | 'remove';
-}): ProgramUpdateField | Error;
+}): ProgramUpdateField;
 export declare function buildTokenMetadataUpdateInstruction({ transactionInputs, }: {
     transactionInputs: string;
 }): TokenUpdateField[];

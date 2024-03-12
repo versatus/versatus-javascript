@@ -32,7 +32,10 @@ import {
 } from '@versatus/versatus-javascript/lib/programs/Token'
 import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
-import { formatVerse } from '@versatus/versatus-javascript/lib/utils'
+import {
+  formatVerse,
+  getUndefinedProperties,
+} from '@versatus/versatus-javascript/lib/utils'
 
 class FungibleTokenProgram extends Program {
   constructor() {
@@ -89,85 +92,128 @@ class FungibleTokenProgram extends Program {
   }
 
   create(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const { transactionInputs, from } = transaction
-    const txInputs = JSON.parse(transactionInputs)
-    const totalSupply = formatVerse(txInputs?.totalSupply)
-    const initializedSupply = formatVerse(txInputs?.initializedSupply)
-    const to = txInputs?.to ?? from
-    const symbol = txInputs?.symbol
-    const name = txInputs?.name
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs, from } = transaction
+      const txInputs = JSON.parse(transactionInputs)
+      if (!txInputs) {
+        throw new Error('missing token input datas')
+      }
 
-    if (!totalSupply || !initializedSupply) {
-      throw new Error('Invalid totalSupply or initializedSupply')
+      const totalSupply = formatVerse(txInputs?.totalSupply)
+      const initializedSupply = formatVerse(txInputs?.initializedSupply)
+      const to = txInputs?.to ?? from
+      const symbol = txInputs?.symbol
+      const name = txInputs?.name
+
+      // data
+      const imgUrl = txInputs?.imgUrl
+      const paymentProgramAddress = txInputs?.paymentProgramAddress
+      const price = txInputs?.price
+
+      const undefinedProperties = getUndefinedProperties({
+        imgUrl,
+        paymentProgramAddress,
+        price,
+        totalSupply,
+        initializedSupply,
+        symbol,
+        name,
+      })
+      if (undefinedProperties.length > 0) {
+        throw new Error(
+          `The following properties are undefined: ${undefinedProperties.join(
+            ', '
+          )}`
+        )
+      }
+
+      const metadataStr = JSON.stringify({ symbol, name, totalSupply })
+
+      const updateTokenMetadata = buildTokenUpdateField({
+        field: 'metadata',
+        value: metadataStr,
+        action: 'extend',
+      })
+
+      const distributionInstruction = buildTokenDistributionInstruction({
+        programId: THIS,
+        initializedSupply,
+        to,
+        tokenUpdates: [updateTokenMetadata],
+      })
+
+      const createAndDistributeInstruction = buildCreateInstruction({
+        from,
+        initializedSupply,
+        totalSupply,
+        programId: THIS,
+        programOwner: from,
+        programNamespace: THIS,
+        distributionInstruction,
+      })
+
+      const addProgramMetadata = buildProgramUpdateField({
+        field: 'metadata',
+        value: metadataStr,
+        action: 'extend',
+      })
+
+      const dataStr = JSON.stringify({
+        type: 'non-fungible',
+        imgUrl,
+        paymentProgramAddress,
+        price,
+      })
+
+      const addProgramData = buildProgramUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const programUpdateInstruction = buildUpdateInstruction({
+        update: new TokenOrProgramUpdate(
+          'programUpdate',
+          new ProgramUpdate(new AddressOrNamespace(THIS), [
+            addProgramMetadata,
+            addProgramData,
+          ])
+        ),
+      })
+
+      return new Outputs(computeInputs, [
+        createAndDistributeInstruction,
+        programUpdateInstruction,
+      ]).toJson()
+    } catch (e) {
+      throw e
     }
-
-    if (!symbol || !name) {
-      throw new Error('Invalid symbol or name')
-    }
-
-    const metadataStr = JSON.stringify({ symbol, name, totalSupply })
-
-    const updateTokenMetadata = buildTokenUpdateField({
-      field: 'metadata',
-      value: metadataStr,
-      action: 'extend',
-    })
-    if (updateTokenMetadata instanceof Error) {
-      throw updateTokenMetadata
-    }
-
-    const distributionInstruction = buildTokenDistributionInstruction({
-      programId: THIS,
-      initializedSupply,
-      to,
-      tokenUpdates: [updateTokenMetadata],
-    })
-
-    const createAndDistributeInstruction = buildCreateInstruction({
-      from,
-      initializedSupply,
-      totalSupply,
-      programId: THIS,
-      programOwner: from,
-      programNamespace: THIS,
-      distributionInstruction,
-    })
-
-    const updateProgramMetadata = buildProgramUpdateField({
-      field: 'metadata',
-      value: metadataStr,
-      action: 'extend',
-    })
-
-    if (updateProgramMetadata instanceof Error) {
-      throw updateProgramMetadata
-    }
-
-    const programMetadataUpdateInstruction = buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        new ProgramUpdate(new AddressOrNamespace(THIS), [updateProgramMetadata])
-      ),
-    })
-
-    return new Outputs(computeInputs, [
-      createAndDistributeInstruction,
-      programMetadataUpdateInstruction,
-    ]).toJson()
   }
 
   mint(computeInputs: ComputeInputs) {
     const { transaction } = computeInputs
-    const inputTokenAddress = ETH_PROGRAM_ADDRESS
+    const currProgramInfo = computeInputs.accountInfo?.programs[transaction.to]
+    if (!currProgramInfo) {
+      throw new Error('token missing from self...')
+    }
+
+    const tokenData = currProgramInfo.data
+    if (!tokenData) {
+      throw new Error('token missing required data to mint...')
+    }
+
+    const price = parseInt(tokenData.price)
+    const paymentProgramAddress = tokenData.paymentProgramAddress
+
     const inputValue = BigInt(transaction?.value)
-    const conversionRate = BigInt(2)
+    const conversionRate = BigInt(price)
     const returnedValue = inputValue / conversionRate
 
     const mintInstructions = buildMintInstructions({
       from: transaction.from,
       programId: transaction.programId,
-      paymentTokenAddress: inputTokenAddress,
+      paymentTokenAddress: paymentProgramAddress,
       inputValue: inputValue,
       returnedValue: returnedValue,
     })

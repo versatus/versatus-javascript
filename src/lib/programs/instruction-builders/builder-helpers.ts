@@ -222,48 +222,52 @@ export function buildTokenUpdateField({
   field: TokenFieldValues
   value: string | Array<[Address, string]>
   action: 'insert' | 'extend' | 'remove'
-}): TokenUpdateField | Error {
-  let tokenFieldAction: TokenUpdateValueTypes
-  if (value instanceof Array) {
-    if (field === 'approvals') {
-      tokenFieldAction = new ApprovalsExtend(value)
-    } else {
-      return new Error('Invalid field')
-    }
-  } else {
-    if (field === 'metadata') {
-      if (action === 'extend') {
-        tokenFieldAction = new TokenMetadataExtend(JSON.parse(value))
-      } else if (action === 'insert') {
-        const [key, insertValue] = JSON.parse(value).split(':')
-        tokenFieldAction = new TokenMetadataInsert(key, insertValue)
-      } else if (action === 'remove') {
-        tokenFieldAction = new TokenMetadataRemove(value)
+}): TokenUpdateField {
+  try {
+    let tokenFieldAction: TokenUpdateValueTypes
+    if (value instanceof Array) {
+      if (field === 'approvals') {
+        tokenFieldAction = new ApprovalsExtend(value)
       } else {
-        return new Error('Invalid action')
+        throw new Error(`Invalid field: ${field}`)
       }
-    } else if (field === 'data') {
-      if (action === 'extend') {
-        tokenFieldAction = new TokenDataExtend(JSON.parse(value))
-      } else if (action === 'insert') {
-        const [key, insertValue] = JSON.parse(value).split(':')
-        tokenFieldAction = new TokenDataInsert(key, insertValue)
-      } else if (action === 'remove') {
-        tokenFieldAction = new TokenDataRemove(value)
-      } else {
-        return new Error('Invalid data action')
-      }
-    } else if (field === 'status') {
-      tokenFieldAction = new StatusValue(value)
     } else {
-      return new Error('Invalid field')
+      if (field === 'metadata') {
+        if (action === 'extend') {
+          tokenFieldAction = new TokenMetadataExtend(JSON.parse(value))
+        } else if (action === 'insert') {
+          const [key, insertValue] = JSON.parse(value).split(':')
+          tokenFieldAction = new TokenMetadataInsert(key, insertValue)
+        } else if (action === 'remove') {
+          tokenFieldAction = new TokenMetadataRemove(value)
+        } else {
+          throw new Error('Invalid action')
+        }
+      } else if (field === 'data') {
+        if (action === 'extend') {
+          tokenFieldAction = new TokenDataExtend(JSON.parse(value))
+        } else if (action === 'insert') {
+          const [key, insertValue] = JSON.parse(value).split(':')
+          tokenFieldAction = new TokenDataInsert(key, insertValue)
+        } else if (action === 'remove') {
+          tokenFieldAction = new TokenDataRemove(value)
+        } else {
+          throw new Error(`Invalid data action: ${action}`)
+        }
+      } else if (field === 'status') {
+        tokenFieldAction = new StatusValue(value)
+      } else {
+        throw new Error(`Invalid field: ${field}`)
+      }
     }
-  }
 
-  return new TokenUpdateField(
-    new TokenField(field),
-    new TokenFieldValue(field, tokenFieldAction)
-  )
+    return new TokenUpdateField(
+      new TokenField(field),
+      new TokenFieldValue(field, tokenFieldAction)
+    )
+  } catch (e) {
+    throw e
+  }
 }
 
 export function buildProgramUpdateField({
@@ -274,40 +278,44 @@ export function buildProgramUpdateField({
   field: ProgramFieldValues
   value: string
   action: 'insert' | 'extend' | 'remove'
-}): ProgramUpdateField | Error {
-  let programFieldAction: ProgramUpdateValueTypes
-  if (field === 'metadata') {
-    if (action === 'extend') {
-      programFieldAction = new ProgramMetadataExtend(JSON.parse(value))
-    } else if (action === 'insert') {
-      const [key, insertValue] = JSON.parse(value).split(':')
-      programFieldAction = new ProgramMetadataInsert(key, insertValue)
-    } else if (action === 'remove') {
-      programFieldAction = new ProgramMetadataRemove(value)
+}): ProgramUpdateField {
+  try {
+    let programFieldAction: ProgramUpdateValueTypes
+    if (field === 'metadata') {
+      if (action === 'extend') {
+        programFieldAction = new ProgramMetadataExtend(JSON.parse(value))
+      } else if (action === 'insert') {
+        const [key, insertValue] = JSON.parse(value).split(':')
+        programFieldAction = new ProgramMetadataInsert(key, insertValue)
+      } else if (action === 'remove') {
+        programFieldAction = new ProgramMetadataRemove(value)
+      } else {
+        throw new Error(`Invalid metadata action: ${action}`)
+      }
+    } else if (field === 'data') {
+      if (action === 'extend') {
+        programFieldAction = new ProgramDataExtend(JSON.parse(value))
+      } else if (action === 'insert') {
+        const [key, insertValue] = JSON.parse(value).split(':')
+        programFieldAction = new ProgramDataInsert(key, insertValue)
+      } else if (action === 'remove') {
+        programFieldAction = new ProgramDataRemove(value)
+      } else {
+        throw new Error(`Invalid data action: ${action}`)
+      }
+    } else if (field === 'status') {
+      programFieldAction = new StatusValue(value)
     } else {
-      return new Error('Invalid metadata action')
+      throw new Error(`Invalid field: ${field}`)
     }
-  } else if (field === 'data') {
-    if (action === 'extend') {
-      programFieldAction = new ProgramDataExtend(JSON.parse(value))
-    } else if (action === 'insert') {
-      const [key, insertValue] = JSON.parse(value).split(':')
-      programFieldAction = new ProgramDataInsert(key, insertValue)
-    } else if (action === 'remove') {
-      programFieldAction = new ProgramDataRemove(value)
-    } else {
-      return new Error('Invalid data action')
-    }
-  } else if (field === 'status') {
-    programFieldAction = new StatusValue(value)
-  } else {
-    return new Error('Invalid field')
-  }
 
-  return new ProgramUpdateField(
-    new ProgramField(field),
-    new ProgramFieldValue(field, programFieldAction)
-  )
+    return new ProgramUpdateField(
+      new ProgramField(field),
+      new ProgramFieldValue(field, programFieldAction)
+    )
+  } catch (e) {
+    throw e
+  }
 }
 
 export function buildTokenMetadataUpdateInstruction({

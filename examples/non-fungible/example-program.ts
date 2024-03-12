@@ -32,7 +32,10 @@ import {
 } from '@versatus/versatus-javascript/lib/programs/Token'
 import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
-import { parseVerse } from '@versatus/versatus-javascript/lib/utils'
+import {
+  getUndefinedProperties,
+  parseVerse,
+} from '@versatus/versatus-javascript/lib/utils'
 
 class NonFungibleTokenProgram extends Program {
   constructor() {
@@ -89,124 +92,109 @@ class NonFungibleTokenProgram extends Program {
   }
 
   create(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const { transactionInputs, from } = transaction
-    const tokenInputDatas = JSON.parse(transactionInputs)
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs, from } = transaction
+      const txInputs = JSON.parse(transactionInputs)
 
-    if (!tokenInputDatas) {
-      throw new Error('missing token input datas')
+      if (!txInputs) {
+        throw new Error('missing token input datas')
+      }
+      // metadata
+      const totalSupply = txInputs?.totalSupply
+      const initializedSupply = txInputs?.initializedSupply
+      const symbol = txInputs?.symbol
+      const name = txInputs?.name
+
+      // data
+      const imgUrl = txInputs?.imgUrl
+      const paymentProgramAddress = txInputs?.paymentProgramAddress
+      const price = txInputs?.price
+
+      const undefinedProperties = getUndefinedProperties({
+        imgUrl,
+        paymentProgramAddress,
+        price,
+        totalSupply,
+        initializedSupply,
+        symbol,
+        name,
+      })
+      if (undefinedProperties.length > 0) {
+        throw new Error(
+          `The following properties are undefined: ${undefinedProperties.join(
+            ', '
+          )}`
+        )
+      }
+
+      const metadataStr = JSON.stringify({
+        symbol,
+        name,
+        totalSupply,
+        initializedSupply,
+      })
+
+      const addProgramMetadata = buildProgramUpdateField({
+        field: 'metadata',
+        value: metadataStr,
+        action: 'extend',
+      })
+
+      const dataStr = JSON.stringify({
+        type: 'non-fungible',
+        imgUrl,
+        paymentProgramAddress,
+        price,
+      })
+
+      const addProgramData = buildProgramUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const programUpdateInstructions = buildUpdateInstruction({
+        update: new TokenOrProgramUpdate(
+          'programUpdate',
+          new ProgramUpdate(new AddressOrNamespace(THIS), [
+            addProgramMetadata,
+            addProgramData,
+          ])
+        ),
+      })
+
+      const addDataToToken = buildTokenUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const distributionInstruction = buildTokenDistributionInstruction({
+        programId: THIS,
+        initializedSupply,
+        to: THIS,
+        tokenUpdates: [addDataToToken],
+        nonFungible: true,
+      })
+
+      const createInstruction = buildCreateInstruction({
+        from,
+        totalSupply,
+        initializedSupply,
+        programId: THIS,
+        programOwner: from,
+        programNamespace: THIS,
+        distributionInstruction,
+      })
+
+      return new Outputs(computeInputs, [
+        createInstruction,
+        programUpdateInstructions,
+      ]).toJson()
+    } catch (e) {
+      throw e
     }
-
-    const imgUrl = tokenInputDatas?.imgUrl
-    if (!imgUrl) {
-      throw new Error('missing imgUrl')
-    }
-
-    const paymentProgramAddress = tokenInputDatas?.paymentProgramAddress
-    if (!paymentProgramAddress) {
-      throw new Error('missing paymentProgramAddress')
-    }
-
-    const price = tokenInputDatas?.price
-    if (!price) {
-      throw new Error('missing price')
-    }
-
-    const totalSupply = tokenInputDatas?.totalSupply
-    if (!totalSupply) {
-      throw new Error('missing totalSupply')
-    }
-
-    const initializedSupply = tokenInputDatas?.initializedSupply
-    if (!initializedSupply) {
-      throw new Error('missing initializedSupply')
-    }
-
-    const symbol = tokenInputDatas?.symbol
-    if (!symbol) {
-      throw new Error('missing symbol')
-    }
-
-    const name = tokenInputDatas?.name
-    if (!name) {
-      throw new Error('missing name')
-    }
-
-    const metadataStr = JSON.stringify({
-      symbol,
-      name,
-      totalSupply,
-      initializedSupply,
-    })
-
-    const updateProgramMetadata = buildProgramUpdateField({
-      field: 'metadata',
-      value: metadataStr,
-      action: 'extend',
-    })
-
-    if (updateProgramMetadata instanceof Error) {
-      throw updateProgramMetadata
-    }
-
-    const dataStr = JSON.stringify({
-      type: 'non-fungible',
-      imgUrl,
-      paymentProgramAddress,
-      price,
-    })
-
-    const updateProgramData = buildProgramUpdateField({
-      field: 'data',
-      value: dataStr,
-      action: 'extend',
-    })
-
-    if (updateProgramData instanceof Error) {
-      throw updateProgramData
-    }
-
-    const programUpdateInstructions = buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        new ProgramUpdate(new AddressOrNamespace(THIS), [
-          updateProgramMetadata,
-          updateProgramData,
-        ])
-      ),
-    })
-
-    const addDataToTokenData = buildTokenUpdateField({
-      field: 'data',
-      value: dataStr,
-      action: 'extend',
-    })
-    if (addDataToTokenData instanceof Error) {
-      throw addDataToTokenData
-    }
-
-    const distributionInstruction = buildTokenDistributionInstruction({
-      programId: THIS,
-      initializedSupply,
-      to: THIS,
-      tokenUpdates: [addDataToTokenData],
-      nonFungible: true,
-    })
-
-    const createInstruction = buildCreateInstruction({
-      from,
-      totalSupply,
-      initializedSupply,
-      programId: THIS,
-      programOwner: from,
-      programNamespace: THIS,
-      distributionInstruction,
-    })
-
-    return new Outputs(computeInputs, [
-      createInstruction,
-      programUpdateInstructions,
-    ]).toJson()
   }
 
   mint(computeInputs: ComputeInputs) {

@@ -7,3 +7,4 @@
 export declare function formatVerse(numberString: string): string;
 export declare function parseVerse(numberString: string): BigInt;
 export declare function bigIntToHexString(bigintValue: BigInt): string;
+export declare function getUndefinedProperties(obj: Record<string, any>): string[];

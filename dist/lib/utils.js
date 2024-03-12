@@ -31,3 +31,8 @@ export function bigIntToHexString(bigintValue) {
     hexString = hexString.padStart(64, '0');
     return '0x' + hexString;
 }
+export function getUndefinedProperties(obj) {
+    return Object.entries(obj)
+        .filter(([, value]) => value === undefined)
+        .map(([key]) => key);
+}
