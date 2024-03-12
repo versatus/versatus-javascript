@@ -1,3 +1,4 @@
+import { LASR_RPC_URL_STABLE, LASR_RPC_URL_TEST, VIPFS_ADDRESS, VIPFS_ADDRESS_TEST, } from '../lib/consts.js';
 /**
  * Formats a given number string into a hexadecimal string representation, ensuring it starts with '0x' and is 64 characters long.
  *
@@ -31,3 +32,14 @@ export function bigIntToHexString(bigintValue) {
     hexString = hexString.padStart(64, '0');
     return '0x' + hexString;
 }
+export function getUndefinedProperties(obj) {
+    return Object.entries(obj)
+        .filter(([, value]) => value === undefined)
+        .map(([key]) => key);
+}
+export const getRPCForNetwork = (network) => {
+    return network === 'stable' ? LASR_RPC_URL_STABLE : LASR_RPC_URL_TEST;
+};
+export const getIPFSForNetwork = (network) => {
+    return network === 'stable' ? `${VIPFS_ADDRESS}` : `${VIPFS_ADDRESS_TEST}`;
+};

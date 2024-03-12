@@ -1,5 +1,4 @@
 import { callProgram, getSecretKey } from '../../lasrctrl/cli-helpers.js';
-import { LASR_RPC_URL, VIPFS_ADDRESS } from '../../lib/consts.js';
 export const callCommandFlags = (yargs) => {
     return yargs
         .option('programAddress', {
@@ -17,6 +16,12 @@ export const callCommandFlags = (yargs) => {
         type: 'string',
         demandOption: true,
     })
+        .option('network', {
+        describe: 'desired network',
+        type: 'string',
+        options: ['stable', 'test'],
+        default: 'stable',
+    })
         .option('keypairPath', {
         describe: 'Path to the keypair file',
         type: 'string',
@@ -29,9 +34,7 @@ export const callCommandFlags = (yargs) => {
 const call = async (argv) => {
     try {
         const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
-        process.env.LASR_RPC_URL = LASR_RPC_URL;
-        process.env.VIPFS_ADDRESS = VIPFS_ADDRESS;
-        const sendResponse = await callProgram(String(argv.programAddress), String(argv.op), String(argv.inputs), secretKey);
+        const sendResponse = await callProgram(String(argv.programAddress), String(argv.op), String(argv.inputs), argv.network, secretKey);
         console.log('sendResponse', sendResponse);
     }
     catch (error) {

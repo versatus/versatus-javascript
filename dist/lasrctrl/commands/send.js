@@ -1,5 +1,5 @@
 import { getSecretKey, sendTokens } from '../../lasrctrl/cli-helpers.js';
-import { LASR_RPC_URL, VIPFS_ADDRESS } from '../../lib/consts.js';
+import { getIPFSForNetwork, getRPCForNetwork } from '../../lib/utils.js';
 export const sendCommandFlags = (yargs) => {
     return yargs
         .option('programAddress', {
@@ -17,6 +17,12 @@ export const sendCommandFlags = (yargs) => {
         type: 'string',
         demandOption: true,
     })
+        .option('network', {
+        describe: 'network to send on',
+        type: 'string',
+        default: 'stable',
+        options: ['stable', 'test'],
+    })
         .option('keypairPath', {
         describe: 'Path to the keypair file',
         type: 'string',
@@ -29,9 +35,10 @@ export const sendCommandFlags = (yargs) => {
 const send = async (argv) => {
     try {
         const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
-        process.env.LASR_RPC_URL = LASR_RPC_URL;
-        process.env.VIPFS_ADDRESS = VIPFS_ADDRESS;
-        const sendResponse = await sendTokens(String(argv.programAddress), String(argv.recipientAddress), String(argv.amount), secretKey);
+        const network = argv.network;
+        process.env.LASR_RPC_URL = getRPCForNetwork(network);
+        process.env.VIPFS_ADDRESS = getIPFSForNetwork(network);
+        const sendResponse = await sendTokens(String(argv.programAddress), String(argv.recipientAddress), String(argv.amount), secretKey, network);
         console.log('sendResponse', sendResponse);
     }
     catch (error) {

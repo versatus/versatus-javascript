@@ -114,3 +114,4 @@ export interface KeyPair {
     public_key: string;
     address: string;
 }
+export type NETWORK = 'stable' | 'test';

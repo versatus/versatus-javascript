@@ -1,13 +1,15 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   callCreate,
-  checkWallet,
   getAddressFromKeyPairFile,
   getSecretKey,
   registerProgram,
 } from '@/lasrctrl/cli-helpers'
-import { LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
+import { VIPFS_ADDRESS } from '@/lib/consts'
 import { runCommand } from '@/lasrctrl/shell'
+import { NETWORK } from '@/lib/types'
+
+import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
 export interface DeployCommandArgs {
   author: string
@@ -16,6 +18,7 @@ export interface DeployCommandArgs {
   programName: string
   initializedSupply: string
   totalSupply: string
+  network: string
   recipientAddress?: string
   inputs?: string
   keypairPath?: string
@@ -83,6 +86,13 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       describe: 'Secret key for the wallet',
       type: 'string',
     })
+    .option('network', {
+      describe: 'Network',
+      type: 'string',
+      choices: ['stable', 'test'],
+      default: 'stable',
+      alias: 'n',
+    })
     .option('target', {
       describe: 'Build target',
       type: 'string',
@@ -99,10 +109,13 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       String(argv.keypairPath)
     )
 
+    const network = argv.network as NETWORK
+
     console.log('\x1b[0;33mPublishing program...\x1b[0m')
     const isWasm = argv.target === 'wasm'
-    process.env.LASR_RPC_URL = LASR_RPC_URL
-    process.env.VIPFS_ADDRESS = VIPFS_ADDRESS
+
+    process.env.LASR_RPC_URL = getRPCForNetwork(network)
+    process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
 
     let command
     if (isWasm) {
@@ -132,7 +145,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
 
     console.log('\x1b[0;33mChecking wallet...\x1b[0m')
-    await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
+    // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
     console.log(
       `Fauceted funds to \x1b[0;32m${
         argv.recipientAddress ?? addressFromKeypair
@@ -142,11 +155,11 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
     let registerResponse
     let attempts = 0
-    const maxAttempts = 5 // Maximum number of attempts
+    const maxAttempts = 5
 
     while (!registerResponse && attempts < maxAttempts) {
       try {
-        registerResponse = await registerProgram(cid, secretKey)
+        registerResponse = await registerProgram(cid, secretKey, network)
         if (registerResponse) {
           console.log('Registration successful')
         }
@@ -186,14 +199,16 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       String(argv.initializedSupply),
       String(argv.totalSupply),
       String(argv.recipientAddress ?? addressFromKeypair),
+      network,
       secretKey,
-      String(argv.inputs)
+      argv.inputs
     )
 
     if (createResponse) {
       console.log(`Program created successfully.
-==> programAddress:\x1b[0;32m${programAddress}\x1b[0m
+==> programAddress: \x1b[0;32m${programAddress}\x1b[0m
 ==> symbol: \x1b[0;32m${argv.symbol}\x1b[0m
+==> network: \x1b[0;32m${argv.network}\x1b[0m
 ==> tokenName: \x1b[0;32m${argv.programName}\x1b[0m
 ==> initializedSupply: \x1b[0;32m${argv.initializedSupply}\x1b[0m
 ==> totalSupply: \x1b[0;32m${argv.totalSupply}\x1b[0m

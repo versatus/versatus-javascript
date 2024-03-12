@@ -1,10 +1,17 @@
 import fs, { promises as fsp } from 'fs'
 import path from 'path'
 import { exec, spawn } from 'child_process'
-import { KeyPairArray } from '@/lib/types'
+import { KeyPairArray, NETWORK } from '@/lib/types'
 import { runCommand } from '@/lasrctrl/shell'
-import { FAUCET_URL, LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
+import {
+  FAUCET_URL,
+  LASR_RPC_URL_STABLE,
+  LASR_RPC_URL_TEST,
+  VIPFS_ADDRESS,
+  VIPFS_ADDRESS_TEST,
+} from '@/lib/consts'
 import axios from 'axios'
+import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
 export const isInstalledPackage = fs.existsSync(
   path.resolve(
@@ -114,12 +121,16 @@ export async function getAddressFromKeyPairFile(
   }
 }
 
-export async function registerProgram(cid: string, secretKey: string) {
+export async function registerProgram(
+  cid: string,
+  secretKey: string,
+  network: 'stable' | 'test'
+) {
   try {
-    process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
-    process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`
-    const command = `
-  ./build/lasr_cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`
+    process.env.LASR_RPC_URL = getRPCForNetwork(network)
+    process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
+    const command = `./build/lasr_cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`
+
     return await runCommand(command)
   } catch (e) {
     throw new Error(`Failed to register program: ${e}`)
@@ -153,6 +164,7 @@ export async function callCreate(
   initializedSupply: string,
   totalSupply: string,
   recipientAddress: string,
+  network: NETWORK,
   secretKey: string,
   inputs?: string
 ) {
@@ -170,9 +182,22 @@ export async function callCreate(
     )
   }
 
-  process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
-  process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`
-  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op "create" --inputs '{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"${`,"to":"${recipientAddress}"`}}' --to "${programAddress}" --content-namespace "${programAddress}"`
+  let inputsStr = JSON.stringify(
+    JSON.parse(
+      `{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"${`,"to":"${recipientAddress}"`}}`
+    )
+  )
+  if (inputs) {
+    const parsed = JSON.parse(inputsStr)
+    const parsedInputs = JSON.parse(inputs)
+    inputsStr = JSON.stringify({ ...parsed, ...parsedInputs })
+  }
+
+  process.env.LASR_RPC_URL = getRPCForNetwork(network)
+  process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
+
+  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op "create" --inputs '${inputsStr}' --to "${programAddress}" --content-namespace "${programAddress}"`
+  console.log({ command })
   return await runCommand(command)
 }
 
@@ -180,7 +205,8 @@ export async function sendTokens(
   programAddress: string,
   recipientAddress: string,
   amount: string,
-  secretKey: string
+  secretKey: string,
+  network: 'stable' | 'test'
 ) {
   if (!programAddress || !recipientAddress || !amount || !secretKey) {
     throw new Error(
@@ -188,8 +214,9 @@ export async function sendTokens(
     )
   }
 
-  process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
-  process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`
+  process.env.LASR_RPC_URL = getRPCForNetwork(network)
+  process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
+
   const command = `./build/lasr_cli wallet send --to ${recipientAddress} -c ${programAddress} --value ${amount} -u verse --from-secret-key --secret-key "${secretKey}"`
   return await runCommand(command)
 }
@@ -198,6 +225,7 @@ export async function callProgram(
   programAddress: string,
   op: string,
   inputs: string,
+  network: NETWORK,
   secretKey: string
 ) {
   if (!programAddress || !op || !inputs || !secretKey) {
@@ -206,8 +234,9 @@ export async function callProgram(
     )
   }
 
-  process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
-  process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`
+  process.env.LASR_RPC_URL = getRPCForNetwork(network)
+  process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
+
   const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress}`
   return await runCommand(command)
 }
@@ -269,8 +298,10 @@ export async function checkWallet(address: string) {
 
       await axios
         .post(`${FAUCET_URL}/api/faucet/verse`, data)
-        .then((response) => console.log(response.data))
-        .catch((error) => console.error(error))
+        .catch((error) => {
+          console.error('error fauceting funds')
+          throw error
+        })
     }
 
     console.log('Wallet check successful')

@@ -1,3 +1,4 @@
+import { NETWORK } from '../lib/types';
 /**
  * Formats a given number string into a hexadecimal string representation, ensuring it starts with '0x' and is 64 characters long.
  *
@@ -7,3 +8,6 @@
 export declare function formatVerse(numberString: string): string;
 export declare function parseVerse(numberString: string): BigInt;
 export declare function bigIntToHexString(bigintValue: BigInt): string;
+export declare function getUndefinedProperties(obj: Record<string, any>): string[];
+export declare const getRPCForNetwork: (network: NETWORK) => string;
+export declare const getIPFSForNetwork: (network: NETWORK) => string;

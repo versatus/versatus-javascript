@@ -1,8 +1,8 @@
 import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, UpdateInstructionBuilder, } from '../../../lib/programs/instruction-builders/builders.js';
-import { StatusValue, TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenOrProgramUpdate, TokenUpdateField, } from '../../../lib/programs/Token.js';
+import { ApprovalsExtend, StatusValue, TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenOrProgramUpdate, TokenUpdateField, } from '../../../lib/programs/Token.js';
 import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, } from '../../../lib/programs/Program.js';
 import { THIS } from '../../../lib/consts.js';
-import { bigIntToHexString } from '../../../lib/utils.js';
+import { bigIntToHexString, formatVerse } from '../../../lib/utils.js';
 import { ProgramField, ProgramUpdate, ProgramUpdateField, } from '../../../lib/programs/Program.js';
 import { Address, AddressOrNamespace } from '../../../lib/programs/Address-Namespace.js';
 export function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }) {
@@ -33,17 +33,26 @@ export function buildCreateInstruction({ programId, initializedSupply, totalSupp
 export function buildUpdateInstruction({ update, }) {
     return new UpdateInstructionBuilder().addUpdate(update).build();
 }
-export function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, }) {
+export function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, nonFungible, }) {
     const tokenDistributionBuilder = new TokenDistributionBuilder()
         .setProgramId(new AddressOrNamespace(new Address(programId)))
-        .setAmount(bigIntToHexString(BigInt(initializedSupply)))
         .setReceiver(new AddressOrNamespace(new Address(to)));
+    if (!nonFungible) {
+        tokenDistributionBuilder.setAmount(bigIntToHexString(BigInt(initializedSupply)));
+    }
+    else {
+        const tokenIds = [];
+        for (let i = 1; i <= parseInt(initializedSupply); i++) {
+            tokenIds.push(formatVerse(i.toString()));
+        }
+        tokenDistributionBuilder.extendTokenIds(tokenIds);
+    }
     if (tokenUpdates) {
         tokenDistributionBuilder.extendUpdateFields(tokenUpdates);
     }
     return tokenDistributionBuilder.build();
 }
-export function buildMintInstructions({ from, programId, paymentTokenAddress, inputValue, returnedValue, }) {
+export function buildMintInstructions({ from, programId, paymentTokenAddress, tokenIds, inputValue, returnedValue, }) {
     const transferToProgram = buildTransferInstruction({
         from: from,
         to: 'this',
@@ -75,69 +84,104 @@ export function buildTransferInstruction({ from, to, tokenAddress, amount, token
     return instructionBuilder.build();
 }
 export function buildTokenUpdateField({ field, value, action, }) {
-    let tokenFieldAction;
-    if (field === 'metadata') {
-        if (action === 'extend') {
-            tokenFieldAction = new TokenMetadataExtend(JSON.parse(value));
-        }
-        else if (action === 'insert') {
-            const [key, insertValue] = JSON.parse(value).split(':');
-            tokenFieldAction = new TokenMetadataInsert(key, insertValue);
-        }
-        else if (action === 'remove') {
-            tokenFieldAction = new TokenMetadataRemove(value);
+    try {
+        let tokenFieldAction;
+        if (value instanceof Array) {
+            if (field === 'approvals') {
+                tokenFieldAction = new ApprovalsExtend(value);
+            }
+            else {
+                throw new Error(`Invalid field: ${field}`);
+            }
         }
         else {
-            return new Error('Invalid action');
+            if (field === 'metadata') {
+                if (action === 'extend') {
+                    tokenFieldAction = new TokenMetadataExtend(JSON.parse(value));
+                }
+                else if (action === 'insert') {
+                    const [key, insertValue] = JSON.parse(value).split(':');
+                    tokenFieldAction = new TokenMetadataInsert(key, insertValue);
+                }
+                else if (action === 'remove') {
+                    tokenFieldAction = new TokenMetadataRemove(value);
+                }
+                else {
+                    throw new Error('Invalid action');
+                }
+            }
+            else if (field === 'data') {
+                if (action === 'extend') {
+                    tokenFieldAction = new TokenDataExtend(JSON.parse(value));
+                }
+                else if (action === 'insert') {
+                    const [key, insertValue] = JSON.parse(value).split(':');
+                    tokenFieldAction = new TokenDataInsert(key, insertValue);
+                }
+                else if (action === 'remove') {
+                    tokenFieldAction = new TokenDataRemove(value);
+                }
+                else {
+                    throw new Error(`Invalid data action: ${action}`);
+                }
+            }
+            else if (field === 'status') {
+                tokenFieldAction = new StatusValue(value);
+            }
+            else {
+                throw new Error(`Invalid field: ${field}`);
+            }
         }
+        return new TokenUpdateField(new TokenField(field), new TokenFieldValue(field, tokenFieldAction));
     }
-    else if (field === 'status') {
-        tokenFieldAction = new StatusValue(value);
+    catch (e) {
+        throw e;
     }
-    else {
-        return new Error('Invalid field');
-    }
-    return new TokenUpdateField(new TokenField(field), new TokenFieldValue(field, tokenFieldAction));
 }
 export function buildProgramUpdateField({ field, value, action, }) {
-    let programFieldAction;
-    if (field === 'metadata') {
-        if (action === 'extend') {
-            programFieldAction = new ProgramMetadataExtend(JSON.parse(value));
+    try {
+        let programFieldAction;
+        if (field === 'metadata') {
+            if (action === 'extend') {
+                programFieldAction = new ProgramMetadataExtend(JSON.parse(value));
+            }
+            else if (action === 'insert') {
+                const [key, insertValue] = JSON.parse(value).split(':');
+                programFieldAction = new ProgramMetadataInsert(key, insertValue);
+            }
+            else if (action === 'remove') {
+                programFieldAction = new ProgramMetadataRemove(value);
+            }
+            else {
+                throw new Error(`Invalid metadata action: ${action}`);
+            }
         }
-        else if (action === 'insert') {
-            const [key, insertValue] = JSON.parse(value).split(':');
-            programFieldAction = new ProgramMetadataInsert(key, insertValue);
+        else if (field === 'data') {
+            if (action === 'extend') {
+                programFieldAction = new ProgramDataExtend(JSON.parse(value));
+            }
+            else if (action === 'insert') {
+                const [key, insertValue] = JSON.parse(value).split(':');
+                programFieldAction = new ProgramDataInsert(key, insertValue);
+            }
+            else if (action === 'remove') {
+                programFieldAction = new ProgramDataRemove(value);
+            }
+            else {
+                throw new Error(`Invalid data action: ${action}`);
+            }
         }
-        else if (action === 'remove') {
-            programFieldAction = new ProgramMetadataRemove(value);
+        else if (field === 'status') {
+            programFieldAction = new StatusValue(value);
         }
         else {
-            return new Error('Invalid metadata action');
+            throw new Error(`Invalid field: ${field}`);
         }
+        return new ProgramUpdateField(new ProgramField(field), new ProgramFieldValue(field, programFieldAction));
     }
-    else if (field === 'data') {
-        if (action === 'extend') {
-            programFieldAction = new ProgramDataExtend(JSON.parse(value));
-        }
-        else if (action === 'insert') {
-            const [key, insertValue] = JSON.parse(value).split(':');
-            programFieldAction = new ProgramDataInsert(key, insertValue);
-        }
-        else if (action === 'remove') {
-            programFieldAction = new ProgramDataRemove(value);
-        }
-        else {
-            return new Error('Invalid data action');
-        }
+    catch (e) {
+        throw e;
     }
-    else if (field === 'status') {
-        programFieldAction = new StatusValue(value);
-    }
-    else {
-        return new Error('Invalid field');
-    }
-    return new ProgramUpdateField(new ProgramField(field), new ProgramFieldValue(field, programFieldAction));
 }
 export function buildTokenMetadataUpdateInstruction({ transactionInputs, }) {
     const tokenUpdateField = buildTokenUpdateField({

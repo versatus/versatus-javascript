@@ -1,4 +1,4 @@
-import { Account, InitTransaction, Transaction } from './types';
+import { Account, InitTransaction, NETWORK, Transaction } from './types';
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
  * The function initializes a wallet with the provided private key, retrieves the account information,
@@ -7,10 +7,11 @@ import { Account, InitTransaction, Transaction } from './types';
  *
  * @param {InitTransaction} callTx - The initial transaction data, including details such as the transaction type and nonce.
  * @param {string} privateKey - The private key used to sign the transaction and derive the wallet address.
+ * @param {string} network - The network to make the call on (stable | test)
  * @returns {Promise<string | Error>} The result of the blockchain call, which could be a transaction hash or an error.
  * @throws {Error} Throws an error if account retrieval, transaction signing, or the RPC call fails.
  */
-export declare function broadcast(callTx: InitTransaction, privateKey: string): Promise<string | Error>;
+export declare function broadcast(callTx: InitTransaction, privateKey: string, network?: NETWORK): Promise<string | Error>;
 /**
  * Makes an asynchronous call to a specified RPC method with the given parameters and RPC URL.
  * This generic function is designed to handle various LASR RPC calls by specifying the method name,
@@ -18,19 +19,20 @@ export declare function broadcast(callTx: InitTransaction, privateKey: string): 
  *
  * @param {string} method - The RPC method name to be called.
  * @param {string[] | Record<string, unknown> | Transaction[]} params - The parameters to be passed to the RPC method.
- * @param {string} rpc - The URL of the RPC endpoint to which the call is made.
+ * @param {string} rpcUrl - The URL of the RPC endpoint to which the call is made.
  * @returns {Promise<string | Error>} The result of the RPC call, typically a response object or an error.
  * @throws {Error} Throws an error if the RPC call fails or if the server returns an error response.
  */
-export declare function callLasrRpc(method: string, params: string[] | Record<string, unknown> | Transaction[], rpc: string): Promise<string | Error>;
+export declare function callLasrRpc(method: string, params: string[] | Record<string, unknown> | Transaction[], rpcUrl: string): Promise<string | Error>;
 /**
  * Asynchronously retrieves account information for a given address from a blockchain network via an RPC call.
  *
  * @param {string} address - The blockchain address of the account to retrieve.
+ * @param {string} network - Which network to get an account from (stable | test)
  * @returns {Promise<Account | Error>} An object containing account information or an error if the retrieval fails.
  * @throws {Error} Throws an error if the account information cannot be retrieved.
  */
-export declare function getAccount(address: string): Promise<Account | Error>;
+export declare function getAccount(address: string, network?: NETWORK): Promise<Account | Error>;
 /**
  * Reorders the keys of an initial transaction object according to a predefined order.
  * This function is useful for ensuring that transaction objects have a consistent format, especially before signing.

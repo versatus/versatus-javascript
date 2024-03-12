@@ -1,9 +1,15 @@
-import { Account, InitTransaction, Transaction, TransactionType } from './types'
+import {
+  Account,
+  InitTransaction,
+  NETWORK,
+  Transaction,
+  TransactionType,
+} from './types'
 import { Wallet, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
-import { LASR_RPC_URL } from './consts'
 import { bigIntToHexString, formatVerse } from './utils'
 import { Address } from '@/lib/programs/Address-Namespace'
+import { getRPCForNetwork } from '@/lib/utils'
 
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
@@ -13,16 +19,19 @@ import { Address } from '@/lib/programs/Address-Namespace'
  *
  * @param {InitTransaction} callTx - The initial transaction data, including details such as the transaction type and nonce.
  * @param {string} privateKey - The private key used to sign the transaction and derive the wallet address.
+ * @param {string} network - The network to make the call on (stable | test)
  * @returns {Promise<string | Error>} The result of the blockchain call, which could be a transaction hash or an error.
  * @throws {Error} Throws an error if account retrieval, transaction signing, or the RPC call fails.
  */
-export async function broadcast(callTx: InitTransaction, privateKey: string) {
+export async function broadcast(
+  callTx: InitTransaction,
+  privateKey: string,
+  network: NETWORK = 'stable'
+) {
   try {
     const wallet = new Wallet(privateKey)
     let account: Account | null = null
     const broadcastType = callTx.op === 'send' ? 'send' : 'call'
-
-    console.log('callTx: ', callTx)
 
     try {
       const accountResult = await getAccount(wallet.address)
@@ -66,10 +75,12 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
       v: recover,
     }
 
+    const RPC_URL = getRPCForNetwork(network)
+
     return await callLasrRpc(
       `lasr_${broadcastType}`,
       [transactionWithSignature],
-      LASR_RPC_URL
+      RPC_URL
     )
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -89,14 +100,14 @@ export async function broadcast(callTx: InitTransaction, privateKey: string) {
  *
  * @param {string} method - The RPC method name to be called.
  * @param {string[] | Record<string, unknown> | Transaction[]} params - The parameters to be passed to the RPC method.
- * @param {string} rpc - The URL of the RPC endpoint to which the call is made.
+ * @param {string} rpcUrl - The URL of the RPC endpoint to which the call is made.
  * @returns {Promise<string | Error>} The result of the RPC call, typically a response object or an error.
  * @throws {Error} Throws an error if the RPC call fails or if the server returns an error response.
  */
 export async function callLasrRpc(
   method: string,
   params: string[] | Record<string, unknown> | Transaction[],
-  rpc: string
+  rpcUrl: string
 ): Promise<string | Error> {
   try {
     const callHeaders = new Headers()
@@ -117,8 +128,8 @@ export async function callLasrRpc(
 
     console.log({ params })
 
-    const response = await fetch(LASR_RPC_URL, requestOptions).then(
-      (response) => response.json()
+    const response = await fetch(rpcUrl, requestOptions).then((response) =>
+      response.json()
     )
 
     if (response.error) {
@@ -140,14 +151,20 @@ export async function callLasrRpc(
  * Asynchronously retrieves account information for a given address from a blockchain network via an RPC call.
  *
  * @param {string} address - The blockchain address of the account to retrieve.
+ * @param {string} network - Which network to get an account from (stable | test)
  * @returns {Promise<Account | Error>} An object containing account information or an error if the retrieval fails.
  * @throws {Error} Throws an error if the account information cannot be retrieved.
  */
-export async function getAccount(address: string): Promise<Account | Error> {
+export async function getAccount(
+  address: string,
+  network: NETWORK = 'stable'
+): Promise<Account | Error> {
   try {
     let account: Account | Error = new Error('An unexpected error occurred')
     const params = [address]
-    const result = await callLasrRpc('lasr_getAccount', params, LASR_RPC_URL)
+    const RPC_URL = getRPCForNetwork(network)
+
+    const result = await callLasrRpc('lasr_getAccount', params, RPC_URL)
     if (result instanceof Error) {
       console.error(result.message)
       account = {

@@ -3,6 +3,7 @@ export interface SendCommandArgs {
     programAddress: string;
     recipientAddress: string;
     amount: string;
+    network: string;
     keypairPath?: string;
     secretKey?: string;
 }

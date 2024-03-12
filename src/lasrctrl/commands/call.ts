@@ -1,11 +1,12 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import { callProgram, getSecretKey } from '@/lasrctrl/cli-helpers'
-import { LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
+import { NETWORK } from '@/lib/types'
 
 export interface CallCommandArgs {
   programAddress: string
   op: string
   inputs: string
+  network: string
   keypairPath?: string
   secretKey?: string
 }
@@ -29,6 +30,12 @@ export const callCommandFlags: CommandBuilder<{}, CallCommandArgs> = (
       type: 'string',
       demandOption: true,
     })
+    .option('network', {
+      describe: 'desired network',
+      type: 'string',
+      options: ['stable', 'test'],
+      default: 'stable',
+    })
     .option('keypairPath', {
       describe: 'Path to the keypair file',
       type: 'string',
@@ -42,14 +49,11 @@ export const callCommandFlags: CommandBuilder<{}, CallCommandArgs> = (
 const call = async (argv: Arguments<CallCommandArgs>) => {
   try {
     const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey)
-
-    process.env.LASR_RPC_URL = LASR_RPC_URL
-    process.env.VIPFS_ADDRESS = VIPFS_ADDRESS
-
     const sendResponse = await callProgram(
       String(argv.programAddress),
       String(argv.op),
       String(argv.inputs),
+      argv.network as NETWORK,
       secretKey
     )
 

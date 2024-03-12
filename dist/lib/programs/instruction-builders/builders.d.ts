@@ -23,8 +23,8 @@ export declare class TokenDistributionBuilder {
     setReceiver(receiver: AddressOrNamespace): TokenDistributionBuilder;
     setAmount(amount: string): TokenDistributionBuilder;
     addTokenId(tokenId: string): TokenDistributionBuilder;
-    addUpdateField(updateField: TokenUpdateField): TokenDistributionBuilder;
     extendTokenIds(items: string[]): TokenDistributionBuilder;
+    addUpdateField(updateField: TokenUpdateField): TokenDistributionBuilder;
     extendUpdateFields(items: TokenUpdateField[]): TokenDistributionBuilder;
     build(): TokenDistribution;
 }

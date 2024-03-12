@@ -51,7 +51,12 @@ reset-snake: clean build
 	$(Q)npx lasrctl build src/example-program.ts
 	$(Q)npx lasrctl test inputs
 
-reset-fungible-token: clean build
-	$(Q)npx lasrctl init fungible-token
+reset-fungible: clean build
+	$(Q)npx lasrctl init fungible
+	$(Q)npx lasrctl build src/example-program.ts
+	$(Q)npx lasrctl test inputs
+
+reset-non-fungible: clean build
+	$(Q)npx lasrctl init non-fungible
 	$(Q)npx lasrctl build src/example-program.ts
 	$(Q)npx lasrctl test inputs
