@@ -10,22 +10,22 @@ initialize, build, deploy, and call programs in the network from the terminal.
 
 ### Links To More In-Depth Information
 [CLICK HERE TO LEARN MORE ABOUT LASR
-](/LASR.md)
+](https://github.com/versatus/versatus-javascript/blob/main/LASR.md)
 
 [CLICK HERE FOR A MORE IN-DEPTH GETTING STARTED GUIDE
-](/GETTING_STARTED.md)
+](https://github.com/versatus/versatus-javascript/blob/main/GETTING_STARTED.md)
 
 [CLICK HERE TO LEARN MORE ABOUT LASRCTL CLI
-](/src/lasrctl/README.md)
+](https://github.com/versatus/versatus-javascript/blob/main/src/lasrctl/README.md)
 
 [CLICK HERE TO LEARN MORE ABOUT PROGRAMS ON LASR
-](/src/lib/programs/README.md)
+](https://github.com/versatus/versatus-javascript/blob/main/src/lib/programs/README.md)
 
 
 
 # Getting started
 
-For a more detailed guide on getting started with your LASR project, including setting up your environment, initializing your project with `lasrctl`, building, testing, and deploying your program, please refer to our [Getting Started Guide](/GETTING_STARTED.md).
+For a more detailed guide on getting started with your LASR project, including setting up your environment, initializing your project with `lasrctl`, building, testing, and deploying your program, please refer to our [Getting Started Guide](https://github.com/versatus/versatus-javascript/blob/main/GETTING_STARTED.md).
 
 <hr />
 
