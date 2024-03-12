@@ -1,4 +1,4 @@
-import { callCreate, checkWallet, getAddressFromKeyPairFile, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
+import { callCreate, getAddressFromKeyPairFile, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
 import { LASR_RPC_URL, VIPFS_ADDRESS } from '../../lib/consts.js';
 import { runCommand } from '../../lasrctrl/shell.js';
 export const deployCommandFlags = (yargs) => {
@@ -98,7 +98,7 @@ const deploy = async (argv) => {
 ==> cid: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
         console.log('\x1b[0;33mChecking wallet...\x1b[0m');
-        await checkWallet(String(argv.recipientAddress ?? addressFromKeypair));
+        // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
         console.log(`Fauceted funds to \x1b[0;32m${argv.recipientAddress ?? addressFromKeypair}\x1b[0m`);
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         let registerResponse;
@@ -134,10 +134,10 @@ const deploy = async (argv) => {
         console.log(`Program registered.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, String(argv.inputs));
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), secretKey, argv.inputs);
         if (createResponse) {
             console.log(`Program created successfully.
-==> programAddress:\x1b[0;32m${programAddress}\x1b[0m
+==> programAddress: \x1b[0;32m${programAddress}\x1b[0m
 ==> symbol: \x1b[0;32m${argv.symbol}\x1b[0m
 ==> tokenName: \x1b[0;32m${argv.programName}\x1b[0m
 ==> initializedSupply: \x1b[0;32m${argv.initializedSupply}\x1b[0m

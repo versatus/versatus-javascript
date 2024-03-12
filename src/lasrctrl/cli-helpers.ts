@@ -169,12 +169,21 @@ export async function callCreate(
       `programAddress (${programAddress}), symbol (${symbol}), name (${name}), initializedSupply (${initializedSupply}), totalSupply(${totalSupply}), and secretKey are required to call create.`
     )
   }
-  let inputsStr = `{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"${`,"to":"${recipientAddress}"`}}`
+
+  console.log({ inputs })
+
+  let inputsStr = JSON.stringify(
+    JSON.parse(
+      `{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"${`,"to":"${recipientAddress}"`}}`
+    )
+  )
   if (inputs) {
     const parsed = JSON.parse(inputsStr)
     const parsedInputs = JSON.parse(inputs)
     inputsStr = JSON.stringify({ ...parsed, ...parsedInputs })
   }
+
+  console.log({ inputsStr })
 
   process.env.LASR_RPC_URL = `${LASR_RPC_URL}`
   process.env.VIPFS_ADDRESS = `${VIPFS_ADDRESS}`

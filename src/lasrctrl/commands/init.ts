@@ -84,6 +84,9 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   const targetInputsDir = path.join(targetDir, 'inputs')
 
   if (fs.existsSync(inputsDir)) {
+    if (fs.existsSync(targetInputsDir)) {
+      fs.rmSync(targetInputsDir, { recursive: true, force: true })
+    }
     if (!fs.existsSync(targetInputsDir)) {
       fs.mkdirSync(targetInputsDir)
     }

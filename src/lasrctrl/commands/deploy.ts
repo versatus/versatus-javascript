@@ -132,7 +132,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
 
     console.log('\x1b[0;33mChecking wallet...\x1b[0m')
-    await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
+    // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
     console.log(
       `Fauceted funds to \x1b[0;32m${
         argv.recipientAddress ?? addressFromKeypair
@@ -187,12 +187,12 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       String(argv.totalSupply),
       String(argv.recipientAddress ?? addressFromKeypair),
       secretKey,
-      String(argv.inputs)
+      argv.inputs
     )
 
     if (createResponse) {
       console.log(`Program created successfully.
-==> programAddress:\x1b[0;32m${programAddress}\x1b[0m
+==> programAddress: \x1b[0;32m${programAddress}\x1b[0m
 ==> symbol: \x1b[0;32m${argv.symbol}\x1b[0m
 ==> tokenName: \x1b[0;32m${argv.programName}\x1b[0m
 ==> initializedSupply: \x1b[0;32m${argv.initializedSupply}\x1b[0m
