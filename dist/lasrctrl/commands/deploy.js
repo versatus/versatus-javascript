@@ -1,6 +1,7 @@
-import { callCreate, getAddressFromKeyPairFile, getIPFSForNetwork, getRPCForNetwork, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
+import { callCreate, getAddressFromKeyPairFile, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
 import { VIPFS_ADDRESS } from '../../lib/consts.js';
 import { runCommand } from '../../lasrctrl/shell.js';
+import { getIPFSForNetwork, getRPCForNetwork } from '../../lib/utils.js';
 export const deployCommandFlags = (yargs) => {
     return yargs
         .option('author', {

@@ -11,6 +11,7 @@ import {
   VIPFS_ADDRESS_TEST,
 } from '@/lib/consts'
 import axios from 'axios'
+import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
 export const isInstalledPackage = fs.existsSync(
   path.resolve(
@@ -309,12 +310,4 @@ export async function checkWallet(address: string) {
     console.error('Failed to validate keypair file:', error)
     process.exit(1) // Exit the process if the keypair file is not valid or other errors occur
   }
-}
-
-export const getRPCForNetwork = (network: NETWORK) => {
-  return network === 'stable' ? LASR_RPC_URL_STABLE : LASR_RPC_URL_TEST
-}
-
-export const getIPFSForNetwork = (network: NETWORK) => {
-  return network === 'stable' ? `${VIPFS_ADDRESS}` : `${VIPFS_ADDRESS_TEST}`
 }

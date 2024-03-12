@@ -1,16 +1,15 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   callCreate,
-  checkWallet,
   getAddressFromKeyPairFile,
-  getIPFSForNetwork,
-  getRPCForNetwork,
   getSecretKey,
   registerProgram,
 } from '@/lasrctrl/cli-helpers'
 import { VIPFS_ADDRESS } from '@/lib/consts'
 import { runCommand } from '@/lasrctrl/shell'
 import { NETWORK } from '@/lib/types'
+
+import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
 export interface DeployCommandArgs {
   author: string

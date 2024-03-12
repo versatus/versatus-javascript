@@ -2,7 +2,7 @@ import { Wallet, keccak256, toUtf8Bytes } from 'ethers';
 import * as secp256k1 from '@noble/secp256k1';
 import { bigIntToHexString, formatVerse } from './utils.js';
 import { Address } from '../lib/programs/Address-Namespace.js';
-import { getRPCForNetwork } from '../lasrctrl/cli-helpers.js';
+import { getRPCForNetwork } from '../lib/utils.js';
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
  * The function initializes a wallet with the provided private key, retrieves the account information,

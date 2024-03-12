@@ -1,4 +1,5 @@
-import { getIPFSForNetwork, getRPCForNetwork, getSecretKey, sendTokens, } from '../../lasrctrl/cli-helpers.js';
+import { getSecretKey, sendTokens } from '../../lasrctrl/cli-helpers.js';
+import { getIPFSForNetwork, getRPCForNetwork } from '../../lib/utils.js';
 export const sendCommandFlags = (yargs) => {
     return yargs
         .option('programAddress', {

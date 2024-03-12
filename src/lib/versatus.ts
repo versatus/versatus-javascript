@@ -9,7 +9,7 @@ import { Wallet, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
 import { bigIntToHexString, formatVerse } from './utils'
 import { Address } from '@/lib/programs/Address-Namespace'
-import { getRPCForNetwork } from '@/lasrctrl/cli-helpers'
+import { getRPCForNetwork } from '@/lib/utils'
 
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.

@@ -2,8 +2,9 @@ import fs, { promises as fsp } from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
 import { runCommand } from '../lasrctrl/shell.js';
-import { FAUCET_URL, LASR_RPC_URL_STABLE, LASR_RPC_URL_TEST, VIPFS_ADDRESS, VIPFS_ADDRESS_TEST, } from '../lib/consts.js';
+import { FAUCET_URL, } from '../lib/consts.js';
 import axios from 'axios';
+import { getIPFSForNetwork, getRPCForNetwork } from '../lib/utils.js';
 export const isInstalledPackage = fs.existsSync(path.resolve(process.cwd(), 'node_modules', '@versatus', 'versatus-javascript'));
 export const isTypeScriptProject = () => {
     const tsConfigPath = path.join(process.cwd(), 'tsconfig.json');
@@ -209,9 +210,3 @@ export async function checkWallet(address) {
         process.exit(1); // Exit the process if the keypair file is not valid or other errors occur
     }
 }
-export const getRPCForNetwork = (network) => {
-    return network === 'stable' ? LASR_RPC_URL_STABLE : LASR_RPC_URL_TEST;
-};
-export const getIPFSForNetwork = (network) => {
-    return network === 'stable' ? `${VIPFS_ADDRESS}` : `${VIPFS_ADDRESS_TEST}`;
-};

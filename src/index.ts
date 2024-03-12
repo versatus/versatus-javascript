@@ -15,6 +15,7 @@ export {
   ArbitraryData,
   Status,
   Wallet,
+  NETWORK,
   Metadata,
   InstructionKinds,
 } from './lib/types'

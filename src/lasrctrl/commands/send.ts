@@ -1,11 +1,8 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
-import {
-  getIPFSForNetwork,
-  getRPCForNetwork,
-  getSecretKey,
-  sendTokens,
-} from '@/lasrctrl/cli-helpers'
+import { getSecretKey, sendTokens } from '@/lasrctrl/cli-helpers'
 import { NETWORK } from '@/lib/types'
+
+import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
 export interface SendCommandArgs {
   programAddress: string

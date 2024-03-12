@@ -15,5 +15,3 @@ export declare function callProgram(programAddress: string, op: string, inputs: 
 export declare function runTestProcess(inputJsonPath: string, target?: string): Promise<unknown>;
 export declare function initializeWallet(): Promise<void>;
 export declare function checkWallet(address: string): Promise<void>;
-export declare const getRPCForNetwork: (network: NETWORK) => string;
-export declare const getIPFSForNetwork: (network: NETWORK) => string;
