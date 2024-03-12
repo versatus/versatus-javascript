@@ -1,11 +1,17 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
-import { getSecretKey, sendTokens } from '@/lasrctrl/cli-helpers'
-import { LASR_RPC_URL, VIPFS_ADDRESS } from '@/lib/consts'
+import {
+  getIPFSForNetwork,
+  getRPCForNetwork,
+  getSecretKey,
+  sendTokens,
+} from '@/lasrctrl/cli-helpers'
+import { NETWORK } from '@/lib/types'
 
 export interface SendCommandArgs {
   programAddress: string
   recipientAddress: string
   amount: string
+  network: string
   keypairPath?: string
   secretKey?: string
 }
@@ -29,6 +35,12 @@ export const sendCommandFlags: CommandBuilder<{}, SendCommandArgs> = (
       type: 'string',
       demandOption: true,
     })
+    .option('network', {
+      describe: 'network to send on',
+      type: 'string',
+      default: 'stable',
+      options: ['stable', 'test'],
+    })
     .option('keypairPath', {
       describe: 'Path to the keypair file',
       type: 'string',
@@ -43,14 +55,17 @@ const send = async (argv: Arguments<SendCommandArgs>) => {
   try {
     const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey)
 
-    process.env.LASR_RPC_URL = LASR_RPC_URL
-    process.env.VIPFS_ADDRESS = VIPFS_ADDRESS
+    const network = argv.network as NETWORK
+
+    process.env.LASR_RPC_URL = getRPCForNetwork(network)
+    process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
 
     const sendResponse = await sendTokens(
       String(argv.programAddress),
       String(argv.recipientAddress),
       String(argv.amount),
-      secretKey
+      secretKey,
+      network
     )
 
     console.log('sendResponse', sendResponse)

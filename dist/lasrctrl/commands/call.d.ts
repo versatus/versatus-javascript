@@ -3,6 +3,7 @@ export interface CallCommandArgs {
     programAddress: string;
     op: string;
     inputs: string;
+    network: string;
     keypairPath?: string;
     secretKey?: string;
 }
