@@ -111,12 +111,6 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 
     const network = argv.network as NETWORK
 
-    if (network === 'stable') {
-      throw new Error(
-        'WRONG NETWORK: Deployments are disabled on stable, please use test'
-      )
-    }
-
     console.log('\x1b[0;33mPublishing program...\x1b[0m')
     const isWasm = argv.target === 'wasm'
 
