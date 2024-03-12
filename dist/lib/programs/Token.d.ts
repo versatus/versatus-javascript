@@ -1,6 +1,6 @@
 import { TokenFieldValues, TokenUpdateValueTypes } from '../types';
-import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace';
-import { ProgramUpdate } from '../../lib/programs/Program';
+import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace';
+import { ProgramUpdate } from '@/lib/programs/Program';
 export declare class TokenMetadataInsert {
     private key;
     private value;

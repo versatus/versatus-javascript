@@ -1,6 +1,6 @@
-import { ComputeInputs } from '../../lib/types';
-import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace';
-import { StatusValue } from '../../lib/programs/Token';
+import { ComputeInputs } from '@/lib/types';
+import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace';
+import { StatusValue } from '@/lib/programs/Token';
 /**
  * Class representing a Program with methods to manage and execute program strategies.
  */
