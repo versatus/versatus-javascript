@@ -41,15 +41,11 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   )
   const isTsProject = isTypeScriptProject()
   const exampleDir = isInstalledPackage
-    ? path.resolve(
-        installedPackagePath,
-        'examples',
-        argv.example || 'fungible-token'
-      )
+    ? path.resolve(installedPackagePath, 'examples', argv.example || 'fungible')
     : path.resolve(
         isTsProject ? process.cwd() : __dirname,
         'examples',
-        argv.example || 'fungible-token'
+        argv.example || 'fungible'
       )
 
   const targetDir = process.cwd()
@@ -81,7 +77,7 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   const inputsDir = path.join(
     isInstalledPackage ? installedPackagePath : process.cwd(),
     'examples',
-    argv.example || 'fungible-token',
+    argv.example || 'fungible',
     'inputs'
   )
 

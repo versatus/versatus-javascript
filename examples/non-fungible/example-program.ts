@@ -89,34 +89,50 @@ class NonFungibleTokenProgram extends Program {
   }
 
   create(computeInputs: ComputeInputs) {
-    const imgUrl =
-      'https://pbs.twimg.com/profile_images/1765199894539583488/RUiZn7jT_400x400.jpg'
-
     const { transaction } = computeInputs
     const { transactionInputs, from } = transaction
-    const parsedInputMetadata = JSON.parse(transactionInputs)
+    const tokenInputDatas = JSON.parse(transactionInputs)
 
-    const totalSupply = parsedInputMetadata?.totalSupply
+    if (!tokenInputDatas) {
+      throw new Error('missing token input datas')
+    }
+
+    const imgUrl = tokenInputDatas?.imgUrl
+    if (!imgUrl) {
+      throw new Error('missing imgUrl')
+    }
+
+    const paymentProgramAddress = tokenInputDatas?.paymentProgramAddress
+    if (!paymentProgramAddress) {
+      throw new Error('missing paymentProgramAddress')
+    }
+
+    const price = tokenInputDatas?.price
+    if (!price) {
+      throw new Error('missing price')
+    }
+
+    const totalSupply = tokenInputDatas?.totalSupply
     if (!totalSupply) {
-      throw new Error('please specify a total supply')
+      throw new Error('missing totalSupply')
     }
 
-    const initializedSupply = parsedInputMetadata?.initializedSupply
+    const initializedSupply = tokenInputDatas?.initializedSupply
     if (!initializedSupply) {
-      throw new Error('please specify a initialized supply')
+      throw new Error('missing initializedSupply')
     }
 
-    const symbol = parsedInputMetadata?.symbol
+    const symbol = tokenInputDatas?.symbol
     if (!symbol) {
-      throw new Error('please specify a symbol')
+      throw new Error('missing symbol')
     }
 
-    const name = parsedInputMetadata?.name
+    const name = tokenInputDatas?.name
     if (!name) {
-      throw new Error('please specify a name')
+      throw new Error('missing name')
     }
 
-    const nftMetadata = JSON.stringify({
+    const metadataStr = JSON.stringify({
       symbol,
       name,
       totalSupply,
@@ -125,7 +141,7 @@ class NonFungibleTokenProgram extends Program {
 
     const updateProgramMetadata = buildProgramUpdateField({
       field: 'metadata',
-      value: nftMetadata,
+      value: metadataStr,
       action: 'extend',
     })
 
@@ -133,45 +149,47 @@ class NonFungibleTokenProgram extends Program {
       throw updateProgramMetadata
     }
 
-    const addCommaChameleonImageUrlToProgram = buildProgramUpdateField({
+    const dataStr = JSON.stringify({
+      type: 'non-fungible',
+      imgUrl,
+      paymentProgramAddress,
+      price,
+    })
+
+    const updateProgramData = buildProgramUpdateField({
       field: 'data',
-      value: JSON.stringify({
-        imgUrl,
-        type: 'non-fungible',
-      }),
+      value: dataStr,
       action: 'extend',
     })
 
-    if (addCommaChameleonImageUrlToProgram instanceof Error) {
-      throw addCommaChameleonImageUrlToProgram
+    if (updateProgramData instanceof Error) {
+      throw updateProgramData
     }
 
-    const programMetadataUpdateInstruction = buildUpdateInstruction({
+    const programUpdateInstructions = buildUpdateInstruction({
       update: new TokenOrProgramUpdate(
         'programUpdate',
         new ProgramUpdate(new AddressOrNamespace(THIS), [
           updateProgramMetadata,
-          addCommaChameleonImageUrlToProgram,
+          updateProgramData,
         ])
       ),
     })
 
-    const addCommaChameleonImageUrlToToken = buildTokenUpdateField({
+    const addDataToTokenData = buildTokenUpdateField({
       field: 'data',
-      value: JSON.stringify({
-        imgUrl,
-      }),
+      value: dataStr,
       action: 'extend',
     })
-    if (addCommaChameleonImageUrlToToken instanceof Error) {
-      throw addCommaChameleonImageUrlToToken
+    if (addDataToTokenData instanceof Error) {
+      throw addDataToTokenData
     }
 
     const distributionInstruction = buildTokenDistributionInstruction({
       programId: THIS,
       initializedSupply,
       to: THIS,
-      tokenUpdates: [addCommaChameleonImageUrlToToken],
+      tokenUpdates: [addDataToTokenData],
       nonFungible: true,
     })
 
@@ -187,22 +205,33 @@ class NonFungibleTokenProgram extends Program {
 
     return new Outputs(computeInputs, [
       createInstruction,
-      programMetadataUpdateInstruction,
+      programUpdateInstructions,
     ]).toJson()
   }
 
   mint(computeInputs: ComputeInputs) {
     const { transaction } = computeInputs
+    const currProgramInfo = computeInputs.accountInfo?.programs[transaction.to]
 
-    const price = 3
-    const paymentProgramAddress = ETH_PROGRAM_ADDRESS
+    if (!currProgramInfo) {
+      throw new Error('token missing from self...')
+    }
 
-    const availableTokenIds =
-      computeInputs.accountInfo?.programs[transaction.to]?.tokenIds
+    const tokenData = currProgramInfo.data
+    if (!tokenData) {
+      throw new Error('token missing required data to mint...')
+    }
+
+    const price = parseInt(tokenData.price)
+    const paymentProgramAddress = tokenData.paymentProgramAddress
+
+    const availableTokenIds = currProgramInfo?.tokenIds
+    if (!availableTokenIds) {
+      throw new Error('missing nfts to mint...')
+    }
 
     const quantityAvailable = Number(availableTokenIds?.length)
-
-    if (!availableTokenIds) {
+    if (!quantityAvailable) {
       throw new Error('minted out...')
     }
 
