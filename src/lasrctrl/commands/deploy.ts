@@ -91,7 +91,7 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       type: 'string',
       choices: ['stable', 'test'],
       default: 'stable',
-      alias: 'n',
+      alias: 'net',
     })
     .option('target', {
       describe: 'Build target',

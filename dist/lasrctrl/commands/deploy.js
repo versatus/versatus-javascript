@@ -64,7 +64,7 @@ export const deployCommandFlags = (yargs) => {
         type: 'string',
         choices: ['stable', 'test'],
         default: 'stable',
-        alias: 'n',
+        alias: 'net',
     })
         .option('target', {
         describe: 'Build target',
@@ -79,9 +79,6 @@ const deploy = async (argv) => {
         const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
         const addressFromKeypair = await getAddressFromKeyPairFile(String(argv.keypairPath));
         const network = argv.network;
-        if (network === 'stable') {
-            throw new Error('WRONG NETWORK: Deployments are disabled on stable, please use test');
-        }
         console.log('\x1b[0;33mPublishing program...\x1b[0m');
         const isWasm = argv.target === 'wasm';
         process.env.LASR_RPC_URL = getRPCForNetwork(network);
