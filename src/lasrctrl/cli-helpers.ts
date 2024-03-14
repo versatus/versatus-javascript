@@ -7,8 +7,8 @@ import {
   FAUCET_URL,
   LASR_RPC_URL_STABLE,
   LASR_RPC_URL_UNSTABLE,
-  VIPFS_ADDRESS,
-  VIPFS_ADDRESS_TEST,
+  VIPFS_URL,
+  VIPFS_URL_UNSTABLE,
 } from '@/lib/consts'
 import axios from 'axios'
 import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'

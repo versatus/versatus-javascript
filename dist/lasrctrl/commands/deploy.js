@@ -1,5 +1,5 @@
 import { callCreate, getAddressFromKeyPairFile, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
-import { VIPFS_ADDRESS } from '../../lib/consts.js';
+import { VIPFS_URL } from '../../lib/consts.js';
 import { runCommand } from '../../lasrctrl/shell.js';
 import { getIPFSForNetwork, getRPCForNetwork } from '../../lib/utils.js';
 export const deployCommandFlags = (yargs) => {
@@ -96,7 +96,7 @@ const deploy = async (argv) => {
         }
         else {
             command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
+          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_URL} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
         }
         const output = await runCommand(command);
         const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g;

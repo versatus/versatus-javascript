@@ -2,8 +2,8 @@ import { NETWORK } from '@/lib/types'
 import {
   LASR_RPC_URL_STABLE,
   LASR_RPC_URL_UNSTABLE,
-  VIPFS_ADDRESS,
-  VIPFS_ADDRESS_TEST,
+  VIPFS_URL,
+  VIPFS_URL_UNSTABLE,
 } from '@/lib/consts'
 
 /**
@@ -49,13 +49,19 @@ export function getUndefinedProperties(obj: Record<string, any>): string[] {
 }
 
 export const getRPCForNetwork = (network: NETWORK) => {
-  return process?.env.LASR_RPC_URL ?? network === 'stable'
-    ? LASR_RPC_URL_STABLE
-    : LASR_RPC_URL_UNSTABLE
+  const rpcUrl =
+    process?.env.LASR_RPC_URL ?? network === 'stable'
+      ? LASR_RPC_URL_STABLE
+      : LASR_RPC_URL_UNSTABLE
+  console.log('USING RPC URL: ', rpcUrl)
+  return rpcUrl
 }
 
 export const getIPFSForNetwork = (network: NETWORK) => {
-  return process?.env.VIPFS_ADDRESS ?? network === 'stable'
-    ? `${VIPFS_ADDRESS}`
-    : `${VIPFS_ADDRESS_TEST}`
+  const ipfsUrl =
+    process?.env.VIPFS_ADDRESS ?? network === 'stable'
+      ? `${VIPFS_URL}`
+      : `${VIPFS_URL_UNSTABLE}`
+  console.log('USING IPFS URL: ', ipfsUrl)
+  return ipfsUrl
 }
