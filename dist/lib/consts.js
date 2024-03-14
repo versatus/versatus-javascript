@@ -5,5 +5,5 @@ export const LASR_RPC_URL_STABLE = 'http://lasr-sharks.versatus.io:9292';
 export const VIPFS_URL_UNSTABLE = '167.99.20.121:5001';
 export const VIPFS_URL = '167.99.20.121:5001';
 export const ETH_PROGRAM_ADDRESS = '0x0000000000000000000000000000000000000000';
-export const VERSE_PROGRAM_ADDRESS = '0x0000000000000000000000000000000000000001';
+export const VERSE_PROGRAM_ADDRESS = '0xa60c7238d98c7ecef8659a18c2e8c6265327f280';
 export const FAUCET_URL = 'https://faucet.versatus.io/';
