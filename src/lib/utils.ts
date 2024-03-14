@@ -49,9 +49,13 @@ export function getUndefinedProperties(obj: Record<string, any>): string[] {
 }
 
 export const getRPCForNetwork = (network: NETWORK) => {
-  return network === 'stable' ? LASR_RPC_URL_STABLE : LASR_RPC_URL_UNSTABLE
+  return process?.env.LASR_RPC_URL ?? network === 'stable'
+    ? LASR_RPC_URL_STABLE
+    : LASR_RPC_URL_UNSTABLE
 }
 
 export const getIPFSForNetwork = (network: NETWORK) => {
-  return network === 'stable' ? `${VIPFS_ADDRESS}` : `${VIPFS_ADDRESS_TEST}`
+  return process?.env.VIPFS_ADDRESS ?? network === 'stable'
+    ? `${VIPFS_ADDRESS}`
+    : `${VIPFS_ADDRESS_TEST}`
 }
