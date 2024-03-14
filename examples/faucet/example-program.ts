@@ -62,9 +62,6 @@ export class FaucetProgram extends Program {
       }
 
       const faucetPrograms = JSON.parse(faucetProgramsStr)
-      // if (faucetPrograms[programToAdd]) {
-      //   return new Outputs(computeInputs, [transferToFaucetInstruction]).toJson()
-      // }
 
       const faucetUpdate = buildProgramUpdateField({
         field: 'data',
