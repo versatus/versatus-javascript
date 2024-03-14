@@ -89,7 +89,7 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
     .option('network', {
       describe: 'Network',
       type: 'string',
-      choices: ['stable', 'test'],
+      choices: ['stable', 'unstable'],
       default: 'stable',
       alias: 'net',
     })

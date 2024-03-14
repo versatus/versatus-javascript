@@ -1,4 +1,4 @@
-import { LASR_RPC_URL_STABLE, LASR_RPC_URL_TEST, VIPFS_ADDRESS, VIPFS_ADDRESS_TEST, } from '../lib/consts.js';
+import { LASR_RPC_URL_STABLE, LASR_RPC_URL_UNSTABLE, VIPFS_ADDRESS, VIPFS_ADDRESS_TEST, } from '../lib/consts.js';
 /**
  * Formats a given number string into a hexadecimal string representation, ensuring it starts with '0x' and is 64 characters long.
  *
@@ -38,7 +38,7 @@ export function getUndefinedProperties(obj) {
         .map(([key]) => key);
 }
 export const getRPCForNetwork = (network) => {
-    return network === 'stable' ? LASR_RPC_URL_STABLE : LASR_RPC_URL_TEST;
+    return network === 'stable' ? LASR_RPC_URL_STABLE : LASR_RPC_URL_UNSTABLE;
 };
 export const getIPFSForNetwork = (network) => {
     return network === 'stable' ? `${VIPFS_ADDRESS}` : `${VIPFS_ADDRESS_TEST}`;

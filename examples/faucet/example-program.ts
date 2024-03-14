@@ -32,67 +32,71 @@ export class FaucetProgram extends Program {
   }
 
   addProgram(computeInputs: ComputeInputs) {
-    const { transaction, accountInfo } = computeInputs
-    const { transactionInputs: txInputsStr, from } = transaction
-    const txInputs = JSON.parse(txInputsStr)
-    const programToAdd = txInputs?.programAddress
-    const flowAmountStr = txInputs?.flowAmount ?? '1'
-    const flowAmount = formatVerse(flowAmountStr)
-    const cycleTimeMin = txInputs?.cycleTimeMin ?? '1'
+    try {
+      const { transaction, accountInfo } = computeInputs
+      const { transactionInputs: txInputsStr, from } = transaction
+      const txInputs = JSON.parse(txInputsStr)
+      const programToAdd = txInputs?.programAddress
+      const flowAmountStr = txInputs?.flowAmount ?? '1'
+      const flowAmount = formatVerse(flowAmountStr)
+      const cycleTimeMin = txInputs?.cycleTimeMin ?? '1'
 
-    const amountToAdd = parseVerse(txInputs?.amountToAdd)
-    if (!amountToAdd) {
-      throw new Error('Please specify how much your adding to the faucet pool')
-    }
+      const amountToAdd = parseVerse(txInputs?.amountToAdd)
+      if (!amountToAdd) {
+        throw new Error(
+          'Please specify how much your adding to the faucet pool'
+        )
+      }
 
-    const transferToFaucetInstruction = buildTransferInstruction({
-      from: from,
-      to: 'this',
-      tokenAddress: programToAdd,
-      amount: amountToAdd,
-    })
-    const faucetAccountData = accountInfo?.programAccountData
-    const faucetProgramsStr = faucetAccountData?.programs
-    if (!faucetProgramsStr) {
-      throw new Error('Please create the program first.')
-    }
+      const transferToFaucetInstruction = buildTransferInstruction({
+        from: from,
+        to: 'this',
+        tokenAddress: programToAdd,
+        amount: amountToAdd,
+      })
 
-    const faucetPrograms = JSON.parse(faucetProgramsStr)
-    // if (faucetPrograms[programToAdd]) {
-    //   return new Outputs(computeInputs, [transferToFaucetInstruction]).toJson()
-    // }
+      const faucetAccountData = accountInfo?.programAccountData
+      const faucetProgramsStr = faucetAccountData?.programs
+      if (!faucetProgramsStr) {
+        throw new Error('Please create the program first.')
+      }
 
-    const faucetUpdate = buildProgramUpdateField({
-      field: 'data',
-      value: JSON.stringify({
-        programs: JSON.stringify({
-          ...faucetPrograms,
-          [programToAdd]: JSON.stringify({
-            pipeData: JSON.stringify({
-              flowAmount,
-              cycleTimeMin,
+      const faucetPrograms = JSON.parse(faucetProgramsStr)
+      // if (faucetPrograms[programToAdd]) {
+      //   return new Outputs(computeInputs, [transferToFaucetInstruction]).toJson()
+      // }
+
+      const faucetUpdate = buildProgramUpdateField({
+        field: 'data',
+        value: JSON.stringify({
+          programs: JSON.stringify({
+            ...faucetPrograms,
+            [programToAdd]: JSON.stringify({
+              pipeData: JSON.stringify({
+                flowAmount,
+                cycleTimeMin,
+              }),
+              recipients: JSON.stringify({}),
             }),
-            recipients: JSON.stringify({}),
           }),
         }),
-      }),
-      action: 'extend',
-    })
-    if (faucetUpdate instanceof Error) {
-      throw faucetUpdate
+        action: 'extend',
+      })
+
+      const faucetDataUpdateInstruction = buildUpdateInstruction({
+        update: new TokenOrProgramUpdate(
+          'programUpdate',
+          new ProgramUpdate(new AddressOrNamespace(THIS), [faucetUpdate])
+        ),
+      })
+
+      return new Outputs(computeInputs, [
+        transferToFaucetInstruction,
+        faucetDataUpdateInstruction,
+      ]).toJson()
+    } catch (e) {
+      throw e
     }
-
-    const faucetDataUpdateInstruction = buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        new ProgramUpdate(new AddressOrNamespace(THIS), [faucetUpdate])
-      ),
-    })
-
-    return new Outputs(computeInputs, [
-      transferToFaucetInstruction,
-      faucetDataUpdateInstruction,
-    ]).toJson()
   }
   create(computeInputs: ComputeInputs) {
     const { transaction } = computeInputs

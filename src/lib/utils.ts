@@ -1,7 +1,7 @@
 import { NETWORK } from '@/lib/types'
 import {
   LASR_RPC_URL_STABLE,
-  LASR_RPC_URL_TEST,
+  LASR_RPC_URL_UNSTABLE,
   VIPFS_ADDRESS,
   VIPFS_ADDRESS_TEST,
 } from '@/lib/consts'
@@ -49,7 +49,7 @@ export function getUndefinedProperties(obj: Record<string, any>): string[] {
 }
 
 export const getRPCForNetwork = (network: NETWORK) => {
-  return network === 'stable' ? LASR_RPC_URL_STABLE : LASR_RPC_URL_TEST
+  return network === 'stable' ? LASR_RPC_URL_STABLE : LASR_RPC_URL_UNSTABLE
 }
 
 export const getIPFSForNetwork = (network: NETWORK) => {

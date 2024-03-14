@@ -62,7 +62,7 @@ export const deployCommandFlags = (yargs) => {
         .option('network', {
         describe: 'Network',
         type: 'string',
-        choices: ['stable', 'test'],
+        choices: ['stable', 'unstable'],
         default: 'stable',
         alias: 'net',
     })

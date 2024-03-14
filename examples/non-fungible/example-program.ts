@@ -198,69 +198,74 @@ class NonFungibleTokenProgram extends Program {
   }
 
   mint(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const currProgramInfo = computeInputs.accountInfo?.programs[transaction.to]
+    try {
+      const { transaction } = computeInputs
+      const currProgramInfo =
+        computeInputs.accountInfo?.programs[transaction.to]
 
-    if (!currProgramInfo) {
-      throw new Error('token missing from self...')
+      if (!currProgramInfo) {
+        throw new Error('token missing from self...')
+      }
+
+      const tokenData = currProgramInfo.data
+      if (!tokenData) {
+        throw new Error('token missing required data to mint...')
+      }
+
+      const price = parseInt(tokenData.price)
+      const paymentProgramAddress = tokenData.paymentProgramAddress
+
+      const availableTokenIds = currProgramInfo?.tokenIds
+      if (!availableTokenIds) {
+        throw new Error('missing nfts to mint...')
+      }
+
+      const quantityAvailable = Number(availableTokenIds?.length)
+      if (!quantityAvailable) {
+        throw new Error('minted out...')
+      }
+
+      const { transactionInputs } = transaction
+      const parsedInputMetadata = JSON.parse(transactionInputs)
+
+      const quantity = parsedInputMetadata?.quantity
+      if (!quantity) {
+        throw new Error('please specify a quantity')
+      }
+
+      if (quantity > quantityAvailable) {
+        throw new Error('not enough supply for quantity desired')
+      }
+
+      const tokenIds = []
+
+      for (let i = 0; i < quantity; i++) {
+        tokenIds.push(availableTokenIds[i])
+      }
+
+      const amountNeededToMint = parseVerse((price * quantity).toString())
+
+      const transferToProgram = buildTransferInstruction({
+        from: transaction.from,
+        to: 'this',
+        tokenAddress: paymentProgramAddress,
+        amount: amountNeededToMint,
+      })
+
+      const transferToCaller = buildTransferInstruction({
+        from: 'this',
+        to: transaction.from,
+        tokenAddress: transaction.to,
+        tokenIds,
+      })
+
+      return new Outputs(computeInputs, [
+        transferToProgram,
+        transferToCaller,
+      ]).toJson()
+    } catch (e) {
+      throw e
     }
-
-    const tokenData = currProgramInfo.data
-    if (!tokenData) {
-      throw new Error('token missing required data to mint...')
-    }
-
-    const price = parseInt(tokenData.price)
-    const paymentProgramAddress = tokenData.paymentProgramAddress
-
-    const availableTokenIds = currProgramInfo?.tokenIds
-    if (!availableTokenIds) {
-      throw new Error('missing nfts to mint...')
-    }
-
-    const quantityAvailable = Number(availableTokenIds?.length)
-    if (!quantityAvailable) {
-      throw new Error('minted out...')
-    }
-
-    const { transactionInputs } = transaction
-    const parsedInputMetadata = JSON.parse(transactionInputs)
-
-    const quantity = parsedInputMetadata?.quantity
-    if (!quantity) {
-      throw new Error('please specify a quantity')
-    }
-
-    if (quantity > quantityAvailable) {
-      throw new Error('not enough supply for quantity desired')
-    }
-
-    const tokenIds = []
-
-    for (let i = 0; i < quantity; i++) {
-      tokenIds.push(availableTokenIds[i])
-    }
-
-    const amountNeededToMint = parseVerse((price * quantity).toString())
-
-    const transferToProgram = buildTransferInstruction({
-      from: transaction.from,
-      to: 'this',
-      tokenAddress: paymentProgramAddress,
-      amount: amountNeededToMint,
-    })
-
-    const transferToCaller = buildTransferInstruction({
-      from: 'this',
-      to: transaction.from,
-      tokenAddress: transaction.to,
-      tokenIds,
-    })
-
-    return new Outputs(computeInputs, [
-      transferToProgram,
-      transferToCaller,
-    ]).toJson()
   }
 }
 

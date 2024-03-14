@@ -6,7 +6,7 @@ import { runCommand } from '@/lasrctrl/shell'
 import {
   FAUCET_URL,
   LASR_RPC_URL_STABLE,
-  LASR_RPC_URL_TEST,
+  LASR_RPC_URL_UNSTABLE,
   VIPFS_ADDRESS,
   VIPFS_ADDRESS_TEST,
 } from '@/lib/consts'

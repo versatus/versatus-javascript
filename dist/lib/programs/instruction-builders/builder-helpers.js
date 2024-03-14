@@ -68,20 +68,25 @@ export function buildMintInstructions({ from, programId, paymentTokenAddress, to
     return [transferToProgram, transferToCaller];
 }
 export function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }) {
-    const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
-    const fromAddressOrNamespace = new AddressOrNamespace(new Address(from));
-    const tokenAddressOrNamespace = new Address(tokenAddress);
-    const instructionBuilder = new TransferInstructionBuilder()
-        .setTransferFrom(fromAddressOrNamespace)
-        .setTransferTo(toAddressOrNamespace)
-        .setTokenAddress(tokenAddressOrNamespace);
-    if (tokenIds) {
-        instructionBuilder.addTokenIds(tokenIds);
+    try {
+        const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
+        const fromAddressOrNamespace = new AddressOrNamespace(new Address(from));
+        const tokenAddressOrNamespace = new Address(tokenAddress);
+        const instructionBuilder = new TransferInstructionBuilder()
+            .setTransferFrom(fromAddressOrNamespace)
+            .setTransferTo(toAddressOrNamespace)
+            .setTokenAddress(tokenAddressOrNamespace);
+        if (tokenIds) {
+            instructionBuilder.addTokenIds(tokenIds);
+        }
+        if (amount) {
+            instructionBuilder.setAmount(bigIntToHexString(amount));
+        }
+        return instructionBuilder.build();
     }
-    if (amount) {
-        instructionBuilder.setAmount(bigIntToHexString(amount));
+    catch (e) {
+        throw e;
     }
-    return instructionBuilder.build();
 }
 export function buildTokenUpdateField({ field, value, action, }) {
     try {

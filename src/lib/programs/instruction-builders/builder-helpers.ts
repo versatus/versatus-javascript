@@ -194,24 +194,28 @@ export function buildTransferInstruction({
   amount?: BigInt
   tokenIds?: string[]
 }) {
-  const toAddressOrNamespace = new AddressOrNamespace(new Address(to))
-  const fromAddressOrNamespace = new AddressOrNamespace(new Address(from))
-  const tokenAddressOrNamespace = new Address(tokenAddress)
+  try {
+    const toAddressOrNamespace = new AddressOrNamespace(new Address(to))
+    const fromAddressOrNamespace = new AddressOrNamespace(new Address(from))
+    const tokenAddressOrNamespace = new Address(tokenAddress)
 
-  const instructionBuilder = new TransferInstructionBuilder()
-    .setTransferFrom(fromAddressOrNamespace)
-    .setTransferTo(toAddressOrNamespace)
-    .setTokenAddress(tokenAddressOrNamespace)
+    const instructionBuilder = new TransferInstructionBuilder()
+      .setTransferFrom(fromAddressOrNamespace)
+      .setTransferTo(toAddressOrNamespace)
+      .setTokenAddress(tokenAddressOrNamespace)
 
-  if (tokenIds) {
-    instructionBuilder.addTokenIds(tokenIds)
+    if (tokenIds) {
+      instructionBuilder.addTokenIds(tokenIds)
+    }
+
+    if (amount) {
+      instructionBuilder.setAmount(bigIntToHexString(amount))
+    }
+
+    return instructionBuilder.build()
+  } catch (e) {
+    throw e
   }
-
-  if (amount) {
-    instructionBuilder.setAmount(bigIntToHexString(amount))
-  }
-
-  return instructionBuilder.build()
 }
 
 export function buildTokenUpdateField({
