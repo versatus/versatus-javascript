@@ -59,6 +59,6 @@ export {
 
 export { TokenUpdateBuilder } from './lib/programs/instruction-builders/builders'
 
-export { parseVerse, formatVerse } from './lib/utils'
+export { parseVerse, formatVerse, getUndefinedProperties } from './lib/utils'
 
 export { broadcast, getAccount } from './lib/versatus'

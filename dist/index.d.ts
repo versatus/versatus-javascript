@@ -3,5 +3,5 @@ export { buildBurnInstruction, buildCreateInstruction, buildTransferInstruction,
 export { Program, ProgramUpdate, TokenOrProgramUpdate, AddressOrNamespace, Outputs, TokenUpdate, TokenUpdateField, TokenField, TokenFieldValue, ApprovalsValue, ApprovalsExtend, Address, } from './lib/programs/index';
 export { ETH_PROGRAM_ADDRESS, THIS, ZERO_VALUE, LASR_RPC_URL_STABLE, LASR_RPC_URL_UNSTABLE, VIPFS_ADDRESS, FAUCET_URL, VERSE_PROGRAM_ADDRESS, } from './lib/consts';
 export { TokenUpdateBuilder } from './lib/programs/instruction-builders/builders';
-export { parseVerse, formatVerse } from './lib/utils';
+export { parseVerse, formatVerse, getUndefinedProperties } from './lib/utils';
 export { broadcast, getAccount } from './lib/versatus';
