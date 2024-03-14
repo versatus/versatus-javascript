@@ -160,7 +160,7 @@ class FungibleTokenProgram extends Program {
       })
 
       const dataStr = JSON.stringify({
-        type: 'non-fungible',
+        type: 'fungible',
         imgUrl,
         paymentProgramAddress,
         price,

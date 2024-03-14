@@ -38,16 +38,20 @@ export function getUndefinedProperties(obj) {
         .map(([key]) => key);
 }
 export const getRPCForNetwork = (network) => {
-    const rpcUrl = process?.env.LASR_RPC_URL ?? network === 'stable'
-        ? LASR_RPC_URL_STABLE
-        : LASR_RPC_URL_UNSTABLE;
+    const rpcUrl = process.env.LASR_RPC_URL
+        ? process.env.LASR_RPC_URL
+        : network === 'stable'
+            ? LASR_RPC_URL_STABLE
+            : LASR_RPC_URL_UNSTABLE;
     console.log('USING RPC URL: ', rpcUrl);
     return rpcUrl;
 };
 export const getIPFSForNetwork = (network) => {
-    const ipfsUrl = process?.env.VIPFS_ADDRESS ?? network === 'stable'
-        ? `${VIPFS_URL}`
-        : `${VIPFS_URL_UNSTABLE}`;
+    const ipfsUrl = process?.env.VIPFS_ADDRESS
+        ? process?.env.VIPFS_ADDRESS
+        : network === 'stable'
+            ? `${VIPFS_URL}`
+            : `${VIPFS_URL_UNSTABLE}`;
     console.log('USING IPFS URL: ', ipfsUrl);
     return ipfsUrl;
 };
