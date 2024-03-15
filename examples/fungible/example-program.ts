@@ -102,7 +102,7 @@ class FungibleTokenProgram extends Program {
 
       const totalSupply = formatVerse(txInputs?.totalSupply)
       const initializedSupply = formatVerse(txInputs?.initializedSupply)
-      const to = txInputs?.to ?? from
+      const to = transaction.to
       const symbol = txInputs?.symbol
       const name = txInputs?.name
 
@@ -130,9 +130,28 @@ class FungibleTokenProgram extends Program {
 
       const metadataStr = JSON.stringify({ symbol, name, totalSupply })
 
-      const updateTokenMetadata = buildTokenUpdateField({
+      const addTokenMetadata = buildTokenUpdateField({
         field: 'metadata',
         value: metadataStr,
+        action: 'extend',
+      })
+
+      const dataStr = JSON.stringify({
+        type: 'fungible',
+        imgUrl,
+        paymentProgramAddress,
+        price,
+      })
+
+      const addTokenData = buildTokenUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const addProgramData = buildProgramUpdateField({
+        field: 'data',
+        value: dataStr,
         action: 'extend',
       })
 
@@ -140,7 +159,7 @@ class FungibleTokenProgram extends Program {
         programId: THIS,
         initializedSupply,
         to,
-        tokenUpdates: [updateTokenMetadata],
+        tokenUpdates: [addTokenMetadata, addTokenData],
       })
 
       const createAndDistributeInstruction = buildCreateInstruction({
@@ -156,19 +175,6 @@ class FungibleTokenProgram extends Program {
       const addProgramMetadata = buildProgramUpdateField({
         field: 'metadata',
         value: metadataStr,
-        action: 'extend',
-      })
-
-      const dataStr = JSON.stringify({
-        type: 'fungible',
-        imgUrl,
-        paymentProgramAddress,
-        price,
-      })
-
-      const addProgramData = buildProgramUpdateField({
-        field: 'data',
-        value: dataStr,
         action: 'extend',
       })
 
@@ -203,11 +209,9 @@ class FungibleTokenProgram extends Program {
       throw new Error('token missing required data to mint...')
     }
 
-    const price = parseInt(tokenData.price)
     const paymentProgramAddress = tokenData.paymentProgramAddress
-
-    const inputValue = BigInt(transaction?.value)
-    const conversionRate = BigInt(price)
+    const inputValue = BigInt(transaction.value)
+    const conversionRate = BigInt(tokenData.price)
     const returnedValue = inputValue / conversionRate
 
     const mintInstructions = buildMintInstructions({
