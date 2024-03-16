@@ -134,7 +134,6 @@ export async function callCreate(programAddress, symbol, name, initializedSupply
     process.env.LASR_RPC_URL = getRPCForNetwork(network);
     process.env.VIPFS_ADDRESS = getIPFSForNetwork(network);
     const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op "create" --inputs '${inputsStr}' --to "${programAddress}" --content-namespace "${programAddress}"`;
-    console.log({ command });
     return await runCommand(command);
 }
 export async function sendTokens(programAddress, recipientAddress, amount, secretKey, network) {

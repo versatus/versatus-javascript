@@ -6,9 +6,9 @@ import { runCommand } from '@/lasrctrl/shell'
 import {
   FAUCET_URL,
   LASR_RPC_URL_STABLE,
-  LASR_RPC_URL_TEST,
-  VIPFS_ADDRESS,
-  VIPFS_ADDRESS_TEST,
+  LASR_RPC_URL_UNSTABLE,
+  VIPFS_URL,
+  VIPFS_URL_UNSTABLE,
 } from '@/lib/consts'
 import axios from 'axios'
 import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
@@ -129,6 +129,7 @@ export async function registerProgram(
   try {
     process.env.LASR_RPC_URL = getRPCForNetwork(network)
     process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
+
     const command = `./build/lasr_cli wallet register-program --from-secret-key --secret-key "${secretKey}" --cid "${cid}"`
 
     return await runCommand(command)
@@ -197,7 +198,6 @@ export async function callCreate(
   process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
 
   const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op "create" --inputs '${inputsStr}' --to "${programAddress}" --content-namespace "${programAddress}"`
-  console.log({ command })
   return await runCommand(command)
 }
 

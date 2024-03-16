@@ -1,6 +1,6 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.1.99",
+  "version": "0.1.110",
   "type": "module",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,7 +20,8 @@
   ],
   "scripts": {
     "build": "tsc && tsc-alias && chmod +x dist/lasrctrl/cli.js && node dist/lib/scripts/add-extensions.js",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "test": "yarn build && node ./dist/test/parsing.js && node ./dist/test/formatting.js"
   },
   "dependencies": {
     "@babel/core": "^7.23.9",
@@ -38,6 +39,7 @@
     "ethers": "^6.11.1",
     "fs": "^0.0.1-security",
     "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.8",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
     "uuid": "^9.0.1",

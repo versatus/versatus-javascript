@@ -33,8 +33,9 @@ import {
 import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
-  formatVerse,
+  formatAmountToHex,
   getUndefinedProperties,
+  parseAmountToBigInt,
 } from '@versatus/versatus-javascript/lib/utils'
 
 class FungibleTokenProgram extends Program {
@@ -100,21 +101,21 @@ class FungibleTokenProgram extends Program {
         throw new Error('missing token input datas')
       }
 
-      const totalSupply = formatVerse(txInputs?.totalSupply)
-      const initializedSupply = formatVerse(txInputs?.initializedSupply)
-      const to = txInputs?.to ?? from
+      const totalSupply = formatAmountToHex(txInputs?.totalSupply)
+      const initializedSupply = formatAmountToHex(txInputs?.initializedSupply)
+      const to = transaction.to
       const symbol = txInputs?.symbol
       const name = txInputs?.name
 
       // data
       const imgUrl = txInputs?.imgUrl
       const paymentProgramAddress = txInputs?.paymentProgramAddress
-      const price = txInputs?.price
+      const conversionRate = txInputs?.conversionRate
 
       const undefinedProperties = getUndefinedProperties({
         imgUrl,
         paymentProgramAddress,
-        price,
+        conversionRate,
         totalSupply,
         initializedSupply,
         symbol,
@@ -130,9 +131,28 @@ class FungibleTokenProgram extends Program {
 
       const metadataStr = JSON.stringify({ symbol, name, totalSupply })
 
-      const updateTokenMetadata = buildTokenUpdateField({
+      const addTokenMetadata = buildTokenUpdateField({
         field: 'metadata',
         value: metadataStr,
+        action: 'extend',
+      })
+
+      const dataStr = JSON.stringify({
+        type: 'fungible',
+        imgUrl,
+        paymentProgramAddress,
+        conversionRate,
+      })
+
+      const addTokenData = buildTokenUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const addProgramData = buildProgramUpdateField({
+        field: 'data',
+        value: dataStr,
         action: 'extend',
       })
 
@@ -140,7 +160,7 @@ class FungibleTokenProgram extends Program {
         programId: THIS,
         initializedSupply,
         to,
-        tokenUpdates: [updateTokenMetadata],
+        tokenUpdates: [addTokenMetadata, addTokenData],
       })
 
       const createAndDistributeInstruction = buildCreateInstruction({
@@ -156,19 +176,6 @@ class FungibleTokenProgram extends Program {
       const addProgramMetadata = buildProgramUpdateField({
         field: 'metadata',
         value: metadataStr,
-        action: 'extend',
-      })
-
-      const dataStr = JSON.stringify({
-        type: 'non-fungible',
-        imgUrl,
-        paymentProgramAddress,
-        price,
-      })
-
-      const addProgramData = buildProgramUpdateField({
-        field: 'data',
-        value: dataStr,
         action: 'extend',
       })
 
@@ -203,12 +210,11 @@ class FungibleTokenProgram extends Program {
       throw new Error('token missing required data to mint...')
     }
 
-    const price = parseInt(tokenData.price)
     const paymentProgramAddress = tokenData.paymentProgramAddress
-
-    const inputValue = BigInt(transaction?.value)
-    const conversionRate = BigInt(price)
-    const returnedValue = inputValue / conversionRate
+    const inputValue = parseAmountToBigInt(transaction.value)
+    const conversionRate = parseAmountToBigInt(tokenData.conversionRate)
+    const returnedValue: bigint =
+      BigInt(inputValue.toString()) * BigInt(conversionRate.toString())
 
     const mintInstructions = buildMintInstructions({
       from: transaction.from,

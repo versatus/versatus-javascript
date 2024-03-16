@@ -5,7 +5,7 @@ import {
   getSecretKey,
   registerProgram,
 } from '@/lasrctrl/cli-helpers'
-import { VIPFS_ADDRESS } from '@/lib/consts'
+import { VIPFS_URL } from '@/lib/consts'
 import { runCommand } from '@/lasrctrl/shell'
 import { NETWORK } from '@/lib/types'
 
@@ -89,9 +89,9 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
     .option('network', {
       describe: 'Network',
       type: 'string',
-      choices: ['stable', 'test'],
+      choices: ['stable', 'unstable'],
       default: 'stable',
-      alias: 'n',
+      alias: 'net',
     })
     .option('target', {
       describe: 'Build target',
@@ -129,7 +129,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
              --is-srv true`
     } else {
       command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_ADDRESS} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`
+          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_URL} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`
     }
 
     const output = await runCommand(command)

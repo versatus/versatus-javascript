@@ -2,7 +2,7 @@ import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuil
 import { ApprovalsExtend, StatusValue, TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenOrProgramUpdate, TokenUpdateField, } from '../../../lib/programs/Token.js';
 import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, } from '../../../lib/programs/Program.js';
 import { THIS } from '../../../lib/consts.js';
-import { bigIntToHexString, formatVerse } from '../../../lib/utils.js';
+import { formatBigIntToHex, formatAmountToHex } from '../../../lib/utils.js';
 import { ProgramField, ProgramUpdate, ProgramUpdateField, } from '../../../lib/programs/Program.js';
 import { Address, AddressOrNamespace } from '../../../lib/programs/Address-Namespace.js';
 export function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }) {
@@ -11,7 +11,7 @@ export function buildBurnInstruction({ from, caller, programId, tokenAddress, am
         .setCaller(new Address(caller))
         .setTokenAddress(new Address(tokenAddress))
         .setBurnFromAddress(new AddressOrNamespace(new Address(from)))
-        .setAmount(bigIntToHexString(BigInt(amount)))
+        .setAmount(formatBigIntToHex(BigInt(amount)))
         .build();
 }
 export function buildCreateInstruction({ programId, initializedSupply, totalSupply, programOwner, programNamespace, distributionInstruction, }) {
@@ -20,10 +20,10 @@ export function buildCreateInstruction({ programId, initializedSupply, totalSupp
         .setProgramOwner(new Address(programOwner))
         .setProgramNamespace(new AddressOrNamespace(new Address(programNamespace)));
     if (initializedSupply !== undefined) {
-        instructionBuilder.setInitializedSupply(bigIntToHexString(BigInt(initializedSupply)));
+        instructionBuilder.setInitializedSupply(formatBigIntToHex(BigInt(initializedSupply)));
     }
     if (totalSupply !== undefined) {
-        instructionBuilder.setTotalSupply(bigIntToHexString(BigInt(totalSupply)));
+        instructionBuilder.setTotalSupply(formatBigIntToHex(BigInt(totalSupply)));
     }
     if (distributionInstruction !== undefined) {
         instructionBuilder.addTokenDistribution(distributionInstruction);
@@ -38,12 +38,12 @@ export function buildTokenDistributionInstruction({ programId, initializedSupply
         .setProgramId(new AddressOrNamespace(new Address(programId)))
         .setReceiver(new AddressOrNamespace(new Address(to)));
     if (!nonFungible) {
-        tokenDistributionBuilder.setAmount(bigIntToHexString(BigInt(initializedSupply)));
+        tokenDistributionBuilder.setAmount(formatBigIntToHex(BigInt(initializedSupply)));
     }
     else {
         const tokenIds = [];
         for (let i = 1; i <= parseInt(initializedSupply); i++) {
-            tokenIds.push(formatVerse(i.toString()));
+            tokenIds.push(formatAmountToHex(i.toString()));
         }
         tokenDistributionBuilder.extendTokenIds(tokenIds);
     }
@@ -68,20 +68,25 @@ export function buildMintInstructions({ from, programId, paymentTokenAddress, to
     return [transferToProgram, transferToCaller];
 }
 export function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }) {
-    const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
-    const fromAddressOrNamespace = new AddressOrNamespace(new Address(from));
-    const tokenAddressOrNamespace = new Address(tokenAddress);
-    const instructionBuilder = new TransferInstructionBuilder()
-        .setTransferFrom(fromAddressOrNamespace)
-        .setTransferTo(toAddressOrNamespace)
-        .setTokenAddress(tokenAddressOrNamespace);
-    if (tokenIds) {
-        instructionBuilder.addTokenIds(tokenIds);
+    try {
+        const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
+        const fromAddressOrNamespace = new AddressOrNamespace(new Address(from));
+        const tokenAddressOrNamespace = new Address(tokenAddress);
+        const instructionBuilder = new TransferInstructionBuilder()
+            .setTransferFrom(fromAddressOrNamespace)
+            .setTransferTo(toAddressOrNamespace)
+            .setTokenAddress(tokenAddressOrNamespace);
+        if (tokenIds) {
+            instructionBuilder.addTokenIds(tokenIds);
+        }
+        if (amount) {
+            instructionBuilder.setAmount(formatBigIntToHex(amount));
+        }
+        return instructionBuilder.build();
     }
-    if (amount) {
-        instructionBuilder.setAmount(bigIntToHexString(amount));
+    catch (e) {
+        throw e;
     }
-    return instructionBuilder.build();
 }
 export function buildTokenUpdateField({ field, value, action, }) {
     try {

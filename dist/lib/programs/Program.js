@@ -1,7 +1,7 @@
 import { buildCreateInstruction, buildProgramUpdateField, buildTokenDistributionInstruction, buildTokenUpdateField, buildUpdateInstruction, } from '../../lib/programs/instruction-builders/builder-helpers.js';
 import { THIS } from '../../lib/consts.js';
 import { Outputs } from '../../lib/programs/Outputs.js';
-import { formatVerse } from '../../lib/utils.js';
+import { formatAmountToHex } from '../../lib/utils.js';
 import { AddressOrNamespace } from '../../lib/programs/Address-Namespace.js';
 import { TokenOrProgramUpdate } from '../../lib/programs/Token.js';
 /**
@@ -21,8 +21,8 @@ export class Program {
         const { transaction } = computeInputs;
         const { transactionInputs, from } = transaction;
         const txInputs = JSON.parse(transactionInputs);
-        const totalSupply = formatVerse(txInputs?.totalSupply);
-        const initializedSupply = formatVerse(txInputs?.initializedSupply);
+        const totalSupply = formatAmountToHex(txInputs?.totalSupply);
+        const initializedSupply = formatAmountToHex(txInputs?.initializedSupply);
         const to = txInputs?.to ?? from;
         const symbol = txInputs?.symbol;
         const name = txInputs?.name;

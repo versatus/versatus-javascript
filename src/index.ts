@@ -51,14 +51,18 @@ export {
   THIS,
   ZERO_VALUE,
   LASR_RPC_URL_STABLE,
-  LASR_RPC_URL_TEST,
-  VIPFS_ADDRESS,
+  LASR_RPC_URL_UNSTABLE,
+  VIPFS_URL,
   FAUCET_URL,
   VERSE_PROGRAM_ADDRESS,
 } from './lib/consts'
 
 export { TokenUpdateBuilder } from './lib/programs/instruction-builders/builders'
 
-export { parseVerse, formatVerse } from './lib/utils'
+export {
+  parseAmountToBigInt,
+  formatAmountToHex,
+  getUndefinedProperties,
+} from './lib/utils'
 
 export { broadcast, getAccount } from './lib/versatus'

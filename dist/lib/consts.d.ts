@@ -1,9 +1,9 @@
 export declare const THIS = "this";
 export declare const ZERO_VALUE = "0x0000000000000000000000000000000000000000000000000000000000000000";
-export declare const LASR_RPC_URL_TEST = "http://lasr-sharks.versatus.io:9292";
+export declare const LASR_RPC_URL_UNSTABLE = "http://lasr-sharks.versatus.io:9292";
 export declare const LASR_RPC_URL_STABLE = "http://lasr-sharks.versatus.io:9292";
-export declare const VIPFS_ADDRESS_TEST = "167.99.20.121:5001";
-export declare const VIPFS_ADDRESS = "167.99.20.121:5001";
+export declare const VIPFS_URL_UNSTABLE = "167.99.20.121:5001";
+export declare const VIPFS_URL = "167.99.20.121:5001";
 export declare const ETH_PROGRAM_ADDRESS = "0x0000000000000000000000000000000000000000";
-export declare const VERSE_PROGRAM_ADDRESS = "0x0000000000000000000000000000000000000001";
+export declare const VERSE_PROGRAM_ADDRESS = "0xa60c7238d98c7ecef8659a18c2e8c6265327f280";
 export declare const FAUCET_URL = "https://faucet.versatus.io/";

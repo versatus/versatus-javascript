@@ -65,7 +65,7 @@ npx lasrctl test inputs
 ```
 #### 6) Create Account and Deploy Program
 ```bash
-npx lasrctl deploy --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 100 --totalSupply 100
+npx lasrctl deploy --author you --name myToken --symbol MYTOKEN --programName "My first token on LASR" --initializedSupply 10000000 --totalSupply 10000000 --inputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0xa60c7238d98c7ecef8659a18c2e8c6265327f280"}' --network stable
 ```
 _Note: the program deploy may fail on it's first attempt. If so, try it once more_
 

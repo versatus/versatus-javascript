@@ -7,7 +7,7 @@ import {
 } from './types'
 import { Wallet, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
-import { bigIntToHexString, formatVerse } from './utils'
+import { formatBigIntToHex, formatAmountToHex } from './utils'
 import { Address } from '@/lib/programs/Address-Namespace'
 import { getRPCForNetwork } from '@/lib/utils'
 
@@ -64,8 +64,8 @@ export async function broadcast(
       keccak256Hash.replace('0x', ''),
       privateKey
     )
-    const r = bigIntToHexString(signature.r)
-    const s = bigIntToHexString(signature.s)
+    const r = formatBigIntToHex(signature.r)
+    const s = formatBigIntToHex(signature.s)
     const recover = signature.recovery as number
 
     const transactionWithSignature: Transaction = {
@@ -168,7 +168,7 @@ export async function getAccount(
     if (result instanceof Error) {
       console.error(result.message)
       account = {
-        nonce: formatVerse('0'),
+        nonce: formatAmountToHex('0'),
         accountType: 'user',
         programAccountData: {},
         programs: {},
@@ -257,9 +257,9 @@ export function reorderTransactionKeys(
  */
 export function getNewNonce(nonce: string | undefined): string {
   if (!nonce) {
-    return formatVerse('0').toString()
+    return formatAmountToHex('0').toString()
   }
 
   const parsedNonce = BigInt(nonce)
-  return formatVerse((parsedNonce + BigInt(1)).toString())
+  return formatAmountToHex((parsedNonce + BigInt(1)).toString())
 }
