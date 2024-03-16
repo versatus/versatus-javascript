@@ -35,6 +35,7 @@ import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   formatVerse,
   getUndefinedProperties,
+  parseVerse,
 } from '@versatus/versatus-javascript/lib/utils'
 
 class FungibleTokenProgram extends Program {
@@ -109,12 +110,12 @@ class FungibleTokenProgram extends Program {
       // data
       const imgUrl = txInputs?.imgUrl
       const paymentProgramAddress = txInputs?.paymentProgramAddress
-      const price = txInputs?.price
+      const conversionRate = txInputs?.conversionRate
 
       const undefinedProperties = getUndefinedProperties({
         imgUrl,
         paymentProgramAddress,
-        price,
+        conversionRate,
         totalSupply,
         initializedSupply,
         symbol,
@@ -140,7 +141,7 @@ class FungibleTokenProgram extends Program {
         type: 'fungible',
         imgUrl,
         paymentProgramAddress,
-        price,
+        conversionRate,
       })
 
       const addTokenData = buildTokenUpdateField({
@@ -210,9 +211,10 @@ class FungibleTokenProgram extends Program {
     }
 
     const paymentProgramAddress = tokenData.paymentProgramAddress
-    const inputValue = BigInt(transaction.value)
-    const conversionRate = BigInt(tokenData.price)
-    const returnedValue = inputValue / conversionRate
+    const inputValue = parseVerse(transaction.value)
+    const conversionRate = parseVerse(tokenData.conversionRate)
+    const returnedValue: bigint =
+      BigInt(inputValue.toString()) * BigInt(conversionRate.toString())
 
     const mintInstructions = buildMintInstructions({
       from: transaction.from,
