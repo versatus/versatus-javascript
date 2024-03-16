@@ -8,7 +8,7 @@ import {
 } from '@/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@/lib/consts'
 import { Outputs } from '@/lib/programs/Outputs'
-import { formatVerse } from '@/lib/utils'
+import { formatAmountToHex } from '@/lib/utils'
 import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace'
 import { StatusValue, TokenOrProgramUpdate } from '@/lib/programs/Token'
 
@@ -36,8 +36,8 @@ export class Program {
     const { transaction } = computeInputs
     const { transactionInputs, from } = transaction
     const txInputs = JSON.parse(transactionInputs)
-    const totalSupply = formatVerse(txInputs?.totalSupply)
-    const initializedSupply = formatVerse(txInputs?.initializedSupply)
+    const totalSupply = formatAmountToHex(txInputs?.totalSupply)
+    const initializedSupply = formatAmountToHex(txInputs?.initializedSupply)
     const to = txInputs?.to ?? from
     const symbol = txInputs?.symbol
     const name = txInputs?.name

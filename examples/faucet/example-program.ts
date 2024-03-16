@@ -15,8 +15,8 @@ import {
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
-  formatVerse,
-  parseVerse,
+  formatAmountToHex,
+  parseAmountToBigInt,
 } from '@versatus/versatus-javascript/lib/utils'
 import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
 import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
@@ -38,10 +38,10 @@ export class FaucetProgram extends Program {
       const txInputs = JSON.parse(txInputsStr)
       const programToAdd = txInputs?.programAddress
       const flowAmountStr = txInputs?.flowAmount ?? '1'
-      const flowAmount = formatVerse(flowAmountStr)
+      const flowAmount = formatAmountToHex(flowAmountStr)
       const cycleTimeMin = txInputs?.cycleTimeMin ?? '1'
 
-      const amountToAdd = parseVerse(txInputs?.amountToAdd)
+      const amountToAdd = parseAmountToBigInt(txInputs?.amountToAdd)
       if (!amountToAdd) {
         throw new Error(
           'Please specify how much your adding to the faucet pool'
@@ -111,7 +111,7 @@ export class FaucetProgram extends Program {
     const faucetInitInstruction = buildTokenDistributionInstruction({
       programId: THIS,
       to: transaction.from,
-      initializedSupply: formatVerse('1'),
+      initializedSupply: formatAmountToHex('1'),
       tokenUpdates: [updateTokenMetadata],
     })
 
@@ -119,8 +119,8 @@ export class FaucetProgram extends Program {
       from: transaction.from,
       programId: THIS,
       programOwner: transaction.from,
-      totalSupply: formatVerse('1'),
-      initializedSupply: formatVerse('1'),
+      totalSupply: formatAmountToHex('1'),
+      initializedSupply: formatAmountToHex('1'),
       programNamespace: THIS,
       distributionInstruction: faucetInitInstruction,
     })
@@ -210,7 +210,9 @@ export class FaucetProgram extends Program {
       throw new Error('Faucet pipeData not found')
     }
 
-    const amountToFaucet = parseVerse(faucetProgramData.flowAmount ?? '1')
+    const amountToFaucet = parseAmountToBigInt(
+      faucetProgramData.flowAmount ?? '1'
+    )
     const cycleTimeMin = faucetProgramData.cycleTimeMin ?? '1'
     const recipients = faucetProgramDetails.recipients
 

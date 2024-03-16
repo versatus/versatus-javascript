@@ -1,78 +1,91 @@
 import { LASR_RPC_URL_STABLE, LASR_RPC_URL_UNSTABLE, VIPFS_URL, VIPFS_URL_UNSTABLE, } from '../lib/consts.js';
-/**
- * Formats a given number string into a hexadecimal string representation. If the input is already in hexadecimal format,
- * it ensures the result is properly padded and starts with '0x'. For decimal inputs, it scales the number by 1e18,
- * rounds it, and converts it to a hexadecimal string, ensuring the result is 64 characters long.
- *
- * This function supports inputs in both decimal and hexadecimal formats, addressing the versatility needed for
- * different numeric representations. It's particularly useful in contexts like blockchain and cryptography where
- * hexadecimal representation with specific formatting is often required.
- *
- * @param {string} numberString - The number string to format, which can be in decimal or hexadecimal format.
- * @returns {string} The formatted hexadecimal string with '0x' prefix and a total length of 66 characters, including the prefix.
- * Returns an empty string if formatting fails or the input is invalid.
- */
-export function formatVerse(numberString) {
+export function parseAmountToBigInt(input) {
+    try {
+        // Convert numeric input to a string if necessary
+        const decimalString = typeof input === 'number' ? input.toString() : input;
+        const parts = decimalString.split('.');
+        let whole = parts[0];
+        let fraction = parts[1] || '';
+        // Ensure the fraction part is not longer than 18 characters
+        if (fraction.length > 18) {
+            throw new Error('Fractional part exceeds 18 decimal places');
+        }
+        // Pad the fraction part to 18 characters to represent the value accurately
+        fraction = fraction.padEnd(18, '0');
+        // Combine the whole number and fraction parts and convert to BigInt
+        const combined = whole + fraction;
+        return BigInt(combined);
+    }
+    catch (error) {
+        console.error('Error parsing amount to BigInt:', error);
+        return BigInt(0); // Return a default value in case of error
+    }
+}
+export function formatAmountToHex(input) {
     try {
         let hexString;
-        // Check if input is already in hexadecimal format
-        if (numberString.startsWith('0x')) {
-            // Remove '0x' prefix for padding calculation
-            hexString = numberString.substring(2);
+        // Check if input is already in hexadecimal format (string type check is implicit)
+        if (typeof input === 'string' && input.startsWith('0x')) {
+            hexString = input.substring(2);
         }
         else {
-            // Handle decimal input
-            const floatNumber = parseFloat(numberString);
-            const scaledNumber = floatNumber * 1e18;
-            const scaledNumberBigInt = BigInt(Math.round(scaledNumber));
-            hexString = scaledNumberBigInt.toString(16);
+            // Convert input to a float, regardless of initial type (number or string)
+            const decimalNumber = typeof input === 'number' ? input : parseFloat(input);
+            const verseBigInt = BigInt(Math.round(decimalNumber * 1e18));
+            hexString = verseBigInt.toString(16);
         }
         // Pad the hex string to ensure it's 64 characters long
         hexString = hexString.padStart(64, '0');
+        // Prefix with '0x' to indicate hexadecimal format
         return '0x' + hexString;
     }
     catch (error) {
-        return '';
+        console.error('Error formatting amount to hex:', error);
+        return '0x' + '0'.repeat(64); // Return a default value in case of error
+    }
+}
+export function formatHexToAmount(hexString, units = 18) {
+    try {
+        if (!hexString.startsWith('0x')) {
+            throw new Error('Input must start with 0x');
+        }
+        // Remove '0x' prefix and convert hex to BigInt
+        const valueBigInt = BigInt(hexString);
+        // Calculate the divisor based on the units (e.g., 1e18 for 'verse')
+        const divisor = BigInt(10) ** BigInt(units);
+        // Calculate the whole part and the fractional part
+        const wholePart = valueBigInt / divisor;
+        const fractionalPart = valueBigInt % divisor;
+        // Format the fractional part with leading zeros and remove trailing zeros
+        let fractionalString = fractionalPart.toString().padStart(units, '0');
+        fractionalString = fractionalString.replace(/0+$/, '');
+        // Ensure there's at least one digit in the fractional part
+        if (fractionalString === '')
+            fractionalString = '0';
+        // Combine the whole part and fractional part
+        return `${wholePart.toString()}.${fractionalString}`;
+    }
+    catch (error) {
+        console.error('Error formatting hex to amount:', error);
+        return ''; // Return an empty string or appropriate error value in case of error
     }
 }
 /**
- * Parses a given number string, scaling it and converting it to a BigInt represented in hexadecimal format.
- * The function can handle inputs in both decimal format and hexadecimal format (prefixed with '0x'). For hexadecimal inputs,
- * it directly converts them to BigInt without scaling. For decimal inputs, it scales the number by a factor of 1e18,
- * addressing the precision and range necessary for handling large numbers and floating-point numbers in applications
- * such as blockchain and cryptography.
+ * Converts a BigInt value to a hexadecimal string representation.
  *
- * The hexadecimal representation is padded to ensure it is 64 characters long, making it suitable for specific
- * standards requiring fixed-length hexadecimal strings. This functionality makes the function versatile for various
- * numeric formats and applications, providing consistent handling and formatting of large and potentially complex numbers.
+ * This function takes a BigInt number as input and converts it into a
+ * hexadecimal string. The resulting string is padded to ensure a length
+ * of 64 characters, prefixed with `0x` to denote hexadecimal format.
+ * This can be particularly useful for representing large integers in a
+ * compact, readable format commonly used in various programming and
+ * cryptographic contexts.
  *
- * @param {string} numberString - The number string to parse and format. This string can represent a number in decimal format
- *                                or a hexadecimal string starting with '0x'.
- * @returns {BigInt} The parsed number as a BigInt in hexadecimal format, ensuring a consistent length of 64 characters for
- *                   the hexadecimal portion. Returns BigInt(0) if the input is invalid, ensuring robust error handling.
+ * @param {BigInt} bigintValue - The BigInt value to be converted to a
+ * hexadecimal string.
+ * @returns {string} The hexadecimal string representation of the input
+ * BigInt, prefixed with `0x` and padded to 64 characters.
  */
-export function parseVerse(numberString) {
-    try {
-        // Detect if the input is in hexadecimal format
-        if (numberString.startsWith('0x')) {
-            // If the input is a hexadecimal string, convert it directly to BigInt
-            return BigInt(numberString);
-        }
-        else {
-            // If the input is not in hexadecimal format, assume it's a decimal (floating-point or integer)
-            const floatNumber = parseFloat(numberString);
-            const scaledNumber = floatNumber * 1e18;
-            const scaledNumberBigInt = BigInt(Math.round(scaledNumber));
-            let hexString = scaledNumberBigInt.toString(16);
-            hexString = hexString.padStart(64, '0');
-            return BigInt('0x' + hexString);
-        }
-    }
-    catch (error) {
-        return BigInt(0);
-    }
-}
-export function bigIntToHexString(bigintValue) {
+export function formatBigIntToHex(bigintValue) {
     let hexString = bigintValue.toString(16);
     hexString = hexString.padStart(64, '0');
     return '0x' + hexString;

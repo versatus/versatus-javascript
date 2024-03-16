@@ -34,7 +34,7 @@ import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/i
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   getUndefinedProperties,
-  parseVerse,
+  parseAmountToBigInt,
 } from '@versatus/versatus-javascript/lib/utils'
 
 class NonFungibleTokenProgram extends Program {
@@ -243,7 +243,9 @@ class NonFungibleTokenProgram extends Program {
         tokenIds.push(availableTokenIds[i])
       }
 
-      const amountNeededToMint = parseVerse((price * quantity).toString())
+      const amountNeededToMint = parseAmountToBigInt(
+        (price * quantity).toString()
+      )
 
       const transferToProgram = buildTransferInstruction({
         from: transaction.from,

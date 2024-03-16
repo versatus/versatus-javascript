@@ -33,9 +33,9 @@ import {
 import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
-  formatVerse,
+  formatAmountToHex,
   getUndefinedProperties,
-  parseVerse,
+  parseAmountToBigInt,
 } from '@versatus/versatus-javascript/lib/utils'
 
 class FungibleTokenProgram extends Program {
@@ -101,8 +101,8 @@ class FungibleTokenProgram extends Program {
         throw new Error('missing token input datas')
       }
 
-      const totalSupply = formatVerse(txInputs?.totalSupply)
-      const initializedSupply = formatVerse(txInputs?.initializedSupply)
+      const totalSupply = formatAmountToHex(txInputs?.totalSupply)
+      const initializedSupply = formatAmountToHex(txInputs?.initializedSupply)
       const to = transaction.to
       const symbol = txInputs?.symbol
       const name = txInputs?.name
@@ -211,8 +211,8 @@ class FungibleTokenProgram extends Program {
     }
 
     const paymentProgramAddress = tokenData.paymentProgramAddress
-    const inputValue = parseVerse(transaction.value)
-    const conversionRate = parseVerse(tokenData.conversionRate)
+    const inputValue = parseAmountToBigInt(transaction.value)
+    const conversionRate = parseAmountToBigInt(tokenData.conversionRate)
     const returnedValue: bigint =
       BigInt(inputValue.toString()) * BigInt(conversionRate.toString())
 

@@ -37,7 +37,7 @@ import {
   ProgramMetadataRemove,
 } from '@/lib/programs/Program'
 import { THIS } from '@/lib/consts'
-import { bigIntToHexString, formatVerse } from '@/lib/utils'
+import { formatBigIntToHex, formatAmountToHex } from '@/lib/utils'
 import {
   ProgramField,
   ProgramUpdate,
@@ -63,7 +63,7 @@ export function buildBurnInstruction({
     .setCaller(new Address(caller))
     .setTokenAddress(new Address(tokenAddress))
     .setBurnFromAddress(new AddressOrNamespace(new Address(from)))
-    .setAmount(bigIntToHexString(BigInt(amount)))
+    .setAmount(formatBigIntToHex(BigInt(amount)))
     .build()
 }
 
@@ -90,12 +90,12 @@ export function buildCreateInstruction({
 
   if (initializedSupply !== undefined) {
     instructionBuilder.setInitializedSupply(
-      bigIntToHexString(BigInt(initializedSupply))
+      formatBigIntToHex(BigInt(initializedSupply))
     )
   }
 
   if (totalSupply !== undefined) {
-    instructionBuilder.setTotalSupply(bigIntToHexString(BigInt(totalSupply)))
+    instructionBuilder.setTotalSupply(formatBigIntToHex(BigInt(totalSupply)))
   }
 
   if (distributionInstruction !== undefined) {
@@ -132,12 +132,12 @@ export function buildTokenDistributionInstruction({
 
   if (!nonFungible) {
     tokenDistributionBuilder.setAmount(
-      bigIntToHexString(BigInt(initializedSupply))
+      formatBigIntToHex(BigInt(initializedSupply))
     )
   } else {
     const tokenIds = []
     for (let i = 1; i <= parseInt(initializedSupply); i++) {
-      tokenIds.push(formatVerse(i.toString()))
+      tokenIds.push(formatAmountToHex(i.toString()))
     }
     tokenDistributionBuilder.extendTokenIds(tokenIds)
   }
@@ -209,7 +209,7 @@ export function buildTransferInstruction({
     }
 
     if (amount) {
-      instructionBuilder.setAmount(bigIntToHexString(amount))
+      instructionBuilder.setAmount(formatBigIntToHex(amount))
     }
 
     return instructionBuilder.build()
