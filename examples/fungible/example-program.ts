@@ -211,10 +211,14 @@ class FungibleTokenProgram extends Program {
     }
 
     const paymentProgramAddress = tokenData.paymentProgramAddress
-    const inputValue = parseAmountToBigInt(transaction.value)
-    const conversionRate = parseAmountToBigInt(tokenData.conversionRate)
+    console.log(transaction.value)
+    const inputValue = BigInt(transaction.value)
+    console.log({ inputValue })
+    const conversionRate = tokenData.conversionRate
     const returnedValue: bigint =
       BigInt(inputValue.toString()) * BigInt(conversionRate.toString())
+
+    console.log({ returnedValue })
 
     const mintInstructions = buildMintInstructions({
       from: transaction.from,
