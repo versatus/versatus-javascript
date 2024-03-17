@@ -245,8 +245,12 @@ class NonFungibleTokenProgram extends Program {
 }
 
 const start = (input: ComputeInputs) => {
-  const contract = new NonFungibleTokenProgram()
-  return contract.start(input)
+  try {
+    const contract = new NonFungibleTokenProgram()
+    return contract.start(input)
+  } catch (e) {
+    throw e
+  }
 }
 
 process.stdin.setEncoding('utf8')
@@ -254,9 +258,17 @@ process.stdin.setEncoding('utf8')
 let data = ''
 
 process.stdin.on('readable', () => {
-  let chunk
-  while ((chunk = process.stdin.read()) !== null) {
-    data += chunk
+  try {
+    let chunk
+
+    while ((chunk = process.stdin.read()) !== null) {
+      data += chunk
+    }
+    while ((chunk = process.stderr.read()) !== null) {
+      data += chunk
+    }
+  } catch (e) {
+    throw e
   }
 })
 
@@ -266,6 +278,7 @@ process.stdin.on('end', () => {
     const result = start(parsedData)
     process.stdout.write(JSON.stringify(result))
   } catch (err) {
-    console.error('Failed to parse JSON input:', err)
+    // @ts-ignore
+    process.stdout.write(err.message)
   }
 })
