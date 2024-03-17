@@ -322,4 +322,3 @@ process.stdin.on('end', () => {
     process.stdout.write(err.message)
   }
 })
-)
