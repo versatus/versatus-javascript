@@ -307,9 +307,6 @@ process.stdin.on('readable', () => {
     while ((chunk = process.stdin.read()) !== null) {
       data += chunk
     }
-    while ((chunk = process.stderr.read()) !== null) {
-      data += chunk
-    }
   } catch (e) {
     throw e
   }
@@ -325,3 +322,4 @@ process.stdin.on('end', () => {
     process.stdout.write(err.message)
   }
 })
+)

@@ -212,7 +212,7 @@ class NonFungibleTokenProgram extends Program {
       )
 
       const quantityAvailable = validate(
-        Number(availableTokenIds?.length),
+        parseInt(availableTokenIds?.length),
         'minted out...'
       )
 
@@ -220,12 +220,12 @@ class NonFungibleTokenProgram extends Program {
       const parsedInputMetadata = JSON.parse(transactionInputs)
 
       const quantity = validate(
-        Number(parsedInputMetadata?.quantity),
+        parseInt(parsedInputMetadata?.quantity),
         'please specify a quantity'
       )
 
       validate(
-        quantity >= quantityAvailable,
+        quantity <= quantityAvailable,
         'not enough supply for quantity desired'
       )
 
@@ -272,9 +272,6 @@ process.stdin.on('readable', () => {
     let chunk
 
     while ((chunk = process.stdin.read()) !== null) {
-      data += chunk
-    }
-    while ((chunk = process.stderr.read()) !== null) {
       data += chunk
     }
   } catch (e) {
