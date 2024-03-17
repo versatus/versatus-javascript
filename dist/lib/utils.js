@@ -100,7 +100,8 @@ export function formatAmountToHex(input) {
         return '0x' + hexString;
     }
     catch (error) {
-        throw new Error('Error formatting amount to hex');
+        // Prefix with '0x' to indicate hexadecimal format
+        return '0x' + ''.padStart(64, '0');
     }
 }
 /**

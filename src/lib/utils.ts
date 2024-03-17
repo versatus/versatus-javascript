@@ -113,7 +113,8 @@ export function formatAmountToHex(input: number | string): string {
     // Prefix with '0x' to indicate hexadecimal format
     return '0x' + hexString
   } catch (error) {
-    throw new Error('Error formatting amount to hex')
+    // Prefix with '0x' to indicate hexadecimal format
+    return '0x' + ''.padStart(64, '0')
   }
 }
 
