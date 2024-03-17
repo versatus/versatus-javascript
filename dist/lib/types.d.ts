@@ -1,7 +1,7 @@
-import { ApprovalsExtend, ApprovalsInsert, ApprovalsRemove, ApprovalsRevoke, ApprovalsValue, StatusValue } from '@/lib/programs/Token';
-import { TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenDataValue, TokenIdExtend, TokenIdInsert, TokenIdPop, TokenIdPush, TokenIdValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenMetadataValue } from '@/lib/programs/Token';
-import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramDataValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramMetadataValue } from '@/lib/programs/Program';
-import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace';
+import { ApprovalsExtend, ApprovalsInsert, ApprovalsRemove, ApprovalsRevoke, ApprovalsValue, StatusValue } from '../lib/programs/Token';
+import { TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenDataValue, TokenIdExtend, TokenIdInsert, TokenIdPop, TokenIdPush, TokenIdValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenMetadataValue } from '../lib/programs/Token';
+import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramDataValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramMetadataValue } from '../lib/programs/Program';
+import { Address, AddressOrNamespace } from '../lib/programs/Address-Namespace';
 export type AccountType = 'user' | {
     Program: string;
 };
