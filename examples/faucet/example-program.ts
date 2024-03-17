@@ -7,11 +7,11 @@ import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 
 import {
   buildCreateInstruction,
-  buildTransferInstruction,
   buildProgramUpdateField,
-  buildUpdateInstruction,
-  buildTokenUpdateField,
   buildTokenDistributionInstruction,
+  buildTokenUpdateField,
+  buildTransferInstruction,
+  buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
@@ -36,51 +36,43 @@ export class FaucetProgram extends Program {
     try {
       const { transaction, accountInfo } = computeInputs
       const { transactionInputs, from } = transaction
-      const txInputs = JSON.parse(transactionInputs)
 
-      const { programAddress, faucetAmount, addressTimeout } = txInputs
+      const { programAccountData } = accountInfo
 
-      const programToAdd = txInputs?.programAddress
-      const flowAmountStr = txInputs?.flowAmount ?? '1'
-      const flowAmount = formatAmountToHex(flowAmountStr)
-      const cycleTimeMin = txInputs?.cycleTimeMin ?? '1'
-
-      const amountToAdd = parseAmountToBigInt(txInputs?.faucetAmount)
-      if (!amountToAdd) {
-        throw new Error(
-          'Please specify how much your adding to the faucet pool'
-        )
-      }
-
-      const currProgramInfo = validate(
-        computeInputs.accountInfo?.programs[transaction.to],
-        'Please specify how much your adding to the faucet pool'
+      const txInputs = validate(
+        JSON.parse(transactionInputs),
+        'transaction inputs not parsable'
       )
+
+      const { programAddress, faucetAmount, amountToAdd, addressTimeout } =
+        txInputs
 
       const transferToFaucetInstruction = buildTransferInstruction({
         from: from,
         to: 'this',
-        tokenAddress: programToAdd,
-        amount: amountToAdd,
+        tokenAddress: programAddress,
+        amount: parseAmountToBigInt(amountToAdd),
       })
 
-      const faucetAccountData = accountInfo?.programAccountData
-      const faucetProgramsStr = faucetAccountData?.programs
-      if (!faucetProgramsStr) {
-        throw new Error('Please create the program first.')
-      }
+      const faucetProgramsStr = validate(
+        programAccountData?.programs,
+        'Please create the program first.'
+      )
 
-      const faucetPrograms = JSON.parse(faucetProgramsStr)
+      const faucetPrograms = validate(
+        JSON.parse(faucetProgramsStr),
+        "couldn't parse the faucet's account programs"
+      )
 
       const faucetUpdate = buildProgramUpdateField({
         field: 'data',
         value: JSON.stringify({
           programs: JSON.stringify({
             ...faucetPrograms,
-            [programToAdd]: JSON.stringify({
+            [programAddress]: JSON.stringify({
               pipeData: JSON.stringify({
-                flowAmount,
-                cycleTimeMin,
+                faucetAmount: formatAmountToHex(faucetAmount),
+                addressTimeout,
               }),
               recipients: JSON.stringify({}),
             }),
@@ -296,8 +288,12 @@ function canClaimTokens(
 }
 
 const start = (input: ComputeInputs) => {
-  const contract = new FaucetProgram()
-  return contract.start(input)
+  try {
+    const contract = new FaucetProgram()
+    return contract.start(input)
+  } catch (e) {
+    throw e
+  }
 }
 
 process.stdin.setEncoding('utf8')
@@ -305,9 +301,17 @@ process.stdin.setEncoding('utf8')
 let data = ''
 
 process.stdin.on('readable', () => {
-  let chunk
-  while ((chunk = process.stdin.read()) !== null) {
-    data += chunk
+  try {
+    let chunk
+
+    while ((chunk = process.stdin.read()) !== null) {
+      data += chunk
+    }
+    while ((chunk = process.stderr.read()) !== null) {
+      data += chunk
+    }
+  } catch (e) {
+    throw e
   }
 })
 
@@ -317,6 +321,7 @@ process.stdin.on('end', () => {
     const result = start(parsedData)
     process.stdout.write(JSON.stringify(result))
   } catch (err) {
-    console.error('Failed to parse JSON input:', err)
+    // @ts-ignore
+    process.stdout.write(err.message)
   }
 })

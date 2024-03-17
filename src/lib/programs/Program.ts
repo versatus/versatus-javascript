@@ -138,50 +138,43 @@ export class Program {
    * @param computeInputs
    */
   update(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const { transactionInputs } = transaction
-    const parsedTransactionInputs = JSON.parse(transactionInputs)
-
-    const data = parsedTransactionInputs?.data ?? undefined
-    const metadata = parsedTransactionInputs?.metadata ?? undefined
-    // const status = parsedTransactionInputs?.status ?? ''
-
-    const programUpdates = []
-
-    if (metadata) {
-      const fieldUpdate = buildProgramUpdateField({
-        field: 'metadata',
-        value: JSON.stringify(metadata),
-        action: 'extend',
-      })
-      if (fieldUpdate instanceof Error) {
-        throw fieldUpdate
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs } = transaction
+      const txInputs = JSON.parse(transactionInputs)
+      const { data, metadata } = txInputs
+      const programUpdates = []
+      if (metadata) {
+        const fieldUpdate = buildProgramUpdateField({
+          field: 'metadata',
+          value: JSON.stringify(metadata),
+          action: 'extend',
+        })
+        programUpdates.push(fieldUpdate)
       }
-      programUpdates.push(fieldUpdate)
-    }
 
-    if (data) {
-      const fieldUpdate = buildProgramUpdateField({
-        field: 'data',
-        value: JSON.stringify(data),
-        action: 'extend',
-      })
-      if (fieldUpdate instanceof Error) {
-        throw fieldUpdate
+      if (data) {
+        const fieldUpdate = buildProgramUpdateField({
+          field: 'data',
+          value: JSON.stringify(data),
+          action: 'extend',
+        })
+        programUpdates.push(fieldUpdate)
       }
-      programUpdates.push(fieldUpdate)
+
+      const programMetadataUpdateInstruction = buildUpdateInstruction({
+        update: new TokenOrProgramUpdate(
+          'programUpdate',
+          new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
+        ),
+      })
+
+      return new Outputs(computeInputs, [
+        programMetadataUpdateInstruction,
+      ]).toJson()
+    } catch (e) {
+      throw e
     }
-
-    const programMetadataUpdateInstruction = buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
-      ),
-    })
-
-    return new Outputs(computeInputs, [
-      programMetadataUpdateInstruction,
-    ]).toJson()
   }
 }
 
