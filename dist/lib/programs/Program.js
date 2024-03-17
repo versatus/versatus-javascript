@@ -93,7 +93,12 @@ export class Program {
      * @param computeInputs
      */
     start(computeInputs) {
-        return this.executeMethod(computeInputs);
+        try {
+            return this.executeMethod(computeInputs);
+        }
+        catch (e) {
+            throw e;
+        }
     }
     /**
      * Updates the program with the provided inputs.

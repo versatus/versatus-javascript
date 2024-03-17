@@ -125,7 +125,11 @@ export class Program {
    * @param computeInputs
    */
   start(computeInputs: ComputeInputs) {
-    return this.executeMethod(computeInputs)
+    try {
+      return this.executeMethod(computeInputs)
+    } catch (e) {
+      throw e
+    }
   }
 
   /**

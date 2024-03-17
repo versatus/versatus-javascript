@@ -100,8 +100,7 @@ export function formatAmountToHex(input) {
         return '0x' + hexString;
     }
     catch (error) {
-        console.error('Error formatting amount to hex:', error);
-        return '0x' + '0'.repeat(64); // Return a default value in case of error
+        throw new Error('Error formatting amount to hex');
     }
 }
 /**
@@ -196,6 +195,39 @@ export function getUndefinedProperties(obj) {
         .filter(([, value]) => value === undefined)
         .map(([key]) => key);
 }
+export function checkIfValuesAreUndefined(neededValues) {
+    try {
+        const undefinedProperties = getUndefinedProperties(neededValues);
+        if (undefinedProperties.length > 0) {
+            throw new Error(`The following properties are undefined: ${undefinedProperties.join(', ')}`);
+        }
+    }
+    catch (e) {
+        throw e;
+    }
+}
+export const validate = (criteria, errorString) => {
+    try {
+        if (!criteria) {
+            throw Error(errorString);
+        }
+        else {
+            return criteria;
+        }
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const validateAndCreateJsonString = (neededValues) => {
+    try {
+        checkIfValuesAreUndefined(neededValues);
+        return JSON.stringify(neededValues);
+    }
+    catch (e) {
+        throw e;
+    }
+};
 /**
  * Retrieves the RPC (Remote Procedure Call) URL for interacting with a blockchain network,
  * based on the specified network type. This function supports dynamic selection between

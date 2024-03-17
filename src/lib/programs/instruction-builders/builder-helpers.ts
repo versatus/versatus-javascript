@@ -18,10 +18,12 @@ import {
   TokenMetadataInsert,
   TokenMetadataRemove,
   TokenOrProgramUpdate,
+  TokenUpdate,
   TokenUpdateField,
 } from '@/lib/programs/Token'
 
 import {
+  Account,
   ProgramFieldValues,
   ProgramUpdateValueTypes,
   TokenFieldValues,
@@ -43,7 +45,11 @@ import {
   ProgramUpdate,
   ProgramUpdateField,
 } from '@/lib/programs/Program'
-import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace'
+import {
+  Address,
+  AddressOrNamespace,
+  Namespace,
+} from '@/lib/programs/Address-Namespace'
 
 export function buildBurnInstruction({
   from,
@@ -83,26 +89,32 @@ export function buildCreateInstruction({
   programNamespace: string
   distributionInstruction?: TokenDistribution
 }) {
-  const instructionBuilder = new CreateInstructionBuilder()
-    .setProgramId(new AddressOrNamespace(new Address(programId)))
-    .setProgramOwner(new Address(programOwner))
-    .setProgramNamespace(new AddressOrNamespace(new Address(programNamespace)))
+  try {
+    const instructionBuilder = new CreateInstructionBuilder()
+      .setProgramId(new AddressOrNamespace(new Address(programId)))
+      .setProgramOwner(new Address(programOwner))
+      .setProgramNamespace(
+        new AddressOrNamespace(new Address(programNamespace))
+      )
 
-  if (initializedSupply !== undefined) {
-    instructionBuilder.setInitializedSupply(
-      formatBigIntToHex(BigInt(initializedSupply))
-    )
+    if (initializedSupply !== undefined) {
+      instructionBuilder.setInitializedSupply(
+        formatBigIntToHex(BigInt(initializedSupply))
+      )
+    }
+
+    if (totalSupply !== undefined) {
+      instructionBuilder.setTotalSupply(formatBigIntToHex(BigInt(totalSupply)))
+    }
+
+    if (distributionInstruction !== undefined) {
+      instructionBuilder.addTokenDistribution(distributionInstruction)
+    }
+
+    return instructionBuilder.build()
+  } catch (e) {
+    throw e
   }
-
-  if (totalSupply !== undefined) {
-    instructionBuilder.setTotalSupply(formatBigIntToHex(BigInt(totalSupply)))
-  }
-
-  if (distributionInstruction !== undefined) {
-    instructionBuilder.addTokenDistribution(distributionInstruction)
-  }
-
-  return instructionBuilder.build()
 }
 
 export function buildUpdateInstruction({
@@ -153,32 +165,54 @@ export function buildMintInstructions({
   from,
   programId,
   paymentTokenAddress,
-  tokenIds,
   inputValue,
+  returnedTokenIds,
   returnedValue,
 }: {
   from: string
   programId: string
   paymentTokenAddress: string
-  tokenIds?: string[]
   inputValue: BigInt
-  returnedValue: BigInt
+  returnedTokenIds?: string[]
+  returnedValue?: BigInt
 }) {
-  const transferToProgram = buildTransferInstruction({
-    from: from,
-    to: 'this',
-    tokenAddress: paymentTokenAddress,
-    amount: inputValue,
-  })
+  try {
+    const transferToProgram = buildTransferInstruction({
+      from: from,
+      to: 'this',
+      tokenAddress: paymentTokenAddress,
+      amount: inputValue,
+    })
 
-  const transferToCaller = buildTransferInstruction({
-    from: 'this',
-    to: from,
-    tokenAddress: programId,
-    amount: returnedValue,
-  })
+    const mintTransferArguments: {
+      from: string
+      to: string
+      tokenAddress: string
+      amount?: BigInt
+      tokenIds?: string[]
+    } = {
+      from: 'this',
+      to: from,
+      tokenAddress: programId,
+      amount: returnedValue,
+    }
 
-  return [transferToProgram, transferToCaller]
+    if (returnedValue) {
+      mintTransferArguments.amount = returnedValue
+    } else if (returnedTokenIds) {
+      mintTransferArguments.tokenIds = returnedTokenIds
+    } else {
+      throw new Error(
+        'invalid mint builder arguments. missing amount or tokenIds'
+      )
+    }
+
+    const transferToCaller = buildTransferInstruction(mintTransferArguments)
+
+    return [transferToProgram, transferToCaller]
+  } catch (e) {
+    throw e
+  }
 }
 
 export function buildTransferInstruction({
@@ -323,20 +357,33 @@ export function buildProgramUpdateField({
 }
 
 export function buildTokenMetadataUpdateInstruction({
+  accountAddress,
+  tokenAddress,
   transactionInputs,
 }: {
+  accountAddress: Address | Namespace | 'this'
+  tokenAddress: Address | Namespace | 'this'
   transactionInputs: string
 }) {
-  const tokenUpdateField = buildTokenUpdateField({
-    field: 'metadata',
-    value: transactionInputs,
-    action: 'extend',
-  })
-  if (tokenUpdateField instanceof Error) {
-    throw tokenUpdateField
+  try {
+    const tokenUpdateField = buildTokenUpdateField({
+      field: 'metadata',
+      value: transactionInputs,
+      action: 'extend',
+    })
+    return buildUpdateInstruction({
+      update: new TokenOrProgramUpdate(
+        'tokenUpdate',
+        new TokenUpdate(
+          new AddressOrNamespace(accountAddress),
+          new AddressOrNamespace(tokenAddress),
+          [tokenUpdateField]
+        )
+      ),
+    })
+  } catch (e) {
+    throw e
   }
-
-  return [tokenUpdateField]
 }
 
 export function buildProgramMetadataUpdateInstruction({
@@ -344,22 +391,20 @@ export function buildProgramMetadataUpdateInstruction({
 }: {
   transactionInputs: string
 }) {
-  const programUpdateField = buildProgramUpdateField({
-    field: 'metadata',
-    value: transactionInputs,
-    action: 'extend',
-  })
+  try {
+    const programUpdateField = buildProgramUpdateField({
+      field: 'metadata',
+      value: transactionInputs,
+      action: 'extend',
+    })
 
-  if (programUpdateField instanceof Error) {
-    throw programUpdateField
+    return buildUpdateInstruction({
+      update: new TokenOrProgramUpdate(
+        'programUpdate',
+        new ProgramUpdate(new AddressOrNamespace(THIS), [programUpdateField])
+      ),
+    })
+  } catch (e) {
+    throw e
   }
-
-  const programUpdates = [programUpdateField]
-
-  return buildUpdateInstruction({
-    update: new TokenOrProgramUpdate(
-      'programUpdate',
-      new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
-    ),
-  })
 }

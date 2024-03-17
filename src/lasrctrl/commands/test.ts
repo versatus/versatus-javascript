@@ -59,7 +59,7 @@ const test = async (argv: Arguments<TestCommandArgs>) => {
         const jsonFiles = files.filter((file) => path.extname(file) === '.json')
         const testPromises = jsonFiles.map((file) => {
           const filePath = path.join(inputPath, file)
-          return runTestProcess(filePath, target)
+          return runTestProcess(filePath, target, false)
         })
 
         const results = await Promise.allSettled(testPromises)
@@ -82,18 +82,18 @@ const test = async (argv: Arguments<TestCommandArgs>) => {
           }
         })
       } else if (stats.isFile()) {
-        await runTestProcess(inputPath, target)
+        await runTestProcess(inputPath, target, true)
       } else {
         console.error('The input path is neither a file nor a directory.')
         process.exit(1)
       }
     } catch (err) {
-      console.log(typeof err)
+      // console.log(typeof err)
       //@ts-ignore
-      if (typeof err === 'string' && err.indexOf('Error: ') > -1) {
-        //@ts-ignore
-        err = err.split('Error: ')[1].split('\n')[0]
-      }
+      // if (typeof err === 'string' && err.indexOf('Error: ') > -1) {
+      //   //@ts-ignore
+      //   err = err.split('Error: ')[1].split('\n')[0]
+      // }
       // @ts-ignore
       console.log(`\x1b[0;31m${err}\x1b[0m`)
       process.exit(1)

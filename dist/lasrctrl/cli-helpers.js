@@ -154,11 +154,17 @@ export async function callProgram(programAddress, op, inputs, network, secretKey
     const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress}`;
     return await runCommand(command);
 }
-export function runTestProcess(inputJsonPath, target = 'node') {
+export function runTestProcess(inputJsonPath, target = 'node', showOutput = true) {
     return new Promise((resolve, reject) => {
         let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd();
         const testScriptPath = path.resolve(scriptDir, 'scripts', target === 'node' ? 'test-node.sh' : 'test-wasm.sh');
-        const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
+        const isFailureTest = inputJsonPath.includes('fail');
+        const testProcess = spawn('bash', [
+            testScriptPath,
+            inputJsonPath,
+            String(showOutput),
+            String(isFailureTest),
+        ], {
             stdio: ['inherit', 'inherit', 'pipe'],
         });
         let errorOutput = '';

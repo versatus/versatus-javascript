@@ -17,6 +17,7 @@ import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
   formatAmountToHex,
   parseAmountToBigInt,
+  validate,
 } from '@versatus/versatus-javascript/lib/utils'
 import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
 import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
@@ -34,19 +35,27 @@ export class FaucetProgram extends Program {
   addProgram(computeInputs: ComputeInputs) {
     try {
       const { transaction, accountInfo } = computeInputs
-      const { transactionInputs: txInputsStr, from } = transaction
-      const txInputs = JSON.parse(txInputsStr)
+      const { transactionInputs, from } = transaction
+      const txInputs = JSON.parse(transactionInputs)
+
+      const { programAddress, faucetAmount, addressTimeout } = txInputs
+
       const programToAdd = txInputs?.programAddress
       const flowAmountStr = txInputs?.flowAmount ?? '1'
       const flowAmount = formatAmountToHex(flowAmountStr)
       const cycleTimeMin = txInputs?.cycleTimeMin ?? '1'
 
-      const amountToAdd = parseAmountToBigInt(txInputs?.amountToAdd)
+      const amountToAdd = parseAmountToBigInt(txInputs?.faucetAmount)
       if (!amountToAdd) {
         throw new Error(
           'Please specify how much your adding to the faucet pool'
         )
       }
+
+      const currProgramInfo = validate(
+        computeInputs.accountInfo?.programs[transaction.to],
+        'Please specify how much your adding to the faucet pool'
+      )
 
       const transferToFaucetInstruction = buildTransferInstruction({
         from: from,

@@ -3,16 +3,13 @@ import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
 import {
   buildBurnInstruction,
   buildCreateInstruction,
+  buildMintInstructions,
   buildProgramUpdateField,
   buildTokenDistributionInstruction,
   buildTokenUpdateField,
-  buildTransferInstruction,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
-import {
-  ETH_PROGRAM_ADDRESS,
-  THIS,
-} from '@versatus/versatus-javascript/lib/consts'
+import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
   Program,
   ProgramUpdate,
@@ -33,8 +30,9 @@ import {
 import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
-  getUndefinedProperties,
   parseAmountToBigInt,
+  validate,
+  validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
 
 class NonFungibleTokenProgram extends Program {
@@ -95,11 +93,11 @@ class NonFungibleTokenProgram extends Program {
     try {
       const { transaction } = computeInputs
       const { transactionInputs, from } = transaction
-      const txInputs = JSON.parse(transactionInputs)
+      const txInputs = validate(
+        JSON.parse(transactionInputs),
+        'unable to parse transactionInputs'
+      )
 
-      if (!txInputs) {
-        throw new Error('missing token input datas')
-      }
       // metadata
       const totalSupply = txInputs?.totalSupply
       const initializedSupply = txInputs?.initializedSupply
@@ -111,24 +109,9 @@ class NonFungibleTokenProgram extends Program {
       const paymentProgramAddress = txInputs?.paymentProgramAddress
       const price = txInputs?.price
 
-      const undefinedProperties = getUndefinedProperties({
-        imgUrl,
-        paymentProgramAddress,
-        price,
-        totalSupply,
-        initializedSupply,
-        symbol,
-        name,
-      })
-      if (undefinedProperties.length > 0) {
-        throw new Error(
-          `The following properties are undefined: ${undefinedProperties.join(
-            ', '
-          )}`
-        )
-      }
+      validate(parseFloat(price), 'invalid price')
 
-      const metadataStr = JSON.stringify({
+      const metadataStr = validateAndCreateJsonString({
         symbol,
         name,
         totalSupply,
@@ -141,7 +124,7 @@ class NonFungibleTokenProgram extends Program {
         action: 'extend',
       })
 
-      const dataStr = JSON.stringify({
+      const dataStr = validateAndCreateJsonString({
         type: 'non-fungible',
         imgUrl,
         paymentProgramAddress,
@@ -200,42 +183,41 @@ class NonFungibleTokenProgram extends Program {
   mint(computeInputs: ComputeInputs) {
     try {
       const { transaction } = computeInputs
-      const currProgramInfo =
-        computeInputs.accountInfo?.programs[transaction.to]
+      const currProgramInfo = validate(
+        computeInputs.accountInfo?.programs[transaction.to],
+        'token missing from self...'
+      )
 
-      if (!currProgramInfo) {
-        throw new Error('token missing from self...')
-      }
-
-      const tokenData = currProgramInfo.data
-      if (!tokenData) {
-        throw new Error('token missing required data to mint...')
-      }
+      const tokenData = validate(
+        currProgramInfo?.data,
+        'token missing required data to mint...'
+      )
 
       const price = parseInt(tokenData.price)
       const paymentProgramAddress = tokenData.paymentProgramAddress
 
-      const availableTokenIds = currProgramInfo?.tokenIds
-      if (!availableTokenIds) {
-        throw new Error('missing nfts to mint...')
-      }
+      const availableTokenIds = validate(
+        currProgramInfo?.tokenIds,
+        'missing nfts to mint...'
+      )
 
-      const quantityAvailable = Number(availableTokenIds?.length)
-      if (!quantityAvailable) {
-        throw new Error('minted out...')
-      }
+      const quantityAvailable = validate(
+        Number(availableTokenIds?.length),
+        'minted out...'
+      )
 
       const { transactionInputs } = transaction
       const parsedInputMetadata = JSON.parse(transactionInputs)
 
-      const quantity = parsedInputMetadata?.quantity
-      if (!quantity) {
-        throw new Error('please specify a quantity')
-      }
+      const quantity = validate(
+        Number(parsedInputMetadata?.quantity),
+        'please specify a quantity'
+      )
 
-      if (quantity > quantityAvailable) {
-        throw new Error('not enough supply for quantity desired')
-      }
+      validate(
+        quantity >= quantityAvailable,
+        'not enough supply for quantity desired'
+      )
 
       const tokenIds = []
 
@@ -247,24 +229,15 @@ class NonFungibleTokenProgram extends Program {
         (price * quantity).toString()
       )
 
-      const transferToProgram = buildTransferInstruction({
+      const mintInstructions = buildMintInstructions({
         from: transaction.from,
-        to: 'this',
-        tokenAddress: paymentProgramAddress,
-        amount: amountNeededToMint,
+        programId: transaction.programId,
+        paymentTokenAddress: paymentProgramAddress,
+        inputValue: amountNeededToMint,
+        returnedTokenIds: tokenIds,
       })
 
-      const transferToCaller = buildTransferInstruction({
-        from: 'this',
-        to: transaction.from,
-        tokenAddress: transaction.to,
-        tokenIds,
-      })
-
-      return new Outputs(computeInputs, [
-        transferToProgram,
-        transferToCaller,
-      ]).toJson()
+      return new Outputs(computeInputs, mintInstructions).toJson()
     } catch (e) {
       throw e
     }

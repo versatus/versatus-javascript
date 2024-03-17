@@ -1,7 +1,7 @@
-import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '../../../lib/programs/Token';
-import { ProgramFieldValues, TokenFieldValues } from '../../../lib/types';
-import { ProgramUpdateField } from '../../../lib/programs/Program';
-import { Address } from '../../../lib/programs/Address-Namespace';
+import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '@/lib/programs/Token';
+import { ProgramFieldValues, TokenFieldValues } from '@/lib/types';
+import { ProgramUpdateField } from '@/lib/programs/Program';
+import { Address, Namespace } from '@/lib/programs/Address-Namespace';
 export declare function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }: {
     from: string;
     caller: string;
@@ -28,13 +28,13 @@ export declare function buildTokenDistributionInstruction({ programId, initializ
     tokenUpdates?: TokenUpdateField[];
     nonFungible?: boolean;
 }): TokenDistribution;
-export declare function buildMintInstructions({ from, programId, paymentTokenAddress, tokenIds, inputValue, returnedValue, }: {
+export declare function buildMintInstructions({ from, programId, paymentTokenAddress, inputValue, returnedTokenIds, returnedValue, }: {
     from: string;
     programId: string;
     paymentTokenAddress: string;
-    tokenIds?: string[];
     inputValue: BigInt;
-    returnedValue: BigInt;
+    returnedTokenIds?: string[];
+    returnedValue?: BigInt;
 }): import("..").Instruction[];
 export declare function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }: {
     from: string;
@@ -53,9 +53,11 @@ export declare function buildProgramUpdateField({ field, value, action, }: {
     value: string;
     action: 'insert' | 'extend' | 'remove';
 }): ProgramUpdateField;
-export declare function buildTokenMetadataUpdateInstruction({ transactionInputs, }: {
+export declare function buildTokenMetadataUpdateInstruction({ accountAddress, tokenAddress, transactionInputs, }: {
+    accountAddress: Address | Namespace | 'this';
+    tokenAddress: Address | Namespace | 'this';
     transactionInputs: string;
-}): TokenUpdateField[];
+}): import("..").Instruction;
 export declare function buildProgramMetadataUpdateInstruction({ transactionInputs, }: {
     transactionInputs: string;
 }): import("..").Instruction;

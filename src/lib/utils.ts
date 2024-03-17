@@ -113,8 +113,7 @@ export function formatAmountToHex(input: number | string): string {
     // Prefix with '0x' to indicate hexadecimal format
     return '0x' + hexString
   } catch (error) {
-    console.error('Error formatting amount to hex:', error)
-    return '0x' + '0'.repeat(64) // Return a default value in case of error
+    throw new Error('Error formatting amount to hex')
   }
 }
 
@@ -218,6 +217,47 @@ export function getUndefinedProperties(obj: Record<string, any>): string[] {
   return Object.entries(obj)
     .filter(([, value]) => value === undefined)
     .map(([key]) => key)
+}
+
+export function checkIfValuesAreUndefined(neededValues: Record<string, any>) {
+  try {
+    const undefinedProperties = getUndefinedProperties(neededValues)
+    if (undefinedProperties.length > 0) {
+      throw new Error(
+        `The following properties are undefined: ${undefinedProperties.join(
+          ', '
+        )}`
+      )
+    }
+  } catch (e) {
+    throw e
+  }
+}
+
+export const validate = (
+  criteria: any | boolean | undefined,
+  errorString: string
+): any | Error => {
+  try {
+    if (!criteria) {
+      throw Error(errorString)
+    } else {
+      return criteria
+    }
+  } catch (e) {
+    throw e
+  }
+}
+
+export const validateAndCreateJsonString = (
+  neededValues: Record<string, any>
+): string => {
+  try {
+    checkIfValuesAreUndefined(neededValues)
+    return JSON.stringify(neededValues)
+  } catch (e) {
+    throw e
+  }
 }
 
 /**

@@ -1,4 +1,4 @@
-import { NETWORK } from '../lib/types';
+import { NETWORK } from '@/lib/types';
 /**
  * Converts a numeric input (either a number or a string representation of a number) into a BigInt.
  * This function is particularly useful for handling large numbers that need to be represented accurately
@@ -120,6 +120,9 @@ export declare function formatBigIntToHex(bigintValue: BigInt): string;
  * // returns ['age', 'salary']
  */
 export declare function getUndefinedProperties(obj: Record<string, any>): string[];
+export declare function checkIfValuesAreUndefined(neededValues: Record<string, any>): void;
+export declare const validate: (criteria: any | boolean | undefined, errorString: string) => any | Error;
+export declare const validateAndCreateJsonString: (neededValues: Record<string, any>) => string;
 /**
  * Retrieves the RPC (Remote Procedure Call) URL for interacting with a blockchain network,
  * based on the specified network type. This function supports dynamic selection between

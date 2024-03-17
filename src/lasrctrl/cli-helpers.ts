@@ -241,7 +241,11 @@ export async function callProgram(
   return await runCommand(command)
 }
 
-export function runTestProcess(inputJsonPath: string, target = 'node') {
+export function runTestProcess(
+  inputJsonPath: string,
+  target = 'node',
+  showOutput = true
+) {
   return new Promise((resolve, reject) => {
     let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd()
     const testScriptPath = path.resolve(
@@ -250,9 +254,19 @@ export function runTestProcess(inputJsonPath: string, target = 'node') {
       target === 'node' ? 'test-node.sh' : 'test-wasm.sh'
     )
 
-    const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
-      stdio: ['inherit', 'inherit', 'pipe'],
-    })
+    const isFailureTest = inputJsonPath.includes('fail')
+    const testProcess = spawn(
+      'bash',
+      [
+        testScriptPath,
+        inputJsonPath,
+        String(showOutput),
+        String(isFailureTest),
+      ],
+      {
+        stdio: ['inherit', 'inherit', 'pipe'],
+      }
+    )
 
     let errorOutput = ''
 

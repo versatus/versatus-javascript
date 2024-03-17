@@ -1,6 +1,6 @@
-import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace';
-import { TokenDistribution, TokenOrProgramUpdate } from '../../lib/programs/Token';
-import { InstructionKinds } from '../../lib/types';
+import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace';
+import { TokenDistribution, TokenOrProgramUpdate } from '@/lib/programs/Token';
+import { InstructionKinds } from '@/lib/types';
 export declare class Instruction {
     private kind;
     private value;

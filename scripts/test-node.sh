@@ -14,6 +14,10 @@ if [ -z "$1" ]; then
     exit 1
 fi
 INPUT_JSON_PATH="$1"
+SHOW_OUTPUT="$2"
+IS_FAILURE_TEST="$3"
+TRUE="true"
+FALSE="false"
 
 # Check if the provided JSON input file exists
 if [ ! -f "$INPUT_JSON_PATH" ]; then
@@ -21,56 +25,80 @@ if [ ! -f "$INPUT_JSON_PATH" ]; then
     exit 1
 fi
 
-print_light_gray "Running the test with NODE..."
-
-#cat "$INPUT_JSON_PATH" | jq
-
+print_light_gray "Running test..."
 EXECUTE_RESPONSE=$(JSON_PAYLOAD=$(cat "$INPUT_JSON_PATH") && echo "$JSON_PAYLOAD" | node "$BUILD_NODE_PATH")
 EXECUTE_STATUS=$?
 
 if [ $EXECUTE_STATUS -eq 0 ]; then
     if [ -z "$EXECUTE_RESPONSE" ]; then
         print_error "Execution response is empty! ❌ "
-        print_light_gray "The contract method did not return any output. Please check your contract method. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
-        exit 1
+        if [ "$SHOW_OUTPUT" = "$FALSE" ]; then
+          if [ "$IS_FAILURE_TEST" = "$FALSE" ]; then
+            print_light_gray "The contract method did not return any output. Please check your contract method. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
+            exit 1
+          else
+            print_magenta "$EXECUTE_RESPONSE"
+            print_light_green "Fail test failed ✅ "
+          fi
+        fi
     else
-        print_light_gray "\nOutput:"
+        if [ "$SHOW_OUTPUT" = "$TRUE" ]; then
+          print_light_gray "\nOutput:"
+          print_light_gray "*******************************"
+          print_magenta "$EXECUTE_RESPONSE"
+          print_light_gray "*******************************"
+          echo
+          print_light_green "Contract method was successful ✅ "
+          echo
+        fi
+    fi
+
+    filename=$(basename "$INPUT_JSON_PATH")
+    print_light_gray "Validating the PROGRAM OUTPUT..."
+    VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE" 2>&1)
+    VALIDATION_STATUS=$?
+    if [ "$VALIDATION_STATUS" -eq 0 ]; then
         print_light_gray "*******************************"
-        print_magenta "$EXECUTE_RESPONSE"
+        print_light_green "Output is valid ✅ "
         print_light_gray "*******************************"
+        print_info  "Tested input: \033[0;33m$filename\033[0m"
         echo
-        print_light_green "Contract method was successful ✅ "
+        exit 0
+    else
+        print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
+
+        print_error "Output is invalid  ❌ "
+
+        if [ "$IS_FAILURE_TEST" = "$FALSE" ]; then
+            print_light_gray "Your contract method was successful but the output was incorrect. Please check the structure of your built instructions and try again. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
+            print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
+            print_info  "Tested input: \033[0;33m$filename\033[0m"
+            echo
+            exit 1
+        else
+        if [ "$SHOW_OUTPUT" = "$FALSE" ]; then
+            print_magenta "$EXECUTE_RESPONSE"
+        fi
+            print_light_green "Fail test failed ✅ "
+            print_info  "Tested input: \033[0;33m$filename\033[0m"
+            echo
+            exit 0
+        fi
         echo
     fi
 else
+          if [ "$IS_FAILURE_TEST" = "$FALSE" ]; then
+            print_light_gray "The contract method did not return any output. Please check your contract method. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
+            exit 1
+          else
+            print_magenta "$EXECUTE_RESPONSE"
+            print_light_green "Fail test failed ✅ "
+            exit 1
+          fi
     print_error "Contract method failed! ❌ "
     print_light_gray "Your contract method was unsuccessful. Please update your contract method and try again. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
     exit 1
 fi
 
-filename=$(basename "$INPUT_JSON_PATH")
-print_info  "Tested input: \033[0;33m$filename\033[0m"
-echo
-print_light_gray "Validating the PROGRAM OUTPUT..."
-VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE" 2>&1)
-VALIDATION_STATUS=$?
-
-if [ "$VALIDATION_STATUS" -eq 0 ]; then
-    print_light_gray "*******************************"
-    print_light_green "Output is valid ✅ "
-    print_light_gray "*******************************"
-    print_light_gray "Test complete."
-    exit 0
-else
-
-    print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
-    print_error "Output is invalid  ❌ "
-    print_cyan "$VALIDATION_RESPONSE"
-    print_light_gray "Your contract method was successful but the output was incorrect. Please check the structure of your built instructions and try again. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
-    print_warning "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*"
-    print_light_gray "Test complete."
-    echo
-    exit 1
-fi
 
 
