@@ -29,6 +29,9 @@ export {
   buildProgramUpdateField,
   buildTokenUpdateField,
   buildMintInstructions,
+  buildProgramMetadataUpdateInstruction,
+  buildProgramDataUpdateInstruction,
+  buildTokenMetadataUpdateInstruction,
 } from './lib/programs/instruction-builders/builder-helpers'
 
 export {

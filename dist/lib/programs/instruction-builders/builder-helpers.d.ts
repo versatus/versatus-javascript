@@ -61,3 +61,6 @@ export declare function buildTokenMetadataUpdateInstruction({ accountAddress, to
 export declare function buildProgramMetadataUpdateInstruction({ transactionInputs, }: {
     transactionInputs: string;
 }): import("..").Instruction;
+export declare function buildProgramDataUpdateInstruction({ transactionInputs, }: {
+    transactionInputs: string;
+}): import("..").Instruction;

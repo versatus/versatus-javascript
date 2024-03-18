@@ -238,3 +238,18 @@ export function buildProgramMetadataUpdateInstruction({ transactionInputs, }) {
         throw e;
     }
 }
+export function buildProgramDataUpdateInstruction({ transactionInputs, }) {
+    try {
+        const programUpdateField = buildProgramUpdateField({
+            field: 'metadata',
+            value: transactionInputs,
+            action: 'extend',
+        });
+        return buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), [programUpdateField])),
+        });
+    }
+    catch (e) {
+        throw e;
+    }
+}
