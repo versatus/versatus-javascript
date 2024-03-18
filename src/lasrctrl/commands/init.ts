@@ -36,16 +36,21 @@ export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
 const init = (argv: Arguments<InitCommandArgs>) => {
   console.log(
     `\x1b[0;33mInitializing example program: ${
-      argv.example || 'fungible' || 'non-fungible' || 'hello-lasr' || 'faucet'
+      argv.example ||
+      'blank' ||
+      'fungible' ||
+      'non-fungible' ||
+      'hello-lasr' ||
+      'faucet'
     }...\x1b[0m`
   )
   const isTsProject = isTypeScriptProject()
   const exampleDir = isInstalledPackage
-    ? path.resolve(installedPackagePath, 'examples', argv.example || 'fungible')
+    ? path.resolve(installedPackagePath, 'examples', argv.example || 'blank')
     : path.resolve(
         isTsProject ? process.cwd() : __dirname,
         'examples',
-        argv.example || 'fungible'
+        argv.example || 'blank'
       )
 
   const targetDir = process.cwd()
@@ -77,7 +82,7 @@ const init = (argv: Arguments<InitCommandArgs>) => {
   const inputsDir = path.join(
     isInstalledPackage ? installedPackagePath : process.cwd(),
     'examples',
-    argv.example || 'fungible',
+    argv.example || 'blank',
     'inputs'
   )
 

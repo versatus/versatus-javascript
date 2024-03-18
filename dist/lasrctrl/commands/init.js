@@ -19,11 +19,16 @@ export const initCommandFlags = (yargs) => {
     });
 };
 const init = (argv) => {
-    console.log(`\x1b[0;33mInitializing example program: ${argv.example || 'fungible' || 'non-fungible' || 'hello-lasr' || 'faucet'}...\x1b[0m`);
+    console.log(`\x1b[0;33mInitializing example program: ${argv.example ||
+        'blank' ||
+        'fungible' ||
+        'non-fungible' ||
+        'hello-lasr' ||
+        'faucet'}...\x1b[0m`);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
-        ? path.resolve(installedPackagePath, 'examples', argv.example || 'fungible')
-        : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'fungible');
+        ? path.resolve(installedPackagePath, 'examples', argv.example || 'blank')
+        : path.resolve(isTsProject ? process.cwd() : __dirname, 'examples', argv.example || 'blank');
     const targetDir = process.cwd();
     const targetFilePath = path.join(targetDir, isInstalledPackage ? '' : 'src', isTsProject ? 'example-program.ts' : 'example-program.js');
     fs.copyFileSync(path.join(exampleDir, isTsProject ? 'example-program.ts' : 'example-program.js'), targetFilePath);
@@ -33,7 +38,7 @@ const init = (argv) => {
         exampleContractContent = exampleContractContent.replace(importPathRegex, '@versatus/versatus-javascript');
     }
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
-    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'fungible', 'inputs');
+    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'blank', 'inputs');
     const targetInputsDir = path.join(targetDir, 'inputs');
     if (fs.existsSync(inputsDir)) {
         if (fs.existsSync(targetInputsDir)) {

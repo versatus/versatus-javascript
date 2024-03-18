@@ -8,7 +8,12 @@ import {
 } from '@/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@/lib/consts'
 import { Outputs } from '@/lib/programs/Outputs'
-import { formatAmountToHex } from '@/lib/utils'
+import {
+  checkIfValuesAreUndefined,
+  formatAmountToHex,
+  validate,
+  validateAndCreateJsonString,
+} from '@/lib/utils'
 import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace'
 import { StatusValue, TokenOrProgramUpdate } from '@/lib/programs/Token'
 
@@ -33,73 +38,97 @@ export class Program {
   }
 
   create(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const { transactionInputs, from } = transaction
-    const txInputs = JSON.parse(transactionInputs)
-    const totalSupply = formatAmountToHex(txInputs?.totalSupply)
-    const initializedSupply = formatAmountToHex(txInputs?.initializedSupply)
-    const to = txInputs?.to ?? from
-    const symbol = txInputs?.symbol
-    const name = txInputs?.name
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs, from, to } = transaction
+      const txInputs = validate(
+        JSON.parse(transactionInputs),
+        'unable to parse transactionInputs'
+      )
 
-    if (!totalSupply || !initializedSupply) {
-      throw new Error('Invalid totalSupply or initializedSupply')
+      const {
+        symbol,
+        name,
+        totalSupply,
+        initializedSupply: txInitializedSupply,
+        imgUrl,
+        paymentProgramAddress,
+        conversionRate,
+      } = txInputs
+
+      // metadata
+      const metadataStr = validateAndCreateJsonString({
+        symbol,
+        name,
+        totalSupply: formatAmountToHex(totalSupply),
+      })
+
+      // data
+      const dataStr = validateAndCreateJsonString({
+        type: 'fungible',
+        imgUrl,
+        paymentProgramAddress,
+        conversionRate,
+      })
+
+      const addTokenMetadata = buildTokenUpdateField({
+        field: 'metadata',
+        value: metadataStr,
+        action: 'extend',
+      })
+
+      const addTokenData = buildTokenUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const addProgramData = buildProgramUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const distributionInstruction = buildTokenDistributionInstruction({
+        programId: THIS,
+        initializedSupply: formatAmountToHex(txInitializedSupply),
+        to,
+        tokenUpdates: [addTokenMetadata, addTokenData],
+      })
+
+      const createAndDistributeInstruction = buildCreateInstruction({
+        from,
+        initializedSupply: formatAmountToHex(txInitializedSupply),
+        totalSupply,
+        programId: THIS,
+        programOwner: from,
+        programNamespace: THIS,
+        distributionInstruction,
+      })
+
+      const addProgramMetadata = buildProgramUpdateField({
+        field: 'metadata',
+        value: metadataStr,
+        action: 'extend',
+      })
+
+      const programUpdateInstruction = buildUpdateInstruction({
+        update: new TokenOrProgramUpdate(
+          'programUpdate',
+          new ProgramUpdate(new AddressOrNamespace(THIS), [
+            addProgramMetadata,
+            addProgramData,
+          ])
+        ),
+      })
+
+      return new Outputs(computeInputs, [
+        createAndDistributeInstruction,
+        programUpdateInstruction,
+      ]).toJson()
+    } catch (e) {
+      throw e
     }
-
-    if (!symbol || !name) {
-      throw new Error('Invalid symbol or name')
-    }
-
-    const tokenUpdateField = buildTokenUpdateField({
-      field: 'metadata',
-      value: JSON.stringify({ symbol, name, totalSupply }),
-      action: 'extend',
-    })
-    if (tokenUpdateField instanceof Error) {
-      throw tokenUpdateField
-    }
-    const tokenUpdates = [tokenUpdateField]
-
-    const programUpdateField = buildProgramUpdateField({
-      field: 'metadata',
-      value: JSON.stringify({ symbol, name, totalSupply }),
-      action: 'extend',
-    })
-
-    if (programUpdateField instanceof Error) {
-      throw programUpdateField
-    }
-
-    const programUpdates = [programUpdateField]
-
-    const programMetadataUpdateInstruction = buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
-      ),
-    })
-
-    const distributionInstruction = buildTokenDistributionInstruction({
-      programId: THIS,
-      initializedSupply,
-      to,
-      tokenUpdates,
-    })
-
-    const createAndDistributeInstruction = buildCreateInstruction({
-      from,
-      initializedSupply,
-      totalSupply,
-      programId: THIS,
-      programOwner: from,
-      programNamespace: THIS,
-      distributionInstruction,
-    })
-
-    return new Outputs(computeInputs, [
-      createAndDistributeInstruction,
-      programMetadataUpdateInstruction,
-    ]).toJson()
   }
 
   /**
