@@ -63,6 +63,11 @@ export {
   parseAmountToBigInt,
   formatAmountToHex,
   getUndefinedProperties,
+  validateAndCreateJsonString,
+  validate,
+  checkIfValuesAreUndefined,
+  formatBigIntToHex,
+  formatHexToAmount,
 } from './lib/utils'
 
 export { broadcast, getAccount } from './lib/versatus'
