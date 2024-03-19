@@ -26,10 +26,12 @@ export async function runBuildProcess(programFilePath) {
     await buildNode(programFilePath);
 }
 export async function buildNode(buildPath) {
+    const parsedPath = path.parse(buildPath);
+    const newFilename = `${parsedPath.name}.js`;
     const configPath = isInstalledPackage
         ? `${installedPackagePath}/webpack.config.js`
         : './webpack.config.js';
-    const webpackCommand = `npx webpack --config ${configPath} --entry ${buildPath}`;
+    const webpackCommand = `npx webpack --config ${configPath} --entry ${buildPath} --output-path ./build/lib --output-filename ${newFilename} --mode production`;
     exec(webpackCommand, (tscError, tscStdout, tscStderr) => {
         if (tscError) {
             console.error(`Error during TypeScript transpilation: ${tscError}`);
@@ -38,7 +40,7 @@ export async function buildNode(buildPath) {
         console.log('\x1b[0;37mBuild complete...\x1b[0m');
         console.log();
         console.log(`\x1b[0;35mReady to run:\x1b[0m`);
-        console.log(`\x1b[0;33mlasrctl test inputs\x1b[0m`);
+        console.log(`\x1b[0;33mlasrctl test ${parsedPath.name} inputs\x1b[0m`);
         console.log();
     });
 }
@@ -154,13 +156,14 @@ export async function callProgram(programAddress, op, inputs, network, secretKey
     const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress}`;
     return await runCommand(command);
 }
-export function runTestProcess(inputJsonPath, target = 'node', showOutput = true) {
+export function runTestProcess(programName, inputJsonPath, target = 'node', showOutput = true) {
     return new Promise((resolve, reject) => {
         let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd();
         const testScriptPath = path.resolve(scriptDir, 'scripts', target === 'node' ? 'test-node.sh' : 'test-wasm.sh');
         const isFailureTest = inputJsonPath.includes('fail');
         const testProcess = spawn('bash', [
             testScriptPath,
+            programName,
             inputJsonPath,
             String(showOutput),
             String(isFailureTest),

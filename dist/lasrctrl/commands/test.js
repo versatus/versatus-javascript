@@ -4,7 +4,13 @@ import { promises as fsp } from 'fs';
 import fs from 'fs';
 import { runSpawn } from '../../lasrctrl/shell.js';
 export const testCommandFlags = (yargs) => {
-    return yargs.option('inputJson', {
+    return yargs
+        .option('programToTest', {
+        describe: 'Name of program to test',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('inputJson', {
         describe: 'Path to the JSON input file or directory containing JSON files for testing',
         type: 'string',
         demandOption: true,
@@ -12,31 +18,29 @@ export const testCommandFlags = (yargs) => {
 };
 const test = async (argv) => {
     if (argv.inputJson) {
-        const inputPath = path.resolve(process.cwd(), argv.inputJson);
+        const pathToJsonToTest = path.resolve(process.cwd(), argv.inputJson);
+        const programName = argv.programToTest;
         try {
-            const stats = await fsp.stat(inputPath);
+            const stats = await fsp.stat(pathToJsonToTest);
             let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd();
+            const files = fs.readdirSync('./build/lib');
+            const hasJsFiles = files.some((file) => path.extname(file) === '.js');
             let target;
-            const checkWasmScriptPath = path.resolve(scriptDir, 'scripts', 'check_cli.sh');
-            await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' });
-            if (fs.existsSync('./build/lib/example-program.js')) {
+            const checkForCli = path.resolve(scriptDir, 'scripts', 'check_cli.sh');
+            await runSpawn('bash', [checkForCli], { stdio: 'inherit' });
+            if (hasJsFiles) {
                 target = 'node';
-            }
-            else if (fs.existsSync('./build/build.wasm')) {
-                target = 'wasm';
-                const checkWasmScriptPath = path.resolve(scriptDir, 'scripts', 'check_wasm.sh');
-                await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' });
             }
             else {
                 throw new Error('No build artifacts found.');
             }
             console.log('\x1b[0;37mStarting test...\x1b[0m');
             if (stats.isDirectory()) {
-                const files = await fsp.readdir(inputPath);
+                const files = await fsp.readdir(pathToJsonToTest);
                 const jsonFiles = files.filter((file) => path.extname(file) === '.json');
                 const testPromises = jsonFiles.map((file) => {
-                    const filePath = path.join(inputPath, file);
-                    return runTestProcess(filePath, target, false);
+                    const jsonFileToTest = path.join(pathToJsonToTest, file);
+                    return runTestProcess(programName, jsonFileToTest, target, false);
                 });
                 const results = await Promise.allSettled(testPromises);
                 // Print a summary of all test outcomes
@@ -51,7 +55,7 @@ const test = async (argv) => {
                 });
             }
             else if (stats.isFile()) {
-                await runTestProcess(inputPath, target, true);
+                await runTestProcess(programName, pathToJsonToTest, target, true);
             }
             else {
                 console.error('The input path is neither a file nor a directory.');

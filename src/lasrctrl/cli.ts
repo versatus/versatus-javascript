@@ -45,7 +45,7 @@ programs on \x1b[0;35mLASR\x1b[0m.
     build
   )
   .command(
-    'test [inputJson]',
+    'test [programToTest] [inputJson]',
     'Run the test suite for the project',
     //@ts-ignore
     testCommandFlags,

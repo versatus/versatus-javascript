@@ -53,10 +53,13 @@ export async function runBuildProcess(programFilePath: string) {
 }
 
 export async function buildNode(buildPath: string) {
+  const parsedPath = path.parse(buildPath)
+  const newFilename = `${parsedPath.name}.js`
+
   const configPath = isInstalledPackage
     ? `${installedPackagePath}/webpack.config.js`
     : './webpack.config.js'
-  const webpackCommand = `npx webpack --config ${configPath} --entry ${buildPath}`
+  const webpackCommand = `npx webpack --config ${configPath} --entry ${buildPath} --output-path ./build/lib --output-filename ${newFilename} --mode production`
   exec(webpackCommand, (tscError, tscStdout, tscStderr) => {
     if (tscError) {
       console.error(`Error during TypeScript transpilation: ${tscError}`)
@@ -66,7 +69,7 @@ export async function buildNode(buildPath: string) {
     console.log('\x1b[0;37mBuild complete...\x1b[0m')
     console.log()
     console.log(`\x1b[0;35mReady to run:\x1b[0m`)
-    console.log(`\x1b[0;33mlasrctl test inputs\x1b[0m`)
+    console.log(`\x1b[0;33mlasrctl test ${parsedPath.name} inputs\x1b[0m`)
     console.log()
   })
 }
@@ -242,6 +245,7 @@ export async function callProgram(
 }
 
 export function runTestProcess(
+  programName: string,
   inputJsonPath: string,
   target = 'node',
   showOutput = true
@@ -259,6 +263,7 @@ export function runTestProcess(
       'bash',
       [
         testScriptPath,
+        programName,
         inputJsonPath,
         String(showOutput),
         String(isFailureTest),

@@ -25,7 +25,7 @@ initCommandFlags, init)
     .command('build [file]', 'Build the project with the specified contract', 
 //@ts-ignore
 buildCommandFlags, build)
-    .command('test [inputJson]', 'Run the test suite for the project', 
+    .command('test [programToTest] [inputJson]', 'Run the test suite for the project', 
 //@ts-ignore
 testCommandFlags, test)
     //@ts-ignore

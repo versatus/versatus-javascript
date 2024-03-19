@@ -53,12 +53,12 @@ npx lasrctl init # Choose blank, fungible-token, or faucet
 
 #### 4) Build Your Program
 ```bash
-npx lasrctl build example-program.ts
+npx lasrctl build foo-bar.ts
 ```
 
 #### 5) Test Your Program
 ```bash
-npx lasrctl test inputs
+npx lasrctl test foo-bar inputs
 ```
 #### 6) Create Account and Deploy Program
 ```bash

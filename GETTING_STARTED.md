@@ -14,7 +14,7 @@ mkdir -p my-token && \
     npx tsc --init && \
     yarn add @versatus/versatus-javascript && \
     npx lasrctl init fungible && \
-    npx lasrctl build example-program.ts && \
+    npx lasrctl build foo-bar.ts && \
     npx lasrctl test inputs && \
     npx lasrctl deploy --author me --name speed --programName run --symbol SPEEDRUN --is 100 --ts 1000 && \
     open -a "Google Chrome" https://faucet.versatus.io
@@ -60,7 +60,7 @@ With this package installed, you can now initialize your project with the `npx l
 npx lasrctl init fungible # Choose blank, fungible, or faucet
 ```
 
-After initialization, you will now have an example program available in the `example-program.ts` file in the root of your project.  The init command also creates a folder with example JSON input for each method in the `inputs` folder.
+After initialization, you will now have an example program available in the `foo-bar.ts` file in the root of your project.  The init command also creates a folder with example JSON input for each method in the `inputs` folder.
 
 You can look and read these JSON files to see an example of what the protocol will send your program.
 
@@ -71,7 +71,7 @@ Before you deploy your program, you must compile your TypeScript to JavaScript. 
 If you make a change to your TypeScript program, you must build it before you can deploy any changes to the network.
 
 ```bash
-npx lasrctl build example-program.ts
+npx lasrctl build foo-bar.ts
 ```
 
 This command builds your TypeScript program and places the JavaScript output into the `./build` folder. You should not check the `./build` folder into source control.

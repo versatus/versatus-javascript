@@ -4,20 +4,22 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/colored_echo.sh"
 
 # Use the current working directory as the root directory
-ROOT_DIR=$(pwd)
-BUILD_NODE_PATH="$ROOT_DIR/build/lib/example-program.js"
-LASR_CLI_PATH="$ROOT_DIR/build/lasr_cli"
+
 
 # Check if the JSON input file path is provided as an argument
 if [ -z "$1" ]; then
     print_error "No JSON input file path provided."
     exit 1
 fi
-INPUT_JSON_PATH="$1"
-SHOW_OUTPUT="$2"
-IS_FAILURE_TEST="$3"
+PROGRAM_TO_TEST="$1"
+INPUT_JSON_PATH="$2"
+SHOW_OUTPUT="$3"
+IS_FAILURE_TEST="$4"
 TRUE="true"
 FALSE="false"
+ROOT_DIR=$(pwd)
+BUILD_NODE_PATH="$ROOT_DIR/build/lib/$PROGRAM_TO_TEST.js"
+LASR_CLI_PATH="$ROOT_DIR/build/lasr_cli"
 
 # Check if the provided JSON input file exists
 if [ ! -f "$INPUT_JSON_PATH" ]; then
