@@ -38,7 +38,6 @@ import {
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
-import { verify } from '@noble/secp256k1/index'
 
 class NonFungibleTokenProgram extends Program {
   constructor() {
@@ -48,6 +47,7 @@ class NonFungibleTokenProgram extends Program {
       burn: this.burn.bind(this),
       create: this.create.bind(this),
       mint: this.mint.bind(this),
+      transfer: this.transfer.bind(this),
     })
   }
 
@@ -124,6 +124,11 @@ class NonFungibleTokenProgram extends Program {
       const paymentProgramAddress = txInputs?.paymentProgramAddress
       const price = txInputs?.price
       const methods = 'approve,create,burn,mint,update'
+      // const holders: Record<string, string> = {}
+      //
+      // for (let i = 1; i <= parseInt(initializedSupply); i++) {
+      //   holders[formatAmountToHex(i.toString())] = THIS
+      // }
 
       validate(parseFloat(price), 'invalid price')
       validate(
@@ -155,6 +160,7 @@ class NonFungibleTokenProgram extends Program {
         paymentProgramAddress,
         price,
         methods,
+        // holders: JSON.stringify(holders),
       })
 
       const addProgramData = buildProgramUpdateField({
