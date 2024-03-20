@@ -1,7 +1,7 @@
-import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '@/lib/programs/Token';
-import { ProgramFieldValues, TokenFieldValues } from '@/lib/types';
-import { ProgramUpdateField } from '@/lib/programs/Program';
-import { Address, Namespace } from '@/lib/programs/Address-Namespace';
+import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '../../../lib/programs/Token';
+import { ProgramFieldValues, TokenFieldValues } from '../../../lib/types';
+import { ProgramUpdateField } from '../../../lib/programs/Program';
+import { Address, Namespace } from '../../../lib/programs/Address-Namespace';
 export declare function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }: {
     from: string;
     caller: string;

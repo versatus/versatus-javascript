@@ -7,6 +7,7 @@ import {
   buildProgramUpdateField,
   buildTokenDistributionInstruction,
   buildTokenUpdateField,
+  buildTransferInstruction,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
@@ -30,12 +31,14 @@ import {
 import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
+  checkIfValuesAreUndefined,
   formatAmountToHex,
   formatHexToAmount,
   parseAmountToBigInt,
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
+import { verify } from '@noble/secp256k1/index'
 
 class NonFungibleTokenProgram extends Program {
   constructor() {
@@ -261,6 +264,40 @@ class NonFungibleTokenProgram extends Program {
       })
 
       return new Outputs(computeInputs, mintInstructions).toJson()
+    } catch (e) {
+      throw e
+    }
+  }
+
+  transfer(computeInputs: ComputeInputs) {
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs, programId, from, to } = transaction
+      const txInputs = validate(
+        JSON.parse(transactionInputs),
+        'unable to parse transactionInputs'
+      )
+      const { tokenIds, recipientAddress } = txInputs
+
+      validate(Array.isArray(tokenIds), 'tokenIds must be an array')
+      checkIfValuesAreUndefined({ tokenIds, recipientAddress })
+
+      const transferArguments: {
+        from: string
+        to: string
+        tokenAddress: string
+        amount?: BigInt
+        tokenIds?: string[]
+      } = {
+        from,
+        to: recipientAddress,
+        tokenAddress: programId,
+        tokenIds: tokenIds,
+      }
+
+      const transferToCaller = buildTransferInstruction(transferArguments)
+
+      return new Outputs(computeInputs, [transferToCaller]).toJson()
     } catch (e) {
       throw e
     }

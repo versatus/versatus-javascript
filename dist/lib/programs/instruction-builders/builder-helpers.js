@@ -57,6 +57,7 @@ export function buildTokenDistributionInstruction({ programId, initializedSupply
     }
     return tokenDistributionBuilder.build();
 }
+buildMintInstructions;
 export function buildMintInstructions({ from, programId, paymentTokenAddress, inputValue, returnedTokenIds, returnedValue, }) {
     try {
         const transferToProgram = buildTransferInstruction({

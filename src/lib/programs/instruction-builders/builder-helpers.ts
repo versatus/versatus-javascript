@@ -160,7 +160,7 @@ export function buildTokenDistributionInstruction({
 
   return tokenDistributionBuilder.build()
 }
-
+buildMintInstructions
 export function buildMintInstructions({
   from,
   programId,
