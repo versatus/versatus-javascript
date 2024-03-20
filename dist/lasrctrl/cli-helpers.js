@@ -40,7 +40,7 @@ export async function buildNode(buildPath) {
         console.log('\x1b[0;37mBuild complete...\x1b[0m');
         console.log();
         console.log(`\x1b[0;35mReady to run:\x1b[0m`);
-        console.log(`\x1b[0;33mlasrctl test ${parsedPath.name} inputs\x1b[0m`);
+        console.log(`\x1b[0;33mlasrctl test -p ${parsedPath.name} -i inputs\x1b[0m`);
         console.log();
     });
 }
@@ -215,6 +215,6 @@ export async function checkWallet(address) {
     catch (error) {
         // Handle specific error messages or take actions based on the error
         console.error('Failed to validate keypair file:', error);
-        process.exit(1); // Exit the process if the keypair file is not valid or other errors occur
+        process.exit(1);
     }
 }

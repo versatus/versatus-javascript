@@ -30,6 +30,8 @@ import {
 import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
+  formatAmountToHex,
+  formatHexToAmount,
   parseAmountToBigInt,
   validate,
   validateAndCreateJsonString,
@@ -120,6 +122,15 @@ class NonFungibleTokenProgram extends Program {
       const price = txInputs?.price
 
       validate(parseFloat(price), 'invalid price')
+      validate(
+        parseInt(initializedSupply) <= parseInt(totalSupply),
+        'invalid supply'
+      )
+
+      validate(
+        parseInt(formatHexToAmount(formatAmountToHex(initializedSupply))) <= 16,
+        'woah partner, too many tokens for beta. 16 max.'
+      )
 
       const metadataStr = validateAndCreateJsonString({
         symbol,

@@ -27,9 +27,13 @@ if [ ! -f "$INPUT_JSON_PATH" ]; then
     exit 1
 fi
 
+
+
 print_light_gray "Running test..."
 EXECUTE_RESPONSE=$(JSON_PAYLOAD=$(cat "$INPUT_JSON_PATH") && echo "$JSON_PAYLOAD" | node "$BUILD_NODE_PATH")
 EXECUTE_STATUS=$?
+
+echo "$EXECUTE_RESPONSE"
 
 if [ $EXECUTE_STATUS -eq 0 ]; then
     if [ -z "$EXECUTE_RESPONSE" ]; then
@@ -90,6 +94,7 @@ if [ $EXECUTE_STATUS -eq 0 ]; then
     fi
 else
           if [ "$IS_FAILURE_TEST" = "$FALSE" ]; then
+            print_magenta "$EXECUTE_RESPONSE"
             print_light_gray "The contract method did not return any output. Please check your contract method. If you're still having trouble, please contact us on discord (https://discord.gg/versatus) / telegram (https://t.me/+4nJPCLdzGOUyMDQx) / twitter (https://twitter.com/VersatusLabs) and we'll try to help you resolve the issue."
             exit 1
           else

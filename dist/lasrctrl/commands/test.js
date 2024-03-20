@@ -8,11 +8,13 @@ export const testCommandFlags = (yargs) => {
         .option('programToTest', {
         describe: 'Name of program to test',
         type: 'string',
+        alias: 'p',
         demandOption: true,
     })
         .option('inputJson', {
         describe: 'Path to the JSON input file or directory containing JSON files for testing',
         type: 'string',
+        alias: 'i',
         demandOption: true,
     });
 };
@@ -63,12 +65,6 @@ const test = async (argv) => {
             }
         }
         catch (err) {
-            // console.log(typeof err)
-            //@ts-ignore
-            // if (typeof err === 'string' && err.indexOf('Error: ') > -1) {
-            //   //@ts-ignore
-            //   err = err.split('Error: ')[1].split('\n')[0]
-            // }
             // @ts-ignore
             console.log(`\x1b[0;31m${err}\x1b[0m`);
             process.exit(1);

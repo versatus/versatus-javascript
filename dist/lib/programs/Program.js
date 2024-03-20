@@ -1,7 +1,7 @@
 import { buildCreateInstruction, buildProgramUpdateField, buildTokenDistributionInstruction, buildTokenUpdateField, buildUpdateInstruction, } from '../../lib/programs/instruction-builders/builder-helpers.js';
 import { THIS } from '../../lib/consts.js';
 import { Outputs } from '../../lib/programs/Outputs.js';
-import { formatAmountToHex, validate, validateAndCreateJsonString, } from '../../lib/utils.js';
+import { checkIfValuesAreUndefined, formatAmountToHex, validate, validateAndCreateJsonString, } from '../../lib/utils.js';
 import { AddressOrNamespace } from '../../lib/programs/Address-Namespace.js';
 import { TokenOrProgramUpdate } from '../../lib/programs/Token.js';
 /**
@@ -22,7 +22,16 @@ export class Program {
             const { transaction } = computeInputs;
             const { transactionInputs, from, to } = transaction;
             const txInputs = validate(JSON.parse(transactionInputs), 'unable to parse transactionInputs');
-            const { symbol, name, totalSupply, initializedSupply: txInitializedSupply, imgUrl, paymentProgramAddress, conversionRate, } = txInputs;
+            const { symbol, name, totalSupply, initializedSupply: txInitializedSupply, imgUrl, recipientAddress, paymentProgramAddress, conversionRate, } = txInputs;
+            checkIfValuesAreUndefined({
+                symbol,
+                name,
+                totalSupply,
+                initializedSupply: txInitializedSupply,
+                imgUrl,
+                paymentProgramAddress,
+                conversionRate,
+            });
             // metadata
             const metadataStr = validateAndCreateJsonString({
                 symbol,
@@ -54,7 +63,7 @@ export class Program {
             const distributionInstruction = buildTokenDistributionInstruction({
                 programId: THIS,
                 initializedSupply: formatAmountToHex(txInitializedSupply),
-                to,
+                to: recipientAddress ?? to,
                 tokenUpdates: [addTokenMetadata, addTokenData],
             });
             const createAndDistributeInstruction = buildCreateInstruction({

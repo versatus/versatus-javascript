@@ -106,9 +106,14 @@ const init = (argv: Arguments<InitCommandArgs>) => {
     })
   }
 
+  const targetFilesDir = path.join(targetDir, 'build', 'lib')
+  if (fs.existsSync(targetFilesDir)) {
+    fs.rmSync(targetFilesDir, { recursive: true, force: true })
+  }
+
   if (isInstalledPackage) {
     const filesDir = path.join(installedPackagePath, 'dist', 'lib')
-    const targetFilesDir = path.join(targetDir, 'build', 'lib')
+
     if (!fs.existsSync(targetFilesDir)) {
       fs.mkdirSync(targetFilesDir, { recursive: true })
     }

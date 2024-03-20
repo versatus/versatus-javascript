@@ -1,9 +1,18 @@
-import { callCreate, getAddressFromKeyPairFile, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
+import { callCreate, checkWallet, getAddressFromKeyPairFile, getSecretKey, registerProgram, runTestProcess, } from '../../lasrctrl/cli-helpers.js';
 import { VIPFS_URL } from '../../lib/consts.js';
 import { runCommand } from '../../lasrctrl/shell.js';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
 import { getIPFSForNetwork, getRPCForNetwork } from '../../lib/utils.js';
 export const deployCommandFlags = (yargs) => {
     return yargs
+        .option('build', {
+        describe: 'Name of program to be deployed. This is the filename of the built program without the extension. You should use the name inside of /build/lib',
+        type: 'string',
+        demandOption: true,
+        alias: 'b',
+    })
         .option('author', {
         describe: 'Author of the contract',
         type: 'string',
@@ -26,24 +35,23 @@ export const deployCommandFlags = (yargs) => {
         describe: 'Name for the program',
         type: 'string',
         demandOption: true,
-        alias: 'pn',
+        alias: 'p',
     })
         .option('initializedSupply', {
         describe: 'Supply of the token to be sent to either the caller or the program',
         type: 'string',
         demandOption: true,
-        alias: 'is',
     })
         .option('totalSupply', {
         describe: 'Total supply of the token to be created',
         type: 'string',
         demandOption: true,
-        alias: 'ts',
+        alias: 't',
     })
         .option('recipientAddress', {
         describe: 'Address for the initialized supply',
         type: 'string',
-        alias: 'ra',
+        alias: 'r',
     })
         .option('inputs', {
         describe: 'Additional inputs for the program',
@@ -58,20 +66,14 @@ export const deployCommandFlags = (yargs) => {
         .option('secretKey', {
         describe: 'Secret key for the wallet',
         type: 'string',
+        alias: 'k',
     })
         .option('network', {
         describe: 'Network',
         type: 'string',
         choices: ['stable', 'unstable'],
         default: 'stable',
-        alias: 'net',
-    })
-        .option('target', {
-        describe: 'Build target',
-        type: 'string',
-        choices: ['node', 'wasm'],
-        default: 'node',
-        alias: 't',
+        alias: 'x',
     });
 };
 const deploy = async (argv) => {
@@ -79,6 +81,41 @@ const deploy = async (argv) => {
         const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
         const addressFromKeypair = await getAddressFromKeyPairFile(String(argv.keypairPath));
         const network = argv.network;
+        console.log('\x1b[0;33mCreating temporary test file against cli arguments...\x1b[0m');
+        const inputsDirPath = path.join(process.cwd(), 'inputs');
+        const files = await fs.readdir(inputsDirPath);
+        const createJsonFiles = files.filter((file) => file.endsWith('create.json'));
+        if (createJsonFiles.length === 0) {
+            throw new Error('No suitable create.json file found.');
+        }
+        // Assuming there should only be one such file, or you want the first one if there are multiple
+        const createJsonFileName = createJsonFiles[0];
+        // Construct the full path to the found JSON file
+        const existingJsonFilePath = path.join(inputsDirPath, createJsonFileName);
+        const fileContents = await fs.readFile(existingJsonFilePath, 'utf8');
+        const testJson = JSON.parse(fileContents);
+        if (!argv.inputs) {
+            throw new Error('no inputs provided');
+        }
+        // Assuming argv.inputs is a JSON string, parse it
+        const inputs = JSON.parse(argv.inputs);
+        // Update the transactionInputs in the testJson object
+        testJson.transaction.transactionInputs = JSON.stringify({
+            ...inputs,
+            symbol: argv.symbol,
+            name: argv.programName,
+            initializedSupply: argv.initializedSupply,
+            totalSupply: argv.totalSupply,
+        });
+        // Create a temporary file to write the updated JSON
+        const tempDir = os.tmpdir();
+        const tempFilePath = path.join(tempDir, `updated-test-input-${Date.now()}.json`);
+        if (!argv.build) {
+            throw new Error('Build not found in arguments.');
+        }
+        await fs.writeFile(tempFilePath, JSON.stringify(testJson, null, 2), 'utf8');
+        await runTestProcess(argv.build, tempFilePath, 'node', false);
+        console.log('\x1b[0;33mCreate method testing complete...\x1b[0m');
         console.log('\x1b[0;33mPublishing program...\x1b[0m');
         const isWasm = argv.target === 'wasm';
         process.env.LASR_RPC_URL = getRPCForNetwork(network);
@@ -96,7 +133,7 @@ const deploy = async (argv) => {
         }
         else {
             command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_URL} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
+          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`;
         }
         const output = await runCommand(command);
         const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g;
@@ -107,7 +144,7 @@ const deploy = async (argv) => {
 ==> cid: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
         console.log('\x1b[0;33mChecking wallet...\x1b[0m');
-        // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
+        await checkWallet(String(argv.recipientAddress ?? addressFromKeypair));
         console.log(`Fauceted funds to \x1b[0;32m${argv.recipientAddress ?? addressFromKeypair}\x1b[0m`);
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         let registerResponse;
@@ -153,11 +190,50 @@ const deploy = async (argv) => {
 ==> initializedSupply: \x1b[0;32m${argv.initializedSupply}\x1b[0m
 ==> totalSupply: \x1b[0;32m${argv.totalSupply}\x1b[0m
 ==> recipientAddress: \x1b[0;32m${argv.recipientAddress ?? addressFromKeypair}\x1b[0m
+======
+======
+======
+======
+>>>>>>>>>>> View Program on LASR Playground:
+https://faucet.versatus.io/programs/${programAddress}
+          
           `);
         }
     }
     catch (error) {
         console.error(`Deployment error: ${error}`);
     }
+};
+const createJson = {
+    contractInputs: '',
+    op: 'create',
+    transaction: {
+        from: '0x100444c7D04A842D19bc3eE63cB7b96682FF3f43',
+        to: '0x100444c7D04A842D19bc3eE63cB7b96682FF3f43',
+        transactionInputs: '{"name":"HelloToken","symbol":"HLLO","totalSupply":"33","initializedSupply":"33","imgUrl":"https://pbs.twimg.com/profile_images/1765199894539583488/RUiZn7jT_400x400.jpg","paymentProgramAddress":"0x0000000000000000000000000000000000000000","price":"1"}',
+        nonce: '0x0000000000000000000000000000000000000000000000000000000000000001',
+        op: 'create',
+        programId: '0x100444c7D04A842D19bc3eE63cB7b96682FF3f43',
+        r: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        s: '0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321',
+        v: 1,
+        transactionType: {
+            call: '0x0000000000000000000000000000000000000000000000000000000000000001',
+        },
+        value: '0x0000000000000000000000000000000000000000000000000000000000000001',
+    },
+    version: 1,
+    accountInfo: {
+        accountType: {
+            program: '0x57234c52617e7ca8edc5577ebe3eb38d53a77607',
+        },
+        programNamespace: null,
+        ownerAddress: '0x482830d7655fb8465a43844fc1530a7713781b49',
+        programs: {},
+        nonce: '0x000000000000000000000000000000000000000000000000000000000000001c',
+        programAccountData: {},
+        programAccountMetadata: {},
+        programAccountLinkedPrograms: [],
+    },
 };
 export default deploy;

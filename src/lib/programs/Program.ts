@@ -52,9 +52,20 @@ export class Program {
         totalSupply,
         initializedSupply: txInitializedSupply,
         imgUrl,
+        recipientAddress,
         paymentProgramAddress,
         conversionRate,
       } = txInputs
+
+      checkIfValuesAreUndefined({
+        symbol,
+        name,
+        totalSupply,
+        initializedSupply: txInitializedSupply,
+        imgUrl,
+        paymentProgramAddress,
+        conversionRate,
+      })
 
       // metadata
       const metadataStr = validateAndCreateJsonString({
@@ -92,7 +103,7 @@ export class Program {
       const distributionInstruction = buildTokenDistributionInstruction({
         programId: THIS,
         initializedSupply: formatAmountToHex(txInitializedSupply),
-        to,
+        to: recipientAddress ?? to,
         tokenUpdates: [addTokenMetadata, addTokenData],
       })
 
