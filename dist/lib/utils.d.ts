@@ -1,4 +1,4 @@
-import { NETWORK } from '../lib/types';
+import { NETWORK } from '@/lib/types';
 /**
  * Converts a numeric input (either a number or a string representation of a number) into a BigInt.
  * This function is particularly useful for handling large numbers that need to be represented accurately

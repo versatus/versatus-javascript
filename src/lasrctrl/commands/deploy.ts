@@ -184,7 +184,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
              --is-srv true`
     } else {
       command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`
+          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`
     }
 
     const output = await runCommand(command)
@@ -201,11 +201,6 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 
     console.log('\x1b[0;33mChecking wallet...\x1b[0m')
     await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
-    console.log(
-      `Fauceted funds to \x1b[0;32m${
-        argv.recipientAddress ?? addressFromKeypair
-      }\x1b[0m`
-    )
 
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
     let registerResponse

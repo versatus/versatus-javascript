@@ -120,6 +120,7 @@ class NonFungibleTokenProgram extends Program {
       const imgUrl = txInputs?.imgUrl
       const paymentProgramAddress = txInputs?.paymentProgramAddress
       const price = txInputs?.price
+      const methods = 'approve,create,burn,mint,update'
 
       validate(parseFloat(price), 'invalid price')
       validate(
@@ -150,6 +151,7 @@ class NonFungibleTokenProgram extends Program {
         imgUrl,
         paymentProgramAddress,
         price,
+        methods,
       })
 
       const addProgramData = buildProgramUpdateField({

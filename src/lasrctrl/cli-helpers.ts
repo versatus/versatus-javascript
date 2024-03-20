@@ -317,6 +317,9 @@ export async function checkWallet(address: string) {
 
       await axios
         .post(`${FAUCET_URL}/api/faucet/verse`, data)
+        .then((response) => {
+          console.log(`Fauceted funds to \x1b[0;32m${address}\x1b[0m`)
+        })
         .catch((error) => {
           console.error('error fauceting funds')
           throw error
