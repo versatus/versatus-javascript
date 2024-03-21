@@ -126,7 +126,10 @@ class FungibleTokenProgram extends Program {
         imgUrl,
         paymentProgramAddress,
         conversionRate,
+        to: recipientAddress,
       } = txInputs
+
+      checkIfValuesAreUndefined({ recipientAddress })
 
       // metadata
       const metadataStr = validateAndCreateJsonString({
@@ -164,7 +167,7 @@ class FungibleTokenProgram extends Program {
       const distributionInstruction = buildTokenDistributionInstruction({
         programId: THIS,
         initializedSupply: formatAmountToHex(txInitializedSupply),
-        to,
+        to: recipientAddress ?? to,
         tokenUpdates: [addTokenMetadata, addTokenData],
       })
 

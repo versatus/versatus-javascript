@@ -124,11 +124,6 @@ class NonFungibleTokenProgram extends Program {
       const paymentProgramAddress = txInputs?.paymentProgramAddress
       const price = txInputs?.price
       const methods = 'approve,create,burn,mint,update'
-      // const holders: Record<string, string> = {}
-      //
-      // for (let i = 1; i <= parseInt(initializedSupply); i++) {
-      //   holders[formatAmountToHex(i.toString())] = THIS
-      // }
 
       validate(parseFloat(price), 'invalid price')
       validate(
@@ -160,7 +155,6 @@ class NonFungibleTokenProgram extends Program {
         paymentProgramAddress,
         price,
         methods,
-        // holders: JSON.stringify(holders),
       })
 
       const addProgramData = buildProgramUpdateField({

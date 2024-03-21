@@ -143,14 +143,20 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     // Assuming argv.inputs is a JSON string, parse it
     const inputs = JSON.parse(argv.inputs)
 
-    // Update the transactionInputs in the testJson object
-    testJson.transaction.transactionInputs = JSON.stringify({
+    const inputsPayload = {
       ...inputs,
       symbol: argv.symbol,
       name: argv.programName,
       initializedSupply: argv.initializedSupply,
       totalSupply: argv.totalSupply,
-    })
+    }
+
+    if (argv.recipientAddress) {
+      inputsPayload.to = argv.recipientAddress
+    }
+
+    // Update the transactionInputs in the testJson object
+    testJson.transaction.transactionInputs = JSON.stringify(inputsPayload)
 
     // Create a temporary file to write the updated JSON
     const tempDir = os.tmpdir()
@@ -200,7 +206,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
 
     console.log('\x1b[0;33mChecking wallet...\x1b[0m')
-    await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
+    // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
 
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
     let registerResponse

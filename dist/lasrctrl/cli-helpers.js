@@ -128,6 +128,7 @@ export async function callCreate(programAddress, symbol, name, initializedSupply
         throw new Error(`programAddress (${programAddress}), symbol (${symbol}), name (${name}), initializedSupply (${initializedSupply}), totalSupply(${totalSupply}), and secretKey are required to call create.`);
     }
     let inputsStr = JSON.stringify(JSON.parse(`{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"${`,"to":"${recipientAddress}"`}}`));
+    console.log({ inputsStr });
     if (inputs) {
         const parsed = JSON.parse(inputsStr);
         const parsedInputs = JSON.parse(inputs);
