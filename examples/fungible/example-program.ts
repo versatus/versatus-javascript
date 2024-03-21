@@ -118,20 +118,12 @@ class FungibleTokenProgram extends Program {
         'unable to parse transactionInputs'
       )
 
-      const {
-        symbol,
-        name,
-        totalSupply,
-        initializedSupply: txInitializedSupply,
-        imgUrl,
-        paymentProgramAddress,
-        conversionRate,
-        to: recipientAddress,
-      } = txInputs
-
-      checkIfValuesAreUndefined({ recipientAddress })
-
       // metadata
+      const totalSupply = txInputs?.totalSupply
+      const initializedSupply = txInputs?.initializedSupply
+      const symbol = txInputs?.symbol
+      const name = txInputs?.name
+      const recipientAddress = txInputs?.to ?? transaction.to
       const metadataStr = validateAndCreateJsonString({
         symbol,
         name,
@@ -139,11 +131,16 @@ class FungibleTokenProgram extends Program {
       })
 
       // data
+      const imgUrl = txInputs?.imgUrl
+      const paymentProgramAddress = txInputs?.paymentProgramAddress
+      const conversionRate = txInputs?.conversionRate
+      const methods = 'approve,create,burn,mint,update'
       const dataStr = validateAndCreateJsonString({
         type: 'fungible',
         imgUrl,
         paymentProgramAddress,
         conversionRate,
+        methods,
       })
 
       const addTokenMetadata = buildTokenUpdateField({
@@ -166,14 +163,14 @@ class FungibleTokenProgram extends Program {
 
       const distributionInstruction = buildTokenDistributionInstruction({
         programId: THIS,
-        initializedSupply: formatAmountToHex(txInitializedSupply),
+        initializedSupply: formatAmountToHex(initializedSupply),
         to: recipientAddress ?? to,
         tokenUpdates: [addTokenMetadata, addTokenData],
       })
 
       const createAndDistributeInstruction = buildCreateInstruction({
         from,
-        initializedSupply: formatAmountToHex(txInitializedSupply),
+        initializedSupply: formatAmountToHex(initializedSupply),
         totalSupply,
         programId: THIS,
         programOwner: from,

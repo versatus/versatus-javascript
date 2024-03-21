@@ -118,6 +118,7 @@ class NonFungibleTokenProgram extends Program {
       const initializedSupply = txInputs?.initializedSupply
       const symbol = txInputs?.symbol
       const name = txInputs?.name
+      const recipientAddress = txInputs?.to ?? transaction.to
 
       // data
       const imgUrl = txInputs?.imgUrl
@@ -173,6 +174,12 @@ class NonFungibleTokenProgram extends Program {
         ),
       })
 
+      const addMetadataToToken = buildTokenUpdateField({
+        field: 'metadata',
+        value: metadataStr,
+        action: 'extend',
+      })
+
       const addDataToToken = buildTokenUpdateField({
         field: 'data',
         value: dataStr,
@@ -182,8 +189,8 @@ class NonFungibleTokenProgram extends Program {
       const distributionInstruction = buildTokenDistributionInstruction({
         programId: THIS,
         initializedSupply,
-        to: THIS,
-        tokenUpdates: [addDataToToken],
+        to: recipientAddress,
+        tokenUpdates: [addDataToToken, addMetadataToToken],
         nonFungible: true,
       })
 
