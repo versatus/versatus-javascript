@@ -1,5 +1,11 @@
 import { formatAmountToHex } from '@/index'
-import { formatHexToAmount } from '@/lib/utils'
+import { formatHexToAmount, formatVerse } from '@/lib/utils'
+
+console.log('formatVerse')
+console.log('60094274544732554888424')
+console.log(formatVerse('60094274544732554888424'))
+console.log(formatVerse(formatAmountToHex('60094.274544732554888424')))
+console.log()
 
 console.log('formatAmountToHex')
 console.log()

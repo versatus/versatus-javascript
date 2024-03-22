@@ -102,6 +102,18 @@ export declare function formatHexToAmount(hexString: string, units?: number): st
  */
 export declare function formatBigIntToHex(bigintValue: BigInt): string;
 /**
+ * Converts a BigInt, hexadecimal string, or decimal string representing an amount
+ * in the smallest units (e.g., wei) into a decimal string representation, considering
+ * 18 decimal places. This function is useful for displaying blockchain-related numerical
+ * values in a human-readable format.
+ *
+ * @param input - The input value, which can be a BigInt, a hexadecimal string starting
+ *                with '0x', or a decimal string representing the amount in smallest units.
+ * @returns A string representation of the decimal value, considering 18 decimal places,
+ *          in a more human-readable format.
+ */
+export declare function formatVerse(input: BigInt | string): string;
+/**
  * Identifies and returns the keys of all properties in a given object that have `undefined` values.
  * This function is useful for debugging or validating objects, especially before sending them to APIs
  * or storing them, where `undefined` values might not be allowed or could lead to unexpected behavior.

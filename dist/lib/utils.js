@@ -174,6 +174,44 @@ export function formatBigIntToHex(bigintValue) {
     return '0x' + hexString;
 }
 /**
+ * Converts a BigInt, hexadecimal string, or decimal string representing an amount
+ * in the smallest units (e.g., wei) into a decimal string representation, considering
+ * 18 decimal places. This function is useful for displaying blockchain-related numerical
+ * values in a human-readable format.
+ *
+ * @param input - The input value, which can be a BigInt, a hexadecimal string starting
+ *                with '0x', or a decimal string representing the amount in smallest units.
+ * @returns A string representation of the decimal value, considering 18 decimal places,
+ *          in a more human-readable format.
+ */
+export function formatVerse(input) {
+    let bigIntValue;
+    if (typeof input === 'string') {
+        if (input.startsWith('0x')) {
+            bigIntValue = BigInt(input);
+        }
+        else {
+            bigIntValue = BigInt(input);
+        }
+    }
+    else {
+        bigIntValue = input;
+    }
+    const divisor = BigInt('1000000000000000000');
+    const wholePart = bigIntValue / divisor;
+    let fractionalPart = bigIntValue % divisor;
+    // Prepare the fractional part, ensuring it has leading zeros if needed
+    let fractionalString = fractionalPart.toString().padStart(18, '0');
+    // Remove unnecessary trailing zeros from the fractional part
+    fractionalString = fractionalString.replace(/0+$/, '');
+    // If there's no fractional part left after trimming, return just the whole part
+    if (fractionalString === '') {
+        return wholePart.toString();
+    }
+    // Combine the whole and fractional parts for the final formatted output
+    return `${wholePart}.${fractionalString}`;
+}
+/**
  * Identifies and returns the keys of all properties in a given object that have `undefined` values.
  * This function is useful for debugging or validating objects, especially before sending them to APIs
  * or storing them, where `undefined` values might not be allowed or could lead to unexpected behavior.
