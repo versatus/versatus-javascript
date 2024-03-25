@@ -188,10 +188,10 @@ export async function callCreate(
 
   let inputsStr = JSON.stringify(
     JSON.parse(
-      `{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"${`,"to":"${recipientAddress}"`}}`
+      `{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}","to":"${recipientAddress}"}`
     )
   )
-  console.log({ inputsStr })
+
   if (inputs) {
     const parsed = JSON.parse(inputsStr)
     const parsedInputs = JSON.parse(inputs)
