@@ -1,7 +1,7 @@
-import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '../../../lib/programs/Token';
-import { ProgramFieldValues, TokenFieldValues } from '../../../lib/types';
-import { ProgramUpdateField } from '../../../lib/programs/Program';
-import { Address, Namespace } from '../../../lib/programs/Address-Namespace';
+import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '@/lib/programs/Token';
+import { ProgramFieldValues, TokenFieldValues } from '@/lib/types';
+import { ProgramUpdateField } from '@/lib/programs/Program';
+import { Address, Namespace } from '@/lib/programs/Address-Namespace';
 /**
  * Constructs a burn instruction for a given token. This utility function simplifies the creation of
  * a burn instruction by abstracting the details of setting up a `BurnInstructionBuilder`, configuring it
@@ -15,12 +15,13 @@ import { Address, Namespace } from '../../../lib/programs/Address-Namespace';
  * @param {string} params.amount - The amount of the token to burn, expressed as a string.
  * @returns {Instruction} A burn instruction configured with the provided details.
  */
-export declare function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, }: {
+export declare function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, tokenIds, }: {
     from: string;
     caller: string;
     programId: string;
     tokenAddress: string;
-    amount: string;
+    amount?: string;
+    tokenIds?: string[];
 }): import("..").Instruction;
 /**
  * Constructs a create instruction for initiating a token or program with specified properties. This utility

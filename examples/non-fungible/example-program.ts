@@ -90,12 +90,20 @@ class NonFungibleTokenProgram extends Program {
   burn(computeInputs: ComputeInputs) {
     try {
       const { transaction } = computeInputs
+      const { transactionInputs, from } = transaction
+      const txInputs = validate(
+        JSON.parse(transactionInputs),
+        'unable to parse transactionInputs'
+      )
+
+      const tokenIds = validate(txInputs.tokenIds, 'missing tokenIds...')
+
       const burnInstruction = buildBurnInstruction({
         from: transaction.from,
         caller: transaction.from,
         programId: THIS,
         tokenAddress: transaction.programId,
-        amount: transaction.value,
+        tokenIds,
       })
 
       return new Outputs(computeInputs, [burnInstruction]).toJson()

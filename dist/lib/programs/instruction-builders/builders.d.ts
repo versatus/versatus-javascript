@@ -3,10 +3,10 @@
  * including token update, token distribution, instruction creation, and more.
  * These builders follow the builder pattern, offering a fluent API for constructing complex objects step by step.
  */
-import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '../../../lib/programs/Token';
-import { Instruction } from '../../../lib/programs/Instruction';
-import { Outputs } from '../../../lib/programs/Outputs';
-import { AddressOrNamespace, Address } from '../../../lib/programs/Address-Namespace';
+import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '@/lib/programs/Token';
+import { Instruction } from '@/lib/programs/Instruction';
+import { Outputs } from '@/lib/programs/Outputs';
+import { AddressOrNamespace, Address } from '@/lib/programs/Address-Namespace';
 /**
  * Builds token update instructions by aggregating individual updates and generating a final instruction object.
  */

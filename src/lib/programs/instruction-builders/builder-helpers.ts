@@ -70,23 +70,36 @@ export function buildBurnInstruction({
   programId,
   tokenAddress,
   amount,
+  tokenIds,
 }: {
   from: string
   caller: string
   programId: string
   tokenAddress: string
-  amount: string
+  amount?: string
+  tokenIds?: string[]
 }) {
-  // The `BurnInstructionBuilder` is used to fluently configure and create a burn instruction.
-  // The `AddressOrNamespace` and `Address` wrappers are used to ensure type safety for addresses and namespaces.
-  // `formatBigIntToHex` is assumed to be a utility function for formatting BigInt values to hex strings.
-  return new BurnInstructionBuilder()
-    .setProgramId(new AddressOrNamespace(new Address(programId)))
-    .setCaller(new Address(caller))
-    .setTokenAddress(new Address(tokenAddress))
-    .setBurnFromAddress(new AddressOrNamespace(new Address(from)))
-    .setAmount(formatBigIntToHex(BigInt(amount)))
-    .build()
+  try {
+    const instructionBuilder = new BurnInstructionBuilder()
+      .setProgramId(new AddressOrNamespace(new Address(programId)))
+      .setCaller(new Address(caller))
+      .setTokenAddress(new Address(tokenAddress))
+      .setBurnFromAddress(new AddressOrNamespace(new Address(from)))
+
+    if (amount) {
+      instructionBuilder.setAmount(formatBigIntToHex(BigInt(amount)))
+    } else if (tokenIds) {
+      instructionBuilder.extendTokenIds(tokenIds)
+    } else {
+      throw new Error(
+        'Invalid burn builder arguments. Missing amount or tokenIds'
+      )
+    }
+
+    return instructionBuilder.build()
+  } catch (e) {
+    throw e
+  }
 }
 
 /**

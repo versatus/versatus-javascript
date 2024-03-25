@@ -1,4 +1,4 @@
-import { NETWORK } from '../lib/types';
+import { NETWORK } from '@/lib/types';
 export declare const isInstalledPackage: boolean;
 export declare const isTypeScriptProject: () => boolean;
 export declare const installedPackagePath: string;
