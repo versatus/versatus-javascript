@@ -262,6 +262,15 @@ export function getUndefinedProperties(obj: Record<string, any>): string[] {
     .map(([key]) => key)
 }
 
+/**
+ * Checks if any of the values in the provided `neededValues` object are `undefined`.
+ * Throws an Error with a message listing all keys that have `undefined` values if any are found.
+ * This function relies on `getUndefinedProperties`, a utility function that must be defined elsewhere in the codebase,
+ * to identify keys with `undefined` values.
+ *
+ * @param {Record<string, any>} neededValues - An object with key-value pairs to be checked for `undefined` values.
+ * @throws {Error} If any value in `neededValues` is `undefined`, throws an Error listing those keys.
+ */
 export function checkIfValuesAreUndefined(neededValues: Record<string, any>) {
   try {
     const undefinedProperties = getUndefinedProperties(neededValues)
@@ -277,6 +286,17 @@ export function checkIfValuesAreUndefined(neededValues: Record<string, any>) {
   }
 }
 
+/**
+ * Validates the given `criteria`. If the `criteria` is falsy, throws an Error with the provided `errorString`.
+ * This function is versatile and can be used to validate any condition that results in a boolean value,
+ * making it suitable for various validation scenarios.
+ *
+ * @param {any | boolean | undefined} criteria - The condition or value to be validated. Can be any value that
+ * is expected to represent a truthy or falsy condition.
+ * @param {string} errorString - The error message to be thrown if the validation fails.
+ * @returns {any | Error} Returns the `criteria` if it is truthy, otherwise throws an Error with `errorString`.
+ * @throws {Error} Throws an Error with `errorString` if `criteria` is falsy.
+ */
 export const validate = (
   criteria: any | boolean | undefined,
   errorString: string
@@ -292,6 +312,15 @@ export const validate = (
   }
 }
 
+/**
+ * Validates that none of the values in `neededValues` are `undefined` and then creates a JSON string from it.
+ * This function combines validation (using `checkIfValuesAreUndefined`) and serialization into a single operation.
+ * If any value in `neededValues` is `undefined`, an error will be thrown before attempting to create a JSON string.
+ *
+ * @param {Record<string, any>} neededValues - An object containing key-value pairs to be validated and serialized.
+ * @returns {string} A JSON string representation of `neededValues` if all values are defined.
+ * @throws {Error} If any value in `neededValues` is `undefined`, or if any other error occurs during the process.
+ */
 export const validateAndCreateJsonString = (
   neededValues: Record<string, any>
 ): string => {

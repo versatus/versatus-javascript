@@ -5,11 +5,13 @@ import { checkIfValuesAreUndefined, formatAmountToHex, validate, validateAndCrea
 import { AddressOrNamespace } from '../../lib/programs/Address-Namespace.js';
 import { TokenOrProgramUpdate } from '../../lib/programs/Token.js';
 /**
- * Class representing a Program with methods to manage and execute program strategies.
+ * Represents a program with strategies for handling various operations such as `create` and `update`.
+ * The program is initialized with a map of method strategies that bind specific methods to operation keys.
+ * This structure allows for dynamic execution of methods based on the operation specified in the input.
  */
 export class Program {
     /**
-     * Constructs a new Program instance.
+     * Constructs a new instance of the Program class, initializing the `methodStrategies` with `create` and `update` operations.
      */
     constructor() {
         this.methodStrategies = {
@@ -17,6 +19,15 @@ export class Program {
             update: this.update.bind(this),
         };
     }
+    /**
+     * Handles the `create` operation by processing the given computeInputs, validating and transforming them into a structured output.
+     * This method performs a series of validations and transformations, constructs various instructions for token and program updates,
+     * and ultimately returns a JSON representation of the operation results.
+     *
+     * @param {ComputeInputs} computeInputs - Inputs necessary for computing the create operation, including transaction details.
+     * @returns {string} JSON string representing the outputs of the create operation.
+     * @throws {Error} Throws an error if any validation fails or if an unexpected error occurs during the process.
+     */
     create(computeInputs) {
         try {
             const { transaction } = computeInputs;
@@ -96,10 +107,12 @@ export class Program {
         }
     }
     /**
-     * Executes a program method strategy based on the given input.
-     * @throws Will throw an error if the method name specified in `input` is not found in `methodStrategies`.
-     * @returns The result of the strategy execution.
-     * @param inputs
+     * Executes the method corresponding to the operation specified in the input.
+     * This method looks up the strategy for the operation in the `methodStrategies` map and executes it.
+     *
+     * @param {ComputeInputs} inputs - Inputs containing the operation to be executed along with any necessary data.
+     * @returns {any} The result of executing the method associated with the specified operation.
+     * @throws {Error} Throws an error if the operation is unknown or if the associated method throws an error.
      */
     executeMethod(inputs) {
         const { op } = inputs;
@@ -110,9 +123,12 @@ export class Program {
         throw new Error(`Unknown method: ${op}`);
     }
     /**
-     * Initiates the execution of a program method based on the provided input.
-     * @returns The result of executing the program method.
-     * @param computeInputs
+     * Starts the execution process by invoking `executeMethod` with the provided computeInputs.
+     * This is a convenience method that serves as an entry point to execute a method based on the operation specified in the inputs.
+     *
+     * @param {ComputeInputs} computeInputs - Inputs necessary for executing a method, including the operation to be performed.
+     * @returns {any} The result of executing the method associated with the specified operation.
+     * @throws {Error} Throws an error if `executeMethod` throws an error.
      */
     start(computeInputs) {
         try {
@@ -123,9 +139,13 @@ export class Program {
         }
     }
     /**
-     * Updates the program with the provided inputs.
-     * @returns The result of updating the program.
-     * @param computeInputs
+     * Handles the `update` operation by processing the given computeInputs, performing validations, and transforming them into structured output.
+     * Similar to the `create` method, this method processes inputs related to program updates, constructs various update instructions,
+     * and returns a JSON representation of the operation results.
+     *
+     * @param {ComputeInputs} computeInputs - Inputs necessary for computing the update operation, including transaction details.
+     * @returns {string} JSON string representing the outputs of the update operation.
+     * @throws {Error} Throws an error if any validation fails or if an unexpected error occurs during the process.
      */
     update(computeInputs) {
         try {
