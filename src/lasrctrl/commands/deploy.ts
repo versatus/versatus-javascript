@@ -38,7 +38,7 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
   return yargs
     .option('build', {
       describe:
-        'Name of program to be deployed. This is the filename of the built program without the extension. You should use the name inside of /build/lib',
+        'Filename of the built program to be deployed. Example: "example-program"',
       type: 'string',
       demandOption: true,
       alias: 'b',

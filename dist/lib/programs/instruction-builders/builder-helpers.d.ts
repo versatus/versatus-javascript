@@ -1,7 +1,7 @@
-import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '@/lib/programs/Token';
-import { ProgramFieldValues, TokenFieldValues } from '@/lib/types';
-import { ProgramUpdateField } from '@/lib/programs/Program';
-import { Address, Namespace } from '@/lib/programs/Address-Namespace';
+import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '../../../lib/programs/Token';
+import { ProgramFieldValues, TokenFieldValues } from '../../../lib/types';
+import { ProgramUpdateField } from '../../../lib/programs/Program';
+import { Address, Namespace } from '../../../lib/programs/Address-Namespace';
 /**
  * Constructs a burn instruction for a given token. This utility function simplifies the creation of
  * a burn instruction by abstracting the details of setting up a `BurnInstructionBuilder`, configuring it

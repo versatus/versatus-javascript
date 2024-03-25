@@ -1,6 +1,6 @@
 import { Arguments, CommandBuilder } from 'yargs';
 export interface TestCommandArgs {
-    programToTest: string;
+    build: string;
     inputJson: string;
 }
 export declare const testCommandFlags: CommandBuilder<{}, TestCommandArgs>;

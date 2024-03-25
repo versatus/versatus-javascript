@@ -10,17 +10,18 @@ import fs from 'fs'
 import { runSpawn } from '@/lasrctrl/shell'
 
 export interface TestCommandArgs {
-  programToTest: string
+  build: string
   inputJson: string
 }
 export const testCommandFlags: CommandBuilder<{}, TestCommandArgs> = (
   yargs: Argv
 ) => {
   return yargs
-    .option('programToTest', {
-      describe: 'Name of program to test',
+    .option('build', {
+      describe:
+        'Filename of the built program to be deployed. Example: "example-program"',
       type: 'string',
-      alias: 'p',
+      alias: 'b',
       demandOption: true,
     })
     .option('inputJson', {
@@ -35,7 +36,7 @@ export const testCommandFlags: CommandBuilder<{}, TestCommandArgs> = (
 const test = async (argv: Arguments<TestCommandArgs>) => {
   if (argv.inputJson) {
     const pathToJsonToTest = path.resolve(process.cwd(), argv.inputJson)
-    const programName = argv.programToTest
+    const programName = argv.build
     try {
       const stats = await fsp.stat(pathToJsonToTest)
       let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd()

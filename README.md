@@ -58,7 +58,7 @@ npx lasrctl build example-program.ts
 
 #### 5) Test Your Program
 ```bash
-npx lasrctl test -p example-program -i inputs
+npx lasrctl test --build example-program --inputJson inputs
 ```
 #### 6) Create Account and Deploy Program
 ```bash

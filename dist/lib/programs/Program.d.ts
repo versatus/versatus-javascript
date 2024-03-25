@@ -1,6 +1,6 @@
-import { ComputeInputs } from '@/lib/types';
-import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace';
-import { StatusValue } from '@/lib/programs/Token';
+import { ComputeInputs } from '../../lib/types';
+import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace';
+import { StatusValue } from '../../lib/programs/Token';
 /**
  * Represents a program with strategies for handling various operations such as `create` and `update`.
  * The program is initialized with a map of method strategies that bind specific methods to operation keys.

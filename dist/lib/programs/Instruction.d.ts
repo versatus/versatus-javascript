@@ -1,6 +1,6 @@
-import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace';
-import { TokenDistribution, TokenOrProgramUpdate } from '@/lib/programs/Token';
-import { InstructionKinds } from '@/lib/types';
+import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace';
+import { TokenDistribution, TokenOrProgramUpdate } from '../../lib/programs/Token';
+import { InstructionKinds } from '../../lib/types';
 /**
  * Represents a generic instruction in a blockchain or token management system, encapsulating various
  * types of operations such as creating, updating, transferring, burning, or logging related to tokens
