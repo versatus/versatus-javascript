@@ -1,6 +1,6 @@
 import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, UpdateInstructionBuilder, } from '../../../lib/programs/instruction-builders/builders.js';
 import { ApprovalsExtend, StatusValue, TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenOrProgramUpdate, TokenUpdate, TokenUpdateField, } from '../../../lib/programs/Token.js';
-import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, } from '../../../lib/programs/Program.js';
+import { LinkedProgramsExtend, LinkedProgramsInsert, LinkedProgramsRemove, ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, } from '../../../lib/programs/Program.js';
 import { THIS } from '../../../lib/consts.js';
 import { formatBigIntToHex, formatAmountToHex } from '../../../lib/utils.js';
 import { ProgramField, ProgramUpdate, ProgramUpdateField, } from '../../../lib/programs/Program.js';
@@ -358,6 +358,21 @@ export function buildProgramUpdateField({ field, value, action, }) {
                         break;
                     default:
                         throw new Error(`Invalid data action: ${action}`);
+                }
+                break;
+            case 'linkedPrograms':
+                switch (action) {
+                    case 'extend':
+                        programFieldAction = new LinkedProgramsExtend([new Address(value)]);
+                        break;
+                    case 'insert':
+                        programFieldAction = new LinkedProgramsInsert(new Address(value));
+                        break;
+                    case 'remove':
+                        programFieldAction = new LinkedProgramsRemove(new Address(value));
+                        break;
+                    default:
+                        throw new Error(`Invalid linkedProgram action: ${action}`);
                 }
                 break;
             case 'status':

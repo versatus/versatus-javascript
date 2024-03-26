@@ -23,6 +23,10 @@ import {
   TokenMetadataValue,
 } from '@/lib/programs/Token'
 import {
+  LinkedProgramsExtend,
+  LinkedProgramsInsert,
+  LinkedProgramsRemove,
+  LinkedProgramsValue,
   ProgramDataExtend,
   ProgramDataInsert,
   ProgramDataRemove,
@@ -102,6 +106,7 @@ export type ProgramFieldValues =
   | 'balance'
   | 'data'
   | 'metadata'
+  | 'linkedPrograms'
   | 'ownerId'
   | 'status'
 
@@ -114,6 +119,10 @@ export type ProgramUpdateValueTypes =
   | ProgramMetadataInsert
   | ProgramMetadataExtend
   | ProgramMetadataRemove
+  | LinkedProgramsValue
+  | LinkedProgramsInsert
+  | LinkedProgramsExtend
+  | LinkedProgramsRemove
   | StatusValue
 
 export type TokenFieldValues =

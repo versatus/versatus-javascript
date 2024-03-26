@@ -398,6 +398,6 @@ export declare class ProgramAccountDataExtend {
 export declare class ProgramFieldValue {
     private kind;
     private value;
-    constructor(kind: string, value: ProgramDataValue | ProgramDataInsert | ProgramDataExtend | ProgramDataRemove | ProgramMetadataValue | ProgramMetadataInsert | ProgramMetadataExtend | ProgramMetadataRemove | StatusValue);
+    constructor(kind: string, value: ProgramDataValue | ProgramDataInsert | ProgramDataExtend | ProgramDataRemove | ProgramMetadataValue | ProgramMetadataInsert | ProgramMetadataExtend | ProgramMetadataRemove | LinkedProgramsValue | LinkedProgramsInsert | LinkedProgramsExtend | LinkedProgramsRemove | StatusValue);
     toJson(): object;
 }

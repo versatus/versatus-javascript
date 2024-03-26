@@ -30,6 +30,9 @@ import {
   TokenUpdateValueTypes,
 } from '@/lib/types'
 import {
+  LinkedProgramsExtend,
+  LinkedProgramsInsert,
+  LinkedProgramsRemove,
   ProgramDataExtend,
   ProgramDataInsert,
   ProgramDataRemove,
@@ -525,6 +528,21 @@ export function buildProgramUpdateField({
             break
           default:
             throw new Error(`Invalid data action: ${action}`)
+        }
+        break
+      case 'linkedPrograms':
+        switch (action) {
+          case 'extend':
+            programFieldAction = new LinkedProgramsExtend([new Address(value)])
+            break
+          case 'insert':
+            programFieldAction = new LinkedProgramsInsert(new Address(value))
+            break
+          case 'remove':
+            programFieldAction = new LinkedProgramsRemove(new Address(value))
+            break
+          default:
+            throw new Error(`Invalid linkedProgram action: ${action}`)
         }
         break
       case 'status':

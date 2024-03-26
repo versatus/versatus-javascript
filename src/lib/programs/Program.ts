@@ -725,6 +725,10 @@ export class ProgramFieldValue {
       | ProgramMetadataInsert
       | ProgramMetadataExtend
       | ProgramMetadataRemove
+      | LinkedProgramsValue
+      | LinkedProgramsInsert
+      | LinkedProgramsExtend
+      | LinkedProgramsRemove
       | StatusValue
   ) {
     this.kind = kind

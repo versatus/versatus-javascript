@@ -33,8 +33,6 @@ print_light_gray "Running test..."
 EXECUTE_RESPONSE=$(JSON_PAYLOAD=$(cat "$INPUT_JSON_PATH") && echo "$JSON_PAYLOAD" | node "$BUILD_NODE_PATH")
 EXECUTE_STATUS=$?
 
-echo "$EXECUTE_RESPONSE"
-
 if [ $EXECUTE_STATUS -eq 0 ]; then
     if [ -z "$EXECUTE_RESPONSE" ]; then
         print_error "Execution response is empty! ❌ "
@@ -61,7 +59,7 @@ if [ $EXECUTE_STATUS -eq 0 ]; then
 
     filename=$(basename "$INPUT_JSON_PATH")
     print_light_gray "Validating the PROGRAM OUTPUT..."
-    VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE" 2>&1)
+    VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE")
     VALIDATION_STATUS=$?
     if [ "$VALIDATION_STATUS" -eq 0 ]; then
         print_light_gray "*******************************"
