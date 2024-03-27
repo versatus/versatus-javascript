@@ -300,9 +300,9 @@ export class ApprovalsInsert {
 }
 
 export class ApprovalsExtend {
-  private items: Array<[Address, string]> = []
+  private items: Array<[Address, string[]]> = []
 
-  constructor(items: Array<[Address, string]>) {
+  constructor(items: Array<[Address, string[]]>) {
     this.items = items
   }
 

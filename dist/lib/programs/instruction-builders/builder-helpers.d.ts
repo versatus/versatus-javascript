@@ -144,7 +144,7 @@ export declare function buildTransferInstruction({ from, to, tokenAddress, amoun
  */
 export declare function buildTokenUpdateField({ field, value, action, }: {
     field: TokenFieldValues;
-    value: string | Array<[Address, string]>;
+    value: string | Array<[Address, string[]]>;
     action: 'insert' | 'extend' | 'remove';
 }): TokenUpdateField;
 /**

@@ -1,5 +1,5 @@
 import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuilder, TransferInstructionBuilder, UpdateInstructionBuilder, } from '../../../lib/programs/instruction-builders/builders.js';
-import { ApprovalsExtend, StatusValue, TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenOrProgramUpdate, TokenUpdate, TokenUpdateField, } from '../../../lib/programs/Token.js';
+import { ApprovalsExtend, ApprovalsInsert, StatusValue, TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenOrProgramUpdate, TokenUpdate, TokenUpdateField, } from '../../../lib/programs/Token.js';
 import { LinkedProgramsExtend, LinkedProgramsInsert, LinkedProgramsRemove, ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, } from '../../../lib/programs/Program.js';
 import { THIS } from '../../../lib/consts.js';
 import { formatBigIntToHex, formatAmountToHex } from '../../../lib/utils.js';
@@ -251,7 +251,18 @@ export function buildTokenUpdateField({ field, value, action, }) {
         // Handle array values specifically for the 'approvals' field.
         if (value instanceof Array) {
             if (field === 'approvals') {
-                tokenFieldAction = new ApprovalsExtend(value);
+                switch (action) {
+                    case 'extend':
+                        tokenFieldAction = new ApprovalsExtend(value);
+                        break;
+                    case 'insert':
+                        tokenFieldAction = new ApprovalsInsert(value[0][0], value[0][1]);
+                        break;
+                    case 'remove':
+                        throw new Error(`Not yet implemented: ${action}`);
+                    default:
+                        throw new Error(`Invalid action for approvals: ${action}`);
+                }
             }
             else {
                 throw new Error(`Invalid field for array value: ${field}`);

@@ -7,6 +7,8 @@ import {
 } from '@/lib/programs/instruction-builders/builders'
 import {
   ApprovalsExtend,
+  ApprovalsInsert,
+  ApprovalsRemove,
   StatusValue,
   TokenDataExtend,
   TokenDataInsert,
@@ -401,7 +403,7 @@ export function buildTokenUpdateField({
   action,
 }: {
   field: TokenFieldValues
-  value: string | Array<[Address, string]>
+  value: string | Array<[Address, string[]]>
   action: 'insert' | 'extend' | 'remove'
 }): TokenUpdateField {
   try {
@@ -410,7 +412,18 @@ export function buildTokenUpdateField({
     // Handle array values specifically for the 'approvals' field.
     if (value instanceof Array) {
       if (field === 'approvals') {
-        tokenFieldAction = new ApprovalsExtend(value)
+        switch (action) {
+          case 'extend':
+            tokenFieldAction = new ApprovalsExtend(value)
+            break
+          case 'insert':
+            tokenFieldAction = new ApprovalsInsert(value[0][0], value[0][1])
+            break
+          case 'remove':
+            throw new Error(`Not yet implemented: ${action}`)
+          default:
+            throw new Error(`Invalid action for approvals: ${action}`)
+        }
       } else {
         throw new Error(`Invalid field for array value: ${field}`)
       }

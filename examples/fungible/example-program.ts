@@ -61,7 +61,7 @@ class FungibleTokenProgram extends Program {
       const update = new TokenUpdateField(
         new TokenField('approvals'),
         new TokenFieldValue(
-          'insert',
+          'approvals',
           new ApprovalsValue(
             new ApprovalsExtend([JSON.parse(transactionInputs)])
           )
@@ -70,7 +70,7 @@ class FungibleTokenProgram extends Program {
 
       const tokenUpdate = new TokenUpdate(
         new AddressOrNamespace(caller),
-        tokenId,
+        new AddressOrNamespace(THIS),
         [update]
       )
       const tokenOrProgramUpdate = new TokenOrProgramUpdate(
