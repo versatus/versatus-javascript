@@ -1,5 +1,5 @@
 {
-  "entryPoints": ["lib", "types"],
+  "entryPoints": ["src"],
   "out": "docs",
   "excludePrivate": false,
   "excludeProtected": false
