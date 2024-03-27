@@ -100,8 +100,8 @@ export function formatAmountToHex(input) {
         return '0x' + hexString;
     }
     catch (error) {
-        console.error('Error formatting amount to hex:', error);
-        return '0x' + '0'.repeat(64); // Return a default value in case of error
+        // Prefix with '0x' to indicate hexadecimal format
+        return '0x' + ''.padStart(64, '0');
     }
 }
 /**
@@ -174,6 +174,44 @@ export function formatBigIntToHex(bigintValue) {
     return '0x' + hexString;
 }
 /**
+ * Converts a BigInt, hexadecimal string, or decimal string representing an amount
+ * in the smallest units (e.g., wei) into a decimal string representation, considering
+ * 18 decimal places. This function is useful for displaying blockchain-related numerical
+ * values in a human-readable format.
+ *
+ * @param input - The input value, which can be a BigInt, a hexadecimal string starting
+ *                with '0x', or a decimal string representing the amount in smallest units.
+ * @returns A string representation of the decimal value, considering 18 decimal places,
+ *          in a more human-readable format.
+ */
+export function formatVerse(input) {
+    let bigIntValue;
+    if (typeof input === 'string') {
+        if (input.startsWith('0x')) {
+            bigIntValue = BigInt(input);
+        }
+        else {
+            bigIntValue = BigInt(input);
+        }
+    }
+    else {
+        bigIntValue = input;
+    }
+    const divisor = BigInt('1000000000000000000');
+    const wholePart = bigIntValue / divisor;
+    let fractionalPart = bigIntValue % divisor;
+    // Prepare the fractional part, ensuring it has leading zeros if needed
+    let fractionalString = fractionalPart.toString().padStart(18, '0');
+    // Remove unnecessary trailing zeros from the fractional part
+    fractionalString = fractionalString.replace(/0+$/, '');
+    // If there's no fractional part left after trimming, return just the whole part
+    if (fractionalString === '') {
+        return wholePart.toString();
+    }
+    // Combine the whole and fractional parts for the final formatted output
+    return `${wholePart}.${fractionalString}`;
+}
+/**
  * Identifies and returns the keys of all properties in a given object that have `undefined` values.
  * This function is useful for debugging or validating objects, especially before sending them to APIs
  * or storing them, where `undefined` values might not be allowed or could lead to unexpected behavior.
@@ -196,6 +234,68 @@ export function getUndefinedProperties(obj) {
         .filter(([, value]) => value === undefined)
         .map(([key]) => key);
 }
+/**
+ * Checks if any of the values in the provided `neededValues` object are `undefined`.
+ * Throws an Error with a message listing all keys that have `undefined` values if any are found.
+ * This function relies on `getUndefinedProperties`, a utility function that must be defined elsewhere in the codebase,
+ * to identify keys with `undefined` values.
+ *
+ * @param {Record<string, any>} neededValues - An object with key-value pairs to be checked for `undefined` values.
+ * @throws {Error} If any value in `neededValues` is `undefined`, throws an Error listing those keys.
+ */
+export function checkIfValuesAreUndefined(neededValues) {
+    try {
+        const undefinedProperties = getUndefinedProperties(neededValues);
+        if (undefinedProperties.length > 0) {
+            throw new Error(`The following properties are undefined: ${undefinedProperties.join(', ')}`);
+        }
+    }
+    catch (e) {
+        throw e;
+    }
+}
+/**
+ * Validates the given `criteria`. If the `criteria` is falsy, throws an Error with the provided `errorString`.
+ * This function is versatile and can be used to validate any condition that results in a boolean value,
+ * making it suitable for various validation scenarios.
+ *
+ * @param {any | boolean | undefined} criteria - The condition or value to be validated. Can be any value that
+ * is expected to represent a truthy or falsy condition.
+ * @param {string} errorString - The error message to be thrown if the validation fails.
+ * @returns {any | Error} Returns the `criteria` if it is truthy, otherwise throws an Error with `errorString`.
+ * @throws {Error} Throws an Error with `errorString` if `criteria` is falsy.
+ */
+export const validate = (criteria, errorString) => {
+    try {
+        if (!criteria) {
+            throw Error(errorString);
+        }
+        else {
+            return criteria;
+        }
+    }
+    catch (e) {
+        throw e;
+    }
+};
+/**
+ * Validates that none of the values in `neededValues` are `undefined` and then creates a JSON string from it.
+ * This function combines validation (using `checkIfValuesAreUndefined`) and serialization into a single operation.
+ * If any value in `neededValues` is `undefined`, an error will be thrown before attempting to create a JSON string.
+ *
+ * @param {Record<string, any>} neededValues - An object containing key-value pairs to be validated and serialized.
+ * @returns {string} A JSON string representation of `neededValues` if all values are defined.
+ * @throws {Error} If any value in `neededValues` is `undefined`, or if any other error occurs during the process.
+ */
+export const validateAndCreateJsonString = (neededValues) => {
+    try {
+        checkIfValuesAreUndefined(neededValues);
+        return JSON.stringify(neededValues);
+    }
+    catch (e) {
+        throw e;
+    }
+};
 /**
  * Retrieves the RPC (Remote Procedure Call) URL for interacting with a blockchain network,
  * based on the specified network type. This function supports dynamic selection between

@@ -1,6 +1,6 @@
 import { ApprovalsExtend, ApprovalsInsert, ApprovalsRemove, ApprovalsRevoke, ApprovalsValue, StatusValue } from '../lib/programs/Token';
 import { TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenDataValue, TokenIdExtend, TokenIdInsert, TokenIdPop, TokenIdPush, TokenIdValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenMetadataValue } from '../lib/programs/Token';
-import { ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramDataValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramMetadataValue } from '../lib/programs/Program';
+import { LinkedProgramsExtend, LinkedProgramsInsert, LinkedProgramsRemove, LinkedProgramsValue, ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramDataValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, ProgramMetadataValue } from '../lib/programs/Program';
 import { Address, AddressOrNamespace } from '../lib/programs/Address-Namespace';
 export type AccountType = 'user' | {
     Program: string;
@@ -18,7 +18,7 @@ export type TransactionType = {
  * This file contains types the protocol uses to prepare data, structure it and call out to a particular compute payload. The inputs type for a contract call
  */
 export interface ComputeInputs {
-    accountInfo?: Account;
+    accountInfo: Account;
     contractInputs: string;
     op: string;
     transaction: Transaction;
@@ -59,8 +59,8 @@ export interface ArbitraryData {
 export interface Metadata {
     [k: string]: string;
 }
-export type ProgramFieldValues = 'balance' | 'data' | 'metadata' | 'ownerId' | 'status';
-export type ProgramUpdateValueTypes = ProgramDataValue | ProgramDataInsert | ProgramDataExtend | ProgramDataRemove | ProgramMetadataValue | ProgramMetadataInsert | ProgramMetadataExtend | ProgramMetadataRemove | StatusValue;
+export type ProgramFieldValues = 'balance' | 'data' | 'metadata' | 'linkedPrograms' | 'ownerId' | 'status';
+export type ProgramUpdateValueTypes = ProgramDataValue | ProgramDataInsert | ProgramDataExtend | ProgramDataRemove | ProgramMetadataValue | ProgramMetadataInsert | ProgramMetadataExtend | ProgramMetadataRemove | LinkedProgramsValue | LinkedProgramsInsert | LinkedProgramsExtend | LinkedProgramsRemove | StatusValue;
 export type TokenFieldValues = 'approvals' | 'balance' | 'data' | 'metadata' | 'ownerId' | 'programId' | 'status' | 'tokenIds';
 export type TokenUpdateValueTypes = TokenDataValue | TokenDataInsert | TokenDataExtend | TokenDataRemove | TokenMetadataValue | TokenMetadataInsert | TokenMetadataExtend | TokenMetadataRemove | TokenIdValue | TokenIdPush | TokenIdExtend | TokenIdInsert | TokenIdPop | StatusValue | ApprovalsValue | ApprovalsInsert | ApprovalsExtend | ApprovalsRemove | ApprovalsRevoke;
 export interface Token {

@@ -51,7 +51,7 @@ npm install @versatus/versatus-javascript
 
 #### 3) Initialize Project with lasrctl
 ```bash
-npx lasrctl init # Choose blank, fungible-token, or faucet
+npx lasrctl init # Choose blank, fungible, non-fungible, or faucet
 ```
 
 #### 4) Build Your Program
@@ -61,11 +61,11 @@ npx lasrctl build example-program.ts
 
 #### 5) Test Your Program
 ```bash
-npx lasrctl test inputs
+npx lasrctl test --build example-program --inputJson inputs
 ```
 #### 6) Create Account and Deploy Program
 ```bash
-npx lasrctl deploy --author you --name myToken --symbol MYTOKEN --programName "My first token on LASR" --initializedSupply 10000000 --totalSupply 10000000 --inputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0xa60c7238d98c7ecef8659a18c2e8c6265327f280"}' --network stable
+npx lasrctl deploy --build example-program --author you --name myToken --symbol MYTOKEN --programName "My first token on LASR" --initializedSupply 10000000 --totalSupply 10000000 --inputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0xa60c7238d98c7ecef8659a18c2e8c6265327f280"}' --network stable
 ```
 _Note: the program deploy may fail on it's first attempt. If so, try it once more_
 

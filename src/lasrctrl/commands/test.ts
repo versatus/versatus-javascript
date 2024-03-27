@@ -10,44 +10,46 @@ import fs from 'fs'
 import { runSpawn } from '@/lasrctrl/shell'
 
 export interface TestCommandArgs {
+  build: string
   inputJson: string
 }
 export const testCommandFlags: CommandBuilder<{}, TestCommandArgs> = (
   yargs: Argv
 ) => {
-  return yargs.option('inputJson', {
-    describe:
-      'Path to the JSON input file or directory containing JSON files for testing',
-    type: 'string',
-    demandOption: true,
-  })
+  return yargs
+    .option('build', {
+      describe:
+        'Filename of the built program to be deployed. Example: "example-program"',
+      type: 'string',
+      alias: 'b',
+      demandOption: true,
+    })
+    .option('inputJson', {
+      describe:
+        'Path to the JSON input file or directory containing JSON files for testing',
+      type: 'string',
+      alias: 'i',
+      demandOption: true,
+    })
 }
 
 const test = async (argv: Arguments<TestCommandArgs>) => {
   if (argv.inputJson) {
-    const inputPath = path.resolve(process.cwd(), argv.inputJson)
+    const pathToJsonToTest = path.resolve(process.cwd(), argv.inputJson)
+    const programName = argv.build
     try {
-      const stats = await fsp.stat(inputPath)
+      const stats = await fsp.stat(pathToJsonToTest)
       let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd()
+      const files = fs.readdirSync('./build/lib')
+
+      const hasJsFiles = files.some((file) => path.extname(file) === '.js')
       let target: string
 
-      const checkWasmScriptPath = path.resolve(
-        scriptDir,
-        'scripts',
-        'check_cli.sh'
-      )
-      await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' })
+      const checkForCli = path.resolve(scriptDir, 'scripts', 'check_cli.sh')
+      await runSpawn('bash', [checkForCli], { stdio: 'inherit' })
 
-      if (fs.existsSync('./build/lib/example-program.js')) {
+      if (hasJsFiles) {
         target = 'node'
-      } else if (fs.existsSync('./build/build.wasm')) {
-        target = 'wasm'
-        const checkWasmScriptPath = path.resolve(
-          scriptDir,
-          'scripts',
-          'check_wasm.sh'
-        )
-        await runSpawn('bash', [checkWasmScriptPath], { stdio: 'inherit' })
       } else {
         throw new Error('No build artifacts found.')
       }
@@ -55,11 +57,11 @@ const test = async (argv: Arguments<TestCommandArgs>) => {
       console.log('\x1b[0;37mStarting test...\x1b[0m')
 
       if (stats.isDirectory()) {
-        const files = await fsp.readdir(inputPath)
+        const files = await fsp.readdir(pathToJsonToTest)
         const jsonFiles = files.filter((file) => path.extname(file) === '.json')
         const testPromises = jsonFiles.map((file) => {
-          const filePath = path.join(inputPath, file)
-          return runTestProcess(filePath, target)
+          const jsonFileToTest = path.join(pathToJsonToTest, file)
+          return runTestProcess(programName, jsonFileToTest, target, false)
         })
 
         const results = await Promise.allSettled(testPromises)
@@ -82,18 +84,12 @@ const test = async (argv: Arguments<TestCommandArgs>) => {
           }
         })
       } else if (stats.isFile()) {
-        await runTestProcess(inputPath, target)
+        await runTestProcess(programName, pathToJsonToTest, target, true)
       } else {
         console.error('The input path is neither a file nor a directory.')
         process.exit(1)
       }
     } catch (err) {
-      console.log(typeof err)
-      //@ts-ignore
-      if (typeof err === 'string' && err.indexOf('Error: ') > -1) {
-        //@ts-ignore
-        err = err.split('Error: ')[1].split('\n')[0]
-      }
       // @ts-ignore
       console.log(`\x1b[0;31m${err}\x1b[0m`)
       process.exit(1)

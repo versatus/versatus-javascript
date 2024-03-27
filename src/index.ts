@@ -29,6 +29,9 @@ export {
   buildProgramUpdateField,
   buildTokenUpdateField,
   buildMintInstructions,
+  buildProgramMetadataUpdateInstruction,
+  buildProgramDataUpdateInstruction,
+  buildTokenMetadataUpdateInstruction,
 } from './lib/programs/instruction-builders/builder-helpers'
 
 export {
@@ -63,6 +66,11 @@ export {
   parseAmountToBigInt,
   formatAmountToHex,
   getUndefinedProperties,
+  validateAndCreateJsonString,
+  validate,
+  checkIfValuesAreUndefined,
+  formatBigIntToHex,
+  formatHexToAmount,
 } from './lib/utils'
 
 export { broadcast, getAccount } from './lib/versatus'

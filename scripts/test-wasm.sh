@@ -46,7 +46,7 @@ filename=$(basename "$INPUT_JSON_PATH")
 print_info  "Tested input: \033[0;33m$filename\033[0m"
 echo
 print_light_gray "Validating the PROGRAM OUTPUT..."
-VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE" 2>&1)
+VALIDATION_RESPONSE=$("$LASR_CLI_PATH" parse-outputs --json "$EXECUTE_RESPONSE")
 VALIDATION_STATUS=$?
 
 if [ "$VALIDATION_STATUS" -eq 0 ]; then

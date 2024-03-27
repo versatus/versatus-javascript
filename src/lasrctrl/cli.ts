@@ -8,6 +8,8 @@ import test, { testCommandFlags } from '@/lasrctrl/commands/test'
 import deploy, { deployCommandFlags } from '@/lasrctrl/commands/deploy'
 import call, { callCommandFlags } from '@/lasrctrl/commands/call'
 import send, { sendCommandFlags } from '@/lasrctrl/commands/send'
+//@ts-ignore
+import { version } from '../../../package.json'
 
 export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -43,14 +45,20 @@ programs on \x1b[0;35mLASR\x1b[0m.
     build
   )
   .command(
-    'test [inputJson]',
+    'test [flags]',
     'Run the test suite for the project',
     //@ts-ignore
     testCommandFlags,
     test
   )
   //@ts-ignore
-  .command('deploy [flags]', 'Deploy a program', deployCommandFlags, deploy)
+  .command(
+    'deploy [flags]',
+    'Deploy a program to LASR',
+    //@ts-ignore
+    deployCommandFlags,
+    deploy
+  )
   .command(
     'send [flags]',
     'Send a specified amount of tokens to a recipient',

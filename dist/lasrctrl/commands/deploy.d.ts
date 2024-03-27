@@ -1,5 +1,6 @@
 import { Arguments, CommandBuilder } from 'yargs';
 export interface DeployCommandArgs {
+    build: string;
     author: string;
     name: string;
     symbol: string;

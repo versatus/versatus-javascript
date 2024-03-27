@@ -50,14 +50,15 @@ With this package installed, you can now initialize your project with the `npx l
 
 ### LASR Templates
 
-| Template  | Description                                                                 |
-|-----------|-----------------------------------------------------------------------------|
-| `blank`   | A minimal template to start from scratch.                                   |
-| `fungible`| A template for creating fungible tokens.                                    |
-| `faucet`  | A template for creating a faucet, allowing users to request test tokens.    |
+| Template       | Description                                                              |
+|----------------|--------------------------------------------------------------------------|
+| `blank`        | A minimal template to start from scratch.                                |
+| `fungible`     | A template for creating fungible tokens.                                 |
+| `non-fungible` | A template for creating non-fungible tokens.                             |
+| `faucet`       | A template for creating a faucet, allowing users to request test tokens. |
 
 ```bash
-npx lasrctl init fungible # Choose blank, fungible, or faucet
+npx lasrctl init fungible # Choose blank, fungible, non-fungible or faucet
 ```
 
 After initialization, you will now have an example program available in the `example-program.ts` file in the root of your project.  The init command also creates a folder with example JSON input for each method in the `inputs` folder.
@@ -81,7 +82,7 @@ This command builds your TypeScript program and places the JavaScript output int
 With your program now built, you can use `npx lasrctl` to test how your program responds to sample JSON inputs that it may receive from the LASR protocol.  The sample input JSON files are in the `./inputs` folder. 
 
 ```bash
-npx lasrctl test inputs # folder where input JSON is stored
+npx lasrctl test -b example-program -i inputs # folder where input JSON is stored
 ```
 
 The test command loops over all of the JSON files in this folder and passes each of them into your program. The output is then returned to the terminal.
@@ -144,28 +145,29 @@ Within the LASR protocol - everything is a token. When we deploy our program, we
 ### Example Deployment Command
 
 ```bash
-npx lasrctl deploy --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 1 --totalSupply 1
+npx lasrctl deploy --build example-program --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 1 --totalSupply 1
 ```
 
 #### Deploy Parameters
 
 Deploy a program
 
-| Option               | Description                               | Type     | Required | Default                       |
-|----------------------|-------------------------------------------|----------|----------|-------------------------------|
-| `--version`          | Show version number                       | boolean  | No       |                               |
-| `--help`             | Show help                                 | boolean  | No       |                               |
-| `--author`           | Author of the contract                    | string   | Yes      |                               |
-| `--name`             | Name of the contract                      | string   | Yes      |                               |
-| `--symbol`           | Symbol for the program                    | string   | Yes      |                               |
-| `--programName`      | Name for the program                      | string   | Yes      |                               |
-| `--initializedSupply`| Initial Supply of the Token               | string   | Yes      |                               |
-| `--totalSupply`      | Total supply of the token to be created   | string   | Yes      |                               |
-| `--recipientAddress` | Address for the initialized supply        | string   | No       |                               |
-| `--inputs`           | Additional inputs for the program         | string   | No       |                               |
-| `--keypairPath`      | Path to the keypair file                  | string   | No       | `./.lasr/wallet/keypair.json` |
-| `--secretKey`        | Secret key for the wallet                 | string   | No       |                               |
-| `--target`           | Build target                              | string   | No       | `node` (choices: "node" - _more soon_)      |
+| Option                | Description                             | Type     | Required | Default                       |
+|-----------------------|-----------------------------------------|----------|----------|-------------------------------|
+| `--version`           | Show version number                     | boolean  | No       |                               |
+| `--help`              | Show help                               | boolean  | No       |                               |
+| `--build`             | Name of the program file being built    | string   | Yes      |                               |
+| `--author`            | Author of the contract                  | string   | Yes      |                               |
+| `--name`              | Name of the contract                    | string   | Yes      |                               |
+| `--symbol`            | Symbol for the program                  | string   | Yes      |                               |
+| `--programName`       | Name for the program                    | string   | Yes      |                               |
+| `--initializedSupply` | Initial Supply of the Token             | string   | Yes      |                               |
+| `--totalSupply`       | Total supply of the token to be created | string   | Yes      |                               |
+| `--recipientAddress`  | Address for the initialized supply      | string   | No       |                               |
+| `--inputs`            | Additional inputs for the program       | string   | No       |                               |
+| `--keypairPath`       | Path to the keypair file                | string   | No       | `./.lasr/wallet/keypair.json` |
+| `--secretKey`         | Secret key for the wallet               | string   | No       |                               |
+| `--target`            | Build target                            | string   | No       | `node` (choices: "node" - _more soon_)      |
 
 Keep track of your program account id - this is the required key that you will need to interact with your program in later steps.
 
@@ -205,7 +207,7 @@ npx lasrctl call --programAddress <YOUR_PROGRAM_ADDRESS_FROM_DEPLOY> --op hello 
 
 The LASR Faucet is available at https://faucet.versatus.io
 
-**TODO - GIF to show how to import private key from keypair.json into the LASR Wallet**
+<img src="adding-private-key-to-wallet.gif">
 
 Once you have set up the LASR Wallet with your keypair and deployed a program, you can now faucet yourself additional funds and more easily interact with your programs.
 

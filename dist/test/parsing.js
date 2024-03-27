@@ -16,3 +16,6 @@ console.log();
 console.log('1.1234123');
 console.log(parseAmountToBigInt(1.1234123));
 console.log(parseAmountToBigInt('1.1234123'));
+console.log();
+console.log('0x0000000000000000000000000000000000000000000000000000000000000001');
+console.log(parseAmountToBigInt('0x0000000000000000000000000000000000000000000000000000000000000001'));

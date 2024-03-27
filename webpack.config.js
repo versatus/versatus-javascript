@@ -27,10 +27,6 @@ export default {
       path.resolve(__dirname, 'node_modules'), // to look in your library's node_modules
     ],
   },
-  output: {
-    filename: 'example-program.js',
-    path: path.resolve('build/lib'),
-  },
   mode: 'production',
   externalsPresets: { node: true },
   optimization: {
