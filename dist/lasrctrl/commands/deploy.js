@@ -113,7 +113,7 @@ const deploy = async (argv) => {
         testJson.transaction.transactionInputs = JSON.stringify(inputsPayload);
         // Create a temporary file to write the updated JSON
         const tempDir = os.tmpdir();
-        const tempFilePath = path.join(tempDir, `updated-test-input-${Date.now()}.json`);
+        const tempFilePath = path.join(tempDir, `temp-create-input-${Date.now()}.json`);
         if (!argv.build) {
             throw new Error('Build not found in arguments.');
         }
@@ -183,7 +183,7 @@ const deploy = async (argv) => {
         console.log(`Program registered.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? addressFromKeypair), network, secretKey, argv.inputs);
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? programAddress), network, secretKey, argv.inputs);
         if (createResponse) {
             console.log(`Program created successfully.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m

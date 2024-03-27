@@ -11,26 +11,17 @@ import { __dirname } from '@/lasrctrl/cli'
 
 export interface InitCommandArgs {
   example: string
-  target?: string
 }
 
 export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
   yargs: Argv
 ) => {
-  return yargs
-    .positional('example', {
-      describe: 'The example program to initialize',
-      type: 'string',
-      choices: ['fungible', 'non-fungible', 'snake', 'faucet'],
-      demandOption: true,
-    })
-    .option('target', {
-      describe: 'Build target',
-      type: 'string',
-      choices: ['node', 'wasm'],
-      default: 'node',
-      alias: 't',
-    })
+  return yargs.positional('example', {
+    describe: 'The example program to initialize',
+    type: 'string',
+    choices: ['fungible', 'non-fungible', 'snake', 'faucet'],
+    demandOption: true,
+  })
 }
 
 const init = (argv: Arguments<InitCommandArgs>) => {

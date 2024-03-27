@@ -15,20 +15,8 @@ import {
   Program,
   ProgramUpdate,
 } from '@versatus/versatus-javascript/lib/programs/Program'
-import {
-  Address,
-  AddressOrNamespace,
-} from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
-import {
-  ApprovalsExtend,
-  ApprovalsValue,
-  TokenField,
-  TokenFieldValue,
-  TokenOrProgramUpdate,
-  TokenUpdate,
-  TokenUpdateField,
-} from '@versatus/versatus-javascript/lib/programs/Token'
-import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
+import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
+import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   checkIfValuesAreUndefined,
@@ -43,45 +31,11 @@ class NonFungibleTokenProgram extends Program {
   constructor() {
     super()
     Object.assign(this.methodStrategies, {
-      approve: this.approve.bind(this),
       burn: this.burn.bind(this),
       create: this.create.bind(this),
       mint: this.mint.bind(this),
       transfer: this.transfer.bind(this),
     })
-  }
-
-  approve(computeInputs: ComputeInputs) {
-    try {
-      const { transaction } = computeInputs
-      const { transactionInputs, programId } = transaction
-      const tokenId = new AddressOrNamespace(new Address(programId))
-      const caller = new Address(transaction.from)
-
-      const update = buildTokenUpdateField({
-        field: 'approvals',
-        value: JSON.parse(transactionInputs),
-        action: 'extend',
-      })
-
-      const tokenUpdate = new TokenUpdate(
-        new AddressOrNamespace(caller),
-        tokenId,
-        [update]
-      )
-      const tokenOrProgramUpdate = new TokenOrProgramUpdate(
-        'tokenUpdate',
-        tokenUpdate
-      )
-      const updateInstruction = new TokenUpdateBuilder()
-        .addTokenAddress(tokenId)
-        .addUpdateField(tokenOrProgramUpdate)
-        .build()
-
-      return new Outputs(computeInputs, [updateInstruction]).toJson()
-    } catch (e) {
-      throw e
-    }
   }
 
   burn(computeInputs: ComputeInputs) {

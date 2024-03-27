@@ -2,7 +2,7 @@ import { ComputeInputs } from '../../lib/types';
 import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace';
 import { StatusValue } from '../../lib/programs/Token';
 /**
- * Represents a program with strategies for handling various operations such as `create` and `update`.
+ * Represents a program with strategies for handling various operations such as `approve`, `create`, and `update`.
  * The program is initialized with a map of method strategies that bind specific methods to operation keys.
  * This structure allows for dynamic execution of methods based on the operation specified in the input.
  */
@@ -18,6 +18,21 @@ export declare class Program {
      * Constructs a new instance of the Program class, initializing the `methodStrategies` with `create` and `update` operations.
      */
     constructor();
+    /**
+     * Approves a transaction by updating the `approvals` field with the inputs provided in the transaction.
+     * This method constructs a token update to extend the `approvals` field, indicating a successful approval process.
+     * The approval process involves building a series of updates and instructions that modify the token's state to reflect the new approval.
+     *
+     * The process includes constructing the `TokenUpdate` object with the caller's address, the program's address, and the approval update.
+     * It then wraps this update in a `TokenOrProgramUpdate` object, specifying it as a `tokenUpdate`.
+     * A `TokenUpdateBuilder` is used to construct the final update instruction, which is then converted to JSON format
+     * and returned as the output of the method.
+     *
+     * @param {ComputeInputs} computeInputs - Contains the transaction details including transaction inputs and the program ID.
+     * @returns {string} JSON string representing the outputs of the approve operation.
+     * @throws {Error} Throws an error if any part of the approval process fails, including if there are issues constructing the updates.
+     */
+    approve(computeInputs: ComputeInputs): object;
     /**
      * Handles the `create` operation by processing the given computeInputs, validating and transforming them into a structured output.
      * This method performs a series of validations and transformations, constructs various instructions for token and program updates,

@@ -3,19 +3,11 @@ import path from 'path';
 import fs from 'fs';
 import { __dirname } from '../../lasrctrl/cli.js';
 export const initCommandFlags = (yargs) => {
-    return yargs
-        .positional('example', {
+    return yargs.positional('example', {
         describe: 'The example program to initialize',
         type: 'string',
         choices: ['fungible', 'non-fungible', 'snake', 'faucet'],
         demandOption: true,
-    })
-        .option('target', {
-        describe: 'Build target',
-        type: 'string',
-        choices: ['node', 'wasm'],
-        default: 'node',
-        alias: 't',
     });
 };
 const init = (argv) => {
