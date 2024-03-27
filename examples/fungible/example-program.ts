@@ -58,21 +58,19 @@ class FungibleTokenProgram extends Program {
       const { transactionInputs, programId } = transaction
       const tokenId = new AddressOrNamespace(new Address(programId))
       const caller = new Address(transaction.from)
-      const update = new TokenUpdateField(
-        new TokenField('approvals'),
-        new TokenFieldValue(
-          'approvals',
-          new ApprovalsValue(
-            new ApprovalsExtend([JSON.parse(transactionInputs)])
-          )
-        )
-      )
+
+      const update = buildTokenUpdateField({
+        field: 'approvals',
+        value: JSON.parse(transactionInputs),
+        action: 'extend',
+      })
 
       const tokenUpdate = new TokenUpdate(
         new AddressOrNamespace(caller),
         new AddressOrNamespace(THIS),
         [update]
       )
+
       const tokenOrProgramUpdate = new TokenOrProgramUpdate(
         'tokenUpdate',
         tokenUpdate
