@@ -1,17 +1,23 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   callCreate,
+  checkWallet,
   getAddressFromKeyPairFile,
   getSecretKey,
   registerProgram,
+  runTestProcess,
 } from '@/lasrctrl/cli-helpers'
 import { VIPFS_URL } from '@/lib/consts'
 import { runCommand } from '@/lasrctrl/shell'
 import { NETWORK } from '@/lib/types'
+import fs from 'fs/promises'
+import path from 'path'
+import os from 'os'
 
 import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
 export interface DeployCommandArgs {
+  build: string
   author: string
   name: string
   symbol: string
@@ -30,6 +36,13 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
   yargs: Argv
 ) => {
   return yargs
+    .option('build', {
+      describe:
+        'Filename of the built program to be deployed. Example: "example-program"',
+      type: 'string',
+      demandOption: true,
+      alias: 'b',
+    })
     .option('author', {
       describe: 'Author of the contract',
       type: 'string',
@@ -52,25 +65,24 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       describe: 'Name for the program',
       type: 'string',
       demandOption: true,
-      alias: 'pn',
+      alias: 'p',
     })
     .option('initializedSupply', {
       describe:
         'Supply of the token to be sent to either the caller or the program',
       type: 'string',
       demandOption: true,
-      alias: 'is',
     })
     .option('totalSupply', {
       describe: 'Total supply of the token to be created',
       type: 'string',
       demandOption: true,
-      alias: 'ts',
+      alias: 't',
     })
     .option('recipientAddress', {
       describe: 'Address for the initialized supply',
       type: 'string',
-      alias: 'ra',
+      alias: 'r',
     })
     .option('inputs', {
       describe: 'Additional inputs for the program',
@@ -85,20 +97,14 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
     .option('secretKey', {
       describe: 'Secret key for the wallet',
       type: 'string',
+      alias: 'k',
     })
     .option('network', {
       describe: 'Network',
       type: 'string',
       choices: ['stable', 'unstable'],
       default: 'stable',
-      alias: 'net',
-    })
-    .option('target', {
-      describe: 'Build target',
-      type: 'string',
-      choices: ['node', 'wasm'],
-      default: 'node',
-      alias: 't',
+      alias: 'x',
     })
 }
 
@@ -111,12 +117,67 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 
     const network = argv.network as NETWORK
 
+    console.log(
+      '\x1b[0;33mCreating temporary test file against cli arguments...\x1b[0m'
+    )
+    const inputsDirPath = path.join(process.cwd(), 'inputs')
+    const files = await fs.readdir(inputsDirPath)
+    const createJsonFiles = files.filter((file) => file.endsWith('create.json'))
+    if (createJsonFiles.length === 0) {
+      throw new Error('No suitable create.json file found.')
+    }
+
+    // Assuming there should only be one such file, or you want the first one if there are multiple
+    const createJsonFileName = createJsonFiles[0]
+
+    // Construct the full path to the found JSON file
+    const existingJsonFilePath = path.join(inputsDirPath, createJsonFileName)
+
+    const fileContents = await fs.readFile(existingJsonFilePath, 'utf8')
+    const testJson = JSON.parse(fileContents)
+
+    if (!argv.inputs) {
+      throw new Error('no inputs provided')
+    }
+
+    // Assuming argv.inputs is a JSON string, parse it
+    const inputs = JSON.parse(argv.inputs)
+
+    const inputsPayload = {
+      ...inputs,
+      symbol: argv.symbol,
+      name: argv.programName,
+      initializedSupply: argv.initializedSupply,
+      totalSupply: argv.totalSupply,
+    }
+
+    if (argv.recipientAddress) {
+      inputsPayload.to = argv.recipientAddress
+    }
+
+    // Update the transactionInputs in the testJson object
+    testJson.transaction.transactionInputs = JSON.stringify(inputsPayload)
+
+    // Create a temporary file to write the updated JSON
+    const tempDir = os.tmpdir()
+    const tempFilePath = path.join(
+      tempDir,
+      `updated-test-input-${Date.now()}.json`
+    )
+
+    if (!argv.build) {
+      throw new Error('Build not found in arguments.')
+    }
+
+    await fs.writeFile(tempFilePath, JSON.stringify(testJson, null, 2), 'utf8')
+    await runTestProcess(argv.build, tempFilePath, 'node', false)
+    console.log('\x1b[0;33mCreate method testing complete...\x1b[0m')
+
     console.log('\x1b[0;33mPublishing program...\x1b[0m')
     const isWasm = argv.target === 'wasm'
 
     process.env.LASR_RPC_URL = getRPCForNetwork(network)
     process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
-
     let command
     if (isWasm) {
       command = `
@@ -129,7 +190,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
              --is-srv true`
     } else {
       command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_URL} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`
+          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`
     }
 
     const output = await runCommand(command)
@@ -146,11 +207,6 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 
     console.log('\x1b[0;33mChecking wallet...\x1b[0m')
     // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
-    console.log(
-      `Fauceted funds to \x1b[0;32m${
-        argv.recipientAddress ?? addressFromKeypair
-      }\x1b[0m`
-    )
 
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
     let registerResponse
@@ -215,6 +271,13 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 ==> recipientAddress: \x1b[0;32m${
         argv.recipientAddress ?? addressFromKeypair
       }\x1b[0m
+======
+======
+======
+======
+>>>>>>>>>>> View Program on LASR Playground:
+https://faucet.versatus.io/programs/${programAddress}
+          
           `)
     }
   } catch (error) {

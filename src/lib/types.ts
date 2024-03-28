@@ -23,6 +23,10 @@ import {
   TokenMetadataValue,
 } from '@/lib/programs/Token'
 import {
+  LinkedProgramsExtend,
+  LinkedProgramsInsert,
+  LinkedProgramsRemove,
+  LinkedProgramsValue,
   ProgramDataExtend,
   ProgramDataInsert,
   ProgramDataRemove,
@@ -56,7 +60,7 @@ export type TransactionType = {
  * This file contains types the protocol uses to prepare data, structure it and call out to a particular compute payload. The inputs type for a contract call
  */
 export interface ComputeInputs {
-  accountInfo?: Account
+  accountInfo: Account
   contractInputs: string
   op: string
   transaction: Transaction
@@ -102,6 +106,7 @@ export type ProgramFieldValues =
   | 'balance'
   | 'data'
   | 'metadata'
+  | 'linkedPrograms'
   | 'ownerId'
   | 'status'
 
@@ -114,6 +119,10 @@ export type ProgramUpdateValueTypes =
   | ProgramMetadataInsert
   | ProgramMetadataExtend
   | ProgramMetadataRemove
+  | LinkedProgramsValue
+  | LinkedProgramsInsert
+  | LinkedProgramsExtend
+  | LinkedProgramsRemove
   | StatusValue
 
 export type TokenFieldValues =

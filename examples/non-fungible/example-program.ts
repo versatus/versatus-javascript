@@ -3,16 +3,14 @@ import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
 import {
   buildBurnInstruction,
   buildCreateInstruction,
+  buildMintInstructions,
   buildProgramUpdateField,
   buildTokenDistributionInstruction,
   buildTokenUpdateField,
   buildTransferInstruction,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
-import {
-  ETH_PROGRAM_ADDRESS,
-  THIS,
-} from '@versatus/versatus-javascript/lib/consts'
+import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
   Program,
   ProgramUpdate,
@@ -33,8 +31,12 @@ import {
 import { TokenUpdateBuilder } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builders'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
-  getUndefinedProperties,
+  checkIfValuesAreUndefined,
+  formatAmountToHex,
+  formatHexToAmount,
   parseAmountToBigInt,
+  validate,
+  validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
 
 class NonFungibleTokenProgram extends Program {
@@ -45,90 +47,102 @@ class NonFungibleTokenProgram extends Program {
       burn: this.burn.bind(this),
       create: this.create.bind(this),
       mint: this.mint.bind(this),
+      transfer: this.transfer.bind(this),
     })
   }
 
   approve(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const { transactionInputs, programId } = transaction
-    const tokenId = new AddressOrNamespace(new Address(programId))
-    const caller = new Address(transaction.from)
-    const update = new TokenUpdateField(
-      new TokenField('approvals'),
-      new TokenFieldValue(
-        'insert',
-        new ApprovalsValue(new ApprovalsExtend([JSON.parse(transactionInputs)]))
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs, programId } = transaction
+      const tokenId = new AddressOrNamespace(new Address(programId))
+      const caller = new Address(transaction.from)
+
+      const update = buildTokenUpdateField({
+        field: 'approvals',
+        value: JSON.parse(transactionInputs),
+        action: 'extend',
+      })
+
+      const tokenUpdate = new TokenUpdate(
+        new AddressOrNamespace(caller),
+        tokenId,
+        [update]
       )
-    )
+      const tokenOrProgramUpdate = new TokenOrProgramUpdate(
+        'tokenUpdate',
+        tokenUpdate
+      )
+      const updateInstruction = new TokenUpdateBuilder()
+        .addTokenAddress(tokenId)
+        .addUpdateField(tokenOrProgramUpdate)
+        .build()
 
-    const tokenUpdate = new TokenUpdate(
-      new AddressOrNamespace(caller),
-      tokenId,
-      [update]
-    )
-    const tokenOrProgramUpdate = new TokenOrProgramUpdate(
-      'tokenUpdate',
-      tokenUpdate
-    )
-    const updateInstruction = new TokenUpdateBuilder()
-      .addTokenAddress(tokenId)
-      .addUpdateField(tokenOrProgramUpdate)
-      .build()
-
-    return new Outputs(computeInputs, [updateInstruction]).toJson()
+      return new Outputs(computeInputs, [updateInstruction]).toJson()
+    } catch (e) {
+      throw e
+    }
   }
 
   burn(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const burnInstruction = buildBurnInstruction({
-      from: transaction.from,
-      caller: transaction.from,
-      programId: THIS,
-      tokenAddress: transaction.programId,
-      amount: transaction.value,
-    })
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs, from } = transaction
+      const txInputs = validate(
+        JSON.parse(transactionInputs),
+        'unable to parse transactionInputs'
+      )
 
-    return new Outputs(computeInputs, [burnInstruction]).toJson()
+      const tokenIds = validate(txInputs.tokenIds, 'missing tokenIds...')
+
+      const burnInstruction = buildBurnInstruction({
+        from: transaction.from,
+        caller: transaction.from,
+        programId: THIS,
+        tokenAddress: transaction.programId,
+        tokenIds,
+      })
+
+      return new Outputs(computeInputs, [burnInstruction]).toJson()
+    } catch (e) {
+      throw e
+    }
   }
 
   create(computeInputs: ComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { transactionInputs, from } = transaction
-      const txInputs = JSON.parse(transactionInputs)
+      const txInputs = validate(
+        JSON.parse(transactionInputs),
+        'unable to parse transactionInputs'
+      )
 
-      if (!txInputs) {
-        throw new Error('missing token input datas')
-      }
       // metadata
       const totalSupply = txInputs?.totalSupply
       const initializedSupply = txInputs?.initializedSupply
       const symbol = txInputs?.symbol
       const name = txInputs?.name
+      const recipientAddress = txInputs?.to ?? transaction.to
 
       // data
       const imgUrl = txInputs?.imgUrl
       const paymentProgramAddress = txInputs?.paymentProgramAddress
       const price = txInputs?.price
+      const methods = 'approve,create,burn,mint,update'
 
-      const undefinedProperties = getUndefinedProperties({
-        imgUrl,
-        paymentProgramAddress,
-        price,
-        totalSupply,
-        initializedSupply,
-        symbol,
-        name,
-      })
-      if (undefinedProperties.length > 0) {
-        throw new Error(
-          `The following properties are undefined: ${undefinedProperties.join(
-            ', '
-          )}`
-        )
-      }
+      validate(parseFloat(price), 'invalid price')
+      validate(
+        parseInt(initializedSupply) <= parseInt(totalSupply),
+        'invalid supply'
+      )
 
-      const metadataStr = JSON.stringify({
+      validate(
+        parseInt(formatHexToAmount(formatAmountToHex(initializedSupply))) <= 16,
+        'woah partner, too many tokens for beta. 16 max.'
+      )
+
+      const metadataStr = validateAndCreateJsonString({
         symbol,
         name,
         totalSupply,
@@ -141,11 +155,22 @@ class NonFungibleTokenProgram extends Program {
         action: 'extend',
       })
 
-      const dataStr = JSON.stringify({
+      // generate a map of tokenIds
+      const tokenIds: Record<string, any> = {}
+      for (let i = 1; i <= parseInt(initializedSupply, 10); i++) {
+        tokenIds[formatAmountToHex(i.toString())] = {
+          ownerAddress: THIS,
+          data: JSON.stringify({ imgUrl }),
+        }
+      }
+
+      const dataStr = validateAndCreateJsonString({
         type: 'non-fungible',
         imgUrl,
         paymentProgramAddress,
         price,
+        methods,
+        tokenMap: JSON.stringify(tokenIds),
       })
 
       const addProgramData = buildProgramUpdateField({
@@ -164,6 +189,12 @@ class NonFungibleTokenProgram extends Program {
         ),
       })
 
+      const addMetadataToToken = buildTokenUpdateField({
+        field: 'metadata',
+        value: metadataStr,
+        action: 'extend',
+      })
+
       const addDataToToken = buildTokenUpdateField({
         field: 'data',
         value: dataStr,
@@ -173,8 +204,8 @@ class NonFungibleTokenProgram extends Program {
       const distributionInstruction = buildTokenDistributionInstruction({
         programId: THIS,
         initializedSupply,
-        to: THIS,
-        tokenUpdates: [addDataToToken],
+        to: recipientAddress,
+        tokenUpdates: [addDataToToken, addMetadataToToken],
         nonFungible: true,
       })
 
@@ -200,42 +231,41 @@ class NonFungibleTokenProgram extends Program {
   mint(computeInputs: ComputeInputs) {
     try {
       const { transaction } = computeInputs
-      const currProgramInfo =
-        computeInputs.accountInfo?.programs[transaction.to]
+      const currProgramInfo = validate(
+        computeInputs.accountInfo?.programs[transaction.to],
+        'token missing from self...'
+      )
 
-      if (!currProgramInfo) {
-        throw new Error('token missing from self...')
-      }
-
-      const tokenData = currProgramInfo.data
-      if (!tokenData) {
-        throw new Error('token missing required data to mint...')
-      }
+      const tokenData = validate(
+        currProgramInfo?.data,
+        'token missing required data to mint...'
+      )
 
       const price = parseInt(tokenData.price)
       const paymentProgramAddress = tokenData.paymentProgramAddress
 
-      const availableTokenIds = currProgramInfo?.tokenIds
-      if (!availableTokenIds) {
-        throw new Error('missing nfts to mint...')
-      }
+      const availableTokenIds = validate(
+        currProgramInfo?.tokenIds,
+        'missing nfts to mint...'
+      )
 
-      const quantityAvailable = Number(availableTokenIds?.length)
-      if (!quantityAvailable) {
-        throw new Error('minted out...')
-      }
+      const quantityAvailable = validate(
+        parseInt(availableTokenIds?.length),
+        'minted out...'
+      )
 
       const { transactionInputs } = transaction
       const parsedInputMetadata = JSON.parse(transactionInputs)
 
-      const quantity = parsedInputMetadata?.quantity
-      if (!quantity) {
-        throw new Error('please specify a quantity')
-      }
+      const quantity = validate(
+        parseInt(parsedInputMetadata?.quantity),
+        'please specify a quantity'
+      )
 
-      if (quantity > quantityAvailable) {
-        throw new Error('not enough supply for quantity desired')
-      }
+      validate(
+        quantity <= quantityAvailable,
+        'not enough supply for quantity desired'
+      )
 
       const tokenIds = []
 
@@ -247,24 +277,49 @@ class NonFungibleTokenProgram extends Program {
         (price * quantity).toString()
       )
 
-      const transferToProgram = buildTransferInstruction({
+      const mintInstructions = buildMintInstructions({
         from: transaction.from,
-        to: 'this',
-        tokenAddress: paymentProgramAddress,
-        amount: amountNeededToMint,
+        programId: transaction.programId,
+        paymentTokenAddress: paymentProgramAddress,
+        inputValue: amountNeededToMint,
+        returnedTokenIds: tokenIds,
       })
 
-      const transferToCaller = buildTransferInstruction({
-        from: 'this',
-        to: transaction.from,
-        tokenAddress: transaction.to,
-        tokenIds,
-      })
+      return new Outputs(computeInputs, mintInstructions).toJson()
+    } catch (e) {
+      throw e
+    }
+  }
 
-      return new Outputs(computeInputs, [
-        transferToProgram,
-        transferToCaller,
-      ]).toJson()
+  transfer(computeInputs: ComputeInputs) {
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs, programId, from, to } = transaction
+      const txInputs = validate(
+        JSON.parse(transactionInputs),
+        'unable to parse transactionInputs'
+      )
+
+      const { tokenIds, recipientAddress } = txInputs
+      validate(Array.isArray(tokenIds), 'tokenIds must be an array')
+      checkIfValuesAreUndefined({ tokenIds, recipientAddress })
+
+      const transferArguments: {
+        from: string
+        to: string
+        tokenAddress: string
+        amount?: BigInt
+        tokenIds?: string[]
+      } = {
+        from,
+        to: recipientAddress,
+        tokenAddress: programId,
+        tokenIds: tokenIds,
+      }
+
+      const transferToCaller = buildTransferInstruction(transferArguments)
+
+      return new Outputs(computeInputs, [transferToCaller]).toJson()
     } catch (e) {
       throw e
     }
@@ -272,8 +327,12 @@ class NonFungibleTokenProgram extends Program {
 }
 
 const start = (input: ComputeInputs) => {
-  const contract = new NonFungibleTokenProgram()
-  return contract.start(input)
+  try {
+    const contract = new NonFungibleTokenProgram()
+    return contract.start(input)
+  } catch (e) {
+    throw e
+  }
 }
 
 process.stdin.setEncoding('utf8')
@@ -281,9 +340,14 @@ process.stdin.setEncoding('utf8')
 let data = ''
 
 process.stdin.on('readable', () => {
-  let chunk
-  while ((chunk = process.stdin.read()) !== null) {
-    data += chunk
+  try {
+    let chunk
+
+    while ((chunk = process.stdin.read()) !== null) {
+      data += chunk
+    }
+  } catch (e) {
+    throw e
   }
 })
 
@@ -293,6 +357,7 @@ process.stdin.on('end', () => {
     const result = start(parsedData)
     process.stdout.write(JSON.stringify(result))
   } catch (err) {
-    console.error('Failed to parse JSON input:', err)
+    // @ts-ignore
+    process.stdout.write(err.message)
   }
 })

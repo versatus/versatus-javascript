@@ -1,0 +1,33 @@
+{
+  "contractInputs": "",
+  "op": "create",
+  "transaction": {
+    "from": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
+    "to": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
+    "transactionInputs": "{\"name\":\"HelloToken\",\"symbol\":\"HLLO\",\"imgUrl\":\"https://foo.bar/img.jpg\",\"initializedSupply\":\"1\",\"totalSupply\":\"1\"}",
+    "nonce": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "op": "create",
+    "programId": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
+    "r": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+    "s": "0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+    "v": 1,
+    "transactionType": {
+      "call": "0x0000000000000000000000000000000000000000000000000000000000000001"
+    },
+    "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
+  },
+  "version": 1,
+  "accountInfo": {
+    "accountType": {
+      "program": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607"
+    },
+    "programNamespace": null,
+    "ownerAddress": "0x482830d7655fb8465a43844fc1530a7713781b49",
+    "programs": {
+    },
+    "nonce": "0x000000000000000000000000000000000000000000000000000000000000001c",
+    "programAccountData": {},
+    "programAccountMetadata": {},
+    "programAccountLinkedPrograms": []
+  }
+}

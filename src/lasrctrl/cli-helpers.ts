@@ -53,10 +53,13 @@ export async function runBuildProcess(programFilePath: string) {
 }
 
 export async function buildNode(buildPath: string) {
+  const parsedPath = path.parse(buildPath)
+  const newFilename = `${parsedPath.name}.js`
+
   const configPath = isInstalledPackage
     ? `${installedPackagePath}/webpack.config.js`
     : './webpack.config.js'
-  const webpackCommand = `npx webpack --config ${configPath} --entry ${buildPath}`
+  const webpackCommand = `npx webpack --config ${configPath} --entry ${buildPath} --output-path ./build/lib --output-filename ${newFilename} --mode production`
   exec(webpackCommand, (tscError, tscStdout, tscStderr) => {
     if (tscError) {
       console.error(`Error during TypeScript transpilation: ${tscError}`)
@@ -66,7 +69,7 @@ export async function buildNode(buildPath: string) {
     console.log('\x1b[0;37mBuild complete...\x1b[0m')
     console.log()
     console.log(`\x1b[0;35mReady to run:\x1b[0m`)
-    console.log(`\x1b[0;33mlasrctl test inputs\x1b[0m`)
+    console.log(`\x1b[0;33mlasrctl test -b ${parsedPath.name} -i inputs\x1b[0m`)
     console.log()
   })
 }
@@ -185,9 +188,10 @@ export async function callCreate(
 
   let inputsStr = JSON.stringify(
     JSON.parse(
-      `{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}"${`,"to":"${recipientAddress}"`}}`
+      `{"name":"${name}","symbol":"${symbol}","initializedSupply":"${initializedSupply}","totalSupply":"${totalSupply}","to":"${recipientAddress}"}`
     )
   )
+
   if (inputs) {
     const parsed = JSON.parse(inputsStr)
     const parsedInputs = JSON.parse(inputs)
@@ -241,7 +245,12 @@ export async function callProgram(
   return await runCommand(command)
 }
 
-export function runTestProcess(inputJsonPath: string, target = 'node') {
+export function runTestProcess(
+  programName: string,
+  inputJsonPath: string,
+  target = 'node',
+  showOutput = true
+) {
   return new Promise((resolve, reject) => {
     let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd()
     const testScriptPath = path.resolve(
@@ -250,9 +259,20 @@ export function runTestProcess(inputJsonPath: string, target = 'node') {
       target === 'node' ? 'test-node.sh' : 'test-wasm.sh'
     )
 
-    const testProcess = spawn('bash', [testScriptPath, inputJsonPath], {
-      stdio: ['inherit', 'inherit', 'pipe'],
-    })
+    const isFailureTest = inputJsonPath.includes('fail')
+    const testProcess = spawn(
+      'bash',
+      [
+        testScriptPath,
+        programName,
+        inputJsonPath,
+        String(showOutput),
+        String(isFailureTest),
+      ],
+      {
+        stdio: ['inherit', 'inherit', 'pipe'],
+      }
+    )
 
     let errorOutput = ''
 
@@ -298,6 +318,9 @@ export async function checkWallet(address: string) {
 
       await axios
         .post(`${FAUCET_URL}/api/faucet/verse`, data)
+        .then((response) => {
+          console.log(`Fauceted funds to \x1b[0;32m${address}\x1b[0m`)
+        })
         .catch((error) => {
           console.error('error fauceting funds')
           throw error
@@ -308,6 +331,6 @@ export async function checkWallet(address: string) {
   } catch (error) {
     // Handle specific error messages or take actions based on the error
     console.error('Failed to validate keypair file:', error)
-    process.exit(1) // Exit the process if the keypair file is not valid or other errors occur
+    process.exit(1)
   }
 }

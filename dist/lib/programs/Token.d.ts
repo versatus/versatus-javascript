@@ -113,7 +113,7 @@ export declare class ApprovalsInsert {
 }
 export declare class ApprovalsExtend {
     private items;
-    constructor(items: Array<[Address, string]>);
+    constructor(items: Array<[Address, string[]]>);
     toJson(): object;
 }
 export declare class ApprovalsRemove {

@@ -1,9 +1,18 @@
-import { callCreate, getAddressFromKeyPairFile, getSecretKey, registerProgram, } from '../../lasrctrl/cli-helpers.js';
+import { callCreate, getAddressFromKeyPairFile, getSecretKey, registerProgram, runTestProcess, } from '../../lasrctrl/cli-helpers.js';
 import { VIPFS_URL } from '../../lib/consts.js';
 import { runCommand } from '../../lasrctrl/shell.js';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
 import { getIPFSForNetwork, getRPCForNetwork } from '../../lib/utils.js';
 export const deployCommandFlags = (yargs) => {
     return yargs
+        .option('build', {
+        describe: 'Filename of the built program to be deployed. Example: "example-program"',
+        type: 'string',
+        demandOption: true,
+        alias: 'b',
+    })
         .option('author', {
         describe: 'Author of the contract',
         type: 'string',
@@ -26,24 +35,23 @@ export const deployCommandFlags = (yargs) => {
         describe: 'Name for the program',
         type: 'string',
         demandOption: true,
-        alias: 'pn',
+        alias: 'p',
     })
         .option('initializedSupply', {
         describe: 'Supply of the token to be sent to either the caller or the program',
         type: 'string',
         demandOption: true,
-        alias: 'is',
     })
         .option('totalSupply', {
         describe: 'Total supply of the token to be created',
         type: 'string',
         demandOption: true,
-        alias: 'ts',
+        alias: 't',
     })
         .option('recipientAddress', {
         describe: 'Address for the initialized supply',
         type: 'string',
-        alias: 'ra',
+        alias: 'r',
     })
         .option('inputs', {
         describe: 'Additional inputs for the program',
@@ -58,20 +66,14 @@ export const deployCommandFlags = (yargs) => {
         .option('secretKey', {
         describe: 'Secret key for the wallet',
         type: 'string',
+        alias: 'k',
     })
         .option('network', {
         describe: 'Network',
         type: 'string',
         choices: ['stable', 'unstable'],
         default: 'stable',
-        alias: 'net',
-    })
-        .option('target', {
-        describe: 'Build target',
-        type: 'string',
-        choices: ['node', 'wasm'],
-        default: 'node',
-        alias: 't',
+        alias: 'x',
     });
 };
 const deploy = async (argv) => {
@@ -79,6 +81,45 @@ const deploy = async (argv) => {
         const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
         const addressFromKeypair = await getAddressFromKeyPairFile(String(argv.keypairPath));
         const network = argv.network;
+        console.log('\x1b[0;33mCreating temporary test file against cli arguments...\x1b[0m');
+        const inputsDirPath = path.join(process.cwd(), 'inputs');
+        const files = await fs.readdir(inputsDirPath);
+        const createJsonFiles = files.filter((file) => file.endsWith('create.json'));
+        if (createJsonFiles.length === 0) {
+            throw new Error('No suitable create.json file found.');
+        }
+        // Assuming there should only be one such file, or you want the first one if there are multiple
+        const createJsonFileName = createJsonFiles[0];
+        // Construct the full path to the found JSON file
+        const existingJsonFilePath = path.join(inputsDirPath, createJsonFileName);
+        const fileContents = await fs.readFile(existingJsonFilePath, 'utf8');
+        const testJson = JSON.parse(fileContents);
+        if (!argv.inputs) {
+            throw new Error('no inputs provided');
+        }
+        // Assuming argv.inputs is a JSON string, parse it
+        const inputs = JSON.parse(argv.inputs);
+        const inputsPayload = {
+            ...inputs,
+            symbol: argv.symbol,
+            name: argv.programName,
+            initializedSupply: argv.initializedSupply,
+            totalSupply: argv.totalSupply,
+        };
+        if (argv.recipientAddress) {
+            inputsPayload.to = argv.recipientAddress;
+        }
+        // Update the transactionInputs in the testJson object
+        testJson.transaction.transactionInputs = JSON.stringify(inputsPayload);
+        // Create a temporary file to write the updated JSON
+        const tempDir = os.tmpdir();
+        const tempFilePath = path.join(tempDir, `updated-test-input-${Date.now()}.json`);
+        if (!argv.build) {
+            throw new Error('Build not found in arguments.');
+        }
+        await fs.writeFile(tempFilePath, JSON.stringify(testJson, null, 2), 'utf8');
+        await runTestProcess(argv.build, tempFilePath, 'node', false);
+        console.log('\x1b[0;33mCreate method testing complete...\x1b[0m');
         console.log('\x1b[0;33mPublishing program...\x1b[0m');
         const isWasm = argv.target === 'wasm';
         process.env.LASR_RPC_URL = getRPCForNetwork(network);
@@ -96,7 +137,7 @@ const deploy = async (argv) => {
         }
         else {
             command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/example-program.js -r --remote ${VIPFS_URL} --runtime ${argv.target} --content-type program --from-secret-key --secret-key "${secretKey}"`;
+          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`;
         }
         const output = await runCommand(command);
         const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g;
@@ -108,7 +149,6 @@ const deploy = async (argv) => {
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
         console.log('\x1b[0;33mChecking wallet...\x1b[0m');
         // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
-        console.log(`Fauceted funds to \x1b[0;32m${argv.recipientAddress ?? addressFromKeypair}\x1b[0m`);
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         let registerResponse;
         let attempts = 0;
@@ -153,6 +193,13 @@ const deploy = async (argv) => {
 ==> initializedSupply: \x1b[0;32m${argv.initializedSupply}\x1b[0m
 ==> totalSupply: \x1b[0;32m${argv.totalSupply}\x1b[0m
 ==> recipientAddress: \x1b[0;32m${argv.recipientAddress ?? addressFromKeypair}\x1b[0m
+======
+======
+======
+======
+>>>>>>>>>>> View Program on LASR Playground:
+https://faucet.versatus.io/programs/${programAddress}
+          
           `);
         }
     }

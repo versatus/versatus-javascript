@@ -25,11 +25,13 @@ initCommandFlags, init)
     .command('build [file]', 'Build the project with the specified contract', 
 //@ts-ignore
 buildCommandFlags, build)
-    .command('test [inputJson]', 'Run the test suite for the project', 
+    .command('test [flags]', 'Run the test suite for the project', 
 //@ts-ignore
 testCommandFlags, test)
     //@ts-ignore
-    .command('deploy [flags]', 'Deploy a program', deployCommandFlags, deploy)
+    .command('deploy [flags]', 'Deploy a program to LASR', 
+//@ts-ignore
+deployCommandFlags, deploy)
     .command('send [flags]', 'Send a specified amount of tokens to a recipient', 
 //@ts-ignore
 sendCommandFlags, send)
