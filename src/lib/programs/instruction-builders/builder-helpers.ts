@@ -8,7 +8,6 @@ import {
 import {
   ApprovalsExtend,
   ApprovalsInsert,
-  ApprovalsRemove,
   StatusValue,
   TokenDataExtend,
   TokenDataInsert,
@@ -25,7 +24,6 @@ import {
 } from '@/lib/programs/Token'
 
 import {
-  Account,
   ProgramFieldValues,
   ProgramUpdateValueTypes,
   TokenFieldValues,

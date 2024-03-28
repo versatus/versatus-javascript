@@ -6,7 +6,6 @@
 import {
   TokenDistribution,
   TokenOrProgramUpdate,
-  TokenUpdate,
   TokenUpdateField,
 } from '@/lib/programs/Token'
 import {
@@ -18,7 +17,6 @@ import {
 } from '@/lib/programs/Instruction'
 import { Outputs } from '@/lib/programs/Outputs'
 import { AddressOrNamespace, Address } from '@/lib/programs/Address-Namespace'
-import { Token } from '@/lib/types'
 
 /**
  * Builds token update instructions by aggregating individual updates and generating a final instruction object.
