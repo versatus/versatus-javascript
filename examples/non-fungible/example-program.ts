@@ -15,8 +15,14 @@ import {
   Program,
   ProgramUpdate,
 } from '@versatus/versatus-javascript/lib/programs/Program'
-import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
-import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
+import {
+  Address,
+  AddressOrNamespace,
+} from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
+import {
+  TokenOrProgramUpdate,
+  TokenUpdate,
+} from '@versatus/versatus-javascript/lib/programs/Token'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   checkIfValuesAreUndefined,
@@ -81,6 +87,7 @@ class NonFungibleTokenProgram extends Program {
 
       // data
       const imgUrl = txInputs?.imgUrl
+      const imgUrls = txInputs?.imgUrls
       const paymentProgramAddress = txInputs?.paymentProgramAddress
       const price = txInputs?.price
       const methods = 'approve,create,burn,mint,update'
@@ -111,10 +118,10 @@ class NonFungibleTokenProgram extends Program {
 
       // generate a map of tokenIds
       const tokenIds: Record<string, any> = {}
-      for (let i = 1; i <= parseInt(initializedSupply, 10); i++) {
-        tokenIds[formatAmountToHex(i.toString())] = {
+      for (let i = 0; i < parseInt(initializedSupply, 10); i++) {
+        tokenIds[i.toString()] = {
           ownerAddress: THIS,
-          data: JSON.stringify({ imgUrl }),
+          imgUrl: imgUrls[i],
         }
       }
 
@@ -227,6 +234,21 @@ class NonFungibleTokenProgram extends Program {
         tokenIds.push(availableTokenIds[i])
       }
 
+      const tokenMap = validate(
+        JSON.parse(tokenData.tokenMap),
+        'tokenMap is not valid'
+      )
+
+      const tokenIdMap: Record<string, any> = tokenMap
+      for (let i = 0; i < tokenIds.length; i++) {
+        const tokenIdStr = parseInt(formatHexToAmount(tokenIds[i])).toString()
+        const token = tokenMap[tokenIdStr]
+        tokenIdMap[tokenIdStr] = {
+          ownerAddress: transaction.from,
+          imgUrl: token.imgUrl,
+        }
+      }
+
       const amountNeededToMint = parseAmountToBigInt(
         (price * quantity).toString()
       )
@@ -239,7 +261,32 @@ class NonFungibleTokenProgram extends Program {
         returnedTokenIds: tokenIds,
       })
 
-      return new Outputs(computeInputs, mintInstructions).toJson()
+      const dataStr = validateAndCreateJsonString({
+        ...tokenData,
+        tokenMap: JSON.stringify(tokenIdMap),
+      })
+
+      const updateTokenIds = buildTokenUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const tokenUpdateInstruction = buildUpdateInstruction({
+        update: new TokenOrProgramUpdate(
+          'tokenUpdate',
+          new TokenUpdate(
+            new AddressOrNamespace(new Address(transaction.from)),
+            new AddressOrNamespace(THIS),
+            [updateTokenIds]
+          )
+        ),
+      })
+
+      return new Outputs(computeInputs, [
+        ...mintInstructions,
+        tokenUpdateInstruction,
+      ]).toJson()
     } catch (e) {
       throw e
     }
