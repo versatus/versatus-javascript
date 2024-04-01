@@ -8,8 +8,6 @@ import test, { testCommandFlags } from '@/lasrctrl/commands/test'
 import deploy, { deployCommandFlags } from '@/lasrctrl/commands/deploy'
 import call, { callCommandFlags } from '@/lasrctrl/commands/call'
 import send, { sendCommandFlags } from '@/lasrctrl/commands/send'
-//@ts-ignore
-import { version } from '../../../package.json'
 
 export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

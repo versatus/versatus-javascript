@@ -15,10 +15,15 @@ import {
   validateAndCreateJsonString,
 } from '@/lib/utils'
 import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace'
-import { StatusValue, TokenOrProgramUpdate } from '@/lib/programs/Token'
+import {
+  StatusValue,
+  TokenOrProgramUpdate,
+  TokenUpdate,
+} from '@/lib/programs/Token'
+import { TokenUpdateBuilder } from '@/lib/programs/instruction-builders/builders'
 
 /**
- * Represents a program with strategies for handling various operations such as `create` and `update`.
+ * Represents a program with strategies for handling various operations such as `approve`, `create`, and `update`.
  * The program is initialized with a map of method strategies that bind specific methods to operation keys.
  * This structure allows for dynamic execution of methods based on the operation specified in the input.
  */
@@ -34,8 +39,56 @@ export class Program {
    */
   constructor() {
     this.methodStrategies = {
+      approve: this.approve.bind(this),
       create: this.create.bind(this),
       update: this.update.bind(this),
+    }
+  }
+
+  /**
+   * Approves a transaction by updating the `approvals` field with the inputs provided in the transaction.
+   * This method constructs a token update to extend the `approvals` field, indicating a successful approval process.
+   * The approval process involves building a series of updates and instructions that modify the token's state to reflect the new approval.
+   *
+   * The process includes constructing the `TokenUpdate` object with the caller's address, the program's address, and the approval update.
+   * It then wraps this update in a `TokenOrProgramUpdate` object, specifying it as a `tokenUpdate`.
+   * A `TokenUpdateBuilder` is used to construct the final update instruction, which is then converted to JSON format
+   * and returned as the output of the method.
+   *
+   * @param {ComputeInputs} computeInputs - Contains the transaction details including transaction inputs and the program ID.
+   * @returns {string} JSON string representing the outputs of the approve operation.
+   * @throws {Error} Throws an error if any part of the approval process fails, including if there are issues constructing the updates.
+   */
+  approve(computeInputs: ComputeInputs) {
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs, programId } = transaction
+      const programAddress = new AddressOrNamespace(new Address(programId))
+      const caller = new Address(transaction.from)
+
+      const update = buildTokenUpdateField({
+        field: 'approvals',
+        value: JSON.parse(transactionInputs),
+        action: 'extend',
+      })
+
+      const tokenUpdate = new TokenUpdate(
+        new AddressOrNamespace(caller),
+        programAddress,
+        [update]
+      )
+      const tokenOrProgramUpdate = new TokenOrProgramUpdate(
+        'tokenUpdate',
+        tokenUpdate
+      )
+      const updateInstruction = new TokenUpdateBuilder()
+        .addTokenAddress(programAddress)
+        .addUpdateField(tokenOrProgramUpdate)
+        .build()
+
+      return new Outputs(computeInputs, [updateInstruction]).toJson()
+    } catch (e) {
+      throw e
     }
   }
 

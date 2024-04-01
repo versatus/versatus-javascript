@@ -17,7 +17,6 @@ import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
   checkIfValuesAreUndefined,
   formatAmountToHex,
-  formatHexToAmount,
   parseAmountToBigInt,
   validate,
   validateAndCreateJsonString,

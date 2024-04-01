@@ -113,7 +113,6 @@ export function buildUpdateInstruction({ update, }) {
  * @returns {TokenDistribution} A token distribution object configured with the provided details.
  */
 export function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, nonFungible, }) {
-    // Initialize a TokenDistributionBuilder with basic program and recipient information.
     const tokenDistributionBuilder = new TokenDistributionBuilder()
         .setProgramId(new AddressOrNamespace(new Address(programId)))
         .setReceiver(new AddressOrNamespace(new Address(to)));
@@ -124,7 +123,7 @@ export function buildTokenDistributionInstruction({ programId, initializedSupply
     else {
         // For non-fungible tokens, generate token IDs based on the initializedSupply count, formatting each as a hex string.
         const tokenIds = [];
-        for (let i = 1; i <= parseInt(initializedSupply, 10); i++) {
+        for (let i = 0; i < parseInt(initializedSupply, 10); i++) {
             tokenIds.push(formatAmountToHex(i.toString()));
         }
         tokenDistributionBuilder.extendTokenIds(tokenIds);
@@ -155,7 +154,6 @@ export function buildTokenDistributionInstruction({ programId, initializedSupply
  */
 export function buildMintInstructions({ from, programId, paymentTokenAddress, inputValue, returnedTokenIds, returnedValue, }) {
     try {
-        // Instruction to transfer payment from the caller to the program.
         const transferToProgram = buildTransferInstruction({
             from: from,
             to: 'this', // Represents the program's address.

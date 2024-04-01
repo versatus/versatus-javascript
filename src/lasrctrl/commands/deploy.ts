@@ -162,7 +162,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     const tempDir = os.tmpdir()
     const tempFilePath = path.join(
       tempDir,
-      `updated-test-input-${Date.now()}.json`
+      `temp-create-input-${Date.now()}.json`
     )
 
     if (!argv.build) {
@@ -254,7 +254,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       String(argv.programName),
       String(argv.initializedSupply),
       String(argv.totalSupply),
-      String(argv.recipientAddress ?? addressFromKeypair),
+      String(argv.recipientAddress ?? programAddress),
       network,
       secretKey,
       argv.inputs

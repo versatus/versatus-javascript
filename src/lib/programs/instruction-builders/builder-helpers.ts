@@ -8,7 +8,6 @@ import {
 import {
   ApprovalsExtend,
   ApprovalsInsert,
-  ApprovalsRemove,
   StatusValue,
   TokenDataExtend,
   TokenDataInsert,
@@ -25,7 +24,6 @@ import {
 } from '@/lib/programs/Token'
 
 import {
-  Account,
   ProgramFieldValues,
   ProgramUpdateValueTypes,
   TokenFieldValues,
@@ -220,7 +218,6 @@ export function buildTokenDistributionInstruction({
   tokenUpdates?: TokenUpdateField[]
   nonFungible?: boolean
 }) {
-  // Initialize a TokenDistributionBuilder with basic program and recipient information.
   const tokenDistributionBuilder = new TokenDistributionBuilder()
     .setProgramId(new AddressOrNamespace(new Address(programId)))
     .setReceiver(new AddressOrNamespace(new Address(to)))
@@ -233,7 +230,7 @@ export function buildTokenDistributionInstruction({
   } else {
     // For non-fungible tokens, generate token IDs based on the initializedSupply count, formatting each as a hex string.
     const tokenIds = []
-    for (let i = 1; i <= parseInt(initializedSupply, 10); i++) {
+    for (let i = 0; i < parseInt(initializedSupply, 10); i++) {
       tokenIds.push(formatAmountToHex(i.toString()))
     }
     tokenDistributionBuilder.extendTokenIds(tokenIds)
@@ -281,7 +278,6 @@ export function buildMintInstructions({
   returnedValue?: BigInt
 }) {
   try {
-    // Instruction to transfer payment from the caller to the program.
     const transferToProgram = buildTransferInstruction({
       from: from,
       to: 'this', // Represents the program's address.
