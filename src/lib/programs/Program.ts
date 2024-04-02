@@ -255,8 +255,9 @@ export class Program {
       const { transaction } = computeInputs
       const { transactionInputs } = transaction
       const txInputs = JSON.parse(transactionInputs)
-      const { data, metadata } = txInputs
+      const { data, metadata, linkedPrograms } = txInputs
       const programUpdates = []
+
       if (metadata) {
         const fieldUpdate = buildProgramUpdateField({
           field: 'metadata',
@@ -275,16 +276,27 @@ export class Program {
         programUpdates.push(fieldUpdate)
       }
 
-      const programMetadataUpdateInstruction = buildUpdateInstruction({
+      if (linkedPrograms) {
+        validate(
+          Array.isArray(linkedPrograms),
+          'linkedPrograms must be an array'
+        )
+        const linkedProgramsUpdate = buildProgramUpdateField({
+          field: 'linkedPrograms',
+          value: JSON.stringify(linkedPrograms),
+          action: 'extend',
+        })
+        programUpdates.push(linkedProgramsUpdate)
+      }
+
+      const programUpdateInstruction = buildUpdateInstruction({
         update: new TokenOrProgramUpdate(
           'programUpdate',
           new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
         ),
       })
 
-      return new Outputs(computeInputs, [
-        programMetadataUpdateInstruction,
-      ]).toJson()
+      return new Outputs(computeInputs, [programUpdateInstruction]).toJson()
     } catch (e) {
       throw e
     }

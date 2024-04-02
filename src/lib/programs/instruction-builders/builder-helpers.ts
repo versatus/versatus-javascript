@@ -542,7 +542,10 @@ export function buildProgramUpdateField({
       case 'linkedPrograms':
         switch (action) {
           case 'extend':
-            programFieldAction = new LinkedProgramsExtend([new Address(value)])
+            const programs = JSON.parse(value).map(
+              (address: string) => new Address(address)
+            )
+            programFieldAction = new LinkedProgramsExtend(programs)
             break
           case 'insert':
             programFieldAction = new LinkedProgramsInsert(new Address(value))
