@@ -16,11 +16,10 @@ initialize, build, deploy, and call programs in the network from the terminal.
 ](https://github.com/versatus/versatus-javascript/blob/main/GETTING_STARTED.md)
 
 [CLICK HERE TO LEARN MORE ABOUT LASRCTL CLI
-](https://github.com/versatus/versatus-javascript/blob/main/src/lasrctl/README.md)
+](https://github.com/versatus/versatus-javascript/blob/main/GETTING_STARTED.md#interact-with-the-program-via-cli)
 
 [CLICK HERE TO LEARN MORE ABOUT PROGRAMS ON LASR
 ](https://github.com/versatus/versatus-javascript/blob/main/src/lib/programs/README.md)
-
 
 
 # Getting started
@@ -51,7 +50,11 @@ npm install @versatus/versatus-javascript
 
 #### 3) Initialize Project with lasrctl
 ```bash
-npx lasrctl init # Choose blank, fungible, non-fungible, or faucet
+npx lasrctl init # For a blank program
+
+# or
+
+npx lasrctl init <program-type> # Choose fungible, non-fungible, or faucet
 ```
 
 #### 4) Build Your Program
