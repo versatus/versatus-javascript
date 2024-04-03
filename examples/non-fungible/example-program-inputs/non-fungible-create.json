@@ -4,7 +4,7 @@
   "transaction": {
     "from": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
     "to": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",
-    "transactionInputs": "{\"name\":\"Batzdu\",\"symbol\":\"BATZ\",\"totalSupply\":\"4\",\"initializedSupply\":\"4\",\"imgUrl\":\"https://pbs.twimg.com/profile_images/1765199894539583488/RUiZn7jT_400x400.jpg\",\"paymentProgramAddress\":\"0x0000000000000000000000000000000000000000\",\"price\":\"1\",\"imgUrls\":[\"https://pbs.twimg.com/media/GJ2UWiVWAAA9Zox?format=jpg&name=medium\",\"https://pbs.twimg.com/media/GJytjF6WMAIpcfG?format=jpg&name=4096x4096\",\"https://pbs.twimg.com/media/GJ2E9fMWQAAtbZ-?format=jpg&name=large\",\"https://pbs.twimg.com/media/GJytjF6WMAIpcfG?format=jpg&name=4096x4096\"]}",
+    "transactionInputs": "{\"name\":\"Batzdu\",\"symbol\":\"BATZ\",\"collection\":\"foobar\",\"totalSupply\":\"4\",\"initializedSupply\":\"4\",\"imgUrl\":\"https://pbs.twimg.com/profile_images/1765199894539583488/RUiZn7jT_400x400.jpg\",\"paymentProgramAddress\":\"0x0000000000000000000000000000000000000000\",\"price\":\"1\"}",
     "nonce": "0x0000000000000000000000000000000000000000000000000000000000000001",
     "op": "create",
     "programId": "0x100444c7D04A842D19bc3eE63cB7b96682FF3f43",

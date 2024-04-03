@@ -1,4 +1,4 @@
-import { NETWORK } from '@/lib/types'
+import { ComputeInputs, NETWORK, Token } from '@/lib/types'
 import {
   LASR_RPC_URL_STABLE,
   LASR_RPC_URL_UNSTABLE,
@@ -398,4 +398,61 @@ export const getIPFSForNetwork = (network: NETWORK) => {
       : `${VIPFS_URL_UNSTABLE}`
   console.log('USING IPFS URL: ', ipfsUrl)
   return ipfsUrl
+}
+
+export const parseProgramInfo = (computeInputs: ComputeInputs): Token => {
+  try {
+    return validate(
+      computeInputs.accountInfo?.programs[computeInputs.transaction.to],
+      'token missing from self...'
+    )
+  } catch (e) {
+    throw e
+  }
+}
+
+export const parseAvailableTokenIds = (
+  computeInputs: ComputeInputs
+): string[] => {
+  try {
+    const programInfo = parseProgramInfo(computeInputs)
+    return validate(programInfo?.tokenIds, 'missing nfts to mint...')
+  } catch (e) {
+    throw e
+  }
+}
+
+export const parseTxInputs = (
+  computeInputs: ComputeInputs
+): Record<string, any> => {
+  try {
+    const { transaction } = computeInputs
+    if (!transaction) {
+      throw new Error('missing transaction...')
+    }
+    const { transactionInputs } = transaction
+    if (!transactionInputs) {
+      throw new Error('missing transaction inputs...')
+    }
+    return JSON.parse(transactionInputs)
+  } catch (e) {
+    throw e
+  }
+}
+
+export const parseTokenData = (
+  computeInputs: ComputeInputs
+): Record<string, any> => {
+  try {
+    const currProgramInfo = validate(
+      computeInputs.accountInfo?.programs[computeInputs.transaction.to],
+      'token missing from self...'
+    )
+    return validate(
+      currProgramInfo?.data,
+      'token missing required data to mint...'
+    )
+  } catch (e) {
+    throw e
+  }
 }

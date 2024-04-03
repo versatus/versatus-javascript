@@ -362,3 +362,45 @@ export const getIPFSForNetwork = (network) => {
     console.log('USING IPFS URL: ', ipfsUrl);
     return ipfsUrl;
 };
+export const parseProgramInfo = (computeInputs) => {
+    try {
+        return validate(computeInputs.accountInfo?.programs[computeInputs.transaction.to], 'token missing from self...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseAvailableTokenIds = (computeInputs) => {
+    try {
+        const programInfo = parseProgramInfo(computeInputs);
+        return validate(programInfo?.tokenIds, 'missing nfts to mint...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseTxInputs = (computeInputs) => {
+    try {
+        const { transaction } = computeInputs;
+        if (!transaction) {
+            throw new Error('missing transaction...');
+        }
+        const { transactionInputs } = transaction;
+        if (!transactionInputs) {
+            throw new Error('missing transaction inputs...');
+        }
+        return JSON.parse(transactionInputs);
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseTokenData = (computeInputs) => {
+    try {
+        const currProgramInfo = validate(computeInputs.accountInfo?.programs[computeInputs.transaction.to], 'token missing from self...');
+        return validate(currProgramInfo?.data, 'token missing required data to mint...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
