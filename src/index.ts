@@ -71,6 +71,10 @@ export {
   checkIfValuesAreUndefined,
   formatBigIntToHex,
   formatHexToAmount,
+  parseAvailableTokenIds,
+  parseTxInputs,
+  parseProgramInfo,
+  parseTokenData,
 } from './lib/utils'
 
 export { broadcast, getAccount } from './lib/versatus'
