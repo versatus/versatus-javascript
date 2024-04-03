@@ -74,10 +74,10 @@ const init = (argv: Arguments<InitCommandArgs>) => {
     isInstalledPackage ? installedPackagePath : process.cwd(),
     'examples',
     argv.example || 'blank',
-    'inputs'
+    'example-program-inputs'
   )
 
-  const targetInputsDir = path.join(targetDir, 'inputs')
+  const targetInputsDir = path.join(targetDir, 'example-program-inputs')
 
   if (fs.existsSync(inputsDir)) {
     if (fs.existsSync(targetInputsDir)) {

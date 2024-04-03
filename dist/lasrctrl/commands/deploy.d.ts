@@ -9,7 +9,7 @@ export interface DeployCommandArgs {
     totalSupply: string;
     network: string;
     recipientAddress?: string;
-    inputs?: string;
+    txInputs?: string;
     keypairPath?: string;
     secretKey?: string;
     target?: string;

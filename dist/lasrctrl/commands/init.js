@@ -30,8 +30,8 @@ const init = (argv) => {
         exampleContractContent = exampleContractContent.replace(importPathRegex, '@versatus/versatus-javascript');
     }
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
-    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'blank', 'inputs');
-    const targetInputsDir = path.join(targetDir, 'inputs');
+    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'blank', 'example-program-inputs');
+    const targetInputsDir = path.join(targetDir, 'example-program-inputs');
     if (fs.existsSync(inputsDir)) {
         if (fs.existsSync(targetInputsDir)) {
             fs.rmSync(targetInputsDir, { recursive: true, force: true });

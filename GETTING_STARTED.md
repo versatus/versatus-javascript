@@ -164,7 +164,7 @@ Deploy a program
 | `--initializedSupply` | Initial Supply of the Token             | string   | Yes      |                               |
 | `--totalSupply`       | Total supply of the token to be created | string   | Yes      |                               |
 | `--recipientAddress`  | Address for the initialized supply      | string   | No       |                               |
-| `--inputs`            | Additional inputs for the program       | string   | No       |                               |
+| `--txInputs`            | Additional inputs for the program       | string   | No       |                               |
 | `--keypairPath`       | Path to the keypair file                | string   | No       | `./.lasr/wallet/keypair.json` |
 | `--secretKey`         | Secret key for the wallet               | string   | No       |                               |
 | `--target`            | Build target                            | string   | No       | `node` (choices: "node" - _more soon_)      |
@@ -191,16 +191,16 @@ To call a program method with the specified arguments, use the following options
 | `--help`          | Show help                                         | boolean | No       |
 | `--programAddress`| Program address to be sent                        | string  | Yes      |
 | `--op`            | Operation to be performed by the program          | string  | Yes      |
-| `--inputs`        | Input json required by the operation              | string  | Yes      |
+| `--txInputs`        | Input json required by the operation              | string  | Yes      |
 | `--keypairPath`   | Path to the keypair file                          | string  | No       |
 | `--secretKey`     | Secret key for the wallet                         | string  | No       |
 
-The `--inputs` needs to be a string of JSON containing any of the custom parameters that your Program can accept and understand.
+The `--txInputs` needs to be a string of JSON containing any of the custom parameters that your Program can accept and understand.
 
 #### Example Call Command
 
 ```bash
-npx lasrctl call --programAddress <YOUR_PROGRAM_ADDRESS_FROM_DEPLOY> --op hello --inputs '{"name": "My Name"}'
+npx lasrctl call --programAddress <YOUR_PROGRAM_ADDRESS_FROM_DEPLOY> --op hello --txInputs '{"name": "My Name"}'
 ```
 
 ## Faucet

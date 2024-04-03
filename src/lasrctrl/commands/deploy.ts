@@ -26,7 +26,7 @@ export interface DeployCommandArgs {
   totalSupply: string
   network: string
   recipientAddress?: string
-  inputs?: string
+  txInputs?: string
   keypairPath?: string
   secretKey?: string
   target?: string
@@ -84,10 +84,10 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       type: 'string',
       alias: 'r',
     })
-    .option('inputs', {
+    .option('txInputs', {
       describe: 'Additional inputs for the program',
       type: 'string',
-      alias: 'i',
+      default: '{}',
     })
     .option('keypairPath', {
       describe: 'Path to the keypair file',
@@ -136,12 +136,12 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     const fileContents = await fs.readFile(existingJsonFilePath, 'utf8')
     const testJson = JSON.parse(fileContents)
 
-    if (!argv.inputs) {
+    if (!argv.txInputs) {
       throw new Error('no inputs provided')
     }
 
-    // Assuming argv.inputs is a JSON string, parse it
-    const inputs = JSON.parse(argv.inputs)
+    // Assuming argv.txInputs is a JSON string, parse it
+    const inputs = JSON.parse(argv.txInputs)
 
     const inputsPayload = {
       ...inputs,
@@ -257,7 +257,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       String(argv.recipientAddress ?? programAddress),
       network,
       secretKey,
-      argv.inputs
+      argv.txInputs
     )
 
     if (createResponse) {

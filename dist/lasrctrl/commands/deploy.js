@@ -53,10 +53,10 @@ export const deployCommandFlags = (yargs) => {
         type: 'string',
         alias: 'r',
     })
-        .option('inputs', {
+        .option('txInputs', {
         describe: 'Additional inputs for the program',
         type: 'string',
-        alias: 'i',
+        default: '{}',
     })
         .option('keypairPath', {
         describe: 'Path to the keypair file',
@@ -94,11 +94,11 @@ const deploy = async (argv) => {
         const existingJsonFilePath = path.join(inputsDirPath, createJsonFileName);
         const fileContents = await fs.readFile(existingJsonFilePath, 'utf8');
         const testJson = JSON.parse(fileContents);
-        if (!argv.inputs) {
+        if (!argv.txInputs) {
             throw new Error('no inputs provided');
         }
-        // Assuming argv.inputs is a JSON string, parse it
-        const inputs = JSON.parse(argv.inputs);
+        // Assuming argv.txInputs is a JSON string, parse it
+        const inputs = JSON.parse(argv.txInputs);
         const inputsPayload = {
             ...inputs,
             symbol: argv.symbol,
@@ -183,7 +183,7 @@ const deploy = async (argv) => {
         console.log(`Program registered.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? programAddress), network, secretKey, argv.inputs);
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? programAddress), network, secretKey, argv.txInputs);
         if (createResponse) {
             console.log(`Program created successfully.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m

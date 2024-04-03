@@ -69,7 +69,9 @@ export async function buildNode(buildPath: string) {
     console.log('\x1b[0;37mBuild complete...\x1b[0m')
     console.log()
     console.log(`\x1b[0;35mReady to run:\x1b[0m`)
-    console.log(`\x1b[0;33mlasrctl test -b ${parsedPath.name} -i inputs\x1b[0m`)
+    console.log(
+      `\x1b[0;33mlasrctl test -b ${parsedPath.name} -i ${parsedPath.name}-inputs\x1b[0m`
+    )
     console.log()
   })
 }
@@ -201,7 +203,7 @@ export async function callCreate(
   process.env.LASR_RPC_URL = getRPCForNetwork(network)
   process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
 
-  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op "create" --inputs '${inputsStr}' --to "${programAddress}" --content-namespace "${programAddress}"`
+  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op "create" --txInputs '${inputsStr}' --to "${programAddress}" --content-namespace "${programAddress}"`
   return await runCommand(command)
 }
 
@@ -241,7 +243,7 @@ export async function callProgram(
   process.env.LASR_RPC_URL = getRPCForNetwork(network)
   process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
 
-  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress}`
+  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --txInputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress}`
   return await runCommand(command)
 }
 

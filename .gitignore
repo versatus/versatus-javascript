@@ -137,3 +137,4 @@ build
 inputs
 .DS_Store
 .lasr
+/example-program-inputs/
