@@ -120,7 +120,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     console.log(
       '\x1b[0;33mCreating temporary test file against cli arguments...\x1b[0m'
     )
-    const inputsDirPath = path.join(process.cwd(), 'inputs')
+    const inputsDirPath = path.join(process.cwd(), `${argv.build}-inputs`)
     const files = await fs.readdir(inputsDirPath)
     const createJsonFiles = files.filter((file) => file.endsWith('create.json'))
     if (createJsonFiles.length === 0) {
