@@ -25,6 +25,7 @@ export interface DeployCommandArgs {
   initializedSupply: string
   totalSupply: string
   network: string
+  createTestFilePath: string
   recipientAddress?: string
   txInputs?: string
   keypairPath?: string
@@ -84,6 +85,11 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       type: 'string',
       alias: 'r',
     })
+    .option('createTestFilePath', {
+      describe: 'Path to the create test json file',
+      type: 'string',
+      demandOption: true,
+    })
     .option('txInputs', {
       describe: 'Additional inputs for the program',
       type: 'string',
@@ -120,21 +126,28 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     console.log(
       `\x1b[0;33mCreating temporary test file for ${argv.build} against cli arguments...\x1b[0m`
     )
-    const inputsDirPath = path.join(process.cwd(), `${argv.build}-inputs`)
-    const files = await fs.readdir(inputsDirPath)
-    const createJsonFiles = files.filter((file) => file.endsWith('create.json'))
+    // const inputsDirPath = path.join(process.cwd(), `${argv.build}-inputs`)
+    // const files = await fs.readdir(inputsDirPath)
+    // const createJsonFiles = files.filter((file) => file.endsWith('create.json'))
 
-    if (createJsonFiles.length === 0) {
+    // if (createJsonFiles.length === 0) {
+    //   throw new Error('No suitable create.json file found.')
+    // }
+
+    // Assuming there should only be one such file, or you want the first one if there are multiple
+    // const createJsonFileName = createJsonFiles[0]
+
+    // Construct the full path to the found JSON file
+    // const existingJsonFilePath = path.join(
+    //   inputsDirPath,
+    //   argv.createTestFilePath
+    // )
+
+    if (!argv.createTestFilePath) {
       throw new Error('No suitable create.json file found.')
     }
 
-    // Assuming there should only be one such file, or you want the first one if there are multiple
-    const createJsonFileName = createJsonFiles[0]
-
-    // Construct the full path to the found JSON file
-    const existingJsonFilePath = path.join(inputsDirPath, createJsonFileName)
-
-    const fileContents = await fs.readFile(existingJsonFilePath, 'utf8')
+    const fileContents = await fs.readFile(argv.createTestFilePath, 'utf8')
     const testJson = JSON.parse(fileContents)
 
     if (!argv.txInputs) {
@@ -151,6 +164,8 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       initializedSupply: argv.initializedSupply,
       totalSupply: argv.totalSupply,
     }
+
+    console.log('inputsPayload', inputsPayload)
 
     if (argv.recipientAddress) {
       inputsPayload.to = argv.recipientAddress

@@ -224,6 +224,7 @@ class Pokeball extends Program {
 
       const dataStr = validateAndCreateJsonString({
         ...tokenData,
+        imgUrls: '',
         tokenMap: JSON.stringify(tokenMap),
       })
 
