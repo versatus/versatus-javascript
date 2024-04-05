@@ -217,4 +217,13 @@ export declare const getIPFSForNetwork: (network: NETWORK) => string;
 export declare const parseProgramInfo: (computeInputs: ComputeInputs) => Token;
 export declare const parseAvailableTokenIds: (computeInputs: ComputeInputs) => string[];
 export declare const parseTxInputs: (computeInputs: ComputeInputs) => Record<string, any>;
+export declare const parseMetadata: (computeInputs: ComputeInputs) => {
+    name: string;
+    symbol: string;
+    initializedSupply: string;
+    totalSupply: string;
+};
+export declare const getCurrentSupply: (computeInputs: ComputeInputs) => number;
+export declare const getCurrentImgUrls: (computeInputs: ComputeInputs) => string[];
+export declare const generateTokenIdArray: (initializedSupply: number | string, currentSupply?: number | string) => string[];
 export declare const parseTokenData: (computeInputs: ComputeInputs) => Record<string, any>;

@@ -28,8 +28,11 @@ import {
   checkIfValuesAreUndefined,
   formatAmountToHex,
   formatHexToAmount,
+  getCurrentImgUrls,
+  getCurrentSupply,
   parseAmountToBigInt,
   parseAvailableTokenIds,
+  parseMetadata,
   parseProgramInfo,
   parseTokenData,
   parseTxInputs,
@@ -76,23 +79,24 @@ class Pokeball extends Program {
   create(computeInputs: ComputeInputs) {
     try {
       const { transaction } = computeInputs
-      const { transactionInputs, from } = transaction
-      const txInputs = validate(
-        JSON.parse(transactionInputs),
-        'unable to parse transactionInputs'
-      )
+      const { from } = transaction
+      const txInputs = parseTxInputs(computeInputs)
+      let currSupply = getCurrentSupply(computeInputs)
+      let currImgUrls = getCurrentImgUrls(computeInputs)
 
       // metadata
-      const totalSupply = txInputs?.totalSupply
-      const initializedSupply = txInputs?.initializedSupply
-      const symbol = txInputs?.symbol
-      const name = txInputs?.name
+      const metadata = parseMetadata(computeInputs)
+      const { initializedSupply, totalSupply } = metadata
       const recipientAddress = txInputs?.to ?? transaction.to
 
       // data
       const imgUrl = txInputs?.imgUrl
-      const imgUrls = txInputs?.imgUrls
+      const imgUrls = [...currImgUrls, ...txInputs?.imgUrls]
       const collection = txInputs?.collection
+      const currentSupply = (
+        currSupply + parseInt(initializedSupply)
+      ).toString()
+
       const price = txInputs?.price
       const paymentProgramAddress = txInputs?.paymentProgramAddress
       const methods = 'approve,create,burn,mint,update'
@@ -104,12 +108,7 @@ class Pokeball extends Program {
         'invalid supply'
       )
 
-      const metadataStr = validateAndCreateJsonString({
-        symbol,
-        name,
-        totalSupply,
-        initializedSupply,
-      })
+      const metadataStr = validateAndCreateJsonString(metadata)
 
       const addProgramMetadata = buildProgramUpdateField({
         field: 'metadata',
@@ -122,10 +121,10 @@ class Pokeball extends Program {
         imgUrl,
         paymentProgramAddress,
         price,
+        currentSupply,
         methods,
       } as Record<string, string>
 
-      // if we have an array of imgUrls, we'll add them here
       if (imgUrls) {
         const parsed = imgUrls
         if (!Array.isArray(parsed)) {
@@ -155,6 +154,7 @@ class Pokeball extends Program {
       const distributionInstruction = buildTokenDistributionInstruction({
         programId: THIS,
         initializedSupply,
+        currentSupply,
         to: recipientAddress,
         nonFungible: true,
       })
@@ -181,7 +181,6 @@ class Pokeball extends Program {
   mint(computeInputs: ComputeInputs) {
     try {
       const { transaction, accountInfo } = computeInputs
-      const programInfo = parseProgramInfo(computeInputs)
       const tokenData = parseTokenData(computeInputs)
       const txInputs = parseTxInputs(computeInputs)
       const availableTokenIds = parseAvailableTokenIds(computeInputs)

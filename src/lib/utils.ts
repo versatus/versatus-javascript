@@ -440,6 +440,70 @@ export const parseTxInputs = (
   }
 }
 
+export const parseMetadata = (
+  computeInputs: ComputeInputs
+): {
+  name: string
+  symbol: string
+  initializedSupply: string
+  totalSupply: string
+} => {
+  try {
+    const txInputs = parseTxInputs(computeInputs)
+    const totalSupply = txInputs?.totalSupply
+    const initializedSupply = txInputs?.initializedSupply
+    const symbol = txInputs?.symbol
+    const name = txInputs?.name
+    return validate(
+      {
+        name,
+        symbol,
+        initializedSupply,
+        totalSupply,
+      },
+      'invalid metadata...'
+    )
+  } catch (e) {
+    throw e
+  }
+}
+
+export const getCurrentSupply = (computeInputs: ComputeInputs) => {
+  try {
+    const programAccountData = computeInputs?.accountInfo?.programAccountData
+    return programAccountData?.currentSupply
+      ? parseInt(programAccountData.currentSupply)
+      : 0
+  } catch (e) {
+    throw e
+  }
+}
+
+export const getCurrentImgUrls = (computeInputs: ComputeInputs): string[] => {
+  try {
+    const programAccountData = computeInputs?.accountInfo?.programAccountData
+    return programAccountData?.imgUrls
+      ? JSON.parse(programAccountData.imgUrls)
+      : []
+  } catch (e) {
+    throw e
+  }
+}
+
+export const generateTokenIdArray = (
+  initializedSupply: number | string,
+  currentSupply: number | string = 0
+) => {
+  const initialSupplyNum = parseInt(initializedSupply as string)
+  const currentSupplyNum = parseInt(currentSupply as string)
+
+  const length = Math.max(0, initialSupplyNum + currentSupplyNum)
+
+  return Array.from({ length }, (_, i) =>
+    formatAmountToHex(i + currentSupplyNum)
+  )
+}
+
 export const parseTokenData = (
   computeInputs: ComputeInputs
 ): Record<string, any> => {

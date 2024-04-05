@@ -13,6 +13,8 @@ import {
 import axios from 'axios'
 import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
+export const KEY_PAIR_FILE_PATH = '.lasr/wallet/keypair.json'
+
 export const isInstalledPackage = fs.existsSync(
   path.resolve(
     process.cwd(),
@@ -87,7 +89,7 @@ export async function getSecretKeyFromKeyPairFile(
       const fileContent = await fsp.readFile(absolutePath, 'utf8')
       keyPairs = JSON.parse(fileContent) as KeyPairArray
     } catch (error) {
-      await initializeWallet()
+      await createNewWallet()
       const absolutePath = path.resolve(keypairFilePath) // Ensure the path is absolute
       const fileContent = await fsp.readFile(absolutePath, 'utf8')
       keyPairs = JSON.parse(fileContent) as KeyPairArray
@@ -149,17 +151,18 @@ export const getSecretKey = async (
 ) => {
   if (secretKey) return secretKey
 
-  if (!fs.existsSync('.lasr/wallet/keypair.json')) {
+  if (!fs.existsSync(KEY_PAIR_FILE_PATH)) {
     console.log('\x1b[0;33mInitializing wallet...\x1b[0m')
-    await initializeWallet()
+    await createNewWallet()
   } else {
     console.log('\x1b[0;33mUsing existing keypair...\x1b[0m')
   }
 
   let retrievedSecretKey: string
 
-  const keypairPath = '.lasr/wallet/keypair.json'
-  retrievedSecretKey = await getSecretKeyFromKeyPairFile(String(keypairPath))
+  retrievedSecretKey = await getSecretKeyFromKeyPairFile(
+    String(KEY_PAIR_FILE_PATH)
+  )
   return retrievedSecretKey
 }
 
@@ -296,7 +299,7 @@ export function runTestProcess(
   })
 }
 
-export async function initializeWallet() {
+export async function createNewWallet() {
   await runCommand(`./build/lasr_cli wallet new --save`)
   console.log(
     'Wallet initialized and keypair.json created at ./.lasr/wallet/keypair.json'

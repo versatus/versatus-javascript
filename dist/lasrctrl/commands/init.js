@@ -1,4 +1,4 @@
-import { copyDirectory, installedPackagePath, isInstalledPackage, isTypeScriptProject, } from '../../lasrctrl/cli-helpers.js';
+import { copyDirectory, getSecretKeyFromKeyPairFile, installedPackagePath, isInstalledPackage, isTypeScriptProject, KEY_PAIR_FILE_PATH, } from '../../lasrctrl/cli-helpers.js';
 import path from 'path';
 import fs from 'fs';
 import { __dirname } from '../../lasrctrl/cli.js';
@@ -10,13 +10,14 @@ export const initCommandFlags = (yargs) => {
         demandOption: true,
     });
 };
-const init = (argv) => {
+const init = async (argv) => {
     console.log(`\x1b[0;33mInitializing example program: ${argv.example ||
         'blank' ||
         'fungible' ||
         'non-fungible' ||
         'hello-lasr' ||
         'faucet'}...\x1b[0m`);
+    await getSecretKeyFromKeyPairFile(KEY_PAIR_FILE_PATH);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
         ? path.resolve(installedPackagePath, 'examples', argv.example || 'blank')

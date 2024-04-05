@@ -117,7 +117,6 @@ const deploy = async (argv) => {
             initializedSupply: argv.initializedSupply,
             totalSupply: argv.totalSupply,
         };
-        console.log('inputsPayload', inputsPayload);
         if (argv.recipientAddress) {
             inputsPayload.to = argv.recipientAddress;
         }
@@ -151,6 +150,7 @@ const deploy = async (argv) => {
             command = `
           build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`;
         }
+        console.log(command);
         const output = await runCommand(command);
         const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g;
         const ipfsHashMatch = output.match(cidPattern);

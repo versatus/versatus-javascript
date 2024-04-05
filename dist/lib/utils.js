@@ -395,6 +395,52 @@ export const parseTxInputs = (computeInputs) => {
         throw e;
     }
 };
+export const parseMetadata = (computeInputs) => {
+    try {
+        const txInputs = parseTxInputs(computeInputs);
+        const totalSupply = txInputs?.totalSupply;
+        const initializedSupply = txInputs?.initializedSupply;
+        const symbol = txInputs?.symbol;
+        const name = txInputs?.name;
+        return validate({
+            name,
+            symbol,
+            initializedSupply,
+            totalSupply,
+        }, 'invalid metadata...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const getCurrentSupply = (computeInputs) => {
+    try {
+        const programAccountData = computeInputs?.accountInfo?.programAccountData;
+        return programAccountData?.currentSupply
+            ? parseInt(programAccountData.currentSupply)
+            : 0;
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const getCurrentImgUrls = (computeInputs) => {
+    try {
+        const programAccountData = computeInputs?.accountInfo?.programAccountData;
+        return programAccountData?.imgUrls
+            ? JSON.parse(programAccountData.imgUrls)
+            : [];
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const generateTokenIdArray = (initializedSupply, currentSupply = 0) => {
+    const initialSupplyNum = parseInt(initializedSupply);
+    const currentSupplyNum = parseInt(currentSupply);
+    const length = Math.max(0, initialSupplyNum + currentSupplyNum);
+    return Array.from({ length }, (_, i) => formatAmountToHex(i + currentSupplyNum));
+};
 export const parseTokenData = (computeInputs) => {
     try {
         const currProgramInfo = validate(computeInputs.accountInfo?.programs[computeInputs.transaction.to], 'token missing from self...');

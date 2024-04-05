@@ -80,7 +80,6 @@ class SnakeProgram extends Program {
       const price = txInputs?.price
       const methods = 'approve,create,burn,mint,update'
 
-      validate(parseFloat(price), 'invalid price')
       validate(
         parseInt(initializedSupply) <= parseInt(totalSupply),
         'invalid supply'

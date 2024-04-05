@@ -1,9 +1,11 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   copyDirectory,
+  getSecretKeyFromKeyPairFile,
   installedPackagePath,
   isInstalledPackage,
   isTypeScriptProject,
+  KEY_PAIR_FILE_PATH,
 } from '@/lasrctrl/cli-helpers'
 import path from 'path'
 import fs from 'fs'
@@ -24,7 +26,7 @@ export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
   })
 }
 
-const init = (argv: Arguments<InitCommandArgs>) => {
+const init = async (argv: Arguments<InitCommandArgs>) => {
   console.log(
     `\x1b[0;33mInitializing example program: ${
       argv.example ||
@@ -35,6 +37,9 @@ const init = (argv: Arguments<InitCommandArgs>) => {
       'faucet'
     }...\x1b[0m`
   )
+
+  await getSecretKeyFromKeyPairFile(KEY_PAIR_FILE_PATH)
+
   const isTsProject = isTypeScriptProject()
   const exampleDir = isInstalledPackage
     ? path.resolve(installedPackagePath, 'examples', argv.example || 'blank')

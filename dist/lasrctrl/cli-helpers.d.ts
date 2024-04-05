@@ -1,4 +1,5 @@
 import { NETWORK } from '../lib/types';
+export declare const KEY_PAIR_FILE_PATH = ".lasr/wallet/keypair.json";
 export declare const isInstalledPackage: boolean;
 export declare const isTypeScriptProject: () => boolean;
 export declare const installedPackagePath: string;
@@ -13,5 +14,5 @@ export declare function callCreate(programAddress: string, symbol: string, name:
 export declare function sendTokens(programAddress: string, recipientAddress: string, amount: string, secretKey: string, network: 'stable' | 'test'): Promise<string>;
 export declare function callProgram(programAddress: string, op: string, inputs: string, network: NETWORK, secretKey: string): Promise<string>;
 export declare function runTestProcess(programName: string, inputJsonPath: string, target?: string, showOutput?: boolean): Promise<unknown>;
-export declare function initializeWallet(): Promise<void>;
+export declare function createNewWallet(): Promise<void>;
 export declare function checkWallet(address: string): Promise<void>;

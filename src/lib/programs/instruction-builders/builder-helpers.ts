@@ -42,7 +42,11 @@ import {
   ProgramMetadataRemove,
 } from '@/lib/programs/Program'
 import { THIS } from '@/lib/consts'
-import { formatBigIntToHex, formatAmountToHex } from '@/lib/utils'
+import {
+  formatBigIntToHex,
+  formatAmountToHex,
+  generateTokenIdArray,
+} from '@/lib/utils'
 import {
   ProgramField,
   ProgramUpdate,
@@ -209,12 +213,16 @@ export function buildTokenDistributionInstruction({
   programId,
   initializedSupply,
   to,
+  currentAmount = 0,
+  currentSupply = 0,
   tokenUpdates,
   nonFungible,
 }: {
   programId: string
   initializedSupply: string
   to: string
+  currentAmount?: string | number
+  currentSupply?: string | number
   tokenUpdates?: TokenUpdateField[]
   nonFungible?: boolean
 }) {
@@ -225,14 +233,11 @@ export function buildTokenDistributionInstruction({
   if (!nonFungible) {
     // For fungible tokens, set the amount directly using the initializedSupply, formatted as a hex string.
     tokenDistributionBuilder.setAmount(
-      formatBigIntToHex(BigInt(initializedSupply))
+      formatBigIntToHex(BigInt(initializedSupply) + BigInt(currentAmount))
     )
   } else {
     // For non-fungible tokens, generate token IDs based on the initializedSupply count, formatting each as a hex string.
-    const tokenIds = []
-    for (let i = 0; i < parseInt(initializedSupply, 10); i++) {
-      tokenIds.push(formatAmountToHex(i.toString()))
-    }
+    const tokenIds = generateTokenIdArray(initializedSupply, currentSupply)
     tokenDistributionBuilder.extendTokenIds(tokenIds)
   }
 

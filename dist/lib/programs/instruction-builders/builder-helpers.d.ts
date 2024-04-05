@@ -74,10 +74,12 @@ export declare function buildUpdateInstruction({ update, }: {
  * `initializedSupply` as a count of individual tokens to distribute.
  * @returns {TokenDistribution} A token distribution object configured with the provided details.
  */
-export declare function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, nonFungible, }: {
+export declare function buildTokenDistributionInstruction({ programId, initializedSupply, to, currentAmount, currentSupply, tokenUpdates, nonFungible, }: {
     programId: string;
     initializedSupply: string;
     to: string;
+    currentAmount?: string | number;
+    currentSupply?: string | number;
     tokenUpdates?: TokenUpdateField[];
     nonFungible?: boolean;
 }): TokenDistribution;
