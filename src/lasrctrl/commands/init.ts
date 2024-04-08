@@ -10,6 +10,7 @@ import {
 import path from 'path'
 import fs from 'fs'
 import { __dirname } from '@/lasrctrl/cli'
+import { runSpawn } from '@/lasrctrl/shell'
 
 export interface InitCommandArgs {
   example: string
@@ -37,6 +38,10 @@ const init = async (argv: Arguments<InitCommandArgs>) => {
       'faucet'
     }...\x1b[0m`
   )
+
+  let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd()
+  const checkForCli = path.resolve(scriptDir, 'scripts', 'check_cli.sh')
+  await runSpawn('bash', [checkForCli], { stdio: 'inherit' })
 
   await getSecretKeyFromKeyPairFile(KEY_PAIR_FILE_PATH)
 
