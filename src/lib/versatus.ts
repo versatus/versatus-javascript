@@ -156,19 +156,17 @@ export async function callLasrRpc(
 export async function getAccount(
   address: string,
   network: NETWORK = 'stable'
-): Promise<Account | Error> {
+): Promise<Account> {
   try {
-    let account: Account | Error = new Error('An unexpected error occurred')
+    let account: Account
     const params = [address]
     const RPC_URL = getRPCForNetwork(network)
 
     const result = await callLasrRpc('lasr_getAccount', params, RPC_URL)
     account = JSON.parse(result)
-
     return account
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(error.message)
       throw error
     } else {
       console.error('An unexpected error occurred:', error)

@@ -125,7 +125,7 @@ export async function callLasrRpc(method, params, rpcUrl) {
  */
 export async function getAccount(address, network = 'stable') {
     try {
-        let account = new Error('An unexpected error occurred');
+        let account;
         const params = [address];
         const RPC_URL = getRPCForNetwork(network);
         const result = await callLasrRpc('lasr_getAccount', params, RPC_URL);
@@ -134,7 +134,6 @@ export async function getAccount(address, network = 'stable') {
     }
     catch (error) {
         if (error instanceof Error) {
-            console.error(error.message);
             throw error;
         }
         else {

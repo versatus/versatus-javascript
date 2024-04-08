@@ -32,7 +32,7 @@ export declare function callLasrRpc(method: string, params: string[] | Record<st
  * @returns {Promise<Account | Error>} An object containing account information or an error if the retrieval fails.
  * @throws {Error} Throws an error if the account information cannot be retrieved.
  */
-export declare function getAccount(address: string, network?: NETWORK): Promise<Account | Error>;
+export declare function getAccount(address: string, network?: NETWORK): Promise<Account>;
 /**
  * Reorders the keys of an initial transaction object according to a predefined order.
  * This function is useful for ensuring that transaction objects have a consistent format, especially before signing.
