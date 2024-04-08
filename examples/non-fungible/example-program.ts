@@ -96,6 +96,7 @@ class Pokeball extends Program {
       const currentSupply = (
         currSupply + parseInt(initializedSupply)
       ).toString()
+      let debug = JSON.stringify(computeInputs.accountInfo.programAccountData)
 
       const price = txInputs?.price
       const paymentProgramAddress = txInputs?.paymentProgramAddress

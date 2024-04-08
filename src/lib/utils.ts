@@ -484,7 +484,7 @@ export const getCurrentImgUrls = (computeInputs: ComputeInputs): string[] => {
     const programAccountData = computeInputs?.accountInfo?.programAccountData
     return programAccountData?.imgUrls
       ? JSON.parse(programAccountData.imgUrls)
-      : []
+      : ['foo-bar.png']
   } catch (e) {
     throw e
   }

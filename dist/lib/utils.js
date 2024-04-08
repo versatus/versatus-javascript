@@ -429,7 +429,7 @@ export const getCurrentImgUrls = (computeInputs) => {
         const programAccountData = computeInputs?.accountInfo?.programAccountData;
         return programAccountData?.imgUrls
             ? JSON.parse(programAccountData.imgUrls)
-            : [];
+            : ['foo-bar.png'];
     }
     catch (e) {
         throw e;
