@@ -400,7 +400,32 @@ export const getIPFSForNetwork = (network: NETWORK) => {
   return ipfsUrl
 }
 
-export const parseProgramInfo = (computeInputs: ComputeInputs): Token => {
+export const parseProgramAccountMetadata = (
+  computeInputs: ComputeInputs
+): Token => {
+  try {
+    return validate(
+      computeInputs.accountInfo?.programAccountMetadata,
+      'program account metadata missing...'
+    )
+  } catch (e) {
+    throw e
+  }
+}
+export const parseProgramAccountData = (
+  computeInputs: ComputeInputs
+): Token => {
+  try {
+    return validate(
+      computeInputs.accountInfo?.programAccountData,
+      'program account data missing...'
+    )
+  } catch (e) {
+    throw e
+  }
+}
+
+export const parseProgramTokenInfo = (computeInputs: ComputeInputs): Token => {
   try {
     return validate(
       computeInputs.accountInfo?.programs[computeInputs.transaction.to],
@@ -415,7 +440,7 @@ export const parseAvailableTokenIds = (
   computeInputs: ComputeInputs
 ): string[] => {
   try {
-    const programInfo = parseProgramInfo(computeInputs)
+    const programInfo = parseProgramTokenInfo(computeInputs)
     return validate(programInfo?.tokenIds, 'missing nfts to mint...')
   } catch (e) {
     throw e

@@ -71,9 +71,12 @@ export {
   checkIfValuesAreUndefined,
   formatBigIntToHex,
   formatHexToAmount,
+  parseMetadata,
+  getCurrentImgUrls,
+  getCurrentSupply,
   parseAvailableTokenIds,
   parseTxInputs,
-  parseProgramInfo,
+  parseProgramTokenInfo,
   parseTokenData,
 } from './lib/utils'
 

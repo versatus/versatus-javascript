@@ -362,7 +362,23 @@ export const getIPFSForNetwork = (network) => {
     console.log('USING IPFS URL: ', ipfsUrl);
     return ipfsUrl;
 };
-export const parseProgramInfo = (computeInputs) => {
+export const parseProgramAccountMetadata = (computeInputs) => {
+    try {
+        return validate(computeInputs.accountInfo?.programAccountMetadata, 'program account metadata missing...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseProgramAccountData = (computeInputs) => {
+    try {
+        return validate(computeInputs.accountInfo?.programAccountData, 'program account data missing...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseProgramTokenInfo = (computeInputs) => {
     try {
         return validate(computeInputs.accountInfo?.programs[computeInputs.transaction.to], 'token missing from self...');
     }
@@ -372,7 +388,7 @@ export const parseProgramInfo = (computeInputs) => {
 };
 export const parseAvailableTokenIds = (computeInputs) => {
     try {
-        const programInfo = parseProgramInfo(computeInputs);
+        const programInfo = parseProgramTokenInfo(computeInputs);
         return validate(programInfo?.tokenIds, 'missing nfts to mint...');
     }
     catch (e) {

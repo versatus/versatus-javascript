@@ -33,7 +33,7 @@ import {
   parseAmountToBigInt,
   parseAvailableTokenIds,
   parseMetadata,
-  parseProgramInfo,
+  parseProgramTokenInfo,
   parseTokenData,
   parseTxInputs,
   validate,
@@ -268,7 +268,7 @@ class Pokeball extends Program {
     try {
       const { transaction } = computeInputs
       const { transactionInputs, programId, from, to } = transaction
-      const programInfo = parseProgramInfo(computeInputs)
+      const programInfo = parseProgramTokenInfo(computeInputs)
       const tokenData = parseTokenData(computeInputs)
       const txInputs = parseTxInputs(computeInputs)
       const { tokenIds, recipientAddress } = txInputs

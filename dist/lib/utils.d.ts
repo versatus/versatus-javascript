@@ -214,7 +214,9 @@ export declare const getRPCForNetwork: (network: NETWORK) => string;
  * // Logs 'USING IPFS URL: https://custom.ipfs.example.com' and returns 'https://custom.ipfs.example.com'
  */
 export declare const getIPFSForNetwork: (network: NETWORK) => string;
-export declare const parseProgramInfo: (computeInputs: ComputeInputs) => Token;
+export declare const parseProgramAccountMetadata: (computeInputs: ComputeInputs) => Token;
+export declare const parseProgramAccountData: (computeInputs: ComputeInputs) => Token;
+export declare const parseProgramTokenInfo: (computeInputs: ComputeInputs) => Token;
 export declare const parseAvailableTokenIds: (computeInputs: ComputeInputs) => string[];
 export declare const parseTxInputs: (computeInputs: ComputeInputs) => Record<string, any>;
 export declare const parseMetadata: (computeInputs: ComputeInputs) => {
