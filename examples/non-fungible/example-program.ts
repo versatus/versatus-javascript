@@ -26,7 +26,6 @@ import {
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   checkIfValuesAreUndefined,
-  formatAmountToHex,
   formatHexToAmount,
   getCurrentImgUrls,
   getCurrentSupply,
@@ -40,7 +39,7 @@ import {
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
 
-class Pokeball extends Program {
+class NonFungible extends Program {
   constructor() {
     super()
     Object.assign(this.methodStrategies, {
@@ -356,7 +355,7 @@ class Pokeball extends Program {
 
 const start = (input: ComputeInputs) => {
   try {
-    const contract = new Pokeball()
+    const contract = new NonFungible()
     return contract.start(input)
   } catch (e) {
     throw e
