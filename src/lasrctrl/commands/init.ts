@@ -1,13 +1,16 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   copyDirectory,
+  getSecretKeyFromKeyPairFile,
   installedPackagePath,
   isInstalledPackage,
   isTypeScriptProject,
+  KEY_PAIR_FILE_PATH,
 } from '@/lasrctrl/cli-helpers'
 import path from 'path'
 import fs from 'fs'
 import { __dirname } from '@/lasrctrl/cli'
+import { runSpawn } from '@/lasrctrl/shell'
 
 export interface InitCommandArgs {
   example: string
@@ -24,7 +27,7 @@ export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
   })
 }
 
-const init = (argv: Arguments<InitCommandArgs>) => {
+const init = async (argv: Arguments<InitCommandArgs>) => {
   console.log(
     `\x1b[0;33mInitializing example program: ${
       argv.example ||
@@ -35,6 +38,13 @@ const init = (argv: Arguments<InitCommandArgs>) => {
       'faucet'
     }...\x1b[0m`
   )
+
+  let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd()
+  const checkForCli = path.resolve(scriptDir, 'scripts', 'check_cli.sh')
+  await runSpawn('bash', [checkForCli], { stdio: 'inherit' })
+
+  await getSecretKeyFromKeyPairFile(KEY_PAIR_FILE_PATH)
+
   const isTsProject = isTypeScriptProject()
   const exampleDir = isInstalledPackage
     ? path.resolve(installedPackagePath, 'examples', argv.example || 'blank')
@@ -74,10 +84,10 @@ const init = (argv: Arguments<InitCommandArgs>) => {
     isInstalledPackage ? installedPackagePath : process.cwd(),
     'examples',
     argv.example || 'blank',
-    'inputs'
+    'example-program-inputs'
   )
 
-  const targetInputsDir = path.join(targetDir, 'inputs')
+  const targetInputsDir = path.join(targetDir, 'example-program-inputs')
 
   if (fs.existsSync(inputsDir)) {
     if (fs.existsSync(targetInputsDir)) {

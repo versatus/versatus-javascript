@@ -5,7 +5,7 @@ import { NETWORK } from '@/lib/types'
 export interface CallCommandArgs {
   programAddress: string
   op: string
-  inputs: string
+  txInputs: string
   network: string
   keypairPath?: string
   secretKey?: string
@@ -25,7 +25,7 @@ export const callCommandFlags: CommandBuilder<{}, CallCommandArgs> = (
       type: 'string',
       demandOption: true,
     })
-    .option('inputs', {
+    .option('txInputs', {
       describe: 'Input json required by the operation',
       type: 'string',
       demandOption: true,
@@ -52,7 +52,7 @@ const call = async (argv: Arguments<CallCommandArgs>) => {
     const sendResponse = await callProgram(
       String(argv.programAddress),
       String(argv.op),
-      String(argv.inputs),
+      String(argv.txInputs),
       argv.network as NETWORK,
       secretKey
     )

@@ -2,7 +2,7 @@ import { BurnInstructionBuilder, CreateInstructionBuilder, TokenDistributionBuil
 import { ApprovalsExtend, ApprovalsInsert, StatusValue, TokenDataExtend, TokenDataInsert, TokenDataRemove, TokenField, TokenFieldValue, TokenMetadataExtend, TokenMetadataInsert, TokenMetadataRemove, TokenOrProgramUpdate, TokenUpdate, TokenUpdateField, } from '../../../lib/programs/Token.js';
 import { LinkedProgramsExtend, LinkedProgramsInsert, LinkedProgramsRemove, ProgramDataExtend, ProgramDataInsert, ProgramDataRemove, ProgramFieldValue, ProgramMetadataExtend, ProgramMetadataInsert, ProgramMetadataRemove, } from '../../../lib/programs/Program.js';
 import { THIS } from '../../../lib/consts.js';
-import { formatBigIntToHex, formatAmountToHex } from '../../../lib/utils.js';
+import { formatBigIntToHex, generateTokenIdArray, } from '../../../lib/utils.js';
 import { ProgramField, ProgramUpdate, ProgramUpdateField, } from '../../../lib/programs/Program.js';
 import { Address, AddressOrNamespace, } from '../../../lib/programs/Address-Namespace.js';
 /**
@@ -112,20 +112,17 @@ export function buildUpdateInstruction({ update, }) {
  * `initializedSupply` as a count of individual tokens to distribute.
  * @returns {TokenDistribution} A token distribution object configured with the provided details.
  */
-export function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, nonFungible, }) {
+export function buildTokenDistributionInstruction({ programId, initializedSupply, to, currentAmount = 0, currentSupply = 0, tokenUpdates, nonFungible, }) {
     const tokenDistributionBuilder = new TokenDistributionBuilder()
         .setProgramId(new AddressOrNamespace(new Address(programId)))
         .setReceiver(new AddressOrNamespace(new Address(to)));
     if (!nonFungible) {
         // For fungible tokens, set the amount directly using the initializedSupply, formatted as a hex string.
-        tokenDistributionBuilder.setAmount(formatBigIntToHex(BigInt(initializedSupply)));
+        tokenDistributionBuilder.setAmount(formatBigIntToHex(BigInt(initializedSupply) + BigInt(currentAmount)));
     }
     else {
         // For non-fungible tokens, generate token IDs based on the initializedSupply count, formatting each as a hex string.
-        const tokenIds = [];
-        for (let i = 0; i < parseInt(initializedSupply, 10); i++) {
-            tokenIds.push(formatAmountToHex(i.toString()));
-        }
+        const tokenIds = generateTokenIdArray(initializedSupply, currentSupply);
         tokenDistributionBuilder.extendTokenIds(tokenIds);
     }
     if (tokenUpdates) {
@@ -203,7 +200,7 @@ export function buildMintInstructions({ from, programId, paymentTokenAddress, in
  *
  * @throws {Error} Propagates any errors that occur during the instruction building process.
  */
-export function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }) {
+export function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, extendTokenIds, }) {
     try {
         // Convert string addresses to Address or AddressOrNamespace objects as required by the builder.
         const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
@@ -217,6 +214,9 @@ export function buildTransferInstruction({ from, to, tokenAddress, amount, token
         // If token IDs are specified (for NFTs or specific fungible token units), add them to the instruction.
         if (tokenIds) {
             instructionBuilder.addTokenIds(tokenIds);
+        }
+        if (extendTokenIds) {
+            instructionBuilder.extendTokenIds(extendTokenIds);
         }
         // If an amount is specified (for fungible tokens), set the amount in the instruction.
         if (amount !== undefined) {
@@ -372,7 +372,8 @@ export function buildProgramUpdateField({ field, value, action, }) {
             case 'linkedPrograms':
                 switch (action) {
                     case 'extend':
-                        programFieldAction = new LinkedProgramsExtend([new Address(value)]);
+                        const programs = JSON.parse(value).map((address) => new Address(address));
+                        programFieldAction = new LinkedProgramsExtend(programs);
                         break;
                     case 'insert':
                         programFieldAction = new LinkedProgramsInsert(new Address(value));

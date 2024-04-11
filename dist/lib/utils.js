@@ -362,3 +362,107 @@ export const getIPFSForNetwork = (network) => {
     console.log('USING IPFS URL: ', ipfsUrl);
     return ipfsUrl;
 };
+export const parseProgramAccountMetadata = (computeInputs) => {
+    try {
+        return validate(computeInputs.accountInfo?.programAccountMetadata, 'program account metadata missing...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseProgramAccountData = (computeInputs) => {
+    try {
+        return validate(computeInputs.accountInfo?.programAccountData, 'program account data missing...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseProgramTokenInfo = (computeInputs) => {
+    try {
+        return validate(computeInputs.accountInfo?.programs[computeInputs.transaction.to], 'token missing from self...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseAvailableTokenIds = (computeInputs) => {
+    try {
+        const programInfo = parseProgramTokenInfo(computeInputs);
+        return validate(programInfo?.tokenIds, 'missing nfts to mint...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseTxInputs = (computeInputs) => {
+    try {
+        const { transaction } = computeInputs;
+        if (!transaction) {
+            throw new Error('missing transaction...');
+        }
+        const { transactionInputs } = transaction;
+        if (!transactionInputs) {
+            throw new Error('missing transaction inputs...');
+        }
+        return JSON.parse(transactionInputs);
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const parseMetadata = (computeInputs) => {
+    try {
+        const txInputs = parseTxInputs(computeInputs);
+        const totalSupply = txInputs?.totalSupply;
+        const initializedSupply = txInputs?.initializedSupply;
+        const symbol = txInputs?.symbol;
+        const name = txInputs?.name;
+        return validate({
+            name,
+            symbol,
+            initializedSupply,
+            totalSupply,
+        }, 'invalid metadata...');
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const getCurrentSupply = (computeInputs) => {
+    try {
+        const programAccountData = computeInputs?.accountInfo?.programAccountData;
+        return programAccountData?.currentSupply
+            ? parseInt(programAccountData.currentSupply)
+            : 0;
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const getCurrentImgUrls = (computeInputs) => {
+    try {
+        const programAccountData = computeInputs?.accountInfo?.programAccountData;
+        return programAccountData?.imgUrls
+            ? JSON.parse(programAccountData.imgUrls)
+            : ['foo-bar.png'];
+    }
+    catch (e) {
+        throw e;
+    }
+};
+export const generateTokenIdArray = (initializedSupply, currentSupply = 0) => {
+    const initialSupplyNum = parseInt(initializedSupply);
+    const currentSupplyNum = parseInt(currentSupply);
+    const length = Math.max(0, initialSupplyNum + currentSupplyNum);
+    return Array.from({ length }, (_, i) => formatAmountToHex(i + currentSupplyNum));
+};
+export const parseTokenData = (computeInputs) => {
+    try {
+        const currProgramInfo = validate(computeInputs.accountInfo?.programs[computeInputs.transaction.to], 'token missing from self...');
+        return validate(currProgramInfo?.data, 'token missing required data to mint...');
+    }
+    catch (e) {
+        throw e;
+    }
+};

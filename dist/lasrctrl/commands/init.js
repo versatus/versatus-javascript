@@ -1,7 +1,8 @@
-import { copyDirectory, installedPackagePath, isInstalledPackage, isTypeScriptProject, } from '../../lasrctrl/cli-helpers.js';
+import { copyDirectory, getSecretKeyFromKeyPairFile, installedPackagePath, isInstalledPackage, isTypeScriptProject, KEY_PAIR_FILE_PATH, } from '../../lasrctrl/cli-helpers.js';
 import path from 'path';
 import fs from 'fs';
 import { __dirname } from '../../lasrctrl/cli.js';
+import { runSpawn } from '../../lasrctrl/shell.js';
 export const initCommandFlags = (yargs) => {
     return yargs.positional('example', {
         describe: 'The example program to initialize',
@@ -10,13 +11,17 @@ export const initCommandFlags = (yargs) => {
         demandOption: true,
     });
 };
-const init = (argv) => {
+const init = async (argv) => {
     console.log(`\x1b[0;33mInitializing example program: ${argv.example ||
         'blank' ||
         'fungible' ||
         'non-fungible' ||
         'hello-lasr' ||
         'faucet'}...\x1b[0m`);
+    let scriptDir = isInstalledPackage ? installedPackagePath : process.cwd();
+    const checkForCli = path.resolve(scriptDir, 'scripts', 'check_cli.sh');
+    await runSpawn('bash', [checkForCli], { stdio: 'inherit' });
+    await getSecretKeyFromKeyPairFile(KEY_PAIR_FILE_PATH);
     const isTsProject = isTypeScriptProject();
     const exampleDir = isInstalledPackage
         ? path.resolve(installedPackagePath, 'examples', argv.example || 'blank')
@@ -30,8 +35,8 @@ const init = (argv) => {
         exampleContractContent = exampleContractContent.replace(importPathRegex, '@versatus/versatus-javascript');
     }
     fs.writeFileSync(targetFilePath, exampleContractContent, 'utf8');
-    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'blank', 'inputs');
-    const targetInputsDir = path.join(targetDir, 'inputs');
+    const inputsDir = path.join(isInstalledPackage ? installedPackagePath : process.cwd(), 'examples', argv.example || 'blank', 'example-program-inputs');
+    const targetInputsDir = path.join(targetDir, 'example-program-inputs');
     if (fs.existsSync(inputsDir)) {
         if (fs.existsSync(targetInputsDir)) {
             fs.rmSync(targetInputsDir, { recursive: true, force: true });

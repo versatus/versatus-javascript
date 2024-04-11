@@ -84,7 +84,6 @@ export async function broadcast(
     )
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(error.message)
       throw error
     } else {
       console.error('An unexpected error occurred:', error)
@@ -108,7 +107,7 @@ export async function callLasrRpc(
   method: string,
   params: string[] | Record<string, unknown> | Transaction[],
   rpcUrl: string
-): Promise<string | Error> {
+): Promise<string> {
   try {
     const callHeaders = new Headers()
     callHeaders.append('Content-Type', 'application/json')
@@ -141,7 +140,6 @@ export async function callLasrRpc(
       console.error(error.message)
       throw error
     } else {
-      console.error('An unexpected error occurred:', error)
       throw new Error('An unexpected error occurred.')
     }
   }
@@ -158,33 +156,17 @@ export async function callLasrRpc(
 export async function getAccount(
   address: string,
   network: NETWORK = 'stable'
-): Promise<Account | Error> {
+): Promise<Account> {
   try {
-    let account: Account | Error = new Error('An unexpected error occurred')
+    let account: Account
     const params = [address]
     const RPC_URL = getRPCForNetwork(network)
 
     const result = await callLasrRpc('lasr_getAccount', params, RPC_URL)
-    if (result instanceof Error) {
-      console.error(result.message)
-      account = {
-        nonce: formatAmountToHex('0'),
-        accountType: 'user',
-        programAccountData: {},
-        programs: {},
-        ownerAddress: new Address(address),
-        programAccountLinkedPrograms: [],
-        programAccountMetadata: {},
-        programNamespace: undefined,
-      }
-    } else {
-      account = JSON.parse(result)
-    }
-
+    account = JSON.parse(result)
     return account
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(error.message)
       throw error
     } else {
       console.error('An unexpected error occurred:', error)

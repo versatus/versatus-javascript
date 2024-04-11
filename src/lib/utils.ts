@@ -1,4 +1,4 @@
-import { NETWORK } from '@/lib/types'
+import { ComputeInputs, NETWORK, Token } from '@/lib/types'
 import {
   LASR_RPC_URL_STABLE,
   LASR_RPC_URL_UNSTABLE,
@@ -398,4 +398,150 @@ export const getIPFSForNetwork = (network: NETWORK) => {
       : `${VIPFS_URL_UNSTABLE}`
   console.log('USING IPFS URL: ', ipfsUrl)
   return ipfsUrl
+}
+
+export const parseProgramAccountMetadata = (
+  computeInputs: ComputeInputs
+): Token => {
+  try {
+    return validate(
+      computeInputs.accountInfo?.programAccountMetadata,
+      'program account metadata missing...'
+    )
+  } catch (e) {
+    throw e
+  }
+}
+export const parseProgramAccountData = (
+  computeInputs: ComputeInputs
+): Token => {
+  try {
+    return validate(
+      computeInputs.accountInfo?.programAccountData,
+      'program account data missing...'
+    )
+  } catch (e) {
+    throw e
+  }
+}
+
+export const parseProgramTokenInfo = (computeInputs: ComputeInputs): Token => {
+  try {
+    return validate(
+      computeInputs.accountInfo?.programs[computeInputs.transaction.to],
+      'token missing from self...'
+    )
+  } catch (e) {
+    throw e
+  }
+}
+
+export const parseAvailableTokenIds = (
+  computeInputs: ComputeInputs
+): string[] => {
+  try {
+    const programInfo = parseProgramTokenInfo(computeInputs)
+    return validate(programInfo?.tokenIds, 'missing nfts to mint...')
+  } catch (e) {
+    throw e
+  }
+}
+
+export const parseTxInputs = (
+  computeInputs: ComputeInputs
+): Record<string, any> => {
+  try {
+    const { transaction } = computeInputs
+    if (!transaction) {
+      throw new Error('missing transaction...')
+    }
+    const { transactionInputs } = transaction
+    if (!transactionInputs) {
+      throw new Error('missing transaction inputs...')
+    }
+    return JSON.parse(transactionInputs)
+  } catch (e) {
+    throw e
+  }
+}
+
+export const parseMetadata = (
+  computeInputs: ComputeInputs
+): {
+  name: string
+  symbol: string
+  initializedSupply: string
+  totalSupply: string
+} => {
+  try {
+    const txInputs = parseTxInputs(computeInputs)
+    const totalSupply = txInputs?.totalSupply
+    const initializedSupply = txInputs?.initializedSupply
+    const symbol = txInputs?.symbol
+    const name = txInputs?.name
+    return validate(
+      {
+        name,
+        symbol,
+        initializedSupply,
+        totalSupply,
+      },
+      'invalid metadata...'
+    )
+  } catch (e) {
+    throw e
+  }
+}
+
+export const getCurrentSupply = (computeInputs: ComputeInputs) => {
+  try {
+    const programAccountData = computeInputs?.accountInfo?.programAccountData
+    return programAccountData?.currentSupply
+      ? parseInt(programAccountData.currentSupply)
+      : 0
+  } catch (e) {
+    throw e
+  }
+}
+
+export const getCurrentImgUrls = (computeInputs: ComputeInputs): string[] => {
+  try {
+    const programAccountData = computeInputs?.accountInfo?.programAccountData
+    return programAccountData?.imgUrls
+      ? JSON.parse(programAccountData.imgUrls)
+      : ['foo-bar.png']
+  } catch (e) {
+    throw e
+  }
+}
+
+export const generateTokenIdArray = (
+  initializedSupply: number | string,
+  currentSupply: number | string = 0
+) => {
+  const initialSupplyNum = parseInt(initializedSupply as string)
+  const currentSupplyNum = parseInt(currentSupply as string)
+
+  const length = Math.max(0, initialSupplyNum + currentSupplyNum)
+
+  return Array.from({ length }, (_, i) =>
+    formatAmountToHex(i + currentSupplyNum)
+  )
+}
+
+export const parseTokenData = (
+  computeInputs: ComputeInputs
+): Record<string, any> => {
+  try {
+    const currProgramInfo = validate(
+      computeInputs.accountInfo?.programs[computeInputs.transaction.to],
+      'token missing from self...'
+    )
+    return validate(
+      currProgramInfo?.data,
+      'token missing required data to mint...'
+    )
+  } catch (e) {
+    throw e
+  }
 }

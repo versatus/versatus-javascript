@@ -1,7 +1,6 @@
 import { Wallet, keccak256, toUtf8Bytes } from 'ethers';
 import * as secp256k1 from '@noble/secp256k1';
 import { formatBigIntToHex, formatAmountToHex } from './utils.js';
-import { Address } from '../lib/programs/Address-Namespace.js';
 import { getRPCForNetwork } from '../lib/utils.js';
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
@@ -64,7 +63,6 @@ export async function broadcast(callTx, privateKey, network = 'stable') {
     }
     catch (error) {
         if (error instanceof Error) {
-            console.error(error.message);
             throw error;
         }
         else {
@@ -113,7 +111,6 @@ export async function callLasrRpc(method, params, rpcUrl) {
             throw error;
         }
         else {
-            console.error('An unexpected error occurred:', error);
             throw new Error('An unexpected error occurred.');
         }
     }
@@ -128,31 +125,15 @@ export async function callLasrRpc(method, params, rpcUrl) {
  */
 export async function getAccount(address, network = 'stable') {
     try {
-        let account = new Error('An unexpected error occurred');
+        let account;
         const params = [address];
         const RPC_URL = getRPCForNetwork(network);
         const result = await callLasrRpc('lasr_getAccount', params, RPC_URL);
-        if (result instanceof Error) {
-            console.error(result.message);
-            account = {
-                nonce: formatAmountToHex('0'),
-                accountType: 'user',
-                programAccountData: {},
-                programs: {},
-                ownerAddress: new Address(address),
-                programAccountLinkedPrograms: [],
-                programAccountMetadata: {},
-                programNamespace: undefined,
-            };
-        }
-        else {
-            account = JSON.parse(result);
-        }
+        account = JSON.parse(result);
         return account;
     }
     catch (error) {
         if (error instanceof Error) {
-            console.error(error.message);
             throw error;
         }
         else {

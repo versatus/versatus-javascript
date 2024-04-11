@@ -2,7 +2,7 @@ import { Arguments, CommandBuilder } from 'yargs';
 export interface CallCommandArgs {
     programAddress: string;
     op: string;
-    inputs: string;
+    txInputs: string;
     network: string;
     keypairPath?: string;
     secretKey?: string;

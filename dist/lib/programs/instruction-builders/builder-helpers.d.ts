@@ -74,10 +74,12 @@ export declare function buildUpdateInstruction({ update, }: {
  * `initializedSupply` as a count of individual tokens to distribute.
  * @returns {TokenDistribution} A token distribution object configured with the provided details.
  */
-export declare function buildTokenDistributionInstruction({ programId, initializedSupply, to, tokenUpdates, nonFungible, }: {
+export declare function buildTokenDistributionInstruction({ programId, initializedSupply, to, currentAmount, currentSupply, tokenUpdates, nonFungible, }: {
     programId: string;
     initializedSupply: string;
     to: string;
+    currentAmount?: string | number;
+    currentSupply?: string | number;
     tokenUpdates?: TokenUpdateField[];
     nonFungible?: boolean;
 }): TokenDistribution;
@@ -122,12 +124,13 @@ export declare function buildMintInstructions({ from, programId, paymentTokenAdd
  *
  * @throws {Error} Propagates any errors that occur during the instruction building process.
  */
-export declare function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }: {
+export declare function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, extendTokenIds, }: {
     from: string;
     to: string;
     tokenAddress: string;
     amount?: BigInt;
     tokenIds?: string[];
+    extendTokenIds?: string[];
 }): import("..").Instruction;
 /**
  * Constructs a `TokenUpdateField` object for updating token fields with specified actions such as insert, extend, or remove.
