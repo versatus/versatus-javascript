@@ -200,7 +200,7 @@ export function buildMintInstructions({ from, programId, paymentTokenAddress, in
  *
  * @throws {Error} Propagates any errors that occur during the instruction building process.
  */
-export function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }) {
+export function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, extendTokenIds, }) {
     try {
         // Convert string addresses to Address or AddressOrNamespace objects as required by the builder.
         const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
@@ -214,6 +214,9 @@ export function buildTransferInstruction({ from, to, tokenAddress, amount, token
         // If token IDs are specified (for NFTs or specific fungible token units), add them to the instruction.
         if (tokenIds) {
             instructionBuilder.addTokenIds(tokenIds);
+        }
+        if (extendTokenIds) {
+            instructionBuilder.extendTokenIds(extendTokenIds);
         }
         // If an amount is specified (for fungible tokens), set the amount in the instruction.
         if (amount !== undefined) {

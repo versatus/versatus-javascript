@@ -348,12 +348,14 @@ export function buildTransferInstruction({
   tokenAddress,
   amount,
   tokenIds,
+  extendTokenIds,
 }: {
   from: string
   to: string
   tokenAddress: string
   amount?: BigInt
   tokenIds?: string[]
+  extendTokenIds?: string[]
 }) {
   try {
     // Convert string addresses to Address or AddressOrNamespace objects as required by the builder.
@@ -370,6 +372,10 @@ export function buildTransferInstruction({
     // If token IDs are specified (for NFTs or specific fungible token units), add them to the instruction.
     if (tokenIds) {
       instructionBuilder.addTokenIds(tokenIds)
+    }
+
+    if (extendTokenIds) {
+      instructionBuilder.extendTokenIds(extendTokenIds)
     }
 
     // If an amount is specified (for fungible tokens), set the amount in the instruction.

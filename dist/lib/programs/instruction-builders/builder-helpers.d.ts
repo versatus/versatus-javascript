@@ -124,12 +124,13 @@ export declare function buildMintInstructions({ from, programId, paymentTokenAdd
  *
  * @throws {Error} Propagates any errors that occur during the instruction building process.
  */
-export declare function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, }: {
+export declare function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, extendTokenIds, }: {
     from: string;
     to: string;
     tokenAddress: string;
     amount?: BigInt;
     tokenIds?: string[];
+    extendTokenIds?: string[];
 }): import("..").Instruction;
 /**
  * Constructs a `TokenUpdateField` object for updating token fields with specified actions such as insert, extend, or remove.

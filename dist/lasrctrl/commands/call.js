@@ -11,7 +11,7 @@ export const callCommandFlags = (yargs) => {
         type: 'string',
         demandOption: true,
     })
-        .option('inputs', {
+        .option('txInputs', {
         describe: 'Input json required by the operation',
         type: 'string',
         demandOption: true,
@@ -34,7 +34,7 @@ export const callCommandFlags = (yargs) => {
 const call = async (argv) => {
     try {
         const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
-        const sendResponse = await callProgram(String(argv.programAddress), String(argv.op), String(argv.inputs), argv.network, secretKey);
+        const sendResponse = await callProgram(String(argv.programAddress), String(argv.op), String(argv.txInputs), argv.network, secretKey);
         console.log('sendResponse', sendResponse);
     }
     catch (error) {

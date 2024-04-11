@@ -16,7 +16,7 @@ mkdir -p my-token && \
     npx lasrctl init fungible && \
     npx lasrctl build example-program.ts && \
     npx lasrctl test inputs && \
-    npx lasrctl deploy --author me --name speed --programName run --symbol SPEEDRUN --is 100 --ts 1000 && \
+    npx lasrctl deploy --build example-program --author me --name speed --programName run --symbol SPEEDRUN --initializedSupply 100 --ts 1000 --txInputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0x0000000000000000000000000000000000000000"}' --createTestFilePath example-program-inputs/non-fungible-create.json && \
     open -a "Google Chrome" https://faucet.versatus.io
 ```
 
@@ -61,7 +61,7 @@ With this package installed, you can now initialize your project with the `npx l
 npx lasrctl init fungible # Choose blank, fungible, non-fungible or faucet
 ```
 
-After initialization, you will now have an example program available in the `example-program.ts` file in the root of your project.  The init command also creates a folder with example JSON input for each method in the `inputs` folder.
+After initialization, you will now have an example program available in the `burd.ts` file in the root of your project.  The init command also creates a folder with example JSON input for each method in the `inputs` folder.
 
 You can look and read these JSON files to see an example of what the protocol will send your program.
 
@@ -72,7 +72,7 @@ Before you deploy your program, you must compile your TypeScript to JavaScript. 
 If you make a change to your TypeScript program, you must build it before you can deploy any changes to the network.
 
 ```bash
-npx lasrctl build example-program.ts
+npx lasrctl build burd.ts
 ```
 
 This command builds your TypeScript program and places the JavaScript output into the `./build` folder. You should not check the `./build` folder into source control.
@@ -145,29 +145,30 @@ Within the LASR protocol - everything is a token. When we deploy our program, we
 ### Example Deployment Command
 
 ```bash
-npx lasrctl deploy --build example-program --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 1 --totalSupply 1
+npx lasrctl deploy --build example-program --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 1 --totalSupply 1 --txInputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0x0000000000000000000000000000000000000000"}' --createTestFilePath example-program-inputs/non-fungible-create.json
 ```
 
 #### Deploy Parameters
 
 Deploy a program
 
-| Option                | Description                             | Type     | Required | Default                       |
-|-----------------------|-----------------------------------------|----------|----------|-------------------------------|
-| `--version`           | Show version number                     | boolean  | No       |                               |
-| `--help`              | Show help                               | boolean  | No       |                               |
-| `--build`             | Name of the program file being built    | string   | Yes      |                               |
-| `--author`            | Author of the contract                  | string   | Yes      |                               |
-| `--name`              | Name of the contract                    | string   | Yes      |                               |
-| `--symbol`            | Symbol for the program                  | string   | Yes      |                               |
-| `--programName`       | Name for the program                    | string   | Yes      |                               |
-| `--initializedSupply` | Initial Supply of the Token             | string   | Yes      |                               |
-| `--totalSupply`       | Total supply of the token to be created | string   | Yes      |                               |
-| `--recipientAddress`  | Address for the initialized supply      | string   | No       |                               |
-| `--txInputs`            | Additional inputs for the program       | string   | No       |                               |
-| `--keypairPath`       | Path to the keypair file                | string   | No       | `./.lasr/wallet/keypair.json` |
-| `--secretKey`         | Secret key for the wallet               | string   | No       |                               |
-| `--target`            | Build target                            | string   | No       | `node` (choices: "node" - _more soon_)      |
+| Option                | Description                                                                  | Type     | Required | Default                       |
+|-----------------------|------------------------------------------------------------------------------|----------|----------|-------------------------------|
+| `--version`           | Show version number                                                          | boolean  | No       |                               |
+| `--help`              | Show help                                                                    | boolean  | No       |                               |
+| `--build`             | Name of the program file being built                                         | string   | Yes      |                               |
+| `--author`            | Author of the contract                                                       | string   | Yes      |                               |
+| `--name`              | Name of the contract                                                         | string   | Yes      |                               |
+| `--symbol`            | Symbol for the program                                                       | string   | Yes      |                               |
+| `--programName`       | Name for the program                                                         | string   | Yes      |                               |
+| `--initializedSupply` | Initial Supply of the Token                                                  | string   | Yes      |                               |
+| `--totalSupply`       | Total supply of the token to be created                                      | string   | Yes      |                               |
+| `--recipientAddress`  | Address for the initialized supply                                           | string   | No       |                               |
+| `--txInputs`          | Additional inputs for the program                                            | string   | No       |                               |
+| `--createTestFilePath`| Path to a valid create.json file to test the create method before deployment | string   | yes      |                               |
+| `--keypairPath`       | Path to the keypair file                                                     | string   | No       | `./.lasr/wallet/keypair.json` |
+| `--secretKey`         | Secret key for the wallet                                                    | string   | No       |                               |
+| `--target`            | Build target                                                                 | string   | No       | `node` (choices: "node" - _more soon_)      |
 
 Keep track of your program account id - this is the required key that you will need to interact with your program in later steps.
 

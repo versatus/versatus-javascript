@@ -53,7 +53,7 @@ npx lasrctl init # Choose blank, fungible, non-fungible, or faucet
 
 #### 4) Build Your Program
 ```bash
-npx lasrctl build example-program.ts
+npx lasrctl build burd.ts
 ```
 
 #### 5) Test Your Program
