@@ -55,6 +55,9 @@
     "typedoc-plugin-markdown": "^3.17.1",
     "typescript": "^5.3.3"
   },
+  "engines": {
+    "node": ">=18.18.2"
+  },
   "author": "https://github.com/hathbanger",
   "license": "ISC"
 }
