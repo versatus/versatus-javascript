@@ -71,6 +71,7 @@ export declare class Program {
      * @throws {Error} Throws an error if any validation fails or if an unexpected error occurs during the process.
      */
     update(computeInputs: ComputeInputs): object;
+    static run(): void;
 }
 /**
  * Represents a program update instruction in LASR. This class encapsulates

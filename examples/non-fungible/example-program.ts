@@ -7,7 +7,6 @@ import {
   buildProgramUpdateField,
   buildTokenDistributionInstruction,
   buildTokenUpdateField,
-  buildTransferInstruction,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
@@ -25,14 +24,12 @@ import {
 } from '@versatus/versatus-javascript/lib/programs/Token'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
-  checkIfValuesAreUndefined,
   formatHexToAmount,
   getCurrentImgUrls,
   getCurrentSupply,
   parseAmountToBigInt,
   parseAvailableTokenIds,
   parseMetadata,
-  parseProgramTokenInfo,
   parseTokenData,
   parseTxInputs,
   validate,
@@ -268,38 +265,4 @@ class NonFungible extends Program {
   }
 }
 
-const start = (input: ComputeInputs) => {
-  try {
-    const contract = new NonFungible()
-    return contract.start(input)
-  } catch (e) {
-    throw e
-  }
-}
-
-process.stdin.setEncoding('utf8')
-
-let data = ''
-
-process.stdin.on('readable', () => {
-  try {
-    let chunk
-
-    while ((chunk = process.stdin.read()) !== null) {
-      data += chunk
-    }
-  } catch (e) {
-    throw e
-  }
-})
-
-process.stdin.on('end', () => {
-  try {
-    const parsedData = JSON.parse(data)
-    const result = start(parsedData)
-    process.stdout.write(JSON.stringify(result))
-  } catch (err) {
-    // @ts-ignore
-    process.stdout.write(err.message)
-  }
-})
+NonFungible.run()

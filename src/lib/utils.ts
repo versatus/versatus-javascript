@@ -545,3 +545,23 @@ export const parseTokenData = (
     throw e
   }
 }
+
+export function deepMerge(target: any, source: any): any {
+  if (typeof target !== 'object' || typeof source !== 'object') {
+    return source
+  }
+
+  for (const key in source) {
+    if (source.hasOwnProperty(key)) {
+      if (typeof source[key] === 'object' && source[key] !== null) {
+        if (!target[key]) {
+          target[key] = Array.isArray(source[key]) ? [] : {}
+        }
+        target[key] = deepMerge(target[key], source[key])
+      } else {
+        target[key] = source[key]
+      }
+    }
+  }
+  return target
+}

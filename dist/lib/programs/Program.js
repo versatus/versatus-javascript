@@ -1,4 +1,4 @@
-import { buildCreateInstruction, buildProgramUpdateField, buildTokenDistributionInstruction, buildTokenUpdateField, buildUpdateInstruction, } from '../../lib/programs/instruction-builders/builder-helpers.js';
+import { buildCreateInstruction, buildProgramUpdateField, buildTokenUpdateField, buildUpdateInstruction, } from '../../lib/programs/instruction-builders/builder-helpers.js';
 import { THIS } from '../../lib/consts.js';
 import { Outputs } from '../../lib/programs/Outputs.js';
 import { checkIfValuesAreUndefined, formatAmountToHex, validate, validateAndCreateJsonString, } from '../../lib/utils.js';
@@ -70,51 +70,20 @@ export class Program {
     create(computeInputs) {
         try {
             const { transaction } = computeInputs;
-            const { transactionInputs, from, to } = transaction;
+            const { transactionInputs, from } = transaction;
             const txInputs = validate(JSON.parse(transactionInputs), 'unable to parse transactionInputs');
-            const { symbol, name, totalSupply, initializedSupply: txInitializedSupply, imgUrl, recipientAddress, paymentProgramAddress, conversionRate, } = txInputs;
+            const { symbol, name, totalSupply, initializedSupply: txInitializedSupply, } = txInputs;
             checkIfValuesAreUndefined({
                 symbol,
                 name,
                 totalSupply,
                 initializedSupply: txInitializedSupply,
-                imgUrl,
-                paymentProgramAddress,
-                conversionRate,
             });
             // metadata
             const metadataStr = validateAndCreateJsonString({
                 symbol,
                 name,
                 totalSupply: formatAmountToHex(totalSupply),
-            });
-            // data
-            const dataStr = validateAndCreateJsonString({
-                type: 'fungible',
-                imgUrl,
-                paymentProgramAddress,
-                conversionRate,
-            });
-            const addTokenMetadata = buildTokenUpdateField({
-                field: 'metadata',
-                value: metadataStr,
-                action: 'extend',
-            });
-            const addTokenData = buildTokenUpdateField({
-                field: 'data',
-                value: dataStr,
-                action: 'extend',
-            });
-            const addProgramData = buildProgramUpdateField({
-                field: 'data',
-                value: dataStr,
-                action: 'extend',
-            });
-            const distributionInstruction = buildTokenDistributionInstruction({
-                programId: THIS,
-                initializedSupply: formatAmountToHex(txInitializedSupply),
-                to: recipientAddress ?? to,
-                tokenUpdates: [addTokenMetadata, addTokenData],
             });
             const createAndDistributeInstruction = buildCreateInstruction({
                 from,
@@ -123,7 +92,6 @@ export class Program {
                 programId: THIS,
                 programOwner: from,
                 programNamespace: THIS,
-                distributionInstruction,
             });
             const addProgramMetadata = buildProgramUpdateField({
                 field: 'metadata',
@@ -131,10 +99,7 @@ export class Program {
                 action: 'extend',
             });
             const programUpdateInstruction = buildUpdateInstruction({
-                update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), [
-                    addProgramMetadata,
-                    addProgramData,
-                ])),
+                update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(THIS), [addProgramMetadata])),
             });
             return new Outputs(computeInputs, [
                 createAndDistributeInstruction,
@@ -226,6 +191,27 @@ export class Program {
         catch (e) {
             throw e;
         }
+    }
+    static run() {
+        process.stdin.setEncoding('utf8');
+        let data = '';
+        process.stdin.on('readable', () => {
+            let chunk;
+            while ((chunk = process.stdin.read()) !== null) {
+                data += chunk;
+            }
+        });
+        process.stdin.on('end', () => {
+            try {
+                const parsedData = JSON.parse(data);
+                const contract = new this();
+                const result = contract.start(parsedData);
+                process.stdout.write(JSON.stringify(result));
+            }
+            catch (err) {
+                console.error('Failed to parse JSON input:', err);
+            }
+        });
     }
 }
 /**
