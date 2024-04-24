@@ -165,9 +165,9 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       totalSupply: argv.totalSupply,
     }
 
-    if (argv.recipientAddress) {
-      inputsPayload.to = argv.recipientAddress
-    }
+    // if (argv.recipientAddress) {
+    //   inputsPayload.to = argv.recipientAddress
+    // }
 
     // Update the transactionInputs in the testJson object
     testJson.transaction.transactionInputs = JSON.stringify(inputsPayload)
@@ -207,8 +207,6 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
           build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`
     }
 
-    console.log(command)
-
     const output = await runCommand(command)
 
     const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g
@@ -221,7 +219,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     )
     const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
 
-    console.log('\x1b[0;33mChecking wallet...\x1b[0m')
+    // console.log('\x1b[0;33mChecking wallet...\x1b[0m')
     // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
 
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
@@ -270,7 +268,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       String(argv.programName),
       String(argv.initializedSupply),
       String(argv.totalSupply),
-      String(argv.recipientAddress ?? programAddress),
+      String(programAddress),
       network,
       secretKey,
       argv.txInputs
@@ -284,9 +282,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 ==> tokenName: \x1b[0;32m${argv.programName}\x1b[0m
 ==> initializedSupply: \x1b[0;32m${argv.initializedSupply}\x1b[0m
 ==> totalSupply: \x1b[0;32m${argv.totalSupply}\x1b[0m
-==> recipientAddress: \x1b[0;32m${
-        argv.recipientAddress ?? addressFromKeypair
-      }\x1b[0m
+==> recipientAddress: \x1b[0;32m${programAddress}\x1b[0m
 ======
 ======
 ======

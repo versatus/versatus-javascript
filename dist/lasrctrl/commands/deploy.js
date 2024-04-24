@@ -117,9 +117,9 @@ const deploy = async (argv) => {
             initializedSupply: argv.initializedSupply,
             totalSupply: argv.totalSupply,
         };
-        if (argv.recipientAddress) {
-            inputsPayload.to = argv.recipientAddress;
-        }
+        // if (argv.recipientAddress) {
+        //   inputsPayload.to = argv.recipientAddress
+        // }
         // Update the transactionInputs in the testJson object
         testJson.transaction.transactionInputs = JSON.stringify(inputsPayload);
         // Create a temporary file to write the updated JSON
@@ -150,7 +150,6 @@ const deploy = async (argv) => {
             command = `
           build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`;
         }
-        console.log(command);
         const output = await runCommand(command);
         const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g;
         const ipfsHashMatch = output.match(cidPattern);
@@ -159,7 +158,7 @@ const deploy = async (argv) => {
         console.log(`\x1b[0;32mProgram published.\x1b[0m
 ==> cid: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
-        console.log('\x1b[0;33mChecking wallet...\x1b[0m');
+        // console.log('\x1b[0;33mChecking wallet...\x1b[0m')
         // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         let registerResponse;
@@ -195,7 +194,7 @@ const deploy = async (argv) => {
         console.log(`Program registered.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? programAddress), network, secretKey, argv.txInputs);
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(programAddress), network, secretKey, argv.txInputs);
         if (createResponse) {
             console.log(`Program created successfully.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m
@@ -204,7 +203,7 @@ const deploy = async (argv) => {
 ==> tokenName: \x1b[0;32m${argv.programName}\x1b[0m
 ==> initializedSupply: \x1b[0;32m${argv.initializedSupply}\x1b[0m
 ==> totalSupply: \x1b[0;32m${argv.totalSupply}\x1b[0m
-==> recipientAddress: \x1b[0;32m${argv.recipientAddress ?? addressFromKeypair}\x1b[0m
+==> recipientAddress: \x1b[0;32m${programAddress}\x1b[0m
 ======
 ======
 ======

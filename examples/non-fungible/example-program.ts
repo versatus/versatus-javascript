@@ -95,7 +95,6 @@ class NonFungible extends Program {
       const currentSupply = (
         currSupply + parseInt(initializedSupply)
       ).toString()
-      let debug = JSON.stringify(computeInputs.accountInfo.programAccountData)
 
       const price = txInputs?.price
       const paymentProgramAddress = txInputs?.paymentProgramAddress
@@ -209,22 +208,19 @@ class NonFungible extends Program {
         tokenIds.push(availableTokenIds[i])
       }
 
-      const tokenMap: Record<string, any> = {}
+      const tokens: Record<string, string> = {}
       for (let i = 0; i < tokenIds.length; i++) {
         const tokenIdStr = parseInt(formatHexToAmount(tokenIds[i])).toString()
         const imgUrl = tokenData.imgUrls
           ? JSON.parse(tokenData.imgUrls)[tokenIdStr].imgUrl
           : tokenData.imgUrl
-        tokenMap[tokenIdStr] = JSON.stringify({
-          ownerAddress: transaction.from,
-          imgUrl,
-        })
+        tokens[`${tokenIdStr}-ownerAddress`] = transaction.from
+        tokens[`${tokenIdStr}-imgUrl`] = imgUrl
       }
 
       const dataStr = validateAndCreateJsonString({
         ...tokenData,
-        imgUrls: '',
-        tokenMap: JSON.stringify(tokenMap),
+        ...tokens,
       })
 
       const updateTokenIds = buildTokenUpdateField({
@@ -265,88 +261,7 @@ class NonFungible extends Program {
 
   transfer(computeInputs: ComputeInputs) {
     try {
-      const { transaction } = computeInputs
-      const { transactionInputs, programId, from, to } = transaction
-      const programInfo = parseProgramTokenInfo(computeInputs)
-      const tokenData = parseTokenData(computeInputs)
-      const txInputs = parseTxInputs(computeInputs)
-      const { tokenIds, recipientAddress } = txInputs
-
-      validate(Array.isArray(tokenIds), 'tokenIds must be an array')
-      checkIfValuesAreUndefined({ tokenIds, recipientAddress })
-
-      const callerTokenMap = JSON.parse(tokenData.tokenMap)
-
-      const tokenMap: Record<string, any> = {}
-      for (let i = 0; i < tokenIds.length; i++) {
-        const tokenIdStr = parseInt(formatHexToAmount(tokenIds[i])).toString()
-        const token = tokenData.tokenMap[tokenIdStr]
-        const imgUrl = token.imgUrl
-        tokenMap[tokenIdStr] = JSON.stringify({
-          ownerAddress: recipientAddress,
-          imgUrl,
-        })
-        delete callerTokenMap[tokenIdStr]
-      }
-
-      const callerDataStr = validateAndCreateJsonString({
-        ...tokenData,
-        tokenMap: JSON.stringify(callerTokenMap),
-      })
-
-      const dataStr = validateAndCreateJsonString({
-        ...tokenData,
-        tokenMap: JSON.stringify(tokenMap),
-      })
-
-      const updateTokenIds = buildTokenUpdateField({
-        field: 'data',
-        value: dataStr,
-        action: 'extend',
-      })
-
-      const tokenUpdateInstruction = buildUpdateInstruction({
-        update: new TokenOrProgramUpdate(
-          'tokenUpdate',
-          new TokenUpdate(
-            new AddressOrNamespace(new Address(recipientAddress)),
-            new AddressOrNamespace(THIS),
-            [updateTokenIds]
-          )
-        ),
-      })
-
-      const callerUpdateInstruction = buildUpdateInstruction({
-        update: new TokenOrProgramUpdate(
-          'tokenUpdate',
-          new TokenUpdate(
-            new AddressOrNamespace(new Address(transaction.from)),
-            new AddressOrNamespace(THIS),
-            [updateTokenIds]
-          )
-        ),
-      })
-
-      const transferArguments: {
-        from: string
-        to: string
-        tokenAddress: string
-        amount?: BigInt
-        tokenIds?: string[]
-      } = {
-        from,
-        to: recipientAddress,
-        tokenAddress: programId,
-        tokenIds: tokenIds,
-      }
-
-      const transferToCaller = buildTransferInstruction(transferArguments)
-
-      return new Outputs(computeInputs, [
-        transferToCaller,
-        callerUpdateInstruction,
-        tokenUpdateInstruction,
-      ]).toJson()
+      throw new Error('Method not implemented.')
     } catch (e) {
       throw e
     }

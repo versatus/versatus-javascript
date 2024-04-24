@@ -20,6 +20,8 @@ import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   checkIfValuesAreUndefined,
   formatAmountToHex,
+  formatVerse,
+  parseAmountToBigInt,
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
@@ -165,8 +167,10 @@ class FungibleTokenProgram extends Program {
       const paymentProgramAddress = tokenData.paymentProgramAddress
       const inputValue = BigInt(transaction.value)
       const conversionRate = tokenData.conversionRate
-      const returnedValue: bigint =
-        BigInt(inputValue.toString()) * BigInt(conversionRate.toString())
+      const returnedValue = BigInt(
+        //@ts-ignore
+        formatVerse(inputValue * parseAmountToBigInt(conversionRate.toString()))
+      )
 
       checkIfValuesAreUndefined({
         paymentProgramAddress,
