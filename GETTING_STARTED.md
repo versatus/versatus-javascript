@@ -16,7 +16,7 @@ mkdir -p my-token && \
     npx lasrctl init fungible && \
     npx lasrctl build example-program.ts && \
     npx lasrctl test inputs && \
-    npx lasrctl deploy --build example-program --author me --name speed --programName run --symbol SPEEDRUN --initializedSupply 100 --ts 1000 --txInputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0x0000000000000000000000000000000000000000"}' --createTestFilePath example-program-inputs/non-fungible-create.json && \
+    npx lasrctl deploy --build example-program --author me --name speed --programName run --symbol SPEEDRUN --initializedSupply 100 --ts 1000 --txInputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0x0000000000000000000000000000000000000000"}' && \
     open -a "Google Chrome" https://faucet.versatus.io
 ```
 
@@ -145,7 +145,7 @@ Within the LASR protocol - everything is a token. When we deploy our program, we
 ### Example Deployment Command
 
 ```bash
-npx lasrctl deploy --build example-program --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 1 --totalSupply 1 --txInputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0x0000000000000000000000000000000000000000"}' --createTestFilePath example-program-inputs/non-fungible-create.json
+npx lasrctl deploy --build example-program --author my-name --name my-token --programName MY_TOKEN --symbol MY_TOKEN --initializedSupply 1000 --totalSupply 1000 --txInputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0x0000000000000000000000000000000000000000"}' 
 ```
 
 #### Deploy Parameters
@@ -165,7 +165,6 @@ Deploy a program
 | `--totalSupply`       | Total supply of the token to be created                                      | string   | Yes      |                               |
 | `--recipientAddress`  | Address for the initialized supply                                           | string   | No       |                               |
 | `--txInputs`          | Additional inputs for the program                                            | string   | No       |                               |
-| `--createTestFilePath`| Path to a valid create.json file to test the create method before deployment | string   | yes      |                               |
 | `--keypairPath`       | Path to the keypair file                                                     | string   | No       | `./.lasr/wallet/keypair.json` |
 | `--secretKey`         | Secret key for the wallet                                                    | string   | No       |                               |
 | `--target`            | Build target                                                                 | string   | No       | `node` (choices: "node" - _more soon_)      |
