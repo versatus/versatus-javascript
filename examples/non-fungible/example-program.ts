@@ -29,6 +29,7 @@ import {
   parseAmountToBigInt,
   parseAvailableTokenIds,
   parseMetadata,
+  parseProgramAccountData,
   parseTokenData,
   parseTxInputs,
   validate,
@@ -172,11 +173,11 @@ class NonFungible extends Program {
   mint(computeInputs: ComputeInputs) {
     try {
       const { transaction, accountInfo } = computeInputs
-      const tokenData = parseTokenData(computeInputs)
+      const accountData = parseProgramAccountData(computeInputs)
       const txInputs = parseTxInputs(computeInputs)
       const availableTokenIds = parseAvailableTokenIds(computeInputs)
 
-      const price = parseFloat(tokenData.price)
+      const price = parseFloat(accountData.price)
       const paymentProgramAddress =
         accountInfo.programAccountData.paymentProgramAddress
 
@@ -203,15 +204,18 @@ class NonFungible extends Program {
       const tokens: Record<string, string> = {}
       for (let i = 0; i < tokenIds.length; i++) {
         const tokenIdStr = parseInt(formatHexToAmount(tokenIds[i])).toString()
-        const imgUrl = tokenData.imgUrls
-          ? JSON.parse(tokenData.imgUrls)[tokenIdStr].imgUrl
-          : tokenData.imgUrl
+        const imgUrl =
+          accountData.imgUrls &&
+          JSON.parse(accountData.imgUrls)?.length > 0 &&
+          JSON.parse(accountData.imgUrls)[tokenIdStr].imgUrl
+            ? JSON.parse(accountData.imgUrls)[tokenIdStr].imgUrl
+            : accountData.imgUrl
         tokens[`${tokenIdStr}-ownerAddress`] = transaction.from
         tokens[`${tokenIdStr}-imgUrl`] = imgUrl
       }
 
       const dataStr = validateAndCreateJsonString({
-        ...tokenData,
+        ...accountData,
         ...tokens,
       })
 

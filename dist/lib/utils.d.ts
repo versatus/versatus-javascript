@@ -1,4 +1,4 @@
-import { ComputeInputs, NETWORK, Token } from '../lib/types';
+import { ArbitraryData, ComputeInputs, NETWORK, Token } from '../lib/types';
 /**
  * Converts a numeric input (either a number or a string representation of a number) into a BigInt.
  * This function is particularly useful for handling large numbers that need to be represented accurately
@@ -215,7 +215,7 @@ export declare const getRPCForNetwork: (network: NETWORK) => string;
  */
 export declare const getIPFSForNetwork: (network: NETWORK) => string;
 export declare const parseProgramAccountMetadata: (computeInputs: ComputeInputs) => Token;
-export declare const parseProgramAccountData: (computeInputs: ComputeInputs) => Token;
+export declare const parseProgramAccountData: (computeInputs: ComputeInputs) => ArbitraryData;
 export declare const parseProgramTokenInfo: (computeInputs: ComputeInputs) => Token;
 export declare const parseAvailableTokenIds: (computeInputs: ComputeInputs) => string[];
 export declare const parseTxInputs: (computeInputs: ComputeInputs) => Record<string, any>;

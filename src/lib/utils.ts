@@ -1,4 +1,4 @@
-import { ComputeInputs, NETWORK, Token } from '@/lib/types'
+import { ArbitraryData, ComputeInputs, NETWORK, Token } from '@/lib/types'
 import {
   LASR_RPC_URL_STABLE,
   LASR_RPC_URL_UNSTABLE,
@@ -414,7 +414,7 @@ export const parseProgramAccountMetadata = (
 }
 export const parseProgramAccountData = (
   computeInputs: ComputeInputs
-): Token => {
+): ArbitraryData => {
   try {
     return validate(
       computeInputs.accountInfo?.programAccountData,
