@@ -58,7 +58,7 @@ With this package installed, you can now initialize your project with the `npx l
 | `faucet`       | A template for creating a faucet, allowing users to request test tokens. |
 
 ```bash
-npx lasrctl init fungible # Choose blank, fungible, non-fungible or faucet
+npx lasrctl init hello-lasr # Choose hello-lasr, fungible, non-fungible or faucet
 ```
 
 After initialization, you will now have an example program available in the `burd.ts` file in the root of your project.  The init command also creates a folder with example JSON input for each method in the `inputs` folder.
@@ -72,7 +72,7 @@ Before you deploy your program, you must compile your TypeScript to JavaScript. 
 If you make a change to your TypeScript program, you must build it before you can deploy any changes to the network.
 
 ```bash
-npx lasrctl build burd.ts
+npx lasrctl build example-program.ts
 ```
 
 This command builds your TypeScript program and places the JavaScript output into the `./build` folder. You should not check the `./build` folder into source control.
