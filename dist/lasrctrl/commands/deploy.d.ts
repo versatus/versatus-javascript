@@ -8,7 +8,6 @@ export interface DeployCommandArgs {
     initializedSupply: string;
     totalSupply: string;
     network: string;
-    createTestFilePath: string;
     recipientAddress?: string;
     txInputs?: string;
     keypairPath?: string;

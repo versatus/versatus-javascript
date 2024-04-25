@@ -58,7 +58,7 @@ With this package installed, you can now initialize your project with the `npx l
 | `faucet`       | A template for creating a faucet, allowing users to request test tokens. |
 
 ```bash
-npx lasrctl init hello-lasr # Choose hello-lasr, fungible, non-fungible or faucet
+npx lasrctl init fungible # Choose hello-lasr, fungible, non-fungible or faucet
 ```
 
 After initialization, you will now have an example program available in the `burd.ts` file in the root of your project.  The init command also creates a folder with example JSON input for each method in the `inputs` folder.

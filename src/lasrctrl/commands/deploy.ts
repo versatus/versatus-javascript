@@ -1,7 +1,6 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   callCreate,
-  checkWallet,
   getAddressFromKeyPairFile,
   getSecretKey,
   registerProgram,
@@ -25,7 +24,6 @@ export interface DeployCommandArgs {
   initializedSupply: string
   totalSupply: string
   network: string
-  createTestFilePath: string
   recipientAddress?: string
   txInputs?: string
   keypairPath?: string
@@ -85,11 +83,6 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       type: 'string',
       alias: 'r',
     })
-    .option('createTestFilePath', {
-      describe: 'Path to the create test json file',
-      type: 'string',
-      demandOption: true,
-    })
     .option('txInputs', {
       describe: 'Additional inputs for the program',
       type: 'string',
@@ -127,12 +120,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       `\x1b[0;33mCreating temporary test file for ${argv.build} against cli arguments...\x1b[0m`
     )
 
-    if (!argv.createTestFilePath) {
-      throw new Error('No suitable create.json file found.')
-    }
-
-    const fileContents = await fs.readFile(argv.createTestFilePath, 'utf8')
-    const testJson = JSON.parse(fileContents)
+    const testJson = BLANK_CREATE_JSON
 
     if (!argv.txInputs) {
       throw new Error('no inputs provided')
@@ -282,3 +270,45 @@ https://faucet.versatus.io/programs/${programAddress}
 }
 
 export default deploy
+
+const BLANK_CREATE_JSON = {
+  contractInputs:
+    '{"name":"HelloToken","symbol":"HLLO","totalSupply":"0x0000000000000000000000000000000000000000000000000000000000000001"}',
+  op: 'create',
+  transaction: {
+    from: '0x100444c7D04A842D19bc3eE63cB7b96682FF3f43',
+    to: '0x100444c7D04A842D19bc3eE63cB7b96682FF3f43',
+    transactionInputs:
+      '{"name":"HelloToken","symbol":"HLLO","totalSupply":"1000","initializedSupply":"1000000","imgUrl":"https://pbs.twimg.com/profile_images/1765199894539583488/RUiZn7jT_400x400.jpg","paymentProgramAddress":"0x0000000000000000000000000000000000000000","conversionRate":"1"}',
+    nonce: '0x0000000000000000000000000000000000000000000000000000000000000001',
+    op: 'create',
+    programId: '0x100444c7D04A842D19bc3eE63cB7b96682FF3f43',
+    r: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+    s: '0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321',
+    v: 1,
+    transactionType: {
+      call: '0x0000000000000000000000000000000000000000000000000000000000000001',
+    },
+    value: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  },
+  version: 1,
+  accountInfo: {
+    accountType: {
+      program: '0x57234c52617e7ca8edc5577ebe3eb38d53a77607',
+    },
+    programNamespace: null,
+    ownerAddress: '0x482830d7655fb8465a43844fc1530a7713781b49',
+    programs: {},
+    nonce: '0x000000000000000000000000000000000000000000000000000000000000001c',
+    programAccountData: {},
+    programAccountMetadata: {
+      content_id: 'bafyreidhfvw4jiqom72332brsln3micsa4b7grur4rixkwvyrh6u4i3ecy',
+      initializedSupply: '1000000000000000000000000',
+      name: 'Anotha One',
+      symbol: 'LOVE',
+      to: '0x57234c52617e7ca8edc5577ebe3eb38d53a77607',
+      totalSupply: '1000000000000000000000000',
+    },
+    programAccountLinkedPrograms: [],
+  },
+}

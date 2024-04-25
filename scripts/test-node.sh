@@ -27,8 +27,6 @@ if [ ! -f "$INPUT_JSON_PATH" ]; then
     exit 1
 fi
 
-cat "$INPUT_JSON_PATH"
-
 print_light_gray "Running test..."
 EXECUTE_RESPONSE=$(JSON_PAYLOAD=$(cat "$INPUT_JSON_PATH") && echo "$JSON_PAYLOAD" | node "$BUILD_NODE_PATH")
 EXECUTE_STATUS=$?
