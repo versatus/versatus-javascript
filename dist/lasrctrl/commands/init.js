@@ -7,7 +7,7 @@ export const initCommandFlags = (yargs) => {
     return yargs.positional('example', {
         describe: 'The example program to initialize',
         type: 'string',
-        choices: ['fungible', 'non-fungible', 'snake', 'faucet'],
+        choices: ['fungible', 'non-fungible', 'snake', 'faucet', 'hello-lasr'],
         demandOption: true,
     });
 };

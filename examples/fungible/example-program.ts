@@ -20,6 +20,8 @@ import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   checkIfValuesAreUndefined,
   formatAmountToHex,
+  formatVerse,
+  parseAmountToBigInt,
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
@@ -27,11 +29,9 @@ import {
 class FungibleTokenProgram extends Program {
   constructor() {
     super()
-    Object.assign(this.methodStrategies, {
-      burn: this.burn.bind(this),
-      create: this.create.bind(this),
-      mint: this.mint.bind(this),
-    })
+    this.registerContractMethod('burn', this.burn)
+    this.registerContractMethod('create', this.create)
+    this.registerContractMethod('mint', this.mint)
   }
 
   burn(computeInputs: ComputeInputs) {
@@ -165,8 +165,10 @@ class FungibleTokenProgram extends Program {
       const paymentProgramAddress = tokenData.paymentProgramAddress
       const inputValue = BigInt(transaction.value)
       const conversionRate = tokenData.conversionRate
-      const returnedValue: bigint =
-        BigInt(inputValue.toString()) * BigInt(conversionRate.toString())
+      const returnedValue = BigInt(
+        //@ts-ignore
+        formatVerse(inputValue * parseAmountToBigInt(conversionRate.toString()))
+      )
 
       checkIfValuesAreUndefined({
         paymentProgramAddress,
@@ -190,38 +192,4 @@ class FungibleTokenProgram extends Program {
   }
 }
 
-const start = (input: ComputeInputs) => {
-  try {
-    const contract = new FungibleTokenProgram()
-    return contract.start(input)
-  } catch (e) {
-    throw e
-  }
-}
-
-process.stdin.setEncoding('utf8')
-
-let data = ''
-
-process.stdin.on('readable', () => {
-  try {
-    let chunk
-
-    while ((chunk = process.stdin.read()) !== null) {
-      data += chunk
-    }
-  } catch (e) {
-    throw e
-  }
-})
-
-process.stdin.on('end', () => {
-  try {
-    const parsedData = JSON.parse(data)
-    const result = start(parsedData)
-    process.stdout.write(JSON.stringify(result))
-  } catch (err) {
-    // @ts-ignore
-    process.stdout.write(err.message)
-  }
-})
+FungibleTokenProgram.run()

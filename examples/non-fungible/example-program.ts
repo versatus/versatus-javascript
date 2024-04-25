@@ -1,5 +1,4 @@
 import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
-
 import {
   buildBurnInstruction,
   buildCreateInstruction,
@@ -7,7 +6,6 @@ import {
   buildProgramUpdateField,
   buildTokenDistributionInstruction,
   buildTokenUpdateField,
-  buildTransferInstruction,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
@@ -25,14 +23,13 @@ import {
 } from '@versatus/versatus-javascript/lib/programs/Token'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
-  checkIfValuesAreUndefined,
   formatHexToAmount,
   getCurrentImgUrls,
   getCurrentSupply,
   parseAmountToBigInt,
   parseAvailableTokenIds,
   parseMetadata,
-  parseProgramTokenInfo,
+  parseProgramAccountData,
   parseTokenData,
   parseTxInputs,
   validate,
@@ -42,12 +39,9 @@ import {
 class NonFungible extends Program {
   constructor() {
     super()
-    Object.assign(this.methodStrategies, {
-      burn: this.burn.bind(this),
-      create: this.create.bind(this),
-      mint: this.mint.bind(this),
-      transfer: this.transfer.bind(this),
-    })
+    this.registerContractMethod('burn', this.burn)
+    this.registerContractMethod('create', this.create)
+    this.registerContractMethod('mint', this.mint)
   }
 
   burn(computeInputs: ComputeInputs) {
@@ -81,7 +75,6 @@ class NonFungible extends Program {
       const { from } = transaction
       const txInputs = parseTxInputs(computeInputs)
       let currSupply = getCurrentSupply(computeInputs)
-      let currImgUrls = getCurrentImgUrls(computeInputs)
 
       // metadata
       const metadata = parseMetadata(computeInputs)
@@ -90,12 +83,11 @@ class NonFungible extends Program {
 
       // data
       const imgUrl = txInputs?.imgUrl
-      const imgUrls = [...currImgUrls, ...txInputs?.imgUrls]
+      const imgUrls: string[] = txInputs?.imgUrls ? [...txInputs?.imgUrls] : []
       const collection = txInputs?.collection
       const currentSupply = (
         currSupply + parseInt(initializedSupply)
       ).toString()
-      let debug = JSON.stringify(computeInputs.accountInfo.programAccountData)
 
       const price = txInputs?.price
       const paymentProgramAddress = txInputs?.paymentProgramAddress
@@ -125,7 +117,7 @@ class NonFungible extends Program {
         methods,
       } as Record<string, string>
 
-      if (imgUrls) {
+      if (imgUrls && imgUrls.length > 0) {
         const parsed = imgUrls
         if (!Array.isArray(parsed)) {
           throw new Error('imgUrls must be an array')
@@ -181,11 +173,11 @@ class NonFungible extends Program {
   mint(computeInputs: ComputeInputs) {
     try {
       const { transaction, accountInfo } = computeInputs
-      const tokenData = parseTokenData(computeInputs)
+      const accountData = parseProgramAccountData(computeInputs)
       const txInputs = parseTxInputs(computeInputs)
       const availableTokenIds = parseAvailableTokenIds(computeInputs)
 
-      const price = parseFloat(tokenData.price)
+      const price = parseFloat(accountData.price)
       const paymentProgramAddress =
         accountInfo.programAccountData.paymentProgramAddress
 
@@ -209,22 +201,22 @@ class NonFungible extends Program {
         tokenIds.push(availableTokenIds[i])
       }
 
-      const tokenMap: Record<string, any> = {}
+      const tokens: Record<string, string> = {}
       for (let i = 0; i < tokenIds.length; i++) {
         const tokenIdStr = parseInt(formatHexToAmount(tokenIds[i])).toString()
-        const imgUrl = tokenData.imgUrls
-          ? JSON.parse(tokenData.imgUrls)[tokenIdStr].imgUrl
-          : tokenData.imgUrl
-        tokenMap[tokenIdStr] = JSON.stringify({
-          ownerAddress: transaction.from,
-          imgUrl,
-        })
+        const imgUrl =
+          accountData.imgUrls &&
+          JSON.parse(accountData.imgUrls)?.length > 0 &&
+          JSON.parse(accountData.imgUrls)[tokenIdStr].imgUrl
+            ? JSON.parse(accountData.imgUrls)[tokenIdStr].imgUrl
+            : accountData.imgUrl
+        tokens[`${tokenIdStr}-ownerAddress`] = transaction.from
+        tokens[`${tokenIdStr}-imgUrl`] = imgUrl
       }
 
       const dataStr = validateAndCreateJsonString({
-        ...tokenData,
-        imgUrls: '',
-        tokenMap: JSON.stringify(tokenMap),
+        ...accountData,
+        ...tokens,
       })
 
       const updateTokenIds = buildTokenUpdateField({
@@ -265,126 +257,11 @@ class NonFungible extends Program {
 
   transfer(computeInputs: ComputeInputs) {
     try {
-      const { transaction } = computeInputs
-      const { transactionInputs, programId, from, to } = transaction
-      const programInfo = parseProgramTokenInfo(computeInputs)
-      const tokenData = parseTokenData(computeInputs)
-      const txInputs = parseTxInputs(computeInputs)
-      const { tokenIds, recipientAddress } = txInputs
-
-      validate(Array.isArray(tokenIds), 'tokenIds must be an array')
-      checkIfValuesAreUndefined({ tokenIds, recipientAddress })
-
-      const callerTokenMap = JSON.parse(tokenData.tokenMap)
-
-      const tokenMap: Record<string, any> = {}
-      for (let i = 0; i < tokenIds.length; i++) {
-        const tokenIdStr = parseInt(formatHexToAmount(tokenIds[i])).toString()
-        const token = tokenData.tokenMap[tokenIdStr]
-        const imgUrl = token.imgUrl
-        tokenMap[tokenIdStr] = JSON.stringify({
-          ownerAddress: recipientAddress,
-          imgUrl,
-        })
-        delete callerTokenMap[tokenIdStr]
-      }
-
-      const callerDataStr = validateAndCreateJsonString({
-        ...tokenData,
-        tokenMap: JSON.stringify(callerTokenMap),
-      })
-
-      const dataStr = validateAndCreateJsonString({
-        ...tokenData,
-        tokenMap: JSON.stringify(tokenMap),
-      })
-
-      const updateTokenIds = buildTokenUpdateField({
-        field: 'data',
-        value: dataStr,
-        action: 'extend',
-      })
-
-      const tokenUpdateInstruction = buildUpdateInstruction({
-        update: new TokenOrProgramUpdate(
-          'tokenUpdate',
-          new TokenUpdate(
-            new AddressOrNamespace(new Address(recipientAddress)),
-            new AddressOrNamespace(THIS),
-            [updateTokenIds]
-          )
-        ),
-      })
-
-      const callerUpdateInstruction = buildUpdateInstruction({
-        update: new TokenOrProgramUpdate(
-          'tokenUpdate',
-          new TokenUpdate(
-            new AddressOrNamespace(new Address(transaction.from)),
-            new AddressOrNamespace(THIS),
-            [updateTokenIds]
-          )
-        ),
-      })
-
-      const transferArguments: {
-        from: string
-        to: string
-        tokenAddress: string
-        amount?: BigInt
-        tokenIds?: string[]
-      } = {
-        from,
-        to: recipientAddress,
-        tokenAddress: programId,
-        tokenIds: tokenIds,
-      }
-
-      const transferToCaller = buildTransferInstruction(transferArguments)
-
-      return new Outputs(computeInputs, [
-        transferToCaller,
-        callerUpdateInstruction,
-        tokenUpdateInstruction,
-      ]).toJson()
+      throw new Error('Method not implemented.')
     } catch (e) {
       throw e
     }
   }
 }
 
-const start = (input: ComputeInputs) => {
-  try {
-    const contract = new NonFungible()
-    return contract.start(input)
-  } catch (e) {
-    throw e
-  }
-}
-
-process.stdin.setEncoding('utf8')
-
-let data = ''
-
-process.stdin.on('readable', () => {
-  try {
-    let chunk
-
-    while ((chunk = process.stdin.read()) !== null) {
-      data += chunk
-    }
-  } catch (e) {
-    throw e
-  }
-})
-
-process.stdin.on('end', () => {
-  try {
-    const parsedData = JSON.parse(data)
-    const result = start(parsedData)
-    process.stdout.write(JSON.stringify(result))
-  } catch (err) {
-    // @ts-ignore
-    process.stdout.write(err.message)
-  }
-})
+NonFungible.run()

@@ -50,16 +50,12 @@ npm install @versatus/versatus-javascript
 
 #### 3) Initialize Project with lasrctl
 ```bash
-npx lasrctl init # For a blank program
-
-# or
-
-npx lasrctl init <program-type> # Choose fungible, non-fungible, or faucet
+npx lasrctl init fungible # Choose blank, fungible, non-fungible, or faucet
 ```
 
 #### 4) Build Your Program
 ```bash
-npx lasrctl build burd.ts
+npx lasrctl build example-program.ts
 ```
 
 #### 5) Test Your Program
