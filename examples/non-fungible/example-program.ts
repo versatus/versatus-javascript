@@ -1,5 +1,4 @@
 import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
-
 import {
   buildBurnInstruction,
   buildCreateInstruction,
@@ -39,12 +38,9 @@ import {
 class NonFungible extends Program {
   constructor() {
     super()
-    Object.assign(this.methodStrategies, {
-      burn: this.burn.bind(this),
-      create: this.create.bind(this),
-      mint: this.mint.bind(this),
-      transfer: this.transfer.bind(this),
-    })
+    this.registerContractMethod('burn', this.burn)
+    this.registerContractMethod('create', this.create)
+    this.registerContractMethod('mint', this.mint)
   }
 
   burn(computeInputs: ComputeInputs) {
@@ -78,7 +74,6 @@ class NonFungible extends Program {
       const { from } = transaction
       const txInputs = parseTxInputs(computeInputs)
       let currSupply = getCurrentSupply(computeInputs)
-      let currImgUrls = getCurrentImgUrls(computeInputs)
 
       // metadata
       const metadata = parseMetadata(computeInputs)
@@ -87,7 +82,7 @@ class NonFungible extends Program {
 
       // data
       const imgUrl = txInputs?.imgUrl
-      const imgUrls = [...currImgUrls, ...txInputs?.imgUrls]
+      const imgUrls: string[] = txInputs?.imgUrls ? [...txInputs?.imgUrls] : []
       const collection = txInputs?.collection
       const currentSupply = (
         currSupply + parseInt(initializedSupply)
@@ -121,7 +116,7 @@ class NonFungible extends Program {
         methods,
       } as Record<string, string>
 
-      if (imgUrls) {
+      if (imgUrls && imgUrls.length > 0) {
         const parsed = imgUrls
         if (!Array.isArray(parsed)) {
           throw new Error('imgUrls must be an array')

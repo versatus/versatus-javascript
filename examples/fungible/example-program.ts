@@ -29,11 +29,9 @@ import {
 class FungibleTokenProgram extends Program {
   constructor() {
     super()
-    Object.assign(this.methodStrategies, {
-      burn: this.burn.bind(this),
-      create: this.create.bind(this),
-      mint: this.mint.bind(this),
-    })
+    this.registerContractMethod('burn', this.burn)
+    this.registerContractMethod('create', this.create)
+    this.registerContractMethod('mint', this.mint)
   }
 
   burn(computeInputs: ComputeInputs) {

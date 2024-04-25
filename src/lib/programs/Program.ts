@@ -45,6 +45,10 @@ export class Program {
     }
   }
 
+  registerContractMethod(operation: string, method: Function) {
+    this.methodStrategies[operation] = method.bind(this)
+  }
+
   /**
    * Approves a transaction by updating the `approvals` field with the inputs provided in the transaction.
    * This method constructs a token update to extend the `approvals` field, indicating a successful approval process.

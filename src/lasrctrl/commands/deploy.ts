@@ -149,9 +149,9 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       totalSupply: argv.totalSupply,
     }
 
-    // if (argv.recipientAddress) {
-    //   inputsPayload.to = argv.recipientAddress
-    // }
+    if (argv.recipientAddress) {
+      inputsPayload.to = argv.recipientAddress
+    }
 
     // Update the transactionInputs in the testJson object
     testJson.transaction.transactionInputs = JSON.stringify(inputsPayload)
@@ -252,7 +252,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       String(argv.programName),
       String(argv.initializedSupply),
       String(argv.totalSupply),
-      String(programAddress),
+      String(argv.recipientAddress ?? programAddress),
       network,
       secretKey,
       argv.txInputs

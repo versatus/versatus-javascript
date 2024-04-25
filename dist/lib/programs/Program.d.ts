@@ -18,6 +18,7 @@ export declare class Program {
      * Constructs a new instance of the Program class, initializing the `methodStrategies` with `create` and `update` operations.
      */
     constructor();
+    registerContractMethod(operation: string, method: Function): void;
     /**
      * Approves a transaction by updating the `approvals` field with the inputs provided in the transaction.
      * This method constructs a token update to extend the `approvals` field, indicating a successful approval process.

@@ -104,9 +104,9 @@ const deploy = async (argv) => {
             initializedSupply: argv.initializedSupply,
             totalSupply: argv.totalSupply,
         };
-        // if (argv.recipientAddress) {
-        //   inputsPayload.to = argv.recipientAddress
-        // }
+        if (argv.recipientAddress) {
+            inputsPayload.to = argv.recipientAddress;
+        }
         // Update the transactionInputs in the testJson object
         testJson.transaction.transactionInputs = JSON.stringify(inputsPayload);
         // Create a temporary file to write the updated JSON
@@ -181,7 +181,7 @@ const deploy = async (argv) => {
         console.log(`Program registered.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(programAddress), network, secretKey, argv.txInputs);
+        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? programAddress), network, secretKey, argv.txInputs);
         if (createResponse) {
             console.log(`Program created successfully.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m
