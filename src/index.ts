@@ -75,6 +75,7 @@ export {
   getCurrentImgUrls,
   parseProgramAccountMetadata,
   parseProgramAccountData,
+  formatVerse,
   getCurrentSupply,
   parseAvailableTokenIds,
   parseTxInputs,
