@@ -1,4 +1,5 @@
-# versatus-javascript
+# LASR: JavaScript & TypeScript SDK
+
 ### Overview
 This repository provides some essential tools and interfaces for developing 
 **Programs** for the **LASR** network using Typescript.
