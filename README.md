@@ -1,4 +1,4 @@
-# LASR: JavaScript & TypeScript SDK
+# LASR: TypeScript SDK
 
 ### Overview
 This repository provides some essential tools and interfaces for developing 
@@ -8,12 +8,14 @@ examples, and functions to aid in the building of LASR programs.
 Along with some helper functions The CLI is used to 
 initialize, build, deploy, and call programs in the network from the terminal.
 
+#### Learn more about LASR
+- [Versatus Website](https://versatus.io)
+
 # Getting started
 #### Dependencies
 * Node _(>= v18)_
 * NPM / Yarn
 
-<hr/>
 
 #### 1) Create New TypeScript Project
 ```bash
