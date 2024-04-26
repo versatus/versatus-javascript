@@ -8,9 +8,6 @@ Along with some helper functions The CLI is used to
 initialize, build, deploy, and call programs in the network from the terminal.
 
 # Getting started
-
-<hr />
-
 #### Dependencies
 * Node _(>= v18)_
 * NPM / Yarn
