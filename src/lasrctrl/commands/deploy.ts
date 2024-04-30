@@ -43,13 +43,13 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       alias: 'b',
     })
     .option('author', {
-      describe: 'Author of the contract',
+      describe: 'Author of the program',
       type: 'string',
       demandOption: true,
       alias: 'a',
     })
     .option('name', {
-      describe: 'Name of the contract',
+      describe: 'Name of the program',
       type: 'string',
       demandOption: true,
       alias: 'n',
@@ -70,12 +70,12 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       describe:
         'Supply of the token to be sent to either the caller or the program',
       type: 'string',
-      demandOption: true,
+      default: '1',
     })
     .option('totalSupply', {
       describe: 'Total supply of the token to be created',
       type: 'string',
-      demandOption: true,
+      default: '1',
       alias: 't',
     })
     .option('recipientAddress', {
