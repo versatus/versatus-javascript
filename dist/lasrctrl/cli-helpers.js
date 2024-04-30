@@ -154,7 +154,10 @@ export async function callProgram(programAddress, op, inputs, network, secretKey
     console.log(value);
     process.env.LASR_RPC_URL = getRPCForNetwork(network);
     process.env.VIPFS_ADDRESS = getIPFSForNetwork(network);
-    const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' ${value && `" --value ${value}"`} --to ${programAddress} --content-namespace ${programAddress}`;
+    let command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress} `;
+    if (value) {
+        command += `--value ${value}`;
+    }
     console.log(command);
     return await runCommand(command);
 }
