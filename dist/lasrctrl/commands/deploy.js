@@ -21,7 +21,6 @@ export const deployCommandFlags = (yargs) => {
         .option('name', {
         describe: 'Name of the program',
         type: 'string',
-        demandOption: true,
         alias: 'n',
     })
         .option('symbol', {
@@ -125,7 +124,7 @@ const deploy = async (argv) => {
         }
         else {
             command = `
-          build/lasr_cli publish --author ${argv.author ?? addressFromKeypair} --name ${argv.name} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`;
+          build/lasr_cli publish --author ${argv.author ?? addressFromKeypair} --name ${argv.name ?? argv.symbol.toLowerCase()} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`;
         }
         const output = await runCommand(command);
         const cidPattern = /(bafy[a-zA-Z0-9]{44,59})/g;
@@ -171,7 +170,7 @@ const deploy = async (argv) => {
         console.log(`Program registered.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m`);
         console.log('\x1b[0;33mCreating program...\x1b[0m');
-        const createResponse = await callCreate(programAddress, String(argv.symbol), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? programAddress), network, secretKey, argv.txInputs);
+        const createResponse = await callCreate(programAddress, String(argv.symbol.toUpperCase()), String(argv.programName), String(argv.initializedSupply), String(argv.totalSupply), String(argv.recipientAddress ?? programAddress), network, secretKey, argv.txInputs);
         if (createResponse) {
             console.log(`Program created successfully.
 ==> programAddress: \x1b[0;32m${programAddress}\x1b[0m
