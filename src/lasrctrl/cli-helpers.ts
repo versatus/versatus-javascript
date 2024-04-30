@@ -235,7 +235,8 @@ export async function callProgram(
   op: string,
   inputs: string,
   network: NETWORK,
-  secretKey: string
+  secretKey: string,
+  value?: string
 ) {
   if (!programAddress || !op || !inputs || !secretKey) {
     throw new Error(
@@ -243,10 +244,15 @@ export async function callProgram(
     )
   }
 
+  console.log(value)
+
   process.env.LASR_RPC_URL = getRPCForNetwork(network)
   process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
 
-  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress}`
+  const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' ${
+    value ? `" --value ${value}"` : null
+  } --to ${programAddress} --content-namespace ${programAddress}`
+  console.log(command)
   return await runCommand(command)
 }
 

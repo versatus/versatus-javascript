@@ -16,6 +16,16 @@ export const callCommandFlags = (yargs) => {
         type: 'string',
         demandOption: true,
     })
+        .option('value', {
+        describe: 'Value (in verse) to be sent to the program method',
+        type: 'string',
+    })
+        .option('network', {
+        describe: 'desired network',
+        type: 'string',
+        options: ['stable', 'test'],
+        default: 'stable',
+    })
         .option('network', {
         describe: 'desired network',
         type: 'string',
@@ -34,7 +44,8 @@ export const callCommandFlags = (yargs) => {
 const call = async (argv) => {
     try {
         const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey);
-        const sendResponse = await callProgram(String(argv.programAddress), String(argv.op), String(argv.txInputs), argv.network, secretKey);
+        const value = argv.value ? String(argv.value) : undefined;
+        const sendResponse = await callProgram(String(argv.programAddress), String(argv.op), String(argv.txInputs), argv.network, secretKey, value);
         console.log('sendResponse', sendResponse);
     }
     catch (error) {
