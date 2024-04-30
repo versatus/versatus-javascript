@@ -17,12 +17,12 @@ import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
 export interface DeployCommandArgs {
   build: string
-  author: string
+  author?: string
   name: string
   symbol: string
   programName: string
-  initializedSupply: string
-  totalSupply: string
+  initializedSupply?: string
+  totalSupply?: string
   network: string
   recipientAddress?: string
   txInputs?: string
@@ -45,7 +45,6 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
     .option('author', {
       describe: 'Author of the program',
       type: 'string',
-      demandOption: true,
       alias: 'a',
     })
     .option('name', {
@@ -176,7 +175,13 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
              --is-srv true`
     } else {
       command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`
+          build/lasr_cli publish --author ${
+            argv.author ?? addressFromKeypair
+          } --name ${
+            argv.name
+          } --package-path build/lib --entrypoint build/lib/${
+            argv.build
+          }.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`
     }
 
     const output = await runCommand(command)

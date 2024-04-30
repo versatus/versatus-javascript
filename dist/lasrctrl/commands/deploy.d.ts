@@ -1,12 +1,12 @@
 import { Arguments, CommandBuilder } from 'yargs';
 export interface DeployCommandArgs {
     build: string;
-    author: string;
+    author?: string;
     name: string;
     symbol: string;
     programName: string;
-    initializedSupply: string;
-    totalSupply: string;
+    initializedSupply?: string;
+    totalSupply?: string;
     network: string;
     recipientAddress?: string;
     txInputs?: string;
