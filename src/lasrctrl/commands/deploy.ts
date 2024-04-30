@@ -1,6 +1,7 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   callCreate,
+  checkWallet,
   getAddressFromKeyPairFile,
   getSecretKey,
   registerProgram,

@@ -31,20 +31,15 @@ class HelloLasrProgram extends Program {
     try {
       const { transaction } = computeInputs
       const { from } = transaction
-      const txInputs = parseTxInputs(computeInputs)
-      let currSupply = getCurrentSupply(computeInputs)
 
       // metadata
       const metadata = parseMetadata(computeInputs)
       const { initializedSupply, totalSupply } = metadata
-      const recipientAddress = txInputs?.to ?? transaction.to
+      const recipientAddress = from
 
       // data
       const imgUrl =
         'https://pbs.twimg.com/profile_images/1765199894539583488/RUiZn7jT_400x400.jpg'
-      const currentSupply = (
-        currSupply + parseInt(initializedSupply)
-      ).toString()
 
       const methods = 'create,hello'
       const metadataStr = validateAndCreateJsonString(metadata)
@@ -58,18 +53,15 @@ class HelloLasrProgram extends Program {
       const dataValues = {
         type: 'hello-lasr',
         imgUrl,
-        currentSupply,
         methods,
       } as Record<string, string>
 
       const dataStr = validateAndCreateJsonString(dataValues)
-
       const addProgramData = buildProgramUpdateField({
         field: 'data',
         value: dataStr,
         action: 'extend',
       })
-
       const programUpdateInstructions = buildUpdateInstruction({
         update: new TokenOrProgramUpdate(
           'programUpdate',
@@ -79,11 +71,9 @@ class HelloLasrProgram extends Program {
           ])
         ),
       })
-
       const distributionInstruction = buildTokenDistributionInstruction({
         programId: THIS,
         initializedSupply,
-        currentSupply,
         to: recipientAddress,
         nonFungible: true,
       })
