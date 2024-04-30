@@ -17,9 +17,8 @@ import {
   getCurrentSupply,
   parseMetadata,
   parseTxInputs,
-  validate,
   validateAndCreateJsonString,
-} from '../../src'
+} from '@versatus/versatus-javascript/lib/utils'
 
 class HelloLasrProgram extends Program {
   constructor() {
