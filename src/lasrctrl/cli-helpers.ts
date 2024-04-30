@@ -250,7 +250,7 @@ export async function callProgram(
   process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
 
   const command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' ${
-    value ? `" --value ${value}"` : null
+    value && `" --value ${value}"`
   } --to ${programAddress} --content-namespace ${programAddress}`
   console.log(command)
   return await runCommand(command)
