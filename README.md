@@ -53,7 +53,7 @@ _Note: the program deploy may fail on it's first attempt. If so, try it once mor
 
 ### Interact with LASR Online 
 1) Complete steps above. 
-2) Go to https://faucet.versatus.io 
+2) Go to https://playground.versatus.io 
 3) Import Secret Key into the wallet from the initialized `secret_key` in the `.lasr` folder.
 ```bash
 cat .lasr/wallet/keypair.json | jq -r '.[0].secret_key' 
