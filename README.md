@@ -33,7 +33,7 @@ npm install @versatus/versatus-javascript
 
 #### 3) Initialize Project with lasrctl
 ```bash
-npx lasrctl init hello-lasr # Choose blank, hello-lasr, fungible, non-fungible, or faucet
+npx lasrctl init hello-lasr
 ```
 
 #### 4) Build Your Program
