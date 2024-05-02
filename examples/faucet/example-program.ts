@@ -8,16 +8,15 @@ import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   buildCreateInstruction,
   buildProgramUpdateField,
-  buildTokenDistributionInstruction,
-  buildTokenUpdateField,
   buildTransferInstruction,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
   checkIfValuesAreUndefined,
-  formatAmountToHex,
   parseAmountToBigInt,
+  parseProgramAccountData,
+  parseTxInputs,
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
@@ -38,8 +37,7 @@ export class FaucetProgram extends Program {
     try {
       const { transaction, accountInfo } = computeInputs
       const { transactionInputs, from } = transaction
-
-      const { programAccountData } = accountInfo
+      const accountData = parseProgramAccountData(computeInputs)
 
       const txInputs = validate(
         JSON.parse(transactionInputs),
@@ -67,31 +65,16 @@ export class FaucetProgram extends Program {
         amount: parseAmountToBigInt(amountToAdd),
       })
 
-      const faucetProgramsStr = validate(
-        programAccountData?.programs,
-        'Please create the program first.'
-      )
-
-      const faucetPrograms = validate(
-        JSON.parse(faucetProgramsStr),
-        "couldn't parse the faucet's account programs"
-      )
-
       const faucetUpdate = buildProgramUpdateField({
         field: 'data',
         value: JSON.stringify({
-          programs: JSON.stringify({
-            ...faucetPrograms,
-            [programAddress]: JSON.stringify({
-              pipeData: JSON.stringify({
-                faucetAmount: formatAmountToHex(faucetAmount),
-                addressTimeoutMinutes,
-              }),
-              recipients: JSON.stringify({}),
-            }),
+          ...accountData,
+          [programAddress]: JSON.stringify({
+            config: `${faucetAmount}-${addressTimeoutMinutes}`,
+            recipients: {},
           }),
         }),
-        action: 'extend',
+        action: 'insert',
       })
 
       const faucetDataUpdateInstruction = buildUpdateInstruction({
@@ -120,25 +103,15 @@ export class FaucetProgram extends Program {
       )
 
       // metadata
-      const totalSupply = txInputs?.totalSupply
-      const initializedSupply = txInputs?.initializedSupply
       const symbol = txInputs?.symbol
       const name = txInputs?.name
 
       const metadataStr = validateAndCreateJsonString({
         symbol,
         name,
-        totalSupply,
-        initializedSupply,
       })
 
       const addProgramMetadata = buildProgramUpdateField({
-        field: 'metadata',
-        value: metadataStr,
-        action: 'extend',
-      })
-
-      const addTokenMetadata = buildTokenUpdateField({
         field: 'metadata',
         value: metadataStr,
         action: 'extend',
@@ -152,16 +125,9 @@ export class FaucetProgram extends Program {
         type: 'faucet',
         imgUrl,
         methods,
-        programs: JSON.stringify({}),
       })
 
       const addProgramData = buildProgramUpdateField({
-        field: 'data',
-        value: dataStr,
-        action: 'extend',
-      })
-
-      const addTokenData = buildTokenUpdateField({
         field: 'data',
         value: dataStr,
         action: 'extend',
@@ -182,21 +148,11 @@ export class FaucetProgram extends Program {
         ),
       })
 
-      const faucetDistributionInstruction = buildTokenDistributionInstruction({
-        programId: THIS,
-        to: transaction.from,
-        initializedSupply: formatAmountToHex('1'),
-        tokenUpdates: [addTokenMetadata, addTokenData],
-      })
-
       const createInstruction = buildCreateInstruction({
         from: transaction.from,
         programId: THIS,
         programOwner: transaction.from,
-        totalSupply: formatAmountToHex('1'),
-        initializedSupply: formatAmountToHex('1'),
         programNamespace: THIS,
-        distributionInstruction: faucetDistributionInstruction,
       })
 
       return new Outputs(computeInputs, [
@@ -210,34 +166,17 @@ export class FaucetProgram extends Program {
   }
   faucet(computeInputs: ComputeInputs) {
     try {
-      const { transaction, accountInfo } = computeInputs
-      const { transactionInputs, from } = transaction
-      const parsedInputMetadata = JSON.parse(transactionInputs)
-      const to = parsedInputMetadata?.to
-      const programToSend = parsedInputMetadata?.programAddress
+      const { to, programToSend } = parseTxInputs(computeInputs)
+      const accountData = parseProgramAccountData(computeInputs)
 
-      const supportedProgramsStr = validate(
-        accountInfo?.programAccountData?.programs,
-        'No programs found. Faucet is not initialized.'
-      )
+      const token = JSON.parse(accountData[programToSend])
 
-      const programsMap = validate(
-        JSON.parse(supportedProgramsStr),
-        'Requested program not found'
-      )
+      if (!token) {
+        throw new Error('Token faucet config not found')
+      }
 
-      const faucetProgramDetails = validate(
-        JSON.parse(programsMap[programToSend]),
-        'No program details found. Faucet is not initialized.'
-      )
-
-      const faucetProgramData = validate(
-        JSON.parse(faucetProgramDetails.pipeData),
-        'Faucet pipedata not found'
-      )
-
-      const amountToFaucet = BigInt(faucetProgramData.faucetAmount)
-      const addressTimeoutMinutes = faucetProgramData.addressTimeoutMinutes
+      const amountToFaucet = BigInt(token.config.split('-')[0])
+      const addressTimeoutMinutes = token.config.split('-')[1]
 
       checkIfValuesAreUndefined({
         amountToFaucet,
@@ -245,7 +184,7 @@ export class FaucetProgram extends Program {
       })
 
       const recipients = validate(
-        JSON.parse(faucetProgramDetails.recipients),
+        JSON.parse(token.recipients),
         'No recipients object found.  Faucet is not initialized'
       )
 
@@ -255,15 +194,20 @@ export class FaucetProgram extends Program {
         addressTimeoutMinutes
       )
 
+      if (!faucetRecipientCanClaim) {
+        throw new Error('Recipient has already claimed tokens')
+      }
+
       const currentTime = new Date().getTime()
       const faucetRecipientsUpdate = buildProgramUpdateField({
         field: 'data',
         value: JSON.stringify({
-          programs: JSON.stringify({
-            ...programsMap,
-            [programToSend]: JSON.stringify({
-              pipeData: faucetProgramDetails.pipeData,
-              recipients: JSON.stringify({ ...recipients, [to]: currentTime }),
+          ...accountData,
+          [programToSend]: JSON.stringify({
+            config: `${amountToFaucet}-${addressTimeoutMinutes}`,
+            recipients: JSON.stringify({
+              ...recipients,
+              [to]: currentTime,
             }),
           }),
         }),

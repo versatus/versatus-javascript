@@ -63,6 +63,10 @@ export function buildCreateInstruction({ programId, initializedSupply, totalSupp
             .setProgramId(new AddressOrNamespace(new Address(programId)))
             .setProgramOwner(new Address(programOwner))
             .setProgramNamespace(new AddressOrNamespace(new Address(programNamespace)));
+        if (!initializedSupply && !totalSupply) {
+            instructionBuilder.setTotalSupply(formatBigIntToHex(BigInt(1)));
+            instructionBuilder.setInitializedSupply(formatBigIntToHex(BigInt(1)));
+        }
         // Optionally set the initialized supply if it's provided, converting the value to a hex string.
         if (initializedSupply !== undefined) {
             instructionBuilder.setInitializedSupply(formatBigIntToHex(BigInt(initializedSupply)));
