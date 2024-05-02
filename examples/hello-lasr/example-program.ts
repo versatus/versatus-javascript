@@ -41,7 +41,7 @@ class HelloLasrProgram extends Program {
       const imgUrl =
         'https://pbs.twimg.com/profile_images/1765199894539583488/RUiZn7jT_400x400.jpg'
 
-      const methods = 'create,hello'
+      const methods = 'hello'
       const metadataStr = validateAndCreateJsonString(metadata)
 
       const addProgramMetadata = buildProgramUpdateField({

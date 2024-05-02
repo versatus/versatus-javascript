@@ -22,7 +22,14 @@ export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
   return yargs.positional('example', {
     describe: 'The example program to initialize',
     type: 'string',
-    choices: ['fungible', 'non-fungible', 'snake', 'faucet', 'hello-lasr'],
+    choices: [
+      'blank',
+      'fungible',
+      'non-fungible',
+      'snake',
+      'faucet',
+      'hello-lasr',
+    ],
     demandOption: true,
   })
 }
