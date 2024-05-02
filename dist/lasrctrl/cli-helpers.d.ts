@@ -12,7 +12,7 @@ export declare function registerProgram(cid: string, secretKey: string, network:
 export declare const getSecretKey: (secretKeyPath?: string, secretKey?: string) => Promise<string>;
 export declare function callCreate(programAddress: string, symbol: string, name: string, initializedSupply: string, totalSupply: string, recipientAddress: string, network: NETWORK, secretKey: string, inputs?: string): Promise<string>;
 export declare function sendTokens(programAddress: string, recipientAddress: string, amount: string, secretKey: string, network: 'stable' | 'test'): Promise<string>;
-export declare function callProgram(programAddress: string, op: string, inputs: string, network: NETWORK, secretKey: string): Promise<string>;
+export declare function callProgram(programAddress: string, op: string, inputs: string, network: NETWORK, secretKey: string, value?: string): Promise<string>;
 export declare function runTestProcess(programName: string, inputJsonPath: string, target?: string, showOutput?: boolean): Promise<unknown>;
 export declare function createNewWallet(): Promise<void>;
 export declare function checkWallet(address: string): Promise<void>;

@@ -1,4 +1,4 @@
-# LASR: JavaScript & TypeScript SDK
+# LASR: TypeScript SDK
 
 ### Overview
 This repository provides some essential tools and interfaces for developing 
@@ -8,31 +8,14 @@ examples, and functions to aid in the building of LASR programs.
 Along with some helper functions The CLI is used to 
 initialize, build, deploy, and call programs in the network from the terminal.
 
-### Links To More In-Depth Information
-[CLICK HERE TO LEARN MORE ABOUT LASR
-](https://github.com/versatus/versatus-javascript/blob/main/LASR.md)
-
-[CLICK HERE FOR A MORE IN-DEPTH GETTING STARTED GUIDE
-](https://github.com/versatus/versatus-javascript/blob/main/GETTING_STARTED.md)
-
-[CLICK HERE TO LEARN MORE ABOUT LASRCTL CLI
-](https://github.com/versatus/versatus-javascript/blob/main/GETTING_STARTED.md#interact-with-the-program-via-cli)
-
-[CLICK HERE TO LEARN MORE ABOUT PROGRAMS ON LASR
-](https://github.com/versatus/versatus-javascript/blob/main/src/lib/programs/README.md)
-
+#### Learn more about LASR
+- [Versatus Website](https://versatus.io)
 
 # Getting started
-
-For a more detailed guide on getting started with your LASR project, including setting up your environment, initializing your project with `lasrctl`, building, testing, and deploying your program, please refer to our [Getting Started Guide](https://github.com/versatus/versatus-javascript/blob/main/GETTING_STARTED.md).
-
-<hr />
-
 #### Dependencies
 * Node _(>= v18)_
 * NPM / Yarn
 
-<hr/>
 
 #### 1) Create New TypeScript Project
 ```bash
@@ -64,7 +47,7 @@ npx lasrctl test --build example-program --inputJson inputs
 ```
 #### 6) Create Account and Deploy Program
 ```bash
-npx lasrctl deploy --build example-program --author you --name myToken --symbol MYTOKEN --programName "My first token on LASR" --initializedSupply 10000000 --totalSupply 10000000 --txInputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0xa60c7238d98c7ecef8659a18c2e8c6265327f280"}' --network stable
+npx lasrctl deploy --build example-program --author you --name myToken --symbol MYTOKEN --programName "My first token on LASR" --initializedSupply 10000000 --totalSupply 10000000 --txInputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0x0ad85496f448fb30caa267b41c807aef15645592"}' 
 ```
 _Note: the program deploy may fail on it's first attempt. If so, try it once more_
 

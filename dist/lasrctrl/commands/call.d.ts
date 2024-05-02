@@ -4,6 +4,7 @@ export interface CallCommandArgs {
     op: string;
     txInputs: string;
     network: string;
+    value?: string;
     keypairPath?: string;
     secretKey?: string;
 }

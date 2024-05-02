@@ -1,6 +1,7 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import {
   callCreate,
+  checkWallet,
   getAddressFromKeyPairFile,
   getSecretKey,
   registerProgram,
@@ -17,12 +18,12 @@ import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
 export interface DeployCommandArgs {
   build: string
-  author: string
-  name: string
+  author?: string
+  name?: string
   symbol: string
   programName: string
-  initializedSupply: string
-  totalSupply: string
+  initializedSupply?: string
+  totalSupply?: string
   network: string
   recipientAddress?: string
   txInputs?: string
@@ -43,15 +44,13 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       alias: 'b',
     })
     .option('author', {
-      describe: 'Author of the contract',
+      describe: 'Author of the program',
       type: 'string',
-      demandOption: true,
       alias: 'a',
     })
     .option('name', {
-      describe: 'Name of the contract',
+      describe: 'Name of the program',
       type: 'string',
-      demandOption: true,
       alias: 'n',
     })
     .option('symbol', {
@@ -70,12 +69,12 @@ export const deployCommandFlags: CommandBuilder<{}, DeployCommandArgs> = (
       describe:
         'Supply of the token to be sent to either the caller or the program',
       type: 'string',
-      demandOption: true,
+      default: '1',
     })
     .option('totalSupply', {
       describe: 'Total supply of the token to be created',
       type: 'string',
-      demandOption: true,
+      default: '1',
       alias: 't',
     })
     .option('recipientAddress', {
@@ -176,7 +175,13 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
              --is-srv true`
     } else {
       command = `
-          build/lasr_cli publish --author ${argv.author} --name ${argv.name} --package-path build/lib --entrypoint build/lib/${argv.build}.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`
+          build/lasr_cli publish --author ${
+            argv.author ?? addressFromKeypair
+          } --name ${
+            argv.name ?? argv.symbol.toLowerCase()
+          } --package-path build/lib --entrypoint build/lib/${
+            argv.build
+          }.js -r --remote ${VIPFS_URL} --runtime node --content-type program --from-secret-key --secret-key "${secretKey}"`
     }
 
     const output = await runCommand(command)
@@ -236,7 +241,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 
     const createResponse = await callCreate(
       programAddress,
-      String(argv.symbol),
+      String(argv.symbol.toUpperCase()),
       String(argv.programName),
       String(argv.initializedSupply),
       String(argv.totalSupply),

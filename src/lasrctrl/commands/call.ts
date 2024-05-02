@@ -1,12 +1,14 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import { callProgram, getSecretKey } from '@/lasrctrl/cli-helpers'
 import { NETWORK } from '@/lib/types'
+import { ZERO_VALUE } from '@/lib/consts'
 
 export interface CallCommandArgs {
   programAddress: string
   op: string
   txInputs: string
   network: string
+  value?: string
   keypairPath?: string
   secretKey?: string
 }
@@ -30,6 +32,16 @@ export const callCommandFlags: CommandBuilder<{}, CallCommandArgs> = (
       type: 'string',
       demandOption: true,
     })
+    .option('value', {
+      describe: 'Value (in verse) to be sent to the program method',
+      type: 'string',
+    })
+    .option('network', {
+      describe: 'desired network',
+      type: 'string',
+      options: ['stable', 'test'],
+      default: 'stable',
+    })
     .option('network', {
       describe: 'desired network',
       type: 'string',
@@ -49,12 +61,14 @@ export const callCommandFlags: CommandBuilder<{}, CallCommandArgs> = (
 const call = async (argv: Arguments<CallCommandArgs>) => {
   try {
     const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey)
+    const value = argv.value ? String(argv.value) : undefined
     const sendResponse = await callProgram(
       String(argv.programAddress),
       String(argv.op),
       String(argv.txInputs),
       argv.network as NETWORK,
-      secretKey
+      secretKey,
+      value
     )
 
     console.log('sendResponse', sendResponse)

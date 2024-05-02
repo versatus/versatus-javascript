@@ -202,14 +202,16 @@ class NonFungible extends Program {
       }
 
       const tokens: Record<string, string> = {}
+
       for (let i = 0; i < tokenIds.length; i++) {
         const tokenIdStr = parseInt(formatHexToAmount(tokenIds[i])).toString()
         const imgUrl =
           accountData.imgUrls &&
           JSON.parse(accountData.imgUrls)?.length > 0 &&
-          JSON.parse(accountData.imgUrls)[tokenIdStr].imgUrl
-            ? JSON.parse(accountData.imgUrls)[tokenIdStr].imgUrl
+          JSON.parse(accountData.imgUrls)?.[tokenIdStr]?.imgUrl
+            ? JSON.parse(accountData.imgUrls)?.[tokenIdStr]?.imgUrl
             : accountData.imgUrl
+
         tokens[`${tokenIdStr}-ownerAddress`] = transaction.from
         tokens[`${tokenIdStr}-imgUrl`] = imgUrl
       }

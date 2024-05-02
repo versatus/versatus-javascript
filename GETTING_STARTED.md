@@ -152,22 +152,22 @@ npx lasrctl deploy --build example-program --author my-name --name my-token --pr
 
 Deploy a program
 
-| Option                | Description                                                                  | Type     | Required | Default                       |
-|-----------------------|------------------------------------------------------------------------------|----------|----------|-------------------------------|
-| `--version`           | Show version number                                                          | boolean  | No       |                               |
-| `--help`              | Show help                                                                    | boolean  | No       |                               |
-| `--build`             | Name of the program file being built                                         | string   | Yes      |                               |
-| `--author`            | Author of the contract                                                       | string   | Yes      |                               |
-| `--name`              | Name of the contract                                                         | string   | Yes      |                               |
-| `--symbol`            | Symbol for the program                                                       | string   | Yes      |                               |
-| `--programName`       | Name for the program                                                         | string   | Yes      |                               |
-| `--initializedSupply` | Initial Supply of the Token                                                  | string   | Yes      |                               |
-| `--totalSupply`       | Total supply of the token to be created                                      | string   | Yes      |                               |
-| `--recipientAddress`  | Address for the initialized supply                                           | string   | No       |                               |
-| `--txInputs`          | Additional inputs for the program                                            | string   | No       |                               |
-| `--keypairPath`       | Path to the keypair file                                                     | string   | No       | `./.lasr/wallet/keypair.json` |
-| `--secretKey`         | Secret key for the wallet                                                    | string   | No       |                               |
-| `--target`            | Build target                                                                 | string   | No       | `node` (choices: "node" - _more soon_)      |
+| Option                | Description                             | Type     | Required | Default                       |
+|-----------------------|-----------------------------------------|----------|----------|-------------------------------|
+| `--version`           | Show version number                     | boolean  | No       |                               |
+| `--help`              | Show help                               | boolean  | No       |                               |
+| `--build`             | Name of the program file being built    | string   | Yes      |                               |
+| `--author`            | Author of the contract                  | string   | Yes      |                               |
+| `--name`              | Name of the build                       | string   | Yes      |                               |
+| `--symbol`            | Symbol for the program                  | string   | Yes      |                               |
+| `--programName`       | Name for the program                    | string   | Yes      |                               |
+| `--initializedSupply` | Initial Supply of the Token             | string   | Yes      |                               |
+| `--totalSupply`       | Total supply of the token to be created | string   | Yes      |                               |
+| `--recipientAddress`  | Address for the initialized supply      | string   | No       |                               |
+| `--txInputs`          | Additional inputs for the program       | string   | No       |                               |
+| `--keypairPath`       | Path to the keypair file                | string   | No       | `./.lasr/wallet/keypair.json` |
+| `--secretKey`         | Secret key for the wallet               | string   | No       |                               |
+| `--target`            | Build target                            | string   | No       | `node` (choices: "node" - _more soon_)      |
 
 Keep track of your program account id - this is the required key that you will need to interact with your program in later steps.
 
