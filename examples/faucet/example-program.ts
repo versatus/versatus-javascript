@@ -74,7 +74,7 @@ export class FaucetProgram extends Program {
             recipients: {},
           }),
         }),
-        action: 'insert',
+        action: 'extend',
       })
 
       const faucetDataUpdateInstruction = buildUpdateInstruction({
@@ -167,16 +167,18 @@ export class FaucetProgram extends Program {
   faucet(computeInputs: ComputeInputs) {
     try {
       const { to, programToSend } = parseTxInputs(computeInputs)
+      checkIfValuesAreUndefined({
+        to,
+        programToSend,
+      })
+
       const accountData = parseProgramAccountData(computeInputs)
+      const token = validate(JSON.parse(accountData[programToSend]), 'No token')
 
-      const token = JSON.parse(accountData[programToSend])
+      const amount = token.config?.split('-')[0]
+      const addressTimeoutMinutes = token.config?.split('-')[1]
 
-      if (!token) {
-        throw new Error('Token faucet config not found')
-      }
-
-      const amountToFaucet = BigInt(token.config.split('-')[0])
-      const addressTimeoutMinutes = token.config.split('-')[1]
+      const amountToFaucet = parseAmountToBigInt(amount)
 
       checkIfValuesAreUndefined({
         amountToFaucet,
@@ -184,7 +186,7 @@ export class FaucetProgram extends Program {
       })
 
       const recipients = validate(
-        JSON.parse(token.recipients),
+        token.recipients,
         'No recipients object found.  Faucet is not initialized'
       )
 
@@ -204,11 +206,11 @@ export class FaucetProgram extends Program {
         value: JSON.stringify({
           ...accountData,
           [programToSend]: JSON.stringify({
-            config: `${amountToFaucet}-${addressTimeoutMinutes}`,
-            recipients: JSON.stringify({
+            config: `${amount}-${addressTimeoutMinutes}`,
+            recipients: {
               ...recipients,
               [to]: currentTime,
-            }),
+            },
           }),
         }),
         action: 'extend',
