@@ -199,6 +199,9 @@ export async function createNewWallet() {
 export async function checkWallet(address) {
     try {
         try {
+            if (!address) {
+                throw new Error('No address provided');
+            }
             console.log('Checking wallet...');
             const command = `./build/lasr_cli wallet get-account --address ${address}`;
             await runCommand(command);
