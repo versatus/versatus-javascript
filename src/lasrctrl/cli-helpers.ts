@@ -70,7 +70,7 @@ export async function buildNode(buildPath: string) {
 
     console.log('\x1b[0;37mBuild complete...\x1b[0m')
     console.log()
-    console.log(`\x1b[0;35mReady to run:\x1b[0m`)
+    console.log(`\x1b[0;35mReady to test:\x1b[0m`)
     console.log(
       `\x1b[0;33mlasrctl test -b ${parsedPath.name} -i ${parsedPath.name}-inputs\x1b[0m`
     )

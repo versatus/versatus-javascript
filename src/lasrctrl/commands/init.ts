@@ -13,7 +13,7 @@ import { __dirname } from '@/lasrctrl/cli'
 import { runSpawn } from '@/lasrctrl/shell'
 
 export interface InitCommandArgs {
-  example: string
+  example?: string
 }
 
 export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
@@ -22,15 +22,8 @@ export const initCommandFlags: CommandBuilder<{}, InitCommandArgs> = (
   return yargs.positional('example', {
     describe: 'The example program to initialize',
     type: 'string',
-    choices: [
-      'blank',
-      'fungible',
-      'non-fungible',
-      'snake',
-      'faucet',
-      'hello-lasr',
-    ],
-    demandOption: true,
+    choices: ['blank', 'fungible', 'non-fungible', 'faucet', 'hello-lasr'],
+    default: 'hello-lasr',
   })
 }
 
