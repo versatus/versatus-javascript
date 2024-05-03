@@ -7,15 +7,8 @@ export const initCommandFlags = (yargs) => {
     return yargs.positional('example', {
         describe: 'The example program to initialize',
         type: 'string',
-        choices: [
-            'blank',
-            'fungible',
-            'non-fungible',
-            'snake',
-            'faucet',
-            'hello-lasr',
-        ],
-        demandOption: true,
+        choices: ['blank', 'fungible', 'non-fungible', 'faucet', 'hello-lasr'],
+        default: 'hello-lasr',
     });
 };
 const init = async (argv) => {
