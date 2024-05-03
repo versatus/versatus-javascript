@@ -7,6 +7,7 @@ import {
   FAUCET_URL,
   LASR_RPC_URL_STABLE,
   LASR_RPC_URL_UNSTABLE,
+  VERSE_PROGRAM_ADDRESS,
   VIPFS_URL,
   VIPFS_URL_UNSTABLE,
 } from '@/lib/consts'
@@ -327,10 +328,11 @@ export async function checkWallet(address: string) {
       )
       const data = {
         address,
+        programAddress: VERSE_PROGRAM_ADDRESS,
       }
 
       await axios
-        .post(`${FAUCET_URL}/api/faucet/verse`, data)
+        .post(`${FAUCET_URL}/api/faucet`, data)
         .then((response) => {
           console.log(`Fauceted funds to \x1b[0;32m${address}\x1b[0m`)
         })

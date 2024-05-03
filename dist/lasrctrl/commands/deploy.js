@@ -1,4 +1,4 @@
-import { callCreate, getAddressFromKeyPairFile, getSecretKey, registerProgram, runTestProcess, } from '../../lasrctrl/cli-helpers.js';
+import { callCreate, checkWallet, getAddressFromKeyPairFile, getSecretKey, registerProgram, runTestProcess, } from '../../lasrctrl/cli-helpers.js';
 import { VIPFS_URL } from '../../lib/consts.js';
 import { runCommand } from '../../lasrctrl/shell.js';
 import fs from 'fs/promises';
@@ -134,8 +134,8 @@ const deploy = async (argv) => {
         console.log(`\x1b[0;32mProgram published.\x1b[0m
 ==> cid: ${ipfsHashMatch[ipfsHashMatch.length - 1]}`);
         const cid = ipfsHashMatch[ipfsHashMatch.length - 1];
-        // console.log('\x1b[0;33mChecking wallet...\x1b[0m')
-        // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
+        console.log('\x1b[0;33mChecking wallet...\x1b[0m');
+        await checkWallet(String(argv.recipientAddress ?? addressFromKeypair));
         console.log('\x1b[0;33mRegistering program...\x1b[0m');
         let registerResponse;
         let attempts = 0;
