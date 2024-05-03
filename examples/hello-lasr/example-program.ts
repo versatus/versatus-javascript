@@ -8,12 +8,14 @@ import {
   buildCreateInstruction,
   buildProgramUpdateField,
   buildTokenDistributionInstruction,
+  buildTokenUpdateField,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
 import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
+  formatAmountToHex,
   getCurrentSupply,
   parseMetadata,
   parseTxInputs,
@@ -30,7 +32,7 @@ class HelloLasrProgram extends Program {
   create(computeInputs: ComputeInputs) {
     try {
       const { transaction } = computeInputs
-      const { from } = transaction
+      const { from, to } = transaction
 
       // metadata
       const metadata = parseMetadata(computeInputs)
@@ -71,17 +73,30 @@ class HelloLasrProgram extends Program {
           ])
         ),
       })
-      const distributionInstruction = buildTokenDistributionInstruction({
-        programId: THIS,
-        initializedSupply,
-        to: recipientAddress,
-        nonFungible: true,
+
+      const addTokenMetadata = buildTokenUpdateField({
+        field: 'metadata',
+        value: metadataStr,
+        action: 'extend',
       })
 
-      const createInstruction = buildCreateInstruction({
+      const addTokenData = buildTokenUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const distributionInstruction = buildTokenDistributionInstruction({
+        programId: THIS,
+        initializedSupply: formatAmountToHex(initializedSupply),
+        to: recipientAddress ?? to,
+        tokenUpdates: [addTokenMetadata, addTokenData],
+      })
+
+      const createAndDistributeInstruction = buildCreateInstruction({
         from,
+        initializedSupply: formatAmountToHex(initializedSupply),
         totalSupply,
-        initializedSupply,
         programId: THIS,
         programOwner: from,
         programNamespace: THIS,
@@ -89,7 +104,7 @@ class HelloLasrProgram extends Program {
       })
 
       return new Outputs(computeInputs, [
-        createInstruction,
+        createAndDistributeInstruction,
         programUpdateInstructions,
       ]).toJson()
     } catch (e) {
