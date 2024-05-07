@@ -1,4 +1,4 @@
-import { TokenFieldValues, TokenUpdateValueTypes } from '../types';
+import { TTokenFieldValues, TTokenUpdateValueTypes } from '../types';
 import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace';
 import { ProgramUpdate } from '../../lib/programs/Program';
 export declare class TokenMetadataInsert {
@@ -75,12 +75,12 @@ export declare class TokenDataValue {
 export declare class TokenFieldValue {
     private kind;
     private value;
-    constructor(kind: string, value: TokenUpdateValueTypes);
+    constructor(kind: string, value: TTokenUpdateValueTypes);
     toJson(): object;
 }
 export declare class TokenField {
     private value;
-    constructor(value: TokenFieldValues);
+    constructor(value: TTokenFieldValues);
     toJson(): string;
 }
 export declare class TokenUpdateField {

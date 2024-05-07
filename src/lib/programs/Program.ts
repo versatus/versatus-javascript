@@ -1,4 +1,4 @@
-import { ComputeInputs, ProgramUpdateValueTypes } from '@/lib/types'
+import { TProgramUpdateValueTypes } from '@/lib/types'
 import {
   buildCreateInstruction,
   buildProgramUpdateField,
@@ -21,6 +21,7 @@ import {
   TokenUpdate,
 } from '@/lib/programs/Token'
 import { TokenUpdateBuilder } from '@/lib/programs/instruction-builders/builders'
+import { IComputeInputs } from '@/lib/interfaces'
 
 /**
  * Represents a program with strategies for handling various operations such as `approve`, `create`, and `update`.
@@ -59,11 +60,11 @@ export class Program {
    * A `TokenUpdateBuilder` is used to construct the final update instruction, which is then converted to JSON format
    * and returned as the output of the method.
    *
-   * @param {ComputeInputs} computeInputs - Contains the transaction details including transaction inputs and the program ID.
+   * @param {IComputeInputs} computeInputs - Contains the transaction details including transaction inputs and the program ID.
    * @returns {string} JSON string representing the outputs of the approve operation.
    * @throws {Error} Throws an error if any part of the approval process fails, including if there are issues constructing the updates.
    */
-  approve(computeInputs: ComputeInputs) {
+  approve(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { transactionInputs, programId } = transaction
@@ -101,11 +102,11 @@ export class Program {
    * This method performs a series of validations and transformations, constructs various instructions for token and program updates,
    * and ultimately returns a JSON representation of the operation results.
    *
-   * @param {ComputeInputs} computeInputs - Inputs necessary for computing the create operation, including transaction details.
+   * @param {IComputeInputs} computeInputs - Inputs necessary for computing the create operation, including transaction details.
    * @returns {string} JSON string representing the outputs of the create operation.
    * @throws {Error} Throws an error if any validation fails or if an unexpected error occurs during the process.
    */
-  create(computeInputs: ComputeInputs) {
+  create(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { transactionInputs, from } = transaction
@@ -170,11 +171,11 @@ export class Program {
    * Executes the method corresponding to the operation specified in the input.
    * This method looks up the strategy for the operation in the `methodStrategies` map and executes it.
    *
-   * @param {ComputeInputs} inputs - Inputs containing the operation to be executed along with any necessary data.
+   * @param {IComputeInputs} inputs - Inputs containing the operation to be executed along with any necessary data.
    * @returns {any} The result of executing the method associated with the specified operation.
    * @throws {Error} Throws an error if the operation is unknown or if the associated method throws an error.
    */
-  executeMethod(inputs: ComputeInputs) {
+  executeMethod(inputs: IComputeInputs) {
     const { op } = inputs
     const strategy = this.methodStrategies[op]
 
@@ -189,11 +190,11 @@ export class Program {
    * Starts the execution process by invoking `executeMethod` with the provided computeInputs.
    * This is a convenience method that serves as an entry point to execute a method based on the operation specified in the inputs.
    *
-   * @param {ComputeInputs} computeInputs - Inputs necessary for executing a method, including the operation to be performed.
+   * @param {IComputeInputs} computeInputs - Inputs necessary for executing a method, including the operation to be performed.
    * @returns {any} The result of executing the method associated with the specified operation.
    * @throws {Error} Throws an error if `executeMethod` throws an error.
    */
-  start(computeInputs: ComputeInputs) {
+  start(computeInputs: IComputeInputs) {
     try {
       return this.executeMethod(computeInputs)
     } catch (e) {
@@ -206,11 +207,11 @@ export class Program {
    * Similar to the `create` method, this method processes inputs related to program updates, constructs various update instructions,
    * and returns a JSON representation of the operation results.
    *
-   * @param {ComputeInputs} computeInputs - Inputs necessary for computing the update operation, including transaction details.
+   * @param {IComputeInputs} computeInputs - Inputs necessary for computing the update operation, including transaction details.
    * @returns {string} JSON string representing the outputs of the update operation.
    * @throws {Error} Throws an error if any validation fails or if an unexpected error occurs during the process.
    */
-  update(computeInputs: ComputeInputs) {
+  update(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { transactionInputs } = transaction
@@ -761,7 +762,7 @@ export class ProgramAccountDataExtend {
 
 export class ProgramFieldValue {
   private kind: string
-  private value: ProgramUpdateValueTypes
+  private value: TProgramUpdateValueTypes
 
   constructor(
     kind: string,

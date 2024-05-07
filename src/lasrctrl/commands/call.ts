@@ -1,6 +1,6 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import { callProgram, getSecretKey } from '@/lasrctrl/cli-helpers'
-import { NETWORK } from '@/lib/types'
+import { TNetwork } from '@/lib/types'
 import { ZERO_VALUE } from '@/lib/consts'
 
 export interface CallCommandArgs {
@@ -66,7 +66,7 @@ const call = async (argv: Arguments<CallCommandArgs>) => {
       String(argv.programAddress),
       String(argv.op),
       String(argv.txInputs),
-      argv.network as NETWORK,
+      argv.network as TNetwork,
       secretKey,
       value
     )

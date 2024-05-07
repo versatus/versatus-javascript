@@ -8,7 +8,7 @@ import { getRPCForNetwork } from '../lib/utils.js';
  * updates the transaction nonce, signs the transaction, and finally sends it to a blockchain network
  * via an RPC call.
  *
- * @param {InitTransaction} callTx - The initial transaction data, including details such as the transaction type and nonce.
+ * @param {IInitTransaction} callTx - The initial transaction data, including details such as the transaction type and nonce.
  * @param {string} privateKey - The private key used to sign the transaction and derive the wallet address.
  * @param {string} network - The network to make the call on (stable | test)
  * @returns {Promise<string | Error>} The result of the blockchain call, which could be a transaction hash or an error.
@@ -77,7 +77,7 @@ export async function broadcast(callTx, privateKey, network = 'stable') {
  * parameters, and the target RPC URL.
  *
  * @param {string} method - The RPC method name to be called.
- * @param {string[] | Record<string, unknown> | Transaction[]} params - The parameters to be passed to the RPC method.
+ * @param {string[] | Record<string, unknown> | ITransaction[]} params - The parameters to be passed to the RPC method.
  * @param {string} rpcUrl - The URL of the RPC endpoint to which the call is made.
  * @returns {Promise<string | Error>} The result of the RPC call, typically a response object or an error.
  * @throws {Error} Throws an error if the RPC call fails or if the server returns an error response.
@@ -120,7 +120,7 @@ export async function callLasrRpc(method, params, rpcUrl) {
  *
  * @param {string} address - The blockchain address of the account to retrieve.
  * @param {string} network - Which network to get an account from (stable | test)
- * @returns {Promise<Account | Error>} An object containing account information or an error if the retrieval fails.
+ * @returns {Promise<IAccount | Error>} An object containing account information or an error if the retrieval fails.
  * @throws {Error} Throws an error if the account information cannot be retrieved.
  */
 export async function getAccount(address, network = 'stable') {
@@ -146,8 +146,8 @@ export async function getAccount(address, network = 'stable') {
  * Reorders the keys of an initial transaction object according to a predefined order.
  * This function is useful for ensuring that transaction objects have a consistent format, especially before signing.
  *
- * @param {InitTransaction} initTransaction - The initial transaction object to reorder.
- * @returns {InitTransaction} A new transaction object with keys ordered as specified.
+ * @param {IInitTransaction} initTransaction - The initial transaction object to reorder.
+ * @returns {IInitTransaction} A new transaction object with keys ordered as specified.
  * @throws {Error} Throws an error if reordering fails.
  */
 export function reorderTransactionKeys(initTransaction) {

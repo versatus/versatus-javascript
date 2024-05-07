@@ -24,10 +24,10 @@ import {
 } from '@/lib/programs/Token'
 
 import {
-  ProgramFieldValues,
-  ProgramUpdateValueTypes,
-  TokenFieldValues,
-  TokenUpdateValueTypes,
+  TProgramFieldValues,
+  TProgramUpdateValueTypes,
+  TTokenFieldValues,
+  TTokenUpdateValueTypes,
 } from '@/lib/types'
 import {
   LinkedProgramsExtend,
@@ -403,7 +403,7 @@ export function buildTransferInstruction({
  * to each field type. It validates the field and action types and constructs the appropriate update action object.
  *
  * @param {Object} params - The parameters required to build the token update field.
- * @param {TokenFieldValues} params.field - The specific field of the token to be updated (e.g., metadata, data, approvals, status).
+ * @param {TTokenFieldValues} params.field - The specific field of the token to be updated (e.g., metadata, data, approvals, status).
  * @param {string | Array<[Address, string]>} params.value - The new value for the field, which can be a string or an array of tuples for approvals.
  * @param {'insert' | 'extend' | 'remove'} params.action - The action to be taken on the field (insert, extend, remove).
  * @returns {TokenUpdateField} A token update field object configured with the provided details.
@@ -415,12 +415,12 @@ export function buildTokenUpdateField({
   value,
   action,
 }: {
-  field: TokenFieldValues
+  field: TTokenFieldValues
   value: string | Array<[Address, string[]]>
   action: 'insert' | 'extend' | 'remove'
 }): TokenUpdateField {
   try {
-    let tokenFieldAction: TokenUpdateValueTypes
+    let tokenFieldAction: TTokenUpdateValueTypes
 
     // Handle array values specifically for the 'approvals' field.
     if (value instanceof Array) {
@@ -503,7 +503,7 @@ export function buildTokenUpdateField({
  * It validates the field and action types and constructs the appropriate update action object.
  *
  * @param {Object} params - The parameters required to build the program update field.
- * @param {ProgramFieldValues} params.field - The specific field of the program to be updated (e.g., metadata, data, status).
+ * @param {TProgramFieldValues} params.field - The specific field of the program to be updated (e.g., metadata, data, status).
  * @param {string} params.value - The new value for the field, which must be a string.
  * @param {'insert' | 'extend' | 'remove'} params.action - The action to be taken on the field (insert, extend, remove).
  * @returns {ProgramUpdateField} A program update field object configured with the provided details.
@@ -515,12 +515,12 @@ export function buildProgramUpdateField({
   value,
   action,
 }: {
-  field: ProgramFieldValues
+  field: TProgramFieldValues
   value: string
   action: 'insert' | 'extend' | 'remove'
 }): ProgramUpdateField {
   try {
-    let programFieldAction: ProgramUpdateValueTypes
+    let programFieldAction: TProgramUpdateValueTypes
 
     // Determine the action object based on the field type and action.
     switch (field) {

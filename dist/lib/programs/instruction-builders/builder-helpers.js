@@ -240,7 +240,7 @@ export function buildTransferInstruction({ from, to, tokenAddress, amount, token
  * to each field type. It validates the field and action types and constructs the appropriate update action object.
  *
  * @param {Object} params - The parameters required to build the token update field.
- * @param {TokenFieldValues} params.field - The specific field of the token to be updated (e.g., metadata, data, approvals, status).
+ * @param {TTokenFieldValues} params.field - The specific field of the token to be updated (e.g., metadata, data, approvals, status).
  * @param {string | Array<[Address, string]>} params.value - The new value for the field, which can be a string or an array of tuples for approvals.
  * @param {'insert' | 'extend' | 'remove'} params.action - The action to be taken on the field (insert, extend, remove).
  * @returns {TokenUpdateField} A token update field object configured with the provided details.
@@ -329,7 +329,7 @@ export function buildTokenUpdateField({ field, value, action, }) {
  * It validates the field and action types and constructs the appropriate update action object.
  *
  * @param {Object} params - The parameters required to build the program update field.
- * @param {ProgramFieldValues} params.field - The specific field of the program to be updated (e.g., metadata, data, status).
+ * @param {TProgramFieldValues} params.field - The specific field of the program to be updated (e.g., metadata, data, status).
  * @param {string} params.value - The new value for the field, which must be a string.
  * @param {'insert' | 'extend' | 'remove'} params.action - The action to be taken on the field (insert, extend, remove).
  * @returns {ProgramUpdateField} A program update field object configured with the provided details.

@@ -34,7 +34,7 @@ export class Program {
      * A `TokenUpdateBuilder` is used to construct the final update instruction, which is then converted to JSON format
      * and returned as the output of the method.
      *
-     * @param {ComputeInputs} computeInputs - Contains the transaction details including transaction inputs and the program ID.
+     * @param {IComputeInputs} computeInputs - Contains the transaction details including transaction inputs and the program ID.
      * @returns {string} JSON string representing the outputs of the approve operation.
      * @throws {Error} Throws an error if any part of the approval process fails, including if there are issues constructing the updates.
      */
@@ -66,7 +66,7 @@ export class Program {
      * This method performs a series of validations and transformations, constructs various instructions for token and program updates,
      * and ultimately returns a JSON representation of the operation results.
      *
-     * @param {ComputeInputs} computeInputs - Inputs necessary for computing the create operation, including transaction details.
+     * @param {IComputeInputs} computeInputs - Inputs necessary for computing the create operation, including transaction details.
      * @returns {string} JSON string representing the outputs of the create operation.
      * @throws {Error} Throws an error if any validation fails or if an unexpected error occurs during the process.
      */
@@ -117,7 +117,7 @@ export class Program {
      * Executes the method corresponding to the operation specified in the input.
      * This method looks up the strategy for the operation in the `methodStrategies` map and executes it.
      *
-     * @param {ComputeInputs} inputs - Inputs containing the operation to be executed along with any necessary data.
+     * @param {IComputeInputs} inputs - Inputs containing the operation to be executed along with any necessary data.
      * @returns {any} The result of executing the method associated with the specified operation.
      * @throws {Error} Throws an error if the operation is unknown or if the associated method throws an error.
      */
@@ -133,7 +133,7 @@ export class Program {
      * Starts the execution process by invoking `executeMethod` with the provided computeInputs.
      * This is a convenience method that serves as an entry point to execute a method based on the operation specified in the inputs.
      *
-     * @param {ComputeInputs} computeInputs - Inputs necessary for executing a method, including the operation to be performed.
+     * @param {IComputeInputs} computeInputs - Inputs necessary for executing a method, including the operation to be performed.
      * @returns {any} The result of executing the method associated with the specified operation.
      * @throws {Error} Throws an error if `executeMethod` throws an error.
      */
@@ -150,7 +150,7 @@ export class Program {
      * Similar to the `create` method, this method processes inputs related to program updates, constructs various update instructions,
      * and returns a JSON representation of the operation results.
      *
-     * @param {ComputeInputs} computeInputs - Inputs necessary for computing the update operation, including transaction details.
+     * @param {IComputeInputs} computeInputs - Inputs necessary for computing the update operation, including transaction details.
      * @returns {string} JSON string representing the outputs of the update operation.
      * @throws {Error} Throws an error if any validation fails or if an unexpected error occurs during the process.
      */

@@ -2,7 +2,6 @@ import {
   Program,
   ProgramUpdate,
 } from '@versatus/versatus-javascript/lib/programs/Program'
-import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 
 import {
@@ -22,6 +21,7 @@ import {
 } from '@versatus/versatus-javascript/lib/utils'
 import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
 import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
+import { IComputeInputs } from '../../src'
 
 export class FaucetProgram extends Program {
   constructor() {
@@ -33,7 +33,7 @@ export class FaucetProgram extends Program {
     })
   }
 
-  addProgram(computeInputs: ComputeInputs) {
+  addProgram(computeInputs: IComputeInputs) {
     try {
       const { transaction, accountInfo } = computeInputs
       const { transactionInputs, from } = transaction
@@ -92,7 +92,7 @@ export class FaucetProgram extends Program {
       throw e
     }
   }
-  create(computeInputs: ComputeInputs) {
+  create(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { transactionInputs } = transaction
@@ -164,7 +164,7 @@ export class FaucetProgram extends Program {
       throw e
     }
   }
-  faucet(computeInputs: ComputeInputs) {
+  faucet(computeInputs: IComputeInputs) {
     try {
       const { to, programToSend } = parseTxInputs(computeInputs)
       checkIfValuesAreUndefined({

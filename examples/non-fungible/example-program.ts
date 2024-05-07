@@ -1,4 +1,3 @@
-import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
 import {
   buildBurnInstruction,
   buildCreateInstruction,
@@ -35,6 +34,7 @@ import {
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
+import { IComputeInputs } from '../../src'
 
 class NonFungible extends Program {
   constructor() {
@@ -44,7 +44,7 @@ class NonFungible extends Program {
     this.registerContractMethod('mint', this.mint)
   }
 
-  burn(computeInputs: ComputeInputs) {
+  burn(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { transactionInputs, from } = transaction
@@ -69,7 +69,7 @@ class NonFungible extends Program {
     }
   }
 
-  create(computeInputs: ComputeInputs) {
+  create(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { from } = transaction
@@ -170,7 +170,7 @@ class NonFungible extends Program {
     }
   }
 
-  mint(computeInputs: ComputeInputs) {
+  mint(computeInputs: IComputeInputs) {
     try {
       const { transaction, accountInfo } = computeInputs
       const accountData = parseProgramAccountData(computeInputs)
@@ -257,7 +257,7 @@ class NonFungible extends Program {
     }
   }
 
-  transfer(computeInputs: ComputeInputs) {
+  transfer(computeInputs: IComputeInputs) {
     try {
       throw new Error('Method not implemented.')
     } catch (e) {

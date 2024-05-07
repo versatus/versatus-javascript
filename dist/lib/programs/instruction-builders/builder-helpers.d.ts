@@ -1,5 +1,5 @@
 import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '../../../lib/programs/Token';
-import { ProgramFieldValues, TokenFieldValues } from '../../../lib/types';
+import { TProgramFieldValues, TTokenFieldValues } from '../../../lib/types';
 import { ProgramUpdateField } from '../../../lib/programs/Program';
 import { Address } from '../../../lib/programs/Address-Namespace';
 /**
@@ -138,7 +138,7 @@ export declare function buildTransferInstruction({ from, to, tokenAddress, amoun
  * to each field type. It validates the field and action types and constructs the appropriate update action object.
  *
  * @param {Object} params - The parameters required to build the token update field.
- * @param {TokenFieldValues} params.field - The specific field of the token to be updated (e.g., metadata, data, approvals, status).
+ * @param {TTokenFieldValues} params.field - The specific field of the token to be updated (e.g., metadata, data, approvals, status).
  * @param {string | Array<[Address, string]>} params.value - The new value for the field, which can be a string or an array of tuples for approvals.
  * @param {'insert' | 'extend' | 'remove'} params.action - The action to be taken on the field (insert, extend, remove).
  * @returns {TokenUpdateField} A token update field object configured with the provided details.
@@ -146,7 +146,7 @@ export declare function buildTransferInstruction({ from, to, tokenAddress, amoun
  * @throws {Error} Throws an error if an invalid field or action is specified, or if the value format does not match the expected type for the field.
  */
 export declare function buildTokenUpdateField({ field, value, action, }: {
-    field: TokenFieldValues;
+    field: TTokenFieldValues;
     value: string | Array<[Address, string[]]>;
     action: 'insert' | 'extend' | 'remove';
 }): TokenUpdateField;
@@ -156,7 +156,7 @@ export declare function buildTokenUpdateField({ field, value, action, }: {
  * It validates the field and action types and constructs the appropriate update action object.
  *
  * @param {Object} params - The parameters required to build the program update field.
- * @param {ProgramFieldValues} params.field - The specific field of the program to be updated (e.g., metadata, data, status).
+ * @param {TProgramFieldValues} params.field - The specific field of the program to be updated (e.g., metadata, data, status).
  * @param {string} params.value - The new value for the field, which must be a string.
  * @param {'insert' | 'extend' | 'remove'} params.action - The action to be taken on the field (insert, extend, remove).
  * @returns {ProgramUpdateField} A program update field object configured with the provided details.
@@ -164,7 +164,7 @@ export declare function buildTokenUpdateField({ field, value, action, }: {
  * @throws {Error} Throws an error if an invalid field or action is specified, or if the value format does not match the expected type for the field.
  */
 export declare function buildProgramUpdateField({ field, value, action, }: {
-    field: ProgramFieldValues;
+    field: TProgramFieldValues;
     value: string;
     action: 'insert' | 'extend' | 'remove';
 }): ProgramUpdateField;

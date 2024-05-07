@@ -1,6 +1,6 @@
 import { Arguments, Argv, CommandBuilder } from 'yargs'
 import { getSecretKey, sendTokens } from '@/lasrctrl/cli-helpers'
-import { NETWORK } from '@/lib/types'
+import { TNetwork } from '@/lib/types'
 
 import { getIPFSForNetwork, getRPCForNetwork } from '@/lib/utils'
 
@@ -52,7 +52,7 @@ const send = async (argv: Arguments<SendCommandArgs>) => {
   try {
     const secretKey = await getSecretKey(argv.keypairPath, argv.secretKey)
 
-    const network = argv.network as NETWORK
+    const network = argv.network as TNetwork
 
     process.env.LASR_RPC_URL = getRPCForNetwork(network)
     process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)

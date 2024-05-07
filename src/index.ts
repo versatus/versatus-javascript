@@ -1,23 +1,14 @@
 export {
-  ComputeInputs,
-  ProgramUpdateValueTypes,
-  ProgramFieldValues,
-  TokenFieldValues,
-  Token,
-  Account,
-  InitTransaction,
-  Transaction,
-  TransactionType,
-  AccountType,
-  TokenUpdateValueTypes,
-  KeyPair,
-  KeyPairArray,
-  ArbitraryData,
-  Status,
-  Wallet,
-  NETWORK,
-  Metadata,
-  InstructionKinds,
+  TProgramUpdateValueTypes,
+  TProgramFieldValues,
+  TTokenFieldValues,
+  TTransactionType,
+  TAccountType,
+  TTokenUpdateValueTypes,
+  TKeyPairArray,
+  TStatus,
+  TNetwork,
+  TInstructionKinds,
 } from './lib/types'
 
 export {
@@ -84,3 +75,14 @@ export {
 } from './lib/utils'
 
 export { broadcast, getAccount } from './lib/versatus'
+export {
+  IKeyPair,
+  IWallet,
+  ITransaction,
+  IInitTransaction,
+  IProgram,
+  IMetadata,
+  IArbitraryData,
+  IAccount,
+  IComputeInputs,
+} from '@/lib/interfaces'

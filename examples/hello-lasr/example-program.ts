@@ -1,4 +1,3 @@
-import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
   Program,
@@ -21,6 +20,7 @@ import {
   parseTxInputs,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
+import { IComputeInputs } from '../../src'
 
 class HelloLasrProgram extends Program {
   constructor() {
@@ -29,7 +29,7 @@ class HelloLasrProgram extends Program {
     this.registerContractMethod('hello', this.hello)
   }
 
-  create(computeInputs: ComputeInputs) {
+  create(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { from, to } = transaction
@@ -112,7 +112,7 @@ class HelloLasrProgram extends Program {
     }
   }
 
-  hello(computeInputs: ComputeInputs) {
+  hello(computeInputs: IComputeInputs) {
     const { transaction } = computeInputs
     const { transactionInputs: txInputStr } = transaction
     const txInputs = JSON.parse(txInputStr)

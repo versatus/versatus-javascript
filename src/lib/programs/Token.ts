@@ -1,4 +1,4 @@
-import { TokenFieldValues, TokenUpdateValueTypes } from '../types'
+import { TTokenFieldValues, TTokenUpdateValueTypes } from '../types'
 import { Address, AddressOrNamespace } from '@/lib/programs/Address-Namespace'
 import { ProgramUpdate } from '@/lib/programs/Program'
 
@@ -186,9 +186,9 @@ export class TokenDataValue {
 
 export class TokenFieldValue {
   private kind: string
-  private value: TokenUpdateValueTypes
+  private value: TTokenUpdateValueTypes
 
-  constructor(kind: string, value: TokenUpdateValueTypes) {
+  constructor(kind: string, value: TTokenUpdateValueTypes) {
     this.kind = kind
     this.value = value
   }
@@ -199,9 +199,9 @@ export class TokenFieldValue {
 }
 
 export class TokenField {
-  private value: TokenFieldValues
+  private value: TTokenFieldValues
 
-  constructor(value: TokenFieldValues) {
+  constructor(value: TTokenFieldValues) {
     this.value = value
   }
 

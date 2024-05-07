@@ -1,4 +1,5 @@
-import { ArbitraryData, ComputeInputs, NETWORK, Token } from '../lib/types';
+import { TNetwork } from '../lib/types';
+import { IArbitraryData, IComputeInputs, IProgram } from '../lib/interfaces';
 /**
  * Converts a numeric input (either a number or a string representation of a number) into a BigInt.
  * This function is particularly useful for handling large numbers that need to be represented accurately
@@ -189,7 +190,7 @@ export declare const validateAndCreateJsonString: (neededValues: Record<string, 
  *
  * @note This function logs the selected RPC URL to the console for debugging or informational purposes.
  */
-export declare const getRPCForNetwork: (network: NETWORK) => string;
+export declare const getRPCForNetwork: (network: TNetwork) => string;
 /**
  * Retrieves the IPFS URL configuration based on the specified network environment. This function determines
  * the appropriate IPFS URL to use by first checking for an environment variable override. If the override is
@@ -213,20 +214,20 @@ export declare const getRPCForNetwork: (network: NETWORK) => string;
  * getIPFSForNetwork('unstable')
  * // Logs 'USING IPFS URL: https://custom.ipfs.example.com' and returns 'https://custom.ipfs.example.com'
  */
-export declare const getIPFSForNetwork: (network: NETWORK) => string;
-export declare const parseProgramAccountMetadata: (computeInputs: ComputeInputs) => Token;
-export declare const parseProgramAccountData: (computeInputs: ComputeInputs) => ArbitraryData;
-export declare const parseProgramTokenInfo: (computeInputs: ComputeInputs) => Token;
-export declare const parseAvailableTokenIds: (computeInputs: ComputeInputs) => string[];
-export declare const parseTxInputs: (computeInputs: ComputeInputs) => Record<string, any>;
-export declare const parseMetadata: (computeInputs: ComputeInputs) => {
+export declare const getIPFSForNetwork: (network: TNetwork) => string;
+export declare const parseProgramAccountMetadata: (computeInputs: IComputeInputs) => IProgram;
+export declare const parseProgramAccountData: (computeInputs: IComputeInputs) => IArbitraryData;
+export declare const parseProgramTokenInfo: (computeInputs: IComputeInputs) => IProgram;
+export declare const parseAvailableTokenIds: (computeInputs: IComputeInputs) => string[];
+export declare const parseTxInputs: (computeInputs: IComputeInputs) => Record<string, any>;
+export declare const parseMetadata: (computeInputs: IComputeInputs) => {
     name: string;
     symbol: string;
     initializedSupply: string;
     totalSupply: string;
 };
-export declare const getCurrentSupply: (computeInputs: ComputeInputs) => number;
-export declare const getCurrentImgUrls: (computeInputs: ComputeInputs) => string[];
+export declare const getCurrentSupply: (computeInputs: IComputeInputs) => number;
+export declare const getCurrentImgUrls: (computeInputs: IComputeInputs) => string[];
 export declare const generateTokenIdArray: (initializedSupply: number | string, currentSupply?: number | string) => string[];
-export declare const parseTokenData: (computeInputs: ComputeInputs) => Record<string, any>;
+export declare const parseTokenData: (computeInputs: IComputeInputs) => Record<string, any>;
 export declare function deepMerge(target: any, source: any): any;
