@@ -21,17 +21,17 @@ export {
 } from './lib/types'
 
 export {
-  buildBurnInstruction,
   buildCreateInstruction,
-  buildTransferInstruction,
   buildUpdateInstruction,
+  buildTransferInstruction,
+  buildBurnInstruction,
   buildTokenDistributionInstruction,
   buildProgramUpdateField,
   buildTokenUpdateField,
   buildMintInstructions,
-  buildProgramMetadataUpdateInstruction,
   buildProgramDataUpdateInstruction,
-  buildTokenMetadataUpdateInstruction,
+  buildProgramMetadataUpdateInstruction,
+  buildTokenDataUpdateInstruction,
 } from './lib/programs/instruction-builders/builder-helpers'
 
 export {

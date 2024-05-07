@@ -1,7 +1,7 @@
 import { TokenDistribution, TokenOrProgramUpdate, TokenUpdateField } from '../../../lib/programs/Token';
 import { ProgramFieldValues, TokenFieldValues } from '../../../lib/types';
 import { ProgramUpdateField } from '../../../lib/programs/Program';
-import { Address, Namespace } from '../../../lib/programs/Address-Namespace';
+import { Address } from '../../../lib/programs/Address-Namespace';
 /**
  * Constructs a burn instruction for a given token. This utility function simplifies the creation of
  * a burn instruction by abstracting the details of setting up a `BurnInstructionBuilder`, configuring it
@@ -168,54 +168,16 @@ export declare function buildProgramUpdateField({ field, value, action, }: {
     value: string;
     action: 'insert' | 'extend' | 'remove';
 }): ProgramUpdateField;
-/**
- * Constructs a token metadata update instruction for updating the metadata of a specified token. This function
- * streamlines the process of creating a token metadata update by using the `buildTokenUpdateField` and
- * `buildUpdateInstruction` utility functions to encapsulate the required operations into a single update instruction.
- *
- * @param {Object} params - The parameters required to build the token metadata update instruction.
- * @param {Address | Namespace | 'this'} params.accountAddress - The address or namespace of the account initiating the update, or 'this' to indicate the current program.
- * @param {Address | Namespace | 'this'} params.tokenAddress - The address or namespace of the token being updated, or 'this' to reference the current program's token.
- * @param {string} params.transactionInputs - The new metadata values to be extended into the token's existing metadata, in JSON string format.
- * @returns {Instruction} An update instruction configured to update the token's metadata with the provided values.
- *
- * @throws {Error} Propagates any errors that occur during the construction of the token metadata update instruction.
- */
-export declare function buildTokenMetadataUpdateInstruction({ accountAddress, tokenAddress, transactionInputs, }: {
-    accountAddress: Address | Namespace | 'this';
-    tokenAddress: Address | Namespace | 'this';
-    transactionInputs: string;
-}): import("..").Instruction;
-/**
- * Constructs a program metadata update instruction for updating the metadata of a program. This function
- * streamlines the process of creating a program metadata update by utilizing the `buildProgramUpdateField`
- * and `buildUpdateInstruction` utility functions to encapsulate the necessary operations into a single update
- * instruction.
- *
- * @param {Object} params - The parameters required to build the program metadata update instruction.
- * @param {string} params.transactionInputs - The new metadata values to be extended into the program's existing metadata, in JSON string format.
- * @returns {Instruction} An update instruction configured to update the program's metadata with the provided values.
- *
- * @throws {Error} Propagates any errors that occur during the construction of the program metadata update instruction.
- */
-export declare function buildProgramMetadataUpdateInstruction({ transactionInputs, }: {
-    transactionInputs: string;
-}): import("..").Instruction;
-/**
- * Constructs a program data update instruction for updating the data of a program. This function
- * streamlines the process of creating a program data update by utilizing the `buildProgramUpdateField`
- * and `buildUpdateInstruction` utility functions to encapsulate the necessary operations into a single update
- * instruction.
- *
- * Note: The provided implementation incorrectly sets the field to 'metadata' instead of 'data'. To correctly
- * update program data, the 'field' parameter should be set to 'data'.
- *
- * @param {Object} params - The parameters required to build the program data update instruction.
- * @param {string} params.transactionInputs - The new data values to be extended into the program's existing data, in JSON string format.
- * @returns {Instruction} An update instruction configured to update the program's data with the provided values.
- *
- * @throws {Error} Propagates any errors that occur during the construction of the program data update instruction.
- */
-export declare function buildProgramDataUpdateInstruction({ transactionInputs, }: {
-    transactionInputs: string;
-}): import("..").Instruction;
+export declare const buildProgramMetadataUpdateInstruction: ({ programAddress, data, }: {
+    programAddress?: string | undefined;
+    data: object;
+}) => import("..").Instruction;
+export declare const buildProgramDataUpdateInstruction: ({ programAddress, data, }: {
+    programAddress?: string | undefined;
+    data: object;
+}) => import("..").Instruction;
+export declare const buildTokenDataUpdateInstruction: ({ accountAddress, programAddress, data, }: {
+    accountAddress: string;
+    programAddress?: string | undefined;
+    data: object;
+}) => import("..").Instruction;

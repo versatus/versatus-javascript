@@ -46,6 +46,7 @@ import {
   formatBigIntToHex,
   formatAmountToHex,
   generateTokenIdArray,
+  validateAndCreateJsonString,
 } from '@/lib/utils'
 import {
   ProgramField,
@@ -594,132 +595,89 @@ export function buildProgramUpdateField({
   }
 }
 
-/**
- * Constructs a token metadata update instruction for updating the metadata of a specified token. This function
- * streamlines the process of creating a token metadata update by using the `buildTokenUpdateField` and
- * `buildUpdateInstruction` utility functions to encapsulate the required operations into a single update instruction.
- *
- * @param {Object} params - The parameters required to build the token metadata update instruction.
- * @param {Address | Namespace | 'this'} params.accountAddress - The address or namespace of the account initiating the update, or 'this' to indicate the current program.
- * @param {Address | Namespace | 'this'} params.tokenAddress - The address or namespace of the token being updated, or 'this' to reference the current program's token.
- * @param {string} params.transactionInputs - The new metadata values to be extended into the token's existing metadata, in JSON string format.
- * @returns {Instruction} An update instruction configured to update the token's metadata with the provided values.
- *
- * @throws {Error} Propagates any errors that occur during the construction of the token metadata update instruction.
- */
-export function buildTokenMetadataUpdateInstruction({
-  accountAddress,
-  tokenAddress,
-  transactionInputs,
+export const buildProgramMetadataUpdateInstruction = ({
+  programAddress = THIS,
+  data,
 }: {
-  accountAddress: Address | Namespace | 'this'
-  tokenAddress: Address | Namespace | 'this'
-  transactionInputs: string
-}) {
+  programAddress?: string
+  data: object
+}) => {
   try {
-    // Build the token update field for metadata with the provided transaction inputs and action 'extend'.
-    const tokenUpdateField = buildTokenUpdateField({
+    const dataStr = validateAndCreateJsonString(data)
+    const updateProgram = buildProgramUpdateField({
       field: 'metadata',
-      value: transactionInputs,
+      value: dataStr,
       action: 'extend',
     })
 
-    // Use the built token update field to create a token or program update instruction.
+    return buildUpdateInstruction({
+      update: new TokenOrProgramUpdate(
+        'programUpdate',
+        new ProgramUpdate(new AddressOrNamespace(new Address(programAddress)), [
+          updateProgram,
+        ])
+      ),
+    })
+  } catch (e) {
+    throw e
+  }
+}
+
+export const buildProgramDataUpdateInstruction = ({
+  programAddress = THIS,
+  data,
+}: {
+  programAddress?: string
+  data: object
+}) => {
+  try {
+    const dataStr = validateAndCreateJsonString(data)
+    const updateUserObject = buildProgramUpdateField({
+      field: 'data',
+      value: dataStr,
+      action: 'extend',
+    })
+
+    return buildUpdateInstruction({
+      update: new TokenOrProgramUpdate(
+        'programUpdate',
+        new ProgramUpdate(new AddressOrNamespace(new Address(programAddress)), [
+          updateUserObject,
+        ])
+      ),
+    })
+  } catch (e) {
+    throw e
+  }
+}
+
+export const buildTokenDataUpdateInstruction = ({
+  accountAddress,
+  programAddress = THIS,
+  data,
+}: {
+  accountAddress: string
+  programAddress?: string
+  data: object
+}) => {
+  try {
+    const dataStr = validateAndCreateJsonString(data)
+    const updateUserObject = buildTokenUpdateField({
+      field: 'data',
+      value: dataStr,
+      action: 'extend',
+    })
     return buildUpdateInstruction({
       update: new TokenOrProgramUpdate(
         'tokenUpdate',
         new TokenUpdate(
-          new AddressOrNamespace(accountAddress),
-          new AddressOrNamespace(tokenAddress),
-          [tokenUpdateField]
+          new AddressOrNamespace(new Address(accountAddress)),
+          new AddressOrNamespace(new Address(programAddress)),
+          [updateUserObject]
         )
       ),
     })
   } catch (e) {
-    // Rethrow any caught exceptions for upstream error handling.
-    throw e
-  }
-}
-/**
- * Constructs a program metadata update instruction for updating the metadata of a program. This function
- * streamlines the process of creating a program metadata update by utilizing the `buildProgramUpdateField`
- * and `buildUpdateInstruction` utility functions to encapsulate the necessary operations into a single update
- * instruction.
- *
- * @param {Object} params - The parameters required to build the program metadata update instruction.
- * @param {string} params.transactionInputs - The new metadata values to be extended into the program's existing metadata, in JSON string format.
- * @returns {Instruction} An update instruction configured to update the program's metadata with the provided values.
- *
- * @throws {Error} Propagates any errors that occur during the construction of the program metadata update instruction.
- */
-export function buildProgramMetadataUpdateInstruction({
-  transactionInputs,
-}: {
-  transactionInputs: string
-}) {
-  try {
-    // Build the program update field for metadata with the provided transaction inputs and action 'extend'.
-    const programUpdateField = buildProgramUpdateField({
-      field: 'metadata',
-      value: transactionInputs,
-      action: 'extend',
-    })
-
-    // Use the built program update field to create a program update instruction.
-    // Note: 'THIS' should be replaced with the actual program identifier where the update is to be applied.
-    return buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        // The AddressOrNamespace should be replaced with the actual address or namespace
-        // of the program intended for update. The placeholder 'THIS' is used here for demonstration.
-        new ProgramUpdate(new AddressOrNamespace(THIS), [programUpdateField])
-      ),
-    })
-  } catch (e) {
-    // Rethrow any caught exceptions for upstream error handling.
-    throw e
-  }
-}
-/**
- * Constructs a program data update instruction for updating the data of a program. This function
- * streamlines the process of creating a program data update by utilizing the `buildProgramUpdateField`
- * and `buildUpdateInstruction` utility functions to encapsulate the necessary operations into a single update
- * instruction.
- *
- * Note: The provided implementation incorrectly sets the field to 'metadata' instead of 'data'. To correctly
- * update program data, the 'field' parameter should be set to 'data'.
- *
- * @param {Object} params - The parameters required to build the program data update instruction.
- * @param {string} params.transactionInputs - The new data values to be extended into the program's existing data, in JSON string format.
- * @returns {Instruction} An update instruction configured to update the program's data with the provided values.
- *
- * @throws {Error} Propagates any errors that occur during the construction of the program data update instruction.
- */
-export function buildProgramDataUpdateInstruction({
-  transactionInputs,
-}: {
-  transactionInputs: string
-}) {
-  try {
-    // Correcting the field to 'data' for updating program data.
-    const programUpdateField = buildProgramUpdateField({
-      field: 'data', // Correct field to 'data'.
-      value: transactionInputs,
-      action: 'extend',
-    })
-
-    // Use the built program update field to create a program update instruction.
-    // Note: 'THIS' should be replaced with the actual program identifier where the update is to be applied.
-    return buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        // The AddressOrNamespace should be replaced with the actual address or namespace
-        // of the program intended for update. The placeholder 'THIS' is used here for demonstration.
-        new ProgramUpdate(new AddressOrNamespace(THIS), [programUpdateField])
-      ),
-    })
-  } catch (e) {
-    // Rethrow any caught exceptions for upstream error handling.
     throw e
   }
 }
