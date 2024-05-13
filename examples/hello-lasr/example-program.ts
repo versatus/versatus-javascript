@@ -15,12 +15,10 @@ import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/A
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   formatAmountToHex,
-  getCurrentSupply,
   parseMetadata,
-  parseTxInputs,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
-import { IComputeInputs } from '../../src'
+import { IComputeInputs } from '@versatus/versatus-javascript/lib/interfaces'
 
 class HelloLasrProgram extends Program {
   constructor() {

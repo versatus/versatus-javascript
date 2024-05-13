@@ -265,7 +265,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 ======
 ======
 >>>>>>>>>>> View Program on LASR Playground:
-https://faucet.versatus.io/programs/${programAddress}
+https://playground.versatus.io/programs/${programAddress}
           
           `)
     }

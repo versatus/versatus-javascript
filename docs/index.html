@@ -35,7 +35,7 @@ initialize, build, deploy, and call programs in the network from the terminal.</
 <p><em>Note: the program deploy may fail on it&#39;s first attempt. If so, try it once more</em></p>
 <a id="md:interact-with-lasr-online" class="tsd-anchor"></a><h3><a href="#md:interact-with-lasr-online">Interact with LASR Online</a></h3><ol>
 <li>Complete steps above. </li>
-<li>Go to <a href="https://faucet.versatus.io">https://faucet.versatus.io</a> </li>
+<li>Go to <a href="https://playground.versatus.io">https://playground.versatus.io</a> </li>
 <li>Import Secret Key into the wallet from the initialized <code>secret_key</code> in the <code>.lasr</code> folder.</li>
 </ol>
 <pre><code class="language-bash"><span class="hl-0">cat</span><span class="hl-1"> </span><span class="hl-2">.lasr/wallet/keypair.json</span><span class="hl-1"> | </span><span class="hl-0">jq</span><span class="hl-1"> </span><span class="hl-3">-r</span><span class="hl-1"> </span><span class="hl-2">&#39;.[0].secret_key&#39;</span><span class="hl-1"> </span>

@@ -17,7 +17,7 @@ mkdir -p my-token && \
     npx lasrctl build example-program.ts && \
     npx lasrctl test inputs && \
     npx lasrctl deploy --build example-program --author me --name speed --programName run --symbol SPEEDRUN --initializedSupply 100 --ts 1000 --txInputs '{"imgUrl":"https://pbs.twimg.com/profile_images/1704511091236020224/aOByHnoK_400x400.jpg","conversionRate":"1","paymentProgramAddress":"0x0000000000000000000000000000000000000000"}' && \
-    open -a "Google Chrome" https://faucet.versatus.io
+    open -a "Google Chrome" https://playground.versatus.io
 ```
 
 ## Set up Project
@@ -205,7 +205,7 @@ npx lasrctl call --programAddress <YOUR_PROGRAM_ADDRESS_FROM_DEPLOY> --op hello 
 
 ## Faucet
 
-The LASR Faucet is available at https://faucet.versatus.io
+The LASR Faucet is available at https://playground.versatus.io
 
 <img src="adding-private-key-to-wallet.gif">
 

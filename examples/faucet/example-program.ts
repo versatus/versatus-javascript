@@ -21,7 +21,7 @@ import {
 } from '@versatus/versatus-javascript/lib/utils'
 import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
 import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
-import { IComputeInputs } from '../../src'
+import { IComputeInputs } from '@versatus/versatus-javascript/lib/interfaces'
 
 export class FaucetProgram extends Program {
   constructor() {

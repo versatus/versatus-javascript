@@ -75,6 +75,7 @@ export {
 } from './lib/utils'
 
 export { broadcast, getAccount } from './lib/versatus'
+
 export {
   IKeyPair,
   IWallet,

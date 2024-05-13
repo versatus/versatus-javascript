@@ -23,7 +23,7 @@ import {
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
-import { IComputeInputs } from '../../src'
+import { IComputeInputs } from '@versatus/versatus-javascript/lib/interfaces'
 
 class FungibleTokenProgram extends Program {
   constructor() {
