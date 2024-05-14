@@ -2,7 +2,7 @@ import { TProgramUpdateValueTypes } from '@/lib/types'
 import {
   buildCreateInstruction,
   buildProgramUpdateField,
-  buildTokenDistributionInstruction,
+  buildTokenDistribution,
   buildTokenUpdateField,
   buildUpdateInstruction,
 } from '@/lib/programs/instruction-builders/builder-helpers'

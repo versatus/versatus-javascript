@@ -6,41 +6,6 @@ import { formatBigIntToHex, generateTokenIdArray, validateAndCreateJsonString, }
 import { ProgramField, ProgramUpdate, ProgramUpdateField, } from '../../../lib/programs/Program.js';
 import { Address, AddressOrNamespace, } from '../../../lib/programs/Address-Namespace.js';
 /**
- * Constructs a burn instruction for a given token. This utility function simplifies the creation of
- * a burn instruction by abstracting the details of setting up a `BurnInstructionBuilder`, configuring it
- * with the necessary parameters, and building the burn instruction.
- *
- * @param {Object} params - The parameters required to build the burn instruction.
- * @param {string} params.from - The address from which the token will be burned.
- * @param {string} params.caller - The address of the caller initiating the burn operation.
- * @param {string} params.programId - The program ID associated with the token to be burned.
- * @param {string} params.tokenAddress - The address of the token to be burned.
- * @param {string} params.amount - The amount of the token to burn, expressed as a string.
- * @returns {Instruction} A burn instruction configured with the provided details.
- */
-export function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, tokenIds, }) {
-    try {
-        const instructionBuilder = new BurnInstructionBuilder()
-            .setProgramId(new AddressOrNamespace(new Address(programId)))
-            .setCaller(new Address(caller))
-            .setTokenAddress(new Address(tokenAddress))
-            .setBurnFromAddress(new AddressOrNamespace(new Address(from)));
-        if (amount) {
-            instructionBuilder.setAmount(formatBigIntToHex(BigInt(amount)));
-        }
-        else if (tokenIds) {
-            instructionBuilder.extendTokenIds(tokenIds);
-        }
-        else {
-            throw new Error('Invalid burn builder arguments. Missing amount or tokenIds');
-        }
-        return instructionBuilder.build();
-    }
-    catch (e) {
-        throw e;
-    }
-}
-/**
  * Constructs a create instruction for initiating a token or program with specified properties. This utility
  * function streamlines the process of configuring a `CreateInstructionBuilder`, allowing for the specification
  * of program identification, ownership, supply details, and distribution instructions.
@@ -103,6 +68,87 @@ export function buildUpdateInstruction({ update, }) {
         .build(); // Construct and return the final update instruction.
 }
 /**
+ * Constructs a transfer instruction for moving tokens from one address to another. This function
+ * facilitates specifying the sender and receiver addresses, the token to be transferred, and the
+ * amount or specific token IDs to transfer. It supports both fungible and non-fungible tokens through
+ * the optional `amount` and `tokenIds` parameters.
+ *
+ * @param {Object} params - The parameters required to build the transfer instruction.
+ * @param {string} params.from - The sender's address.
+ * @param {string} params.to - The recipient's address.
+ * @param {string} params.tokenAddress - The address of the token being transferred.
+ * @param {BigInt} [params.amount] - The amount of the token to transfer, for fungible tokens.
+ * @param {string[]} [params.tokenIds] - The IDs of the tokens to transfer, for non-fungible tokens.
+ * @returns {Instruction} A transfer instruction configured with the provided details.
+ *
+ * @throws {Error} Propagates any errors that occur during the instruction building process.
+ */
+export function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, extendTokenIds, }) {
+    try {
+        // Convert string addresses to Address or AddressOrNamespace objects as required by the builder.
+        const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
+        const fromAddressOrNamespace = new AddressOrNamespace(new Address(from));
+        const tokenAddressOrNamespace = new Address(tokenAddress);
+        // Initialize a TransferInstructionBuilder and set the from, to, and token addresses.
+        const instructionBuilder = new TransferInstructionBuilder()
+            .setTransferFrom(fromAddressOrNamespace)
+            .setTransferTo(toAddressOrNamespace)
+            .setTokenAddress(tokenAddressOrNamespace);
+        // If token IDs are specified (for NFTs or specific fungible token units), add them to the instruction.
+        if (tokenIds) {
+            instructionBuilder.addTokenIds(tokenIds);
+        }
+        if (extendTokenIds) {
+            instructionBuilder.extendTokenIds(extendTokenIds);
+        }
+        // If an amount is specified (for fungible tokens), set the amount in the instruction.
+        if (amount !== undefined) {
+            instructionBuilder.setAmount(formatBigIntToHex(amount));
+        }
+        // Build and return the finalized transfer instruction.
+        return instructionBuilder.build();
+    }
+    catch (e) {
+        // In case of any errors during the build process, rethrow the caught exception.
+        throw e;
+    }
+}
+/**
+ * Constructs a burn instruction for a given token. This utility function simplifies the creation of
+ * a burn instruction by abstracting the details of setting up a `BurnInstructionBuilder`, configuring it
+ * with the necessary parameters, and building the burn instruction.
+ *
+ * @param {Object} params - The parameters required to build the burn instruction.
+ * @param {string} params.from - The address from which the token will be burned.
+ * @param {string} params.caller - The address of the caller initiating the burn operation.
+ * @param {string} params.programId - The program ID associated with the token to be burned.
+ * @param {string} params.tokenAddress - The address of the token to be burned.
+ * @param {string} params.amount - The amount of the token to burn, expressed as a string.
+ * @returns {Instruction} A burn instruction configured with the provided details.
+ */
+export function buildBurnInstruction({ from, caller, programId, tokenAddress, amount, tokenIds, }) {
+    try {
+        const instructionBuilder = new BurnInstructionBuilder()
+            .setProgramId(new AddressOrNamespace(new Address(programId)))
+            .setCaller(new Address(caller))
+            .setTokenAddress(new Address(tokenAddress))
+            .setBurnFromAddress(new AddressOrNamespace(new Address(from)));
+        if (amount) {
+            instructionBuilder.setAmount(formatBigIntToHex(BigInt(amount)));
+        }
+        else if (tokenIds) {
+            instructionBuilder.extendTokenIds(tokenIds);
+        }
+        else {
+            throw new Error('Invalid burn builder arguments. Missing amount or tokenIds');
+        }
+        return instructionBuilder.build();
+    }
+    catch (e) {
+        throw e;
+    }
+}
+/**
  * Constructs a token distribution instruction, facilitating the setup of token distribution specifics, including
  * the program ID, supply details, recipient, and optional token updates. This function provides flexibility for
  * distributing both fungible and non-fungible tokens by adjusting the distribution based on the `nonFungible` flag.
@@ -116,7 +162,7 @@ export function buildUpdateInstruction({ update, }) {
  * `initializedSupply` as a count of individual tokens to distribute.
  * @returns {TokenDistribution} A token distribution object configured with the provided details.
  */
-export function buildTokenDistributionInstruction({ programId, initializedSupply, to, currentAmount = 0, currentSupply = 0, tokenUpdates, nonFungible, }) {
+export function buildTokenDistribution({ programId, initializedSupply, to, currentAmount = 0, currentSupply = 0, tokenUpdates, nonFungible, }) {
     const tokenDistributionBuilder = new TokenDistributionBuilder()
         .setProgramId(new AddressOrNamespace(new Address(programId)))
         .setReceiver(new AddressOrNamespace(new Address(to)));
@@ -185,52 +231,6 @@ export function buildMintInstructions({ from, programId, paymentTokenAddress, in
     }
     catch (e) {
         // Rethrow any caught exceptions for upstream error handling.
-        throw e;
-    }
-}
-/**
- * Constructs a transfer instruction for moving tokens from one address to another. This function
- * facilitates specifying the sender and receiver addresses, the token to be transferred, and the
- * amount or specific token IDs to transfer. It supports both fungible and non-fungible tokens through
- * the optional `amount` and `tokenIds` parameters.
- *
- * @param {Object} params - The parameters required to build the transfer instruction.
- * @param {string} params.from - The sender's address.
- * @param {string} params.to - The recipient's address.
- * @param {string} params.tokenAddress - The address of the token being transferred.
- * @param {BigInt} [params.amount] - The amount of the token to transfer, for fungible tokens.
- * @param {string[]} [params.tokenIds] - The IDs of the tokens to transfer, for non-fungible tokens.
- * @returns {Instruction} A transfer instruction configured with the provided details.
- *
- * @throws {Error} Propagates any errors that occur during the instruction building process.
- */
-export function buildTransferInstruction({ from, to, tokenAddress, amount, tokenIds, extendTokenIds, }) {
-    try {
-        // Convert string addresses to Address or AddressOrNamespace objects as required by the builder.
-        const toAddressOrNamespace = new AddressOrNamespace(new Address(to));
-        const fromAddressOrNamespace = new AddressOrNamespace(new Address(from));
-        const tokenAddressOrNamespace = new Address(tokenAddress);
-        // Initialize a TransferInstructionBuilder and set the from, to, and token addresses.
-        const instructionBuilder = new TransferInstructionBuilder()
-            .setTransferFrom(fromAddressOrNamespace)
-            .setTransferTo(toAddressOrNamespace)
-            .setTokenAddress(tokenAddressOrNamespace);
-        // If token IDs are specified (for NFTs or specific fungible token units), add them to the instruction.
-        if (tokenIds) {
-            instructionBuilder.addTokenIds(tokenIds);
-        }
-        if (extendTokenIds) {
-            instructionBuilder.extendTokenIds(extendTokenIds);
-        }
-        // If an amount is specified (for fungible tokens), set the amount in the instruction.
-        if (amount !== undefined) {
-            instructionBuilder.setAmount(formatBigIntToHex(amount));
-        }
-        // Build and return the finalized transfer instruction.
-        return instructionBuilder.build();
-    }
-    catch (e) {
-        // In case of any errors during the build process, rethrow the caught exception.
         throw e;
     }
 }
@@ -406,12 +406,21 @@ export function buildProgramUpdateField({ field, value, action, }) {
         throw e;
     }
 }
-export const buildProgramMetadataUpdateInstruction = ({ programAddress = THIS, data, }) => {
+/**
+ * Updates the metadata for a given program on LASR.
+ *
+ * @param {Object} params - The parameters for the update.
+ * @param {string} [params.programAddress=THIS] - The address of the program to update. Defaults to THIS if not provided.
+ * @param {object} params.metadata - The metadata object to update the program with.
+ * @returns {Instruction} - The instruction to be executed for the update.
+ * @throws {Error} - Throws an error if the update process fails.
+ */
+export const updateProgramMetadata = ({ programAddress = THIS, metadata, }) => {
     try {
-        const dataStr = validateAndCreateJsonString(data);
+        const metadataStr = validateAndCreateJsonString(metadata);
         const updateProgram = buildProgramUpdateField({
             field: 'metadata',
-            value: dataStr,
+            value: metadataStr,
             action: 'extend',
         });
         return buildUpdateInstruction({
@@ -424,7 +433,16 @@ export const buildProgramMetadataUpdateInstruction = ({ programAddress = THIS, d
         throw e;
     }
 };
-export const buildProgramDataUpdateInstruction = ({ programAddress = THIS, data, }) => {
+/**
+ * Updates the data for a given program on LASR.
+ *
+ * @param {Object} params - The parameters for the update.
+ * @param {string} [params.programAddress=THIS] - The address of the program to update. Defaults to THIS if not provided.
+ * @param {object} params.data - The data object to update the program with.
+ * @returns {Instruction} - The instruction to be executed for the update.
+ * @throws {Error} - Throws an error if the update process fails.
+ */
+export const updateProgramData = ({ programAddress = THIS, data, }) => {
     try {
         const dataStr = validateAndCreateJsonString(data);
         const updateUserObject = buildProgramUpdateField({
@@ -442,7 +460,121 @@ export const buildProgramDataUpdateInstruction = ({ programAddress = THIS, data,
         throw e;
     }
 };
-export const buildTokenDataUpdateInstruction = ({ accountAddress, programAddress = THIS, data, }) => {
+/**
+ * Removes a specific key from the data of a given program on LASR.
+ *
+ * @param {Object} params - The parameters for the removal.
+ * @param {string} params.programAddress - The address of the program to update.
+ * @param {string} params.key - The key to be removed from the program's data.
+ * @returns {Instruction} - The instruction to be executed for the removal.
+ * @throws {Error} - Throws an error if the removal process fails.
+ */
+export const removeProgramDataKey = ({ programAddress = THIS, key, }) => {
+    try {
+        const removeDataKey = buildProgramUpdateField({
+            field: 'data',
+            value: key,
+            action: 'remove',
+        });
+        return buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(new Address(programAddress)), [
+                removeDataKey,
+            ])),
+        });
+    }
+    catch (e) {
+        throw e;
+    }
+};
+/**
+ * Adds a linked program to the specified program on LASR.
+ *
+ * @param {Object} params - The parameters for the addition.
+ * @param {string} params.programAddress - The address of the program to update.
+ * @param {string} params.program - The program to be linked.
+ * @returns {Instruction} - The instruction to be executed for the addition.
+ * @throws {Error} - Throws an error if the addition process fails.
+ */
+export const addLinkedProgram = ({ programAddress = THIS, program, }) => {
+    try {
+        const extendProgramLinkedPrograms = buildProgramUpdateField({
+            field: 'linkedPrograms',
+            value: program,
+            action: 'insert',
+        });
+        return buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(new Address(programAddress)), [
+                extendProgramLinkedPrograms,
+            ])),
+        });
+    }
+    catch (e) {
+        throw e;
+    }
+};
+/**
+ * Adds multiple linked programs to the specified program on LASR.
+ *
+ * @param {Object} params - The parameters for the addition.
+ * @param {string} params.programAddress - The address of the program to update.
+ * @param {string[]} params.programs - An array of programs to be linked.
+ * @returns {Instruction} - The instruction to be executed for the addition.
+ * @throws {Error} - Throws an error if the addition process fails.
+ */
+export const addLinkedPrograms = ({ programAddress = THIS, programs, }) => {
+    try {
+        const extendProgramLinkedPrograms = buildProgramUpdateField({
+            field: 'linkedPrograms',
+            value: programs.join(','),
+            action: 'extend',
+        });
+        return buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('programUpdate', new ProgramUpdate(new AddressOrNamespace(new Address(programAddress)), [
+                extendProgramLinkedPrograms,
+            ])),
+        });
+    }
+    catch (e) {
+        throw e;
+    }
+};
+/**
+ * Updates the metadata for a given token on LASR.
+ *
+ * @param {Object} params - The parameters for the update.
+ * @param {string} params.accountAddress - The address of the account holding the token.
+ * @param {string} [params.programAddress=THIS] - The address of the program associated with the token. Defaults to THIS if not provided.
+ * @param {object} params.metadata - The metadata object to update the token with.
+ * @returns {Instruction} - The instruction to be executed for the update.
+ * @throws {Error} - Throws an error if the update process fails.
+ */
+export const updateTokenMetadata = ({ accountAddress, programAddress = THIS, metadata, }) => {
+    try {
+        const metadataStr = validateAndCreateJsonString(metadata);
+        const updateToken = buildTokenUpdateField({
+            field: 'metadata',
+            value: metadataStr,
+            action: 'extend',
+        });
+        return buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('tokenUpdate', new TokenUpdate(new AddressOrNamespace(new Address(accountAddress)), new AddressOrNamespace(new Address(programAddress)), [updateToken])),
+        });
+    }
+    catch (e) {
+        throw e;
+    }
+};
+/**
+ * Updates the data for a given token on LASR.
+ *
+ * @param {Object} params - The parameters for the update.
+ * @param {string} params.accountAddress - The address of the account holding the token.
+ * @param {string} [params.programAddress=THIS] - The address of the program associated with the token. Defaults to THIS if not provided.
+ * @param {object} params.data - The data object to update the token with.
+ * @returns {Instruction} - The instruction to be executed for the update.
+ * @throws {Error} - Throws an error if the update process fails.
+ */
+export const updateTokenData = ({ accountAddress, programAddress = THIS, data, }) => {
     try {
         const dataStr = validateAndCreateJsonString(data);
         const updateUserObject = buildTokenUpdateField({
@@ -452,6 +584,81 @@ export const buildTokenDataUpdateInstruction = ({ accountAddress, programAddress
         });
         return buildUpdateInstruction({
             update: new TokenOrProgramUpdate('tokenUpdate', new TokenUpdate(new AddressOrNamespace(new Address(accountAddress)), new AddressOrNamespace(new Address(programAddress)), [updateUserObject])),
+        });
+    }
+    catch (e) {
+        throw e;
+    }
+};
+/**
+ * Removes a specific key from the data of a given token on LASR.
+ *
+ * @param {Object} params - The parameters for the removal.
+ * @param {string} params.accountAddress - The address of the account holding the token.
+ * @param {string} [params.programAddress=THIS] - The address of the program associated with the token. Defaults to THIS if not provided.
+ * @param {string} params.key - The key to be removed from the token's data.
+ * @returns {Instruction} - The instruction to be executed for the removal.
+ * @throws {Error} - Throws an error if the removal process fails.
+ */
+export const removeTokenDataKey = ({ accountAddress, programAddress = THIS, key, }) => {
+    try {
+        const updateUserObject = buildTokenUpdateField({
+            field: 'data',
+            value: key,
+            action: 'remove',
+        });
+        return buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('tokenUpdate', new TokenUpdate(new AddressOrNamespace(new Address(accountAddress)), new AddressOrNamespace(new Address(programAddress)), [updateUserObject])),
+        });
+    }
+    catch (e) {
+        throw e;
+    }
+};
+/**
+ * Adds an approval to a token on LASR.
+ *
+ * @param {Object} params - The parameters for the addition.
+ * @param {string} params.accountAddress - The address of the account holding the token.
+ * @param {string} params.programAddress - The address of the program associated with the token.
+ * @param {Array<[Address, string[]]>} params.approval - The approval information to be added. An array of tuples, where each tuple contains an Address and an array of strings representing the approvals.
+ * @returns {Instruction} - The instruction to be executed for the addition.
+ * @throws {Error} - Throws an error if the addition process fails.
+ */
+export const addTokenApproval = ({ accountAddress, programAddress, approval, }) => {
+    try {
+        const extendTokenApprovals = buildTokenUpdateField({
+            field: 'approvals',
+            value: approval,
+            action: 'insert',
+        });
+        return buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('tokenUpdate', new TokenUpdate(new AddressOrNamespace(new Address(accountAddress)), new AddressOrNamespace(new Address(programAddress)), [extendTokenApprovals])),
+        });
+    }
+    catch (e) {
+        throw e;
+    }
+};
+/**
+ * Adds multiple approvals to a token on LASR.
+ *
+ * @param {Object} params - The parameters for the addition.
+ * @param {string} params.accountAddress - The address of the account holding the token.
+ * @param {string} params.programAddress - The address of the program associated with the token.
+ * @param {Array<[Address, string[]]>} params.approvals - An array of tuples, where each tuple contains an Address and an array of strings representing the approvals to be added.
+ * @returns {Instruction} - The instruction to be executed for the addition.
+ * @throws {Error} - Throws an error if the addition process fails.
+ */
+export const addTokenApprovals = ({ accountAddress, programAddress, approvals, }) => {
+    try {
+        const extendTokenApprovals = buildTokenUpdateField({
+            field: 'approvals',
+            value: approvals,
+            action: 'extend',
+        });
+        return buildUpdateInstruction({
+            update: new TokenOrProgramUpdate('tokenUpdate', new TokenUpdate(new AddressOrNamespace(new Address(accountAddress)), new AddressOrNamespace(new Address(programAddress)), [extendTokenApprovals])),
         });
     }
     catch (e) {

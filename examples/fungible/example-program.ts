@@ -3,7 +3,7 @@ import {
   buildCreateInstruction,
   buildMintInstructions,
   buildProgramUpdateField,
-  buildTokenDistributionInstruction,
+  buildTokenDistribution,
   buildTokenUpdateField,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
@@ -106,7 +106,7 @@ class FungibleTokenProgram extends Program {
         action: 'extend',
       })
 
-      const distributionInstruction = buildTokenDistributionInstruction({
+      const distributionInstruction = buildTokenDistribution({
         programId: THIS,
         initializedSupply: formatAmountToHex(initializedSupply),
         to: recipientAddress ?? to,

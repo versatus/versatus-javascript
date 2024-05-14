@@ -5,140 +5,7 @@
  */
 import { TokenDistribution, } from '../../../lib/programs/Token.js';
 import { BurnInstruction, CreateInstruction, Instruction, TransferInstruction, UpdateInstruction, } from '../../../lib/programs/Instruction.js';
-import { Outputs } from '../../../lib/programs/Outputs.js';
 import { AddressOrNamespace } from '../../../lib/programs/Address-Namespace.js';
-/**
- * Builds token update instructions by aggregating individual updates and generating a final instruction object.
- */
-export class TokenUpdateBuilder {
-    constructor() {
-        this.account = null;
-        this.token = null;
-        this.updates = [];
-    }
-    /**
-     * Adds an account address to the update instruction.
-     * @param {AddressOrNamespace} account - The account address to be updated.
-     * @returns {TokenUpdateBuilder} - The instance of this builder for chaining.
-     */
-    addUpdateAccountAddress(account) {
-        this.account = account;
-        return this;
-    }
-    /**
-     * Adds a token address to the update instruction.
-     * @param {AddressOrNamespace} tokenAddress - The address of the token to be updated.
-     * @returns {TokenUpdateBuilder} - The instance of this builder for chaining.
-     */
-    addTokenAddress(tokenAddress) {
-        this.token = tokenAddress;
-        return this;
-    }
-    /**
-     * Adds an update field to the token update instruction.
-     * @param {TokenOrProgramUpdate} updateField - The update field to be added.
-     * @returns {TokenUpdateBuilder} - The instance of this builder for chaining.
-     */
-    addUpdateField(updateField) {
-        this.updates.push(updateField);
-        return this;
-    }
-    /**
-     * Builds the token update instruction.
-     * @returns {Instruction} - The constructed token update instruction.
-     */
-    build() {
-        return new Instruction('update', new UpdateInstruction(this.updates.map((update) => update)));
-    }
-}
-/**
- * Builds token distribution instructions, including details about program ID, receiver, amount, and token IDs.
- */
-export class TokenDistributionBuilder {
-    constructor() {
-        this.programId = null;
-        this.to = null;
-        this.amount = null;
-        this.tokenIds = [];
-        this.updateFields = [];
-    }
-    /**
-     * Sets the program ID for the token distribution.
-     * @param {AddressOrNamespace} programId - The program ID.
-     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
-     */
-    setProgramId(programId) {
-        this.programId = programId;
-        return this;
-    }
-    /**
-     * Sets the receiver address for the token distribution.
-     * @param {AddressOrNamespace} receiver - The receiver's address.
-     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
-     */
-    setReceiver(receiver) {
-        this.to = receiver;
-        return this;
-    }
-    /**
-     * Sets the amount for the token distribution.
-     * @param {string} amount - The amount to be distributed.
-     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
-     */
-    setAmount(amount) {
-        this.amount = amount;
-        return this;
-    }
-    /**
-     * Adds a single token ID to the distribution.
-     * @param {string} tokenId - The token ID to add.
-     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
-     */
-    addTokenId(tokenId) {
-        this.tokenIds.push(tokenId);
-        return this;
-    }
-    /**
-     * Extends the list of token IDs with multiple IDs.
-     * @param {string[]} items - The list of token IDs to add.
-     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
-     */
-    extendTokenIds(items) {
-        this.tokenIds.push(...items);
-        return this;
-    }
-    /**
-     * Adds an update field to the distribution.
-     * @param {TokenUpdateField} updateField - The update field to add.
-     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
-     */
-    addUpdateField(updateField) {
-        this.updateFields.push(updateField);
-        return this;
-    }
-    /**
-     * Extends the list of update fields with multiple fields.
-     * @param {TokenUpdateField[]} items - The list of update fields to add.
-     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
-     */
-    extendUpdateFields(items) {
-        this.updateFields.push(...items);
-        return this;
-    }
-    /**
-     * Builds the token distribution object.
-     * @returns {TokenDistribution} - The constructed token distribution object.
-     */
-    build() {
-        const programId = this.programId instanceof AddressOrNamespace
-            ? this.programId.toJson()
-            : this.programId ?? null;
-        const to = this.to instanceof AddressOrNamespace
-            ? this.to.toJson()
-            : this.to ?? null;
-        return new TokenDistribution(programId, to, this.amount, this.tokenIds.map((tokenId) => tokenId), this.updateFields.map((updateField) => updateField.toJson()));
-    }
-}
 /**
  * A builder class for constructing a `CreateInstruction` object. This class provides a fluent API to set various properties of
  * a create instruction, such as program namespace, program ID, program owner, total supply, and initialized supply. Additionally,
@@ -424,48 +291,135 @@ export class BurnInstructionBuilder {
         return new Instruction('burn', new BurnInstruction(this.caller, this.programId, this.token, this.burnFrom, this.amount, this.tokenIds));
     }
 }
-export class LogInstructionBuilder {
-}
 /**
- * A builder class designed for constructing an `Outputs` object, facilitating the configuration of input data
- * and a collection of instructions. This builder offers a fluent interface, enabling the incremental setup of
- * inputs and addition of various instructions before building the final `Outputs` object.
+ * Builds token update instructions by aggregating individual updates and generating a final instruction object.
  */
-export class OutputBuilder {
+export class TokenUpdateBuilder {
     constructor() {
-        this.inputs = null;
-        this.instructions = [];
+        this.account = null;
+        this.token = null;
+        this.updates = [];
     }
     /**
-     * Sets the input data for the `Outputs` object. This method allows any type of input data to be specified,
-     * making the builder flexible for various use cases.
-     *
-     * @param {any} inputs - The input data to be used in the `Outputs` object.
-     * @returns {OutputBuilder} - The instance of this builder for chaining.
+     * Adds an account address to the update instruction.
+     * @param {AddressOrNamespace} account - The account address to be updated.
+     * @returns {TokenUpdateBuilder} - The instance of this builder for chaining.
      */
-    setInputs(inputs) {
-        this.inputs = inputs;
+    addUpdateAccountAddress(account) {
+        this.account = account;
         return this;
     }
     /**
-     * Adds an `Instruction` object to the collection of instructions in the `Outputs` object. This method can be
-     * called multiple times to add multiple instructions, supporting the construction of complex `Outputs` objects
-     * with various operations.
-     *
-     * @param {Instruction} instruction - An instruction to be added to the `Outputs` object.
-     * @returns {OutputBuilder} - The instance of this builder for chaining.
+     * Adds a token address to the update instruction.
+     * @param {AddressOrNamespace} tokenAddress - The address of the token to be updated.
+     * @returns {TokenUpdateBuilder} - The instance of this builder for chaining.
      */
-    addInstruction(instruction) {
-        this.instructions.push(instruction);
+    addTokenAddress(tokenAddress) {
+        this.token = tokenAddress;
         return this;
     }
     /**
-     * Builds the `Outputs` object using the inputs and instructions configured via the builder. This method finalizes
-     * the construction of the `Outputs` object and returns it, making it ready for use.
-     *
-     * @returns {Outputs} - The constructed `Outputs` object containing the specified inputs and instructions.
+     * Adds an update field to the token update instruction.
+     * @param {TokenOrProgramUpdate} updateField - The update field to be added.
+     * @returns {TokenUpdateBuilder} - The instance of this builder for chaining.
+     */
+    addUpdateField(updateField) {
+        this.updates.push(updateField);
+        return this;
+    }
+    /**
+     * Builds the token update instruction.
+     * @returns {Instruction} - The constructed token update instruction.
      */
     build() {
-        return new Outputs(this.inputs, this.instructions);
+        return new Instruction('update', new UpdateInstruction(this.updates.map((update) => update)));
+    }
+}
+/**
+ * Builds token distribution instructions, including details about program ID, receiver, amount, and token IDs.
+ */
+export class TokenDistributionBuilder {
+    constructor() {
+        this.programId = null;
+        this.to = null;
+        this.amount = null;
+        this.tokenIds = [];
+        this.updateFields = [];
+    }
+    /**
+     * Sets the program ID for the token distribution.
+     * @param {AddressOrNamespace} programId - The program ID.
+     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
+     */
+    setProgramId(programId) {
+        this.programId = programId;
+        return this;
+    }
+    /**
+     * Sets the receiver address for the token distribution.
+     * @param {AddressOrNamespace} receiver - The receiver's address.
+     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
+     */
+    setReceiver(receiver) {
+        this.to = receiver;
+        return this;
+    }
+    /**
+     * Sets the amount for the token distribution.
+     * @param {string} amount - The amount to be distributed.
+     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
+     */
+    setAmount(amount) {
+        this.amount = amount;
+        return this;
+    }
+    /**
+     * Adds a single token ID to the distribution.
+     * @param {string} tokenId - The token ID to add.
+     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
+     */
+    addTokenId(tokenId) {
+        this.tokenIds.push(tokenId);
+        return this;
+    }
+    /**
+     * Extends the list of token IDs with multiple IDs.
+     * @param {string[]} items - The list of token IDs to add.
+     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
+     */
+    extendTokenIds(items) {
+        this.tokenIds.push(...items);
+        return this;
+    }
+    /**
+     * Adds an update field to the distribution.
+     * @param {TokenUpdateField} updateField - The update field to add.
+     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
+     */
+    addUpdateField(updateField) {
+        this.updateFields.push(updateField);
+        return this;
+    }
+    /**
+     * Extends the list of update fields with multiple fields.
+     * @param {TokenUpdateField[]} items - The list of update fields to add.
+     * @returns {TokenDistributionBuilder} - The instance of this builder for chaining.
+     */
+    extendUpdateFields(items) {
+        this.updateFields.push(...items);
+        return this;
+    }
+    /**
+     * Builds the token distribution object.
+     * @returns {TokenDistribution} - The constructed token distribution object.
+     */
+    build() {
+        const programId = this.programId instanceof AddressOrNamespace
+            ? this.programId.toJson()
+            : this.programId ?? null;
+        const to = this.to instanceof AddressOrNamespace
+            ? this.to.toJson()
+            : this.to ?? null;
+        return new TokenDistribution(programId, to, this.amount, this.tokenIds.map((tokenId) => tokenId), this.updateFields.map((updateField) => updateField.toJson()));
     }
 }
