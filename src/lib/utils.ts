@@ -5,7 +5,12 @@ import {
   VIPFS_URL,
   VIPFS_URL_UNSTABLE,
 } from '@/lib/consts'
-import { IArbitraryData, IComputeInputs, IProgram } from '@/lib/interfaces'
+import {
+  IArbitraryData,
+  IComputeInputs,
+  IMetadata,
+  IProgram,
+} from '@/lib/interfaces'
 
 /**
  * Converts a numeric input (either a number or a string representation of a number) into a BigInt.
@@ -403,7 +408,7 @@ export const getIPFSForNetwork = (network: TNetwork) => {
 
 export const parseProgramAccountMetadata = (
   computeInputs: IComputeInputs
-): IProgram => {
+): IMetadata => {
   try {
     return validate(
       computeInputs.accountInfo?.programAccountMetadata,

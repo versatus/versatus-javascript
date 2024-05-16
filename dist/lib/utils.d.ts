@@ -1,5 +1,5 @@
 import { TNetwork } from '../lib/types';
-import { IArbitraryData, IComputeInputs, IProgram } from '../lib/interfaces';
+import { IArbitraryData, IComputeInputs, IMetadata, IProgram } from '../lib/interfaces';
 /**
  * Converts a numeric input (either a number or a string representation of a number) into a BigInt.
  * This function is particularly useful for handling large numbers that need to be represented accurately
@@ -215,7 +215,7 @@ export declare const getRPCForNetwork: (network: TNetwork) => string;
  * // Logs 'USING IPFS URL: https://custom.ipfs.example.com' and returns 'https://custom.ipfs.example.com'
  */
 export declare const getIPFSForNetwork: (network: TNetwork) => string;
-export declare const parseProgramAccountMetadata: (computeInputs: IComputeInputs) => IProgram;
+export declare const parseProgramAccountMetadata: (computeInputs: IComputeInputs) => IMetadata;
 export declare const parseProgramAccountData: (computeInputs: IComputeInputs) => IArbitraryData;
 export declare const parseProgramTokenInfo: (computeInputs: IComputeInputs) => IProgram;
 export declare const parseAvailableTokenIds: (computeInputs: IComputeInputs) => string[];
