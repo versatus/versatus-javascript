@@ -23,18 +23,16 @@ import {
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   formatHexToAmount,
-  getCurrentImgUrls,
   getCurrentSupply,
   parseAmountToBigInt,
   parseAvailableTokenIds,
   parseMetadata,
   parseProgramAccountData,
-  parseTokenData,
   parseTxInputs,
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
-import { IComputeInputs } from '../../src'
+import { IComputeInputs } from '@versatus/versatus-javascript/lib/interfaces'
 
 class NonFungible extends Program {
   constructor() {
@@ -47,14 +45,7 @@ class NonFungible extends Program {
   burn(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
-      const { transactionInputs, from } = transaction
-      const txInputs = validate(
-        JSON.parse(transactionInputs),
-        'unable to parse transactionInputs'
-      )
-
-      const tokenIds = validate(txInputs.tokenIds, 'missing tokenIds...')
-
+      const tokenIds = parseAvailableTokenIds(computeInputs)
       const burnInstruction = buildBurnInstruction({
         from: transaction.from,
         caller: transaction.from,

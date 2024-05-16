@@ -111,34 +111,34 @@ class HelloLasrProgram extends Program {
   }
 
   hello(computeInputs: IComputeInputs) {
-    const { transaction } = computeInputs
-    const { transactionInputs: txInputStr } = transaction
-    const txInputs = JSON.parse(txInputStr)
-    const name = txInputs?.name ?? 'World'
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs: txInputStr } = transaction
+      const txInputs = JSON.parse(txInputStr)
+      const name = txInputs?.name ?? 'World'
 
-    const currentTime = new Date().getTime()
-    const helloWorldUpdate = buildProgramUpdateField({
-      field: 'data',
-      value: JSON.stringify({
-        hello: `Hello, ${name}! The time is ${currentTime}!`,
-      }),
-      action: 'extend',
-    })
+      const currentTime = new Date().getTime()
+      const helloWorldUpdate = buildProgramUpdateField({
+        field: 'data',
+        value: JSON.stringify({
+          hello: `Hello, ${name}! The time is ${currentTime}!`,
+        }),
+        action: 'extend',
+      })
 
-    if (helloWorldUpdate instanceof Error) {
-      throw helloWorldUpdate
+      const programUpdates = [helloWorldUpdate]
+
+      const helloWorldUpdateInstruction = buildUpdateInstruction({
+        update: new TokenOrProgramUpdate(
+          'programUpdate',
+          new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
+        ),
+      })
+
+      return new Outputs(computeInputs, [helloWorldUpdateInstruction]).toJson()
+    } catch (e) {
+      throw e
     }
-
-    const programUpdates = [helloWorldUpdate]
-
-    const helloWorldUpdateInstruction = buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
-      ),
-    })
-
-    return new Outputs(computeInputs, [helloWorldUpdateInstruction]).toJson()
   }
 }
 
