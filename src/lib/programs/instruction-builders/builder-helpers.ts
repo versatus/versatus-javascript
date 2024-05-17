@@ -179,7 +179,7 @@ export function buildTransferInstruction({
   from: string
   to: string
   tokenAddress: string
-  amount?: BigInt
+  amount?: bigint
   tokenIds?: string[]
   extendTokenIds?: string[]
 }): Instruction {
@@ -351,9 +351,9 @@ export function buildMintInstructions({
   from: string
   programId: string
   paymentTokenAddress: string
-  inputValue: BigInt
+  inputValue: bigint
   returnedTokenIds?: string[]
-  returnedValue?: BigInt
+  returnedValue?: bigint
 }): Instruction[] {
   try {
     const transferToProgram = buildTransferInstruction({
@@ -368,7 +368,7 @@ export function buildMintInstructions({
       from: string
       to: string
       tokenAddress: string
-      amount?: BigInt
+      amount?: bigint
       tokenIds?: string[]
     } = {
       from: 'this', // Represents the program's address, indicating the source of the minted tokens.

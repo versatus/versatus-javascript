@@ -28,7 +28,7 @@ import { IArbitraryData, IComputeInputs, IMetadata, IProgram } from '../lib/inte
  * @throws {Error} If the fractional part of the input exceeds 18 decimal places, indicating
  *                 that the input value cannot be accurately represented within the expected precision.
  */
-export declare function parseAmountToBigInt(input: number | string): BigInt;
+export declare function parseAmountToBigInt(input: number | string): bigint;
 /**
  * Converts a numerical amount into a hexadecimal string, typically for blockchain-related transactions
  * where the amount needs to be expressed in smallest units (e.g., wei) in hexadecimal format.
@@ -101,7 +101,7 @@ export declare function formatHexToAmount(hexString: string, units?: number): st
  * @returns {string} The hexadecimal string representation of the input
  * BigInt, prefixed with `0x` and padded to 64 characters.
  */
-export declare function formatBigIntToHex(bigintValue: BigInt): string;
+export declare function formatBigIntToHex(bigintValue: bigint): string;
 /**
  * Converts a BigInt, hexadecimal string, or decimal string representing an amount
  * in the smallest units (e.g., wei) into a decimal string representation, considering
@@ -113,7 +113,7 @@ export declare function formatBigIntToHex(bigintValue: BigInt): string;
  * @returns A string representation of the decimal value, considering 18 decimal places,
  *          in a more human-readable format.
  */
-export declare function formatVerse(input: BigInt | string): string;
+export declare function formatVerse(input: bigint | string): string;
 /**
  * Identifies and returns the keys of all properties in a given object that have `undefined` values.
  * This function is useful for debugging or validating objects, especially before sending them to APIs

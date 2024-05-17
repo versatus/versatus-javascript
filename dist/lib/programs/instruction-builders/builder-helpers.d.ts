@@ -60,7 +60,7 @@ export declare function buildTransferInstruction({ from, to, tokenAddress, amoun
     from: string;
     to: string;
     tokenAddress: string;
-    amount?: BigInt;
+    amount?: bigint;
     tokenIds?: string[];
     extendTokenIds?: string[];
 }): Instruction;
@@ -129,9 +129,9 @@ export declare function buildMintInstructions({ from, programId, paymentTokenAdd
     from: string;
     programId: string;
     paymentTokenAddress: string;
-    inputValue: BigInt;
+    inputValue: bigint;
     returnedTokenIds?: string[];
-    returnedValue?: BigInt;
+    returnedValue?: bigint;
 }): Instruction[];
 /**
  * Constructs a `TokenUpdateField` object for updating token fields with specified actions such as insert, extend, or remove.

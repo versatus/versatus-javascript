@@ -40,7 +40,7 @@ import {
  * @throws {Error} If the fractional part of the input exceeds 18 decimal places, indicating
  *                 that the input value cannot be accurately represented within the expected precision.
  */
-export function parseAmountToBigInt(input: number | string): BigInt {
+export function parseAmountToBigInt(input: number | string): bigint {
   try {
     // Convert numeric input to a string if necessary
     const decimalString = typeof input === 'number' ? input.toString() : input
@@ -196,7 +196,7 @@ export function formatHexToAmount(
  * @returns {string} The hexadecimal string representation of the input
  * BigInt, prefixed with `0x` and padded to 64 characters.
  */
-export function formatBigIntToHex(bigintValue: BigInt): string {
+export function formatBigIntToHex(bigintValue: bigint): string {
   let hexString = bigintValue.toString(16)
   hexString = hexString.padStart(64, '0')
   return '0x' + hexString
@@ -213,7 +213,7 @@ export function formatBigIntToHex(bigintValue: BigInt): string {
  * @returns A string representation of the decimal value, considering 18 decimal places,
  *          in a more human-readable format.
  */
-export function formatVerse(input: BigInt | string): string {
+export function formatVerse(input: bigint | string): string {
   let bigIntValue: bigint
 
   if (typeof input === 'string') {
