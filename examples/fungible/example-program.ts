@@ -1,11 +1,9 @@
-import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
-
 import {
   buildBurnInstruction,
   buildCreateInstruction,
   buildMintInstructions,
   buildProgramUpdateField,
-  buildTokenDistributionInstruction,
+  buildTokenDistribution,
   buildTokenUpdateField,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
@@ -25,6 +23,7 @@ import {
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
+import { IComputeInputs } from '@versatus/versatus-javascript/lib/interfaces'
 
 class FungibleTokenProgram extends Program {
   constructor() {
@@ -34,7 +33,7 @@ class FungibleTokenProgram extends Program {
     this.registerContractMethod('mint', this.mint)
   }
 
-  burn(computeInputs: ComputeInputs) {
+  burn(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { from, programId, value } = transaction
@@ -55,7 +54,7 @@ class FungibleTokenProgram extends Program {
     }
   }
 
-  create(computeInputs: ComputeInputs) {
+  create(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { transactionInputs, from, to } = transaction
@@ -107,7 +106,7 @@ class FungibleTokenProgram extends Program {
         action: 'extend',
       })
 
-      const distributionInstruction = buildTokenDistributionInstruction({
+      const distributionInstruction = buildTokenDistribution({
         programId: THIS,
         initializedSupply: formatAmountToHex(initializedSupply),
         to: recipientAddress ?? to,
@@ -149,7 +148,7 @@ class FungibleTokenProgram extends Program {
     }
   }
 
-  mint(computeInputs: ComputeInputs) {
+  mint(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const currProgramInfo = validate(

@@ -1,11 +1,12 @@
 import { Instruction } from '@/lib/programs/Instruction'
-import { ComputeInputs } from '@/lib/types'
+
+import { IComputeInputs } from '@/lib/interfaces'
 
 export class Outputs {
-  private inputs: ComputeInputs | null
+  private inputs: IComputeInputs | null
   private instructions: Instruction[]
 
-  constructor(inputs: ComputeInputs | null, instructions: Instruction[]) {
+  constructor(inputs: IComputeInputs | null, instructions: Instruction[]) {
     this.inputs = inputs
     this.instructions = instructions
   }

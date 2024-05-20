@@ -1,4 +1,3 @@
-import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
   Program,
@@ -7,18 +6,19 @@ import {
 import {
   buildCreateInstruction,
   buildProgramUpdateField,
-  buildTokenDistributionInstruction,
+  buildTokenDistribution,
+  buildTokenUpdateField,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { TokenOrProgramUpdate } from '@versatus/versatus-javascript/lib/programs/Token'
 import { AddressOrNamespace } from '@versatus/versatus-javascript/lib/programs/Address-Namespace'
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
-  getCurrentSupply,
+  formatAmountToHex,
   parseMetadata,
-  parseTxInputs,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
+import { IComputeInputs } from '@versatus/versatus-javascript/lib/interfaces'
 
 class HelloLasrProgram extends Program {
   constructor() {
@@ -27,10 +27,10 @@ class HelloLasrProgram extends Program {
     this.registerContractMethod('hello', this.hello)
   }
 
-  create(computeInputs: ComputeInputs) {
+  create(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
-      const { from } = transaction
+      const { from, to } = transaction
 
       // metadata
       const metadata = parseMetadata(computeInputs)
@@ -71,17 +71,30 @@ class HelloLasrProgram extends Program {
           ])
         ),
       })
-      const distributionInstruction = buildTokenDistributionInstruction({
-        programId: THIS,
-        initializedSupply,
-        to: recipientAddress,
-        nonFungible: true,
+
+      const addTokenMetadata = buildTokenUpdateField({
+        field: 'metadata',
+        value: metadataStr,
+        action: 'extend',
       })
 
-      const createInstruction = buildCreateInstruction({
+      const addTokenData = buildTokenUpdateField({
+        field: 'data',
+        value: dataStr,
+        action: 'extend',
+      })
+
+      const distributionInstruction = buildTokenDistribution({
+        programId: THIS,
+        initializedSupply: formatAmountToHex(initializedSupply),
+        to: recipientAddress ?? to,
+        tokenUpdates: [addTokenMetadata, addTokenData],
+      })
+
+      const createAndDistributeInstruction = buildCreateInstruction({
         from,
+        initializedSupply: formatAmountToHex(initializedSupply),
         totalSupply,
-        initializedSupply,
         programId: THIS,
         programOwner: from,
         programNamespace: THIS,
@@ -89,7 +102,7 @@ class HelloLasrProgram extends Program {
       })
 
       return new Outputs(computeInputs, [
-        createInstruction,
+        createAndDistributeInstruction,
         programUpdateInstructions,
       ]).toJson()
     } catch (e) {
@@ -97,35 +110,35 @@ class HelloLasrProgram extends Program {
     }
   }
 
-  hello(computeInputs: ComputeInputs) {
-    const { transaction } = computeInputs
-    const { transactionInputs: txInputStr } = transaction
-    const txInputs = JSON.parse(txInputStr)
-    const name = txInputs?.name ?? 'World'
+  hello(computeInputs: IComputeInputs) {
+    try {
+      const { transaction } = computeInputs
+      const { transactionInputs: txInputStr } = transaction
+      const txInputs = JSON.parse(txInputStr)
+      const name = txInputs?.name ?? 'World'
 
-    const currentTime = new Date().getTime()
-    const helloWorldUpdate = buildProgramUpdateField({
-      field: 'data',
-      value: JSON.stringify({
-        hello: `Hello, ${name}! The time is ${currentTime}!`,
-      }),
-      action: 'extend',
-    })
+      const currentTime = new Date().getTime()
+      const helloWorldUpdate = buildProgramUpdateField({
+        field: 'data',
+        value: JSON.stringify({
+          hello: `Hello, ${name}! The time is ${currentTime}!`,
+        }),
+        action: 'extend',
+      })
 
-    if (helloWorldUpdate instanceof Error) {
-      throw helloWorldUpdate
+      const programUpdates = [helloWorldUpdate]
+
+      const helloWorldUpdateInstruction = buildUpdateInstruction({
+        update: new TokenOrProgramUpdate(
+          'programUpdate',
+          new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
+        ),
+      })
+
+      return new Outputs(computeInputs, [helloWorldUpdateInstruction]).toJson()
+    } catch (e) {
+      throw e
     }
-
-    const programUpdates = [helloWorldUpdate]
-
-    const helloWorldUpdateInstruction = buildUpdateInstruction({
-      update: new TokenOrProgramUpdate(
-        'programUpdate',
-        new ProgramUpdate(new AddressOrNamespace(THIS), programUpdates)
-      ),
-    })
-
-    return new Outputs(computeInputs, [helloWorldUpdateInstruction]).toJson()
   }
 }
 

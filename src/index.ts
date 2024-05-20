@@ -1,37 +1,35 @@
 export {
-  ComputeInputs,
-  ProgramUpdateValueTypes,
-  ProgramFieldValues,
-  TokenFieldValues,
-  Token,
-  Account,
-  InitTransaction,
-  Transaction,
-  TransactionType,
-  AccountType,
-  TokenUpdateValueTypes,
-  KeyPair,
-  KeyPairArray,
-  ArbitraryData,
-  Status,
-  Wallet,
-  NETWORK,
-  Metadata,
-  InstructionKinds,
+  TProgramUpdateValueTypes,
+  TProgramFieldValues,
+  TTokenFieldValues,
+  TTransactionType,
+  TAccountType,
+  TTokenUpdateValueTypes,
+  TKeyPairArray,
+  TStatus,
+  TNetwork,
+  TInstructionKinds,
 } from './lib/types'
 
 export {
-  buildBurnInstruction,
   buildCreateInstruction,
-  buildTransferInstruction,
   buildUpdateInstruction,
-  buildTokenDistributionInstruction,
+  buildTransferInstruction,
+  buildBurnInstruction,
+  buildTokenDistribution,
   buildProgramUpdateField,
   buildTokenUpdateField,
   buildMintInstructions,
-  buildProgramMetadataUpdateInstruction,
-  buildProgramDataUpdateInstruction,
-  buildTokenMetadataUpdateInstruction,
+  updateProgramData,
+  updateProgramMetadata,
+  removeProgramDataKey,
+  addLinkedProgram,
+  addLinkedPrograms,
+  updateTokenData,
+  removeTokenDataKey,
+  updateTokenMetadata,
+  addTokenApproval,
+  addTokenApprovals,
 } from './lib/programs/instruction-builders/builder-helpers'
 
 export {
@@ -84,3 +82,15 @@ export {
 } from './lib/utils'
 
 export { broadcast, getAccount } from './lib/versatus'
+
+export {
+  IKeyPair,
+  IWallet,
+  ITransaction,
+  IInitTransaction,
+  IProgram,
+  IMetadata,
+  IArbitraryData,
+  IAccount,
+  IComputeInputs,
+} from '@/lib/interfaces'

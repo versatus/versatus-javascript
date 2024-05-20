@@ -1,10 +1,9 @@
-import { ComputeInputs } from '@versatus/versatus-javascript/lib/types'
 import {
   buildBurnInstruction,
   buildCreateInstruction,
   buildMintInstructions,
   buildProgramUpdateField,
-  buildTokenDistributionInstruction,
+  buildTokenDistribution,
   buildTokenUpdateField,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
@@ -24,17 +23,16 @@ import {
 import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   formatHexToAmount,
-  getCurrentImgUrls,
   getCurrentSupply,
   parseAmountToBigInt,
   parseAvailableTokenIds,
   parseMetadata,
   parseProgramAccountData,
-  parseTokenData,
   parseTxInputs,
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
+import { IComputeInputs } from '@versatus/versatus-javascript/lib/interfaces'
 
 class NonFungible extends Program {
   constructor() {
@@ -44,17 +42,10 @@ class NonFungible extends Program {
     this.registerContractMethod('mint', this.mint)
   }
 
-  burn(computeInputs: ComputeInputs) {
+  burn(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
-      const { transactionInputs, from } = transaction
-      const txInputs = validate(
-        JSON.parse(transactionInputs),
-        'unable to parse transactionInputs'
-      )
-
-      const tokenIds = validate(txInputs.tokenIds, 'missing tokenIds...')
-
+      const tokenIds = parseAvailableTokenIds(computeInputs)
       const burnInstruction = buildBurnInstruction({
         from: transaction.from,
         caller: transaction.from,
@@ -69,7 +60,7 @@ class NonFungible extends Program {
     }
   }
 
-  create(computeInputs: ComputeInputs) {
+  create(computeInputs: IComputeInputs) {
     try {
       const { transaction } = computeInputs
       const { from } = transaction
@@ -143,7 +134,7 @@ class NonFungible extends Program {
         ),
       })
 
-      const distributionInstruction = buildTokenDistributionInstruction({
+      const distributionInstruction = buildTokenDistribution({
         programId: THIS,
         initializedSupply,
         currentSupply,
@@ -170,7 +161,7 @@ class NonFungible extends Program {
     }
   }
 
-  mint(computeInputs: ComputeInputs) {
+  mint(computeInputs: IComputeInputs) {
     try {
       const { transaction, accountInfo } = computeInputs
       const accountData = parseProgramAccountData(computeInputs)
@@ -257,7 +248,7 @@ class NonFungible extends Program {
     }
   }
 
-  transfer(computeInputs: ComputeInputs) {
+  transfer(computeInputs: IComputeInputs) {
     try {
       throw new Error('Method not implemented.')
     } catch (e) {

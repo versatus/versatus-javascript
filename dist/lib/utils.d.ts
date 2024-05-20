@@ -1,4 +1,5 @@
-import { ArbitraryData, ComputeInputs, NETWORK, Token } from '../lib/types';
+import { TNetwork } from '../lib/types';
+import { IArbitraryData, IComputeInputs, IMetadata, IProgram } from '../lib/interfaces';
 /**
  * Converts a numeric input (either a number or a string representation of a number) into a BigInt.
  * This function is particularly useful for handling large numbers that need to be represented accurately
@@ -27,7 +28,7 @@ import { ArbitraryData, ComputeInputs, NETWORK, Token } from '../lib/types';
  * @throws {Error} If the fractional part of the input exceeds 18 decimal places, indicating
  *                 that the input value cannot be accurately represented within the expected precision.
  */
-export declare function parseAmountToBigInt(input: number | string): BigInt;
+export declare function parseAmountToBigInt(input: number | string): bigint;
 /**
  * Converts a numerical amount into a hexadecimal string, typically for blockchain-related transactions
  * where the amount needs to be expressed in smallest units (e.g., wei) in hexadecimal format.
@@ -100,7 +101,7 @@ export declare function formatHexToAmount(hexString: string, units?: number): st
  * @returns {string} The hexadecimal string representation of the input
  * BigInt, prefixed with `0x` and padded to 64 characters.
  */
-export declare function formatBigIntToHex(bigintValue: BigInt): string;
+export declare function formatBigIntToHex(bigintValue: bigint): string;
 /**
  * Converts a BigInt, hexadecimal string, or decimal string representing an amount
  * in the smallest units (e.g., wei) into a decimal string representation, considering
@@ -112,7 +113,7 @@ export declare function formatBigIntToHex(bigintValue: BigInt): string;
  * @returns A string representation of the decimal value, considering 18 decimal places,
  *          in a more human-readable format.
  */
-export declare function formatVerse(input: BigInt | string): string;
+export declare function formatVerse(input: bigint | string): string;
 /**
  * Identifies and returns the keys of all properties in a given object that have `undefined` values.
  * This function is useful for debugging or validating objects, especially before sending them to APIs
@@ -189,7 +190,7 @@ export declare const validateAndCreateJsonString: (neededValues: Record<string, 
  *
  * @note This function logs the selected RPC URL to the console for debugging or informational purposes.
  */
-export declare const getRPCForNetwork: (network: NETWORK) => string;
+export declare const getRPCForNetwork: (network: TNetwork) => string;
 /**
  * Retrieves the IPFS URL configuration based on the specified network environment. This function determines
  * the appropriate IPFS URL to use by first checking for an environment variable override. If the override is
@@ -213,20 +214,20 @@ export declare const getRPCForNetwork: (network: NETWORK) => string;
  * getIPFSForNetwork('unstable')
  * // Logs 'USING IPFS URL: https://custom.ipfs.example.com' and returns 'https://custom.ipfs.example.com'
  */
-export declare const getIPFSForNetwork: (network: NETWORK) => string;
-export declare const parseProgramAccountMetadata: (computeInputs: ComputeInputs) => Token;
-export declare const parseProgramAccountData: (computeInputs: ComputeInputs) => ArbitraryData;
-export declare const parseProgramTokenInfo: (computeInputs: ComputeInputs) => Token;
-export declare const parseAvailableTokenIds: (computeInputs: ComputeInputs) => string[];
-export declare const parseTxInputs: (computeInputs: ComputeInputs) => Record<string, any>;
-export declare const parseMetadata: (computeInputs: ComputeInputs) => {
+export declare const getIPFSForNetwork: (network: TNetwork) => string;
+export declare const parseProgramAccountMetadata: (computeInputs: IComputeInputs) => IMetadata;
+export declare const parseProgramAccountData: (computeInputs: IComputeInputs) => IArbitraryData;
+export declare const parseProgramTokenInfo: (computeInputs: IComputeInputs) => IProgram;
+export declare const parseAvailableTokenIds: (computeInputs: IComputeInputs) => string[];
+export declare const parseTxInputs: (computeInputs: IComputeInputs) => Record<string, any>;
+export declare const parseMetadata: (computeInputs: IComputeInputs) => {
     name: string;
     symbol: string;
     initializedSupply: string;
     totalSupply: string;
 };
-export declare const getCurrentSupply: (computeInputs: ComputeInputs) => number;
-export declare const getCurrentImgUrls: (computeInputs: ComputeInputs) => string[];
+export declare const getCurrentSupply: (computeInputs: IComputeInputs) => number;
+export declare const getCurrentImgUrls: (computeInputs: IComputeInputs) => string[];
 export declare const generateTokenIdArray: (initializedSupply: number | string, currentSupply?: number | string) => string[];
-export declare const parseTokenData: (computeInputs: ComputeInputs) => Record<string, any>;
+export declare const parseTokenData: (computeInputs: IComputeInputs) => Record<string, any>;
 export declare function deepMerge(target: any, source: any): any;

@@ -1,12 +1,13 @@
 import fs, { promises as fsp } from 'fs'
 import path from 'path'
 import { exec, spawn } from 'child_process'
-import { KeyPairArray, NETWORK } from '@/lib/types'
+import { TKeyPairArray, TNetwork } from '@/lib/types'
 import { runCommand } from '@/lasrctrl/shell'
 import {
   FAUCET_URL,
   LASR_RPC_URL_STABLE,
   LASR_RPC_URL_UNSTABLE,
+  VERSE_PROGRAM_ADDRESS,
   VIPFS_URL,
   VIPFS_URL_UNSTABLE,
 } from '@/lib/consts'
@@ -82,17 +83,17 @@ export async function getSecretKeyFromKeyPairFile(
   keypairFilePath: string
 ): Promise<string> {
   try {
-    let keyPairs: KeyPairArray = []
+    let keyPairs: TKeyPairArray = []
     try {
       console.log('Getting secret key from keypair file')
       const absolutePath = path.resolve(keypairFilePath) // Ensure the path is absolute
       const fileContent = await fsp.readFile(absolutePath, 'utf8')
-      keyPairs = JSON.parse(fileContent) as KeyPairArray
+      keyPairs = JSON.parse(fileContent) as TKeyPairArray
     } catch (error) {
       await createNewWallet()
       const absolutePath = path.resolve(keypairFilePath) // Ensure the path is absolute
       const fileContent = await fsp.readFile(absolutePath, 'utf8')
-      keyPairs = JSON.parse(fileContent) as KeyPairArray
+      keyPairs = JSON.parse(fileContent) as TKeyPairArray
     }
 
     if (keyPairs.length > 0) {
@@ -114,7 +115,7 @@ export async function getAddressFromKeyPairFile(
     console.log('Getting address from keypair file')
     const absolutePath = path.resolve(keypairFilePath) // Ensure the path is absolute
     const fileContent = await fsp.readFile(absolutePath, 'utf8')
-    const keyPairs: KeyPairArray = JSON.parse(fileContent)
+    const keyPairs: TKeyPairArray = JSON.parse(fileContent)
 
     if (keyPairs.length > 0) {
       return keyPairs[0].address
@@ -173,7 +174,7 @@ export async function callCreate(
   initializedSupply: string,
   totalSupply: string,
   recipientAddress: string,
-  network: NETWORK,
+  network: TNetwork,
   secretKey: string,
   inputs?: string
 ) {
@@ -234,7 +235,7 @@ export async function callProgram(
   programAddress: string,
   op: string,
   inputs: string,
-  network: NETWORK,
+  network: TNetwork,
   secretKey: string,
   value?: string
 ) {
@@ -317,6 +318,9 @@ export async function createNewWallet() {
 export async function checkWallet(address: string) {
   try {
     try {
+      if (!address) {
+        throw new Error('No address provided')
+      }
       console.log('Checking wallet...')
       const command = `./build/lasr_cli wallet get-account --address ${address}`
 
@@ -327,10 +331,11 @@ export async function checkWallet(address: string) {
       )
       const data = {
         address,
+        programAddress: VERSE_PROGRAM_ADDRESS,
       }
 
       await axios
-        .post(`${FAUCET_URL}/api/faucet/verse`, data)
+        .post(`${FAUCET_URL}/api/faucet`, data)
         .then((response) => {
           console.log(`Fauceted funds to \x1b[0;32m${address}\x1b[0m`)
         })

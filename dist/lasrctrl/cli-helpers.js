@@ -2,7 +2,7 @@ import fs, { promises as fsp } from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
 import { runCommand } from '../lasrctrl/shell.js';
-import { FAUCET_URL, } from '../lib/consts.js';
+import { FAUCET_URL, VERSE_PROGRAM_ADDRESS, } from '../lib/consts.js';
 import axios from 'axios';
 import { getIPFSForNetwork, getRPCForNetwork } from '../lib/utils.js';
 export const KEY_PAIR_FILE_PATH = '.lasr/wallet/keypair.json';
@@ -199,6 +199,9 @@ export async function createNewWallet() {
 export async function checkWallet(address) {
     try {
         try {
+            if (!address) {
+                throw new Error('No address provided');
+            }
             console.log('Checking wallet...');
             const command = `./build/lasr_cli wallet get-account --address ${address}`;
             await runCommand(command);
@@ -207,9 +210,10 @@ export async function checkWallet(address) {
             console.log('Wallet not initialized. Fauceting funds to initialize wallet...');
             const data = {
                 address,
+                programAddress: VERSE_PROGRAM_ADDRESS,
             };
             await axios
-                .post(`${FAUCET_URL}/api/faucet/verse`, data)
+                .post(`${FAUCET_URL}/api/faucet`, data)
                 .then((response) => {
                 console.log(`Fauceted funds to \x1b[0;32m${address}\x1b[0m`);
             })

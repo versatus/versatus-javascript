@@ -7,5 +7,5 @@ export const VIPFS_URL_UNSTABLE = '147.182.235.126:5001'
 export const VIPFS_URL = '167.99.20.121:5001'
 export const ETH_PROGRAM_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const VERSE_PROGRAM_ADDRESS =
-  '0x0ad85496f448fb30caa267b41c807aef15645592'
-export const FAUCET_URL = 'https://faucet.versatus.io/'
+  '0x3daeca7e0c8cf7648b91360453ba5634fa243465'
+export const FAUCET_URL = 'https://playground.versatus.io/'

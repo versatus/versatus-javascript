@@ -1,10 +1,16 @@
-import { ArbitraryData, ComputeInputs, NETWORK, Token } from '@/lib/types'
+import { TNetwork } from '@/lib/types'
 import {
   LASR_RPC_URL_STABLE,
   LASR_RPC_URL_UNSTABLE,
   VIPFS_URL,
   VIPFS_URL_UNSTABLE,
 } from '@/lib/consts'
+import {
+  IArbitraryData,
+  IComputeInputs,
+  IMetadata,
+  IProgram,
+} from '@/lib/interfaces'
 
 /**
  * Converts a numeric input (either a number or a string representation of a number) into a BigInt.
@@ -34,7 +40,7 @@ import {
  * @throws {Error} If the fractional part of the input exceeds 18 decimal places, indicating
  *                 that the input value cannot be accurately represented within the expected precision.
  */
-export function parseAmountToBigInt(input: number | string): BigInt {
+export function parseAmountToBigInt(input: number | string): bigint {
   try {
     // Convert numeric input to a string if necessary
     const decimalString = typeof input === 'number' ? input.toString() : input
@@ -190,7 +196,7 @@ export function formatHexToAmount(
  * @returns {string} The hexadecimal string representation of the input
  * BigInt, prefixed with `0x` and padded to 64 characters.
  */
-export function formatBigIntToHex(bigintValue: BigInt): string {
+export function formatBigIntToHex(bigintValue: bigint): string {
   let hexString = bigintValue.toString(16)
   hexString = hexString.padStart(64, '0')
   return '0x' + hexString
@@ -207,7 +213,7 @@ export function formatBigIntToHex(bigintValue: BigInt): string {
  * @returns A string representation of the decimal value, considering 18 decimal places,
  *          in a more human-readable format.
  */
-export function formatVerse(input: BigInt | string): string {
+export function formatVerse(input: bigint | string): string {
   let bigIntValue: bigint
 
   if (typeof input === 'string') {
@@ -357,7 +363,7 @@ export const validateAndCreateJsonString = (
  *
  * @note This function logs the selected RPC URL to the console for debugging or informational purposes.
  */
-export const getRPCForNetwork = (network: NETWORK) => {
+export const getRPCForNetwork = (network: TNetwork) => {
   const rpcUrl = process.env.LASR_RPC_URL
     ? process.env.LASR_RPC_URL
     : network === 'stable'
@@ -390,7 +396,7 @@ export const getRPCForNetwork = (network: NETWORK) => {
  * getIPFSForNetwork('unstable')
  * // Logs 'USING IPFS URL: https://custom.ipfs.example.com' and returns 'https://custom.ipfs.example.com'
  */
-export const getIPFSForNetwork = (network: NETWORK) => {
+export const getIPFSForNetwork = (network: TNetwork) => {
   const ipfsUrl = process?.env.VIPFS_ADDRESS
     ? process?.env.VIPFS_ADDRESS
     : network === 'stable'
@@ -401,8 +407,8 @@ export const getIPFSForNetwork = (network: NETWORK) => {
 }
 
 export const parseProgramAccountMetadata = (
-  computeInputs: ComputeInputs
-): Token => {
+  computeInputs: IComputeInputs
+): IMetadata => {
   try {
     return validate(
       computeInputs.accountInfo?.programAccountMetadata,
@@ -413,8 +419,8 @@ export const parseProgramAccountMetadata = (
   }
 }
 export const parseProgramAccountData = (
-  computeInputs: ComputeInputs
-): ArbitraryData => {
+  computeInputs: IComputeInputs
+): IArbitraryData => {
   try {
     return validate(
       computeInputs.accountInfo?.programAccountData,
@@ -425,7 +431,9 @@ export const parseProgramAccountData = (
   }
 }
 
-export const parseProgramTokenInfo = (computeInputs: ComputeInputs): Token => {
+export const parseProgramTokenInfo = (
+  computeInputs: IComputeInputs
+): IProgram => {
   try {
     return validate(
       computeInputs.accountInfo?.programs[computeInputs.transaction.to],
@@ -437,7 +445,7 @@ export const parseProgramTokenInfo = (computeInputs: ComputeInputs): Token => {
 }
 
 export const parseAvailableTokenIds = (
-  computeInputs: ComputeInputs
+  computeInputs: IComputeInputs
 ): string[] => {
   try {
     const programInfo = parseProgramTokenInfo(computeInputs)
@@ -448,7 +456,7 @@ export const parseAvailableTokenIds = (
 }
 
 export const parseTxInputs = (
-  computeInputs: ComputeInputs
+  computeInputs: IComputeInputs
 ): Record<string, any> => {
   try {
     const { transaction } = computeInputs
@@ -466,7 +474,7 @@ export const parseTxInputs = (
 }
 
 export const parseMetadata = (
-  computeInputs: ComputeInputs
+  computeInputs: IComputeInputs
 ): {
   name: string
   symbol: string
@@ -493,7 +501,7 @@ export const parseMetadata = (
   }
 }
 
-export const getCurrentSupply = (computeInputs: ComputeInputs) => {
+export const getCurrentSupply = (computeInputs: IComputeInputs) => {
   try {
     const programAccountData = computeInputs?.accountInfo?.programAccountData
     return programAccountData?.currentSupply
@@ -504,7 +512,7 @@ export const getCurrentSupply = (computeInputs: ComputeInputs) => {
   }
 }
 
-export const getCurrentImgUrls = (computeInputs: ComputeInputs): string[] => {
+export const getCurrentImgUrls = (computeInputs: IComputeInputs): string[] => {
   try {
     const programAccountData = computeInputs?.accountInfo?.programAccountData
     return programAccountData?.imgUrls
@@ -530,7 +538,7 @@ export const generateTokenIdArray = (
 }
 
 export const parseTokenData = (
-  computeInputs: ComputeInputs
+  computeInputs: IComputeInputs
 ): Record<string, any> => {
   try {
     const currProgramInfo = validate(

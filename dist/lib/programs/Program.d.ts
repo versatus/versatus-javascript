@@ -1,6 +1,6 @@
-import { ComputeInputs } from '../../lib/types';
 import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace';
 import { StatusValue } from '../../lib/programs/Token';
+import { IComputeInputs } from '../../lib/interfaces';
 /**
  * Represents a program with strategies for handling various operations such as `approve`, `create`, and `update`.
  * The program is initialized with a map of method strategies that bind specific methods to operation keys.
@@ -29,49 +29,49 @@ export declare class Program {
      * A `TokenUpdateBuilder` is used to construct the final update instruction, which is then converted to JSON format
      * and returned as the output of the method.
      *
-     * @param {ComputeInputs} computeInputs - Contains the transaction details including transaction inputs and the program ID.
+     * @param {IComputeInputs} computeInputs - Contains the transaction details including transaction inputs and the program ID.
      * @returns {string} JSON string representing the outputs of the approve operation.
      * @throws {Error} Throws an error if any part of the approval process fails, including if there are issues constructing the updates.
      */
-    approve(computeInputs: ComputeInputs): object;
+    approve(computeInputs: IComputeInputs): object;
     /**
      * Handles the `create` operation by processing the given computeInputs, validating and transforming them into a structured output.
      * This method performs a series of validations and transformations, constructs various instructions for token and program updates,
      * and ultimately returns a JSON representation of the operation results.
      *
-     * @param {ComputeInputs} computeInputs - Inputs necessary for computing the create operation, including transaction details.
+     * @param {IComputeInputs} computeInputs - Inputs necessary for computing the create operation, including transaction details.
      * @returns {string} JSON string representing the outputs of the create operation.
      * @throws {Error} Throws an error if any validation fails or if an unexpected error occurs during the process.
      */
-    create(computeInputs: ComputeInputs): object;
+    create(computeInputs: IComputeInputs): object;
     /**
      * Executes the method corresponding to the operation specified in the input.
      * This method looks up the strategy for the operation in the `methodStrategies` map and executes it.
      *
-     * @param {ComputeInputs} inputs - Inputs containing the operation to be executed along with any necessary data.
+     * @param {IComputeInputs} inputs - Inputs containing the operation to be executed along with any necessary data.
      * @returns {any} The result of executing the method associated with the specified operation.
      * @throws {Error} Throws an error if the operation is unknown or if the associated method throws an error.
      */
-    executeMethod(inputs: ComputeInputs): any;
+    executeMethod(inputs: IComputeInputs): any;
     /**
      * Starts the execution process by invoking `executeMethod` with the provided computeInputs.
      * This is a convenience method that serves as an entry point to execute a method based on the operation specified in the inputs.
      *
-     * @param {ComputeInputs} computeInputs - Inputs necessary for executing a method, including the operation to be performed.
+     * @param {IComputeInputs} computeInputs - Inputs necessary for executing a method, including the operation to be performed.
      * @returns {any} The result of executing the method associated with the specified operation.
      * @throws {Error} Throws an error if `executeMethod` throws an error.
      */
-    start(computeInputs: ComputeInputs): any;
+    start(computeInputs: IComputeInputs): any;
     /**
      * Handles the `update` operation by processing the given computeInputs, performing validations, and transforming them into structured output.
      * Similar to the `create` method, this method processes inputs related to program updates, constructs various update instructions,
      * and returns a JSON representation of the operation results.
      *
-     * @param {ComputeInputs} computeInputs - Inputs necessary for computing the update operation, including transaction details.
+     * @param {IComputeInputs} computeInputs - Inputs necessary for computing the update operation, including transaction details.
      * @returns {string} JSON string representing the outputs of the update operation.
      * @throws {Error} Throws an error if any validation fails or if an unexpected error occurs during the process.
      */
-    update(computeInputs: ComputeInputs): object;
+    update(computeInputs: IComputeInputs): object;
     static run(): void;
 }
 /**

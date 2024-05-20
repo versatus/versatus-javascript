@@ -9,7 +9,7 @@ import {
 } from '@/lasrctrl/cli-helpers'
 import { VIPFS_URL } from '@/lib/consts'
 import { runCommand } from '@/lasrctrl/shell'
-import { NETWORK } from '@/lib/types'
+import { TNetwork } from '@/lib/types'
 import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
@@ -113,7 +113,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
       String(argv.keypairPath)
     )
 
-    const network = argv.network as NETWORK
+    const network = argv.network as TNetwork
 
     console.log(
       `\x1b[0;33mCreating temporary test file for ${argv.build} against cli arguments...\x1b[0m`
@@ -196,8 +196,8 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
     )
     const cid = ipfsHashMatch[ipfsHashMatch.length - 1]
 
-    // console.log('\x1b[0;33mChecking wallet...\x1b[0m')
-    // await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
+    console.log('\x1b[0;33mChecking wallet...\x1b[0m')
+    await checkWallet(String(argv.recipientAddress ?? addressFromKeypair))
 
     console.log('\x1b[0;33mRegistering program...\x1b[0m')
     let registerResponse
@@ -265,7 +265,7 @@ const deploy = async (argv: Arguments<DeployCommandArgs>) => {
 ======
 ======
 >>>>>>>>>>> View Program on LASR Playground:
-https://faucet.versatus.io/programs/${programAddress}
+https://playground.versatus.io/programs/${programAddress}
           
           `)
     }

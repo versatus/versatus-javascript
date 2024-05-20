@@ -1,15 +1,10 @@
-import {
-  Account,
-  InitTransaction,
-  NETWORK,
-  Transaction,
-  TransactionType,
-} from './types'
+import { TNetwork, TTransactionType } from './types'
 import { Wallet, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
 import { formatBigIntToHex, formatAmountToHex } from './utils'
 import { Address } from '@/lib/programs/Address-Namespace'
 import { getRPCForNetwork } from '@/lib/utils'
+import { IAccount, IInitTransaction, ITransaction } from '@/lib/interfaces'
 
 /**
  * Asynchronously sends a blockchain transaction using the specified call transaction data and a private key.
@@ -17,20 +12,20 @@ import { getRPCForNetwork } from '@/lib/utils'
  * updates the transaction nonce, signs the transaction, and finally sends it to a blockchain network
  * via an RPC call.
  *
- * @param {InitTransaction} callTx - The initial transaction data, including details such as the transaction type and nonce.
+ * @param {IInitTransaction} callTx - The initial transaction data, including details such as the transaction type and nonce.
  * @param {string} privateKey - The private key used to sign the transaction and derive the wallet address.
  * @param {string} network - The network to make the call on (stable | test)
  * @returns {Promise<string | Error>} The result of the blockchain call, which could be a transaction hash or an error.
  * @throws {Error} Throws an error if account retrieval, transaction signing, or the RPC call fails.
  */
 export async function broadcast(
-  callTx: InitTransaction,
+  callTx: IInitTransaction,
   privateKey: string,
-  network: NETWORK = 'stable'
+  network: TNetwork = 'stable'
 ) {
   try {
     const wallet = new Wallet(privateKey)
-    let account: Account | null = null
+    let account: IAccount | null = null
     const broadcastType = callTx.op === 'send' ? 'send' : 'call'
 
     try {
@@ -68,7 +63,7 @@ export async function broadcast(
     const s = formatBigIntToHex(signature.s)
     const recover = signature.recovery as number
 
-    const transactionWithSignature: Transaction = {
+    const transactionWithSignature: ITransaction = {
       ...orderedTx,
       r,
       s,
@@ -98,14 +93,14 @@ export async function broadcast(
  * parameters, and the target RPC URL.
  *
  * @param {string} method - The RPC method name to be called.
- * @param {string[] | Record<string, unknown> | Transaction[]} params - The parameters to be passed to the RPC method.
+ * @param {string[] | Record<string, unknown> | ITransaction[]} params - The parameters to be passed to the RPC method.
  * @param {string} rpcUrl - The URL of the RPC endpoint to which the call is made.
  * @returns {Promise<string | Error>} The result of the RPC call, typically a response object or an error.
  * @throws {Error} Throws an error if the RPC call fails or if the server returns an error response.
  */
 export async function callLasrRpc(
   method: string,
-  params: string[] | Record<string, unknown> | Transaction[],
+  params: string[] | Record<string, unknown> | ITransaction[],
   rpcUrl: string
 ): Promise<string> {
   try {
@@ -150,15 +145,15 @@ export async function callLasrRpc(
  *
  * @param {string} address - The blockchain address of the account to retrieve.
  * @param {string} network - Which network to get an account from (stable | test)
- * @returns {Promise<Account | Error>} An object containing account information or an error if the retrieval fails.
+ * @returns {Promise<IAccount | Error>} An object containing account information or an error if the retrieval fails.
  * @throws {Error} Throws an error if the account information cannot be retrieved.
  */
 export async function getAccount(
   address: string,
-  network: NETWORK = 'stable'
-): Promise<Account> {
+  network: TNetwork = 'stable'
+): Promise<IAccount> {
   try {
-    let account: Account
+    let account: IAccount
     const params = [address]
     const RPC_URL = getRPCForNetwork(network)
 
@@ -179,16 +174,16 @@ export async function getAccount(
  * Reorders the keys of an initial transaction object according to a predefined order.
  * This function is useful for ensuring that transaction objects have a consistent format, especially before signing.
  *
- * @param {InitTransaction} initTransaction - The initial transaction object to reorder.
- * @returns {InitTransaction} A new transaction object with keys ordered as specified.
+ * @param {IInitTransaction} initTransaction - The initial transaction object to reorder.
+ * @returns {IInitTransaction} A new transaction object with keys ordered as specified.
  * @throws {Error} Throws an error if reordering fails.
  */
 export function reorderTransactionKeys(
-  initTransaction: InitTransaction
-): InitTransaction {
+  initTransaction: IInitTransaction
+): IInitTransaction {
   try {
-    const newObj: InitTransaction = {
-      transactionType: {} as TransactionType,
+    const newObj: IInitTransaction = {
+      transactionType: {} as TTransactionType,
       from: '',
       to: '',
       programId: '',

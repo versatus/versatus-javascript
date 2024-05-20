@@ -1,6 +1,6 @@
 import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace';
 import { TokenDistribution, TokenOrProgramUpdate } from '../../lib/programs/Token';
-import { InstructionKinds } from '../../lib/types';
+import { TInstructionKinds } from '../../lib/types';
 /**
  * Represents a generic instruction in a blockchain or token management system, encapsulating various
  * types of operations such as creating, updating, transferring, burning, or logging related to tokens
@@ -13,10 +13,10 @@ export declare class Instruction {
     /**
      * Constructs an instance of an Instruction, setting its kind and specific value based on the operation being performed.
      *
-     * @param {InstructionKinds} kind - The kind of instruction, indicating the type of operation (e.g., create, update, transfer, burn, log).
+     * @param {TInstructionKinds} kind - The kind of instruction, indicating the type of operation (e.g., create, update, transfer, burn, log).
      * @param {CreateInstruction | UpdateInstruction | TransferInstruction | BurnInstruction | LogInstruction} value - The specific instruction value, containing details necessary for executing the operation.
      */
-    constructor(kind: InstructionKinds, value: CreateInstruction | UpdateInstruction | TransferInstruction | BurnInstruction | LogInstruction);
+    constructor(kind: TInstructionKinds, value: CreateInstruction | UpdateInstruction | TransferInstruction | BurnInstruction | LogInstruction);
     /**
      * Serializes the instruction to a JSON object, facilitating interoperability and storage.
      * The JSON representation includes the kind of instruction as the key, and the serialized

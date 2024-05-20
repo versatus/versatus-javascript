@@ -8,7 +8,7 @@ export class Instruction {
     /**
      * Constructs an instance of an Instruction, setting its kind and specific value based on the operation being performed.
      *
-     * @param {InstructionKinds} kind - The kind of instruction, indicating the type of operation (e.g., create, update, transfer, burn, log).
+     * @param {TInstructionKinds} kind - The kind of instruction, indicating the type of operation (e.g., create, update, transfer, burn, log).
      * @param {CreateInstruction | UpdateInstruction | TransferInstruction | BurnInstruction | LogInstruction} value - The specific instruction value, containing details necessary for executing the operation.
      */
     constructor(kind, value) {
