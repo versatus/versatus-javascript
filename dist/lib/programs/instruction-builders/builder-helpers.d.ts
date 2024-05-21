@@ -99,12 +99,10 @@ export declare function buildBurnInstruction({ from, caller, programId, tokenAdd
  * `initializedSupply` as a count of individual tokens to distribute.
  * @returns {TokenDistribution} A token distribution object configured with the provided details.
  */
-export declare function buildTokenDistribution({ programId, initializedSupply, to, currentAmount, currentSupply, tokenUpdates, nonFungible, }: {
+export declare function buildTokenDistribution({ programId, initializedSupply, to, tokenUpdates, nonFungible, }: {
     programId: string;
     initializedSupply: string;
     to: string;
-    currentAmount?: string | number;
-    currentSupply?: string | number;
     tokenUpdates?: TokenUpdateField[];
     nonFungible?: boolean;
 }): TokenDistribution;

@@ -5,5 +5,5 @@ export const LASR_RPC_URL_STABLE = 'http://lasr-sharks.versatus.io:9292';
 export const VIPFS_URL_UNSTABLE = '147.182.235.126:5001';
 export const VIPFS_URL = '167.99.20.121:5001';
 export const ETH_PROGRAM_ADDRESS = '0x0000000000000000000000000000000000000000';
-export const VERSE_PROGRAM_ADDRESS = '0x3daeca7e0c8cf7648b91360453ba5634fa243465';
+export const VERSE_PROGRAM_ADDRESS = '0x9f85fb953179fb2418faf4e5560c1ac3717e8c0f';
 export const FAUCET_URL = 'https://playground.versatus.io/';

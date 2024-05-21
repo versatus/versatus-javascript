@@ -523,18 +523,12 @@ export const getCurrentImgUrls = (computeInputs: IComputeInputs): string[] => {
   }
 }
 
-export const generateTokenIdArray = (
-  initializedSupply: number | string,
-  currentSupply: number | string = 0
-) => {
+export const generateTokenIdArray = (initializedSupply: number | string) => {
   const initialSupplyNum = parseInt(initializedSupply as string)
-  const currentSupplyNum = parseInt(currentSupply as string)
 
-  const length = Math.max(0, initialSupplyNum + currentSupplyNum)
+  const length = Math.max(0, initialSupplyNum)
 
-  return Array.from({ length }, (_, i) =>
-    formatAmountToHex(i + currentSupplyNum)
-  )
+  return Array.from({ length }, (_, i) => formatAmountToHex(i))
 }
 
 export const parseTokenData = (

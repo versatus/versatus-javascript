@@ -228,6 +228,6 @@ export declare const parseMetadata: (computeInputs: IComputeInputs) => {
 };
 export declare const getCurrentSupply: (computeInputs: IComputeInputs) => number;
 export declare const getCurrentImgUrls: (computeInputs: IComputeInputs) => string[];
-export declare const generateTokenIdArray: (initializedSupply: number | string, currentSupply?: number | string) => string[];
+export declare const generateTokenIdArray: (initializedSupply: number | string) => string[];
 export declare const parseTokenData: (computeInputs: IComputeInputs) => Record<string, any>;
 export declare function deepMerge(target: any, source: any): any;

@@ -162,17 +162,17 @@ export function buildBurnInstruction({ from, caller, programId, tokenAddress, am
  * `initializedSupply` as a count of individual tokens to distribute.
  * @returns {TokenDistribution} A token distribution object configured with the provided details.
  */
-export function buildTokenDistribution({ programId, initializedSupply, to, currentAmount = 0, currentSupply = 0, tokenUpdates, nonFungible, }) {
+export function buildTokenDistribution({ programId, initializedSupply, to, tokenUpdates, nonFungible, }) {
     const tokenDistributionBuilder = new TokenDistributionBuilder()
         .setProgramId(new AddressOrNamespace(new Address(programId)))
         .setReceiver(new AddressOrNamespace(new Address(to)));
     if (!nonFungible) {
         // For fungible tokens, set the amount directly using the initializedSupply, formatted as a hex string.
-        tokenDistributionBuilder.setAmount(formatBigIntToHex(BigInt(initializedSupply) + BigInt(currentAmount)));
+        tokenDistributionBuilder.setAmount(formatBigIntToHex(BigInt(initializedSupply)));
     }
     else {
         // For non-fungible tokens, generate token IDs based on the initializedSupply count, formatting each as a hex string.
-        const tokenIds = generateTokenIdArray(initializedSupply, currentSupply);
+        const tokenIds = generateTokenIdArray(initializedSupply);
         tokenDistributionBuilder.extendTokenIds(tokenIds);
     }
     if (tokenUpdates) {

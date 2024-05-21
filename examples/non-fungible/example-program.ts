@@ -6,6 +6,8 @@ import {
   buildTokenDistribution,
   buildTokenUpdateField,
   buildUpdateInstruction,
+  updateProgramData,
+  updateProgramMetadata,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
@@ -65,46 +67,37 @@ class NonFungible extends Program {
       const { transaction } = computeInputs
       const { from } = transaction
       const txInputs = parseTxInputs(computeInputs)
-      let currSupply = getCurrentSupply(computeInputs)
 
       // metadata
       const metadata = parseMetadata(computeInputs)
       const { initializedSupply, totalSupply } = metadata
       const recipientAddress = txInputs?.to ?? transaction.to
 
-      // data
-      const imgUrl = txInputs?.imgUrl
-      const imgUrls: string[] = txInputs?.imgUrls ? [...txInputs?.imgUrls] : []
-      const collection = txInputs?.collection
-      const currentSupply = (
-        currSupply + parseInt(initializedSupply)
-      ).toString()
-
-      const price = txInputs?.price
-      const paymentProgramAddress = txInputs?.paymentProgramAddress
-      const methods = 'approve,create,burn,mint,update'
-
-      validate(collection, 'missing collection')
-      validate(parseFloat(price), 'invalid price')
       validate(
         parseInt(initializedSupply) <= parseInt(totalSupply),
         'invalid supply'
       )
 
-      const metadataStr = validateAndCreateJsonString(metadata)
-
-      const addProgramMetadata = buildProgramUpdateField({
-        field: 'metadata',
-        value: metadataStr,
-        action: 'extend',
-      })
+      // data
+      const methods = 'approve,create,burn,mint,update'
+      const imgUrls: string[] = txInputs?.imgUrls ? [...txInputs?.imgUrls] : []
+      const imgUrl = validate(txInputs?.imgUrl, 'missing imgUrl')
+      const collection = validate(txInputs?.collection, 'missing collection')
+      const price = validate(
+        String(parseFloat(txInputs?.price)),
+        'invalid price'
+      )
+      const paymentProgramAddress = validate(
+        txInputs?.paymentProgramAddress,
+        'missing payment program address'
+      )
 
       const dataValues = {
         type: 'non-fungible',
         imgUrl,
         paymentProgramAddress,
         price,
-        currentSupply,
+        collection,
         methods,
       } as Record<string, string>
 
@@ -116,28 +109,19 @@ class NonFungible extends Program {
         dataValues.imgUrls = JSON.stringify(parsed)
       }
 
-      const dataStr = validateAndCreateJsonString(dataValues)
-
-      const addProgramData = buildProgramUpdateField({
-        field: 'data',
-        value: dataStr,
-        action: 'extend',
+      const updateMetadata = updateProgramMetadata({
+        programAddress: THIS,
+        metadata,
       })
 
-      const programUpdateInstructions = buildUpdateInstruction({
-        update: new TokenOrProgramUpdate(
-          'programUpdate',
-          new ProgramUpdate(new AddressOrNamespace(THIS), [
-            addProgramMetadata,
-            addProgramData,
-          ])
-        ),
+      const updateData = updateProgramData({
+        programAddress: THIS,
+        data: dataValues,
       })
 
       const distributionInstruction = buildTokenDistribution({
         programId: THIS,
         initializedSupply,
-        currentSupply,
         to: recipientAddress,
         nonFungible: true,
       })
@@ -154,7 +138,8 @@ class NonFungible extends Program {
 
       return new Outputs(computeInputs, [
         createInstruction,
-        programUpdateInstructions,
+        updateMetadata,
+        updateData,
       ]).toJson()
     } catch (e) {
       throw e

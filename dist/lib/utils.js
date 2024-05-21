@@ -451,11 +451,10 @@ export const getCurrentImgUrls = (computeInputs) => {
         throw e;
     }
 };
-export const generateTokenIdArray = (initializedSupply, currentSupply = 0) => {
+export const generateTokenIdArray = (initializedSupply) => {
     const initialSupplyNum = parseInt(initializedSupply);
-    const currentSupplyNum = parseInt(currentSupply);
-    const length = Math.max(0, initialSupplyNum + currentSupplyNum);
-    return Array.from({ length }, (_, i) => formatAmountToHex(i + currentSupplyNum));
+    const length = Math.max(0, initialSupplyNum);
+    return Array.from({ length }, (_, i) => formatAmountToHex(i));
 };
 export const parseTokenData = (computeInputs) => {
     try {

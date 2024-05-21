@@ -286,16 +286,12 @@ export function buildTokenDistribution({
   programId,
   initializedSupply,
   to,
-  currentAmount = 0,
-  currentSupply = 0,
   tokenUpdates,
   nonFungible,
 }: {
   programId: string
   initializedSupply: string
   to: string
-  currentAmount?: string | number
-  currentSupply?: string | number
   tokenUpdates?: TokenUpdateField[]
   nonFungible?: boolean
 }): TokenDistribution {
@@ -306,11 +302,11 @@ export function buildTokenDistribution({
   if (!nonFungible) {
     // For fungible tokens, set the amount directly using the initializedSupply, formatted as a hex string.
     tokenDistributionBuilder.setAmount(
-      formatBigIntToHex(BigInt(initializedSupply) + BigInt(currentAmount))
+      formatBigIntToHex(BigInt(initializedSupply))
     )
   } else {
     // For non-fungible tokens, generate token IDs based on the initializedSupply count, formatting each as a hex string.
-    const tokenIds = generateTokenIdArray(initializedSupply, currentSupply)
+    const tokenIds = generateTokenIdArray(initializedSupply)
     tokenDistributionBuilder.extendTokenIds(tokenIds)
   }
 
