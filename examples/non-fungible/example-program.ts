@@ -8,6 +8,7 @@ import {
   buildUpdateInstruction,
   updateProgramData,
   updateProgramMetadata,
+  updateTokenData,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
 import {
@@ -149,6 +150,7 @@ class NonFungible extends Program {
   mint(computeInputs: IComputeInputs) {
     try {
       const { transaction, accountInfo } = computeInputs
+      const { from } = transaction
       const accountData = parseProgramAccountData(computeInputs)
       const txInputs = parseTxInputs(computeInputs)
       const availableTokenIds = parseAvailableTokenIds(computeInputs)
@@ -192,30 +194,16 @@ class NonFungible extends Program {
         tokens[`${tokenIdStr}-imgUrl`] = imgUrl
       }
 
-      const dataStr = validateAndCreateJsonString({
-        ...accountData,
-        ...tokens,
-      })
-
-      const updateTokenIds = buildTokenUpdateField({
-        field: 'data',
-        value: dataStr,
-        action: 'extend',
-      })
-
-      const tokenUpdateInstruction = buildUpdateInstruction({
-        update: new TokenOrProgramUpdate(
-          'tokenUpdate',
-          new TokenUpdate(
-            new AddressOrNamespace(new Address(transaction.from)),
-            new AddressOrNamespace(THIS),
-            [updateTokenIds]
-          )
-        ),
+      const updateTokenIds = updateTokenData({
+        accountAddress: from,
+        programAddress: THIS,
+        data: {
+          ...accountData,
+          ...tokens,
+        },
       })
 
       const amountNeededToMint = parseAmountToBigInt(price * quantity)
-
       const mintInstructions = buildMintInstructions({
         from: transaction.from,
         programId: transaction.programId,
@@ -226,7 +214,7 @@ class NonFungible extends Program {
 
       return new Outputs(computeInputs, [
         ...mintInstructions,
-        tokenUpdateInstruction,
+        updateTokenIds,
       ]).toJson()
     } catch (e) {
       throw e
