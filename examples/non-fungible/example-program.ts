@@ -5,6 +5,7 @@ import {
   buildProgramUpdateField,
   buildTokenDistribution,
   buildTokenUpdateField,
+  buildTransferInstruction,
   buildUpdateInstruction,
   updateProgramData,
   updateProgramMetadata,
@@ -43,6 +44,7 @@ class NonFungible extends Program {
     this.registerContractMethod('burn', this.burn)
     this.registerContractMethod('create', this.create)
     this.registerContractMethod('mint', this.mint)
+    this.registerContractMethod('transfer', this.transfer)
   }
 
   burn(computeInputs: IComputeInputs) {
@@ -194,8 +196,7 @@ class NonFungible extends Program {
         tokens[`${tokenIdStr}-imgUrl`] = imgUrl
       }
 
-      const updateTokenIds = updateTokenData({
-        accountAddress: from,
+      const updateTokenIds = updateProgramData({
         programAddress: THIS,
         data: {
           ...accountData,
@@ -223,7 +224,33 @@ class NonFungible extends Program {
 
   transfer(computeInputs: IComputeInputs) {
     try {
-      throw new Error('Method not implemented.')
+      const { transaction, accountInfo } = computeInputs
+      const { from } = transaction
+      const accountData = parseProgramAccountData(computeInputs)
+      const txInputs = parseTxInputs(computeInputs)
+
+      const { recipient, tokenId } = txInputs
+
+      const transferToRecipient = buildTransferInstruction({
+        from,
+        to: recipient,
+        tokenAddress: transaction.programId,
+        tokenIds: [tokenId],
+      })
+
+      const tokenIdStr = parseInt(formatHexToAmount(tokenId)).toString()
+      const updateProgramAccountDataOwner = updateProgramData({
+        programAddress: THIS,
+        data: {
+          ...accountData,
+          [`${tokenIdStr}-ownerAddress`]: recipient,
+        },
+      })
+
+      return new Outputs(computeInputs, [
+        transferToRecipient,
+        updateProgramAccountDataOwner,
+      ]).toJson()
     } catch (e) {
       throw e
     }

@@ -245,8 +245,6 @@ export async function callProgram(
     )
   }
 
-  console.log(value)
-
   process.env.LASR_RPC_URL = getRPCForNetwork(network)
   process.env.VIPFS_ADDRESS = getIPFSForNetwork(network)
 

@@ -151,7 +151,6 @@ export async function callProgram(programAddress, op, inputs, network, secretKey
     if (!programAddress || !op || !inputs || !secretKey) {
         throw new Error(`programAddress (${programAddress}), op (${op}), inputs (${inputs}), and secretKey are required to call create.`);
     }
-    console.log(value);
     process.env.LASR_RPC_URL = getRPCForNetwork(network);
     process.env.VIPFS_ADDRESS = getIPFSForNetwork(network);
     let command = `./build/lasr_cli wallet call --from-secret-key --secret-key "${secretKey}" --op ${op} --inputs '${inputs}' --to ${programAddress} --content-namespace ${programAddress} `;
