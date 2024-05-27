@@ -7,6 +7,7 @@ import {
   buildTokenUpdateField,
   buildTransferInstruction,
   buildUpdateInstruction,
+  removeTokenDataKey,
   updateProgramData,
   updateProgramMetadata,
   updateTokenData,
@@ -82,7 +83,7 @@ class NonFungible extends Program {
       )
 
       // data
-      const methods = 'approve,create,burn,mint,update'
+      const methods = 'approve,create,burn,mint,transfer,update'
       const imgUrls: string[] = txInputs?.imgUrls ? [...txInputs?.imgUrls] : []
       const imgUrl = validate(txInputs?.imgUrl, 'missing imgUrl')
       const collection = validate(txInputs?.collection, 'missing collection')
@@ -181,29 +182,6 @@ class NonFungible extends Program {
         tokenIds.push(availableTokenIds[i])
       }
 
-      const tokens: Record<string, string> = {}
-
-      for (let i = 0; i < tokenIds.length; i++) {
-        const tokenIdStr = parseInt(formatHexToAmount(tokenIds[i])).toString()
-        const imgUrl =
-          accountData.imgUrls &&
-          JSON.parse(accountData.imgUrls)?.length > 0 &&
-          JSON.parse(accountData.imgUrls)?.[tokenIdStr]?.imgUrl
-            ? JSON.parse(accountData.imgUrls)?.[tokenIdStr]?.imgUrl
-            : accountData.imgUrl
-
-        tokens[`${tokenIdStr}-ownerAddress`] = transaction.from
-        tokens[`${tokenIdStr}-imgUrl`] = imgUrl
-      }
-
-      const updateTokenIds = updateProgramData({
-        programAddress: THIS,
-        data: {
-          ...accountData,
-          ...tokens,
-        },
-      })
-
       const amountNeededToMint = parseAmountToBigInt(price * quantity)
       const mintInstructions = buildMintInstructions({
         from: transaction.from,
@@ -213,10 +191,7 @@ class NonFungible extends Program {
         returnedTokenIds: tokenIds,
       })
 
-      return new Outputs(computeInputs, [
-        ...mintInstructions,
-        updateTokenIds,
-      ]).toJson()
+      return new Outputs(computeInputs, [...mintInstructions]).toJson()
     } catch (e) {
       throw e
     }
@@ -226,7 +201,6 @@ class NonFungible extends Program {
     try {
       const { transaction, accountInfo } = computeInputs
       const { from } = transaction
-      const accountData = parseProgramAccountData(computeInputs)
       const txInputs = parseTxInputs(computeInputs)
 
       const { recipient, tokenId } = txInputs
@@ -238,19 +212,7 @@ class NonFungible extends Program {
         tokenIds: [tokenId],
       })
 
-      const tokenIdStr = parseInt(formatHexToAmount(tokenId)).toString()
-      const updateProgramAccountDataOwner = updateProgramData({
-        programAddress: THIS,
-        data: {
-          ...accountData,
-          [`${tokenIdStr}-ownerAddress`]: recipient,
-        },
-      })
-
-      return new Outputs(computeInputs, [
-        transferToRecipient,
-        updateProgramAccountDataOwner,
-      ]).toJson()
+      return new Outputs(computeInputs, [transferToRecipient]).toJson()
     } catch (e) {
       throw e
     }
