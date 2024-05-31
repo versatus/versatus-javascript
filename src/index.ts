@@ -72,6 +72,7 @@ export {
   parseMetadata,
   getCurrentImgUrls,
   parseProgramAccountMetadata,
+  onlyOwner,
   parseProgramAccountData,
   formatVerse,
   getCurrentSupply,

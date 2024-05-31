@@ -11,6 +11,7 @@ import { Outputs } from '@/lib/programs/Outputs'
 import {
   checkIfValuesAreUndefined,
   formatAmountToHex,
+  onlyOwner,
   validate,
   validateAndCreateJsonString,
 } from '@/lib/utils'
@@ -213,6 +214,7 @@ export class Program {
    */
   update(computeInputs: IComputeInputs) {
     try {
+      onlyOwner(computeInputs)
       const { transaction } = computeInputs
       const { transactionInputs } = transaction
       const txInputs = JSON.parse(transactionInputs)

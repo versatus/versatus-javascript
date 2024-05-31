@@ -406,6 +406,21 @@ export const getIPFSForNetwork = (network: TNetwork) => {
   return ipfsUrl
 }
 
+export const onlyOwner = (computeInputs: IComputeInputs): boolean => {
+  try {
+    if (
+      //@ts-ignore
+      computeInputs.accountInfo?.ownerAddress !== computeInputs.transaction.from
+    ) {
+      throw new Error('only owner can call this function')
+    } else {
+      return true
+    }
+  } catch (e) {
+    throw e
+  }
+}
+
 export const parseProgramAccountMetadata = (
   computeInputs: IComputeInputs
 ): IMetadata => {

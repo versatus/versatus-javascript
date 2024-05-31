@@ -2,7 +2,6 @@ import { TNetwork, TTransactionType } from './types'
 import { Wallet, keccak256, toUtf8Bytes } from 'ethers'
 import * as secp256k1 from '@noble/secp256k1'
 import { formatBigIntToHex, formatAmountToHex } from './utils'
-import { Address } from '@/lib/programs/Address-Namespace'
 import { getRPCForNetwork } from '@/lib/utils'
 import { IAccount, IInitTransaction, ITransaction } from '@/lib/interfaces'
 

@@ -215,6 +215,7 @@ export declare const getRPCForNetwork: (network: TNetwork) => string;
  * // Logs 'USING IPFS URL: https://custom.ipfs.example.com' and returns 'https://custom.ipfs.example.com'
  */
 export declare const getIPFSForNetwork: (network: TNetwork) => string;
+export declare const onlyOwner: (computeInputs: IComputeInputs) => boolean;
 export declare const parseProgramAccountMetadata: (computeInputs: IComputeInputs) => IMetadata;
 export declare const parseProgramAccountData: (computeInputs: IComputeInputs) => IArbitraryData;
 export declare const parseProgramTokenInfo: (computeInputs: IComputeInputs) => IProgram;

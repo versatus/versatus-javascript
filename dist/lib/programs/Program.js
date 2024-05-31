@@ -1,7 +1,7 @@
 import { buildCreateInstruction, buildProgramUpdateField, buildTokenUpdateField, buildUpdateInstruction, } from '../../lib/programs/instruction-builders/builder-helpers.js';
 import { THIS } from '../../lib/consts.js';
 import { Outputs } from '../../lib/programs/Outputs.js';
-import { checkIfValuesAreUndefined, formatAmountToHex, validate, validateAndCreateJsonString, } from '../../lib/utils.js';
+import { checkIfValuesAreUndefined, formatAmountToHex, onlyOwner, validate, validateAndCreateJsonString, } from '../../lib/utils.js';
 import { Address, AddressOrNamespace } from '../../lib/programs/Address-Namespace.js';
 import { TokenOrProgramUpdate, TokenUpdate, } from '../../lib/programs/Token.js';
 import { TokenUpdateBuilder } from '../../lib/programs/instruction-builders/builders.js';
@@ -156,6 +156,7 @@ export class Program {
      */
     update(computeInputs) {
         try {
+            onlyOwner(computeInputs);
             const { transaction } = computeInputs;
             const { transactionInputs } = transaction;
             const txInputs = JSON.parse(transactionInputs);
