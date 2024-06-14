@@ -364,13 +364,11 @@ export const validateAndCreateJsonString = (
  * @note This function logs the selected RPC URL to the console for debugging or informational purposes.
  */
 export const getRPCForNetwork = (network: TNetwork) => {
-  const rpcUrl = process.env.LASR_RPC_URL
+  return process.env.LASR_RPC_URL
     ? process.env.LASR_RPC_URL
     : network === 'stable'
       ? LASR_RPC_URL_STABLE
       : LASR_RPC_URL_UNSTABLE
-  console.log('USING RPC URL: ', rpcUrl)
-  return rpcUrl
 }
 
 /**
@@ -561,24 +559,4 @@ export const parseTokenData = (
   } catch (e) {
     throw e
   }
-}
-
-export function deepMerge(target: any, source: any): any {
-  if (typeof target !== 'object' || typeof source !== 'object') {
-    return source
-  }
-
-  for (const key in source) {
-    if (source.hasOwnProperty(key)) {
-      if (typeof source[key] === 'object' && source[key] !== null) {
-        if (!target[key]) {
-          target[key] = Array.isArray(source[key]) ? [] : {}
-        }
-        target[key] = deepMerge(target[key], source[key])
-      } else {
-        target[key] = source[key]
-      }
-    }
-  }
-  return target
 }

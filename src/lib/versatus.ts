@@ -119,8 +119,6 @@ export async function callLasrRpc(
       body,
     }
 
-    console.log({ params })
-
     const response = await fetch(rpcUrl, requestOptions).then((response) =>
       response.json()
     )
