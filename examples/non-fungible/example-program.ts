@@ -29,6 +29,7 @@ import { Outputs } from '@versatus/versatus-javascript/lib/programs/Outputs'
 import {
   formatHexToAmount,
   getCurrentSupply,
+  onlyOwner,
   parseAmountToBigInt,
   parseAvailableTokenIds,
   parseMetadata,
@@ -46,6 +47,7 @@ class NonFungible extends Program {
     this.registerContractMethod('create', this.create)
     this.registerContractMethod('mint', this.mint)
     this.registerContractMethod('transfer', this.transfer)
+    this.registerContractMethod('withdraw', this.withdraw)
   }
 
   burn(computeInputs: IComputeInputs) {
@@ -83,7 +85,7 @@ class NonFungible extends Program {
       )
 
       // data
-      const methods = 'approve,create,burn,mint,transfer,update'
+      const methods = 'approve,create,burn,mint,transfer,update,withdraw'
       const imgUrls: string[] = txInputs?.imgUrls ? [...txInputs?.imgUrls] : []
       const imgUrl = validate(txInputs?.imgUrl, 'missing imgUrl')
       const collection = validate(txInputs?.collection, 'missing collection')
@@ -213,6 +215,29 @@ class NonFungible extends Program {
       })
 
       return new Outputs(computeInputs, [transferToRecipient]).toJson()
+    } catch (e) {
+      throw e
+    }
+  }
+
+  withdraw(computeInputs: IComputeInputs) {
+    try {
+      onlyOwner(computeInputs)
+      const { transaction } = computeInputs
+      const { tokenAddress } = parseTxInputs(computeInputs)
+      validate(tokenAddress, 'missing token address')
+      const amount = BigInt(
+        computeInputs.accountInfo.programs[tokenAddress].balance
+      )
+
+      const transferInstruction = buildTransferInstruction({
+        from: THIS,
+        to: transaction.from,
+        tokenAddress,
+        amount: amount,
+      })
+
+      return new Outputs(computeInputs, [transferInstruction]).toJson()
     } catch (e) {
       throw e
     }
