@@ -83,7 +83,7 @@ class FungibleTokenProgram extends Program {
       const imgUrl = txInputs?.imgUrl
       const paymentProgramAddress = txInputs?.paymentProgramAddress
       const conversionRate = txInputs?.conversionRate
-      const methods = 'approve,create,burn,mint,update'
+      const methods = 'approve,create,burn,mint,update,withdraw'
       const dataStr = validateAndCreateJsonString({
         type: 'fungible',
         imgUrl,
