@@ -5,6 +5,7 @@ import {
   buildProgramUpdateField,
   buildTokenDistribution,
   buildTokenUpdateField,
+  buildTransferInstruction,
   buildUpdateInstruction,
 } from '@versatus/versatus-javascript/lib/programs/instruction-builders/builder-helpers'
 import { THIS } from '@versatus/versatus-javascript/lib/consts'
@@ -19,7 +20,9 @@ import {
   checkIfValuesAreUndefined,
   formatAmountToHex,
   formatVerse,
+  onlyOwner,
   parseAmountToBigInt,
+  parseTxInputs,
   validate,
   validateAndCreateJsonString,
 } from '@versatus/versatus-javascript/lib/utils'
@@ -31,6 +34,7 @@ class FungibleTokenProgram extends Program {
     this.registerContractMethod('burn', this.burn)
     this.registerContractMethod('create', this.create)
     this.registerContractMethod('mint', this.mint)
+    this.registerContractMethod('withdraw', this.withdraw)
   }
 
   burn(computeInputs: IComputeInputs) {
@@ -185,6 +189,29 @@ class FungibleTokenProgram extends Program {
       })
 
       return new Outputs(computeInputs, mintInstructions).toJson()
+    } catch (e) {
+      throw e
+    }
+  }
+
+  withdraw(computeInputs: IComputeInputs) {
+    try {
+      onlyOwner(computeInputs)
+      const { transaction } = computeInputs
+      const { tokenAddress } = parseTxInputs(computeInputs)
+      validate(tokenAddress, 'missing token address')
+      const amount = BigInt(
+        computeInputs.accountInfo.programs[tokenAddress].balance
+      )
+
+      const transferInstruction = buildTransferInstruction({
+        from: THIS,
+        to: transaction.from,
+        tokenAddress,
+        amount: amount,
+      })
+
+      return new Outputs(computeInputs, [transferInstruction]).toJson()
     } catch (e) {
       throw e
     }
