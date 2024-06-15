@@ -1,6 +1,6 @@
 {
   "name": "@versatus/versatus-javascript",
-  "version": "0.1.170",
+  "version": "0.1.171",
   "type": "module",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
