@@ -1,0 +1,72 @@
+{
+  "contractInputs": "",
+  "op": "swap",
+  "transaction": {
+    "from": "0x482830d7655fb8465a43844fc1530a7713781b49",
+    "nonce": "0x0000000000000000000000000000000000000000000000000000000000000018",
+    "op": "swap",
+    "programId": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607",
+    "to": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607",
+    "transactionInputs": "{\"inputTokenAddress\":\"0x57234c52617e7ca8edc5577ebe3eb38d53a77607\",\"inputAmount\":\"5\"}",
+    "transactionType": {
+      "call": "0x0000000000000000000000000000000000000000000000000000000000000018"
+    },
+    "value": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "r": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+    "s": "0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+    "v": 1
+  },
+  "version": 1,
+  "accountInfo": {
+    "accountType": {
+      "program": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607"
+    },
+    "programNamespace": null,
+    "ownerAddress": "0x482830d7655fb8465a43844fc1530a7713781b49",
+    "programs": {
+      "0x0000000000000000000000000000000000000000": {
+        "programId": "0x0000000000000000000000000000000000000000",
+        "ownerId": "0x482830d7655fb8465a43844fc1530a7713781b49",
+        "balance": "0x0000000000000000000000000000000000000000000000001bc16d674ec80000",
+        "metadata": {},
+        "tokenIds": [],
+        "allowance": {},
+        "approvals": {},
+        "data": {},
+        "status": "free"
+      },
+      "0x57234c52617e7ca8edc5577ebe3eb38d53a77607": {
+        "programId": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607",
+        "ownerId": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607",
+        "balance": "0x00000000000000000000000000000000000000000000017b7883c06916600000",
+        "metadata": {
+          "content_id": "bafyreidhfvw4jiqom72332brsln3micsa4b7grur4rixkwvyrh6u4i3ecy",
+          "initializedSupply": "1000000000000000000000000",
+          "name": "Anotha One",
+          "symbol": "LOVE",
+          "to": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607",
+          "totalSupply": "1000000000000000000000000"
+        },
+        "tokenIds": [],
+        "allowance": {},
+        "approvals": {},
+        "data": {},
+        "status": "free"
+      }
+    },
+    "nonce": "0x000000000000000000000000000000000000000000000000000000000000001c",
+    "programAccountData": {
+      "tokenAAddress": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607",
+      "tokenBAddress": "0x0000000000000000000000000000000000000000"
+    },
+    "programAccountMetadata": {
+      "content_id": "bafyreidhfvw4jiqom72332brsln3micsa4b7grur4rixkwvyrh6u4i3ecy",
+      "initializedSupply": "1000000000000000000000000",
+      "name": "Anotha One",
+      "symbol": "LOVE",
+      "to": "0x57234c52617e7ca8edc5577ebe3eb38d53a77607",
+      "totalSupply": "1000000000000000000000000"
+    },
+    "programAccountLinkedPrograms": []
+  }
+}
